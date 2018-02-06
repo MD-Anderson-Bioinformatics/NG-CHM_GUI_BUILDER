@@ -21,7 +21,9 @@
 			        } else {
 			        	//Got corner of matrix data.
 			        	console.log('200');
-			        	topMatrixJson = JSON.parse(req.response);
+			        	topMatrixJson = req.response;
+			        	topMatrixString = JSON.parse(req.response);
+			        	document.getElementById('display').value = topMatrixString;
 				    }
 				}
 			};
@@ -30,11 +32,13 @@
  		</script>
     
     
-        <form method="POST" enctype="multipart/form-data" id="matrix_frm">
+        <form method="POST" enctype="multipart/form-data" id="matrix_frm" onsubmit="return false;">
             File:
-            <input type="file" name="file" id="file" /> <br/>
-
-            <input type="submit" value="Upload" name="upload" id="upload" onclick="sendMatrix();" />
+            <input type="file" name="matrix" id="matrix" /> 
+            <button onclick="sendMatrix()">Upload</button> 
         </form>
+        
+        <br>
+        <textarea id="display" rows="6" cols="100"></textarea>
     </body>
 </html>

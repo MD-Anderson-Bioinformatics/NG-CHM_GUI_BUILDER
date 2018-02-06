@@ -37,7 +37,7 @@ public class UploadMatrix extends HttpServlet {
 		response.setContentType("application/json;charset=UTF-8");
 
 	    // Create path components to save the file
-	    final Part filePart = request.getPart("file");
+	    final Part filePart = request.getPart("matrix");
 	    final String fileName = getFileName(filePart);
 	  
 	    OutputStream out = null;
