@@ -1,7 +1,12 @@
 package mda.ngchm.guibuilder;
 
+
+
+
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -16,8 +21,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 /**
- * Servlet implementation class GetTileStructure
+ * Servlet implementation class Upload Data Matrix
  */
 @WebServlet("/UploadMatrix")
 @MultipartConfig
@@ -26,7 +34,7 @@ public class UploadMatrix extends HttpServlet {
        
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession mySession = request.getSession();
-		response.setContentType("text/html;charset=UTF-8");
+		response.setContentType("application/json;charset=UTF-8");
 
 	    // Create path components to save the file
 	    final Part filePart = request.getPart("file");
@@ -41,7 +49,8 @@ public class UploadMatrix extends HttpServlet {
 		    File theDir = new File(mySession.getId());
 		    theDir.mkdir();
 
-		    out = new FileOutputStream(new File(mySession.getId() + File.separator + fileName));
+		    String matrixFile = mySession.getId() + File.separator + fileName;
+		    out = new FileOutputStream(new File(matrixFile));
 	        filecontent = filePart.getInputStream();
 
 
@@ -51,7 +60,12 @@ public class UploadMatrix extends HttpServlet {
 	        while ((read = filecontent.read(bytes)) != -1) {
 	            out.write(bytes, 0, read);
 	        }
-	        writer.println("New file " + fileName + " created ");
+	        
+	        out.close();
+	        
+	        String jsonMatrixCorner = getTopOfMatrix(matrixFile, 20, 20);
+	        
+	        writer.println(jsonMatrixCorner);
 	    } catch (Exception e) {
 	        writer.println("Error uploading matrix.");
 	        writer.println("<br/> ERROR: " + e.getMessage());
@@ -83,7 +97,32 @@ public class UploadMatrix extends HttpServlet {
 	    }
 	    return null;
 	}
-
+	
+	/*
+	 * Open the uploaded matrix and return the top left corner of it as a json string.
+	 */
+	private String getTopOfMatrix(String matrixFile, int numRows, int numCols) throws Exception {
+		Gson gson = new GsonBuilder().create();
+		String [][] topMatrix = new String[numRows][numCols];
+		
+		BufferedReader rdr = new BufferedReader(new FileReader(matrixFile));
+		int rowNum = 0;
+		String line = rdr.readLine();
+		while (line != null && rowNum < numRows){
+			String toks[] = line.split("\t");
+			int colNum = 0;
+			while (colNum < toks.length && colNum < numCols) {
+				topMatrix[rowNum][colNum] = toks[colNum];
+				colNum++;
+			}
+			line = rdr.readLine();
+			rowNum++;
+		}
+		rdr.close();
+		
+		String jsonMatrixTop = gson.toJson(topMatrix); 
+		return jsonMatrixTop;
+	}
 
 }
 

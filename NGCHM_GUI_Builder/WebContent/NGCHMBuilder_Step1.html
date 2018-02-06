@@ -5,11 +5,36 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     </head>
     <body>
-        <form method="POST" action="UploadMatrix" enctype="multipart/form-data" >
+		<script type="text/Javascript">
+		topMatrixJson = null;
+		function sendMatrix() {
+			var req = new XMLHttpRequest();
+			var formData = new FormData( document.getElementById("matrix_frm") );
+			req.open("POST", "UploadMatrix", true);
+			req.onreadystatechange = function () {
+				console.log('state change');
+				if (req.readyState == req.DONE) {
+					console.log('done');
+			        if (req.status != 200) {
+			        	console.log('not 200');
+			            console.log('Failed to upload matrix '  + req.status);
+			        } else {
+			        	//Got corner of matrix data.
+			        	console.log('200');
+			        	topMatrixJson = JSON.parse(req.response);
+				    }
+				}
+			};
+			req.send(formData);
+		}
+ 		</script>
+    
+    
+        <form method="POST" enctype="multipart/form-data" id="matrix_frm">
             File:
             <input type="file" name="file" id="file" /> <br/>
-            </br>
-            <input type="submit" value="Upload" name="upload" id="upload" />
+
+            <input type="submit" value="Upload" name="upload" id="upload" onclick="sendMatrix();" />
         </form>
     </body>
 </html>
