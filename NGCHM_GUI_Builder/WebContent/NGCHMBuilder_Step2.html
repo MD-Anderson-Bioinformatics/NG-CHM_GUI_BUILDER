@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>File Upload</title>
+        <title>Cluster</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     </head>
     <body>
 		<script type="text/Javascript">
 		topMatrixJson = null;
-		function sendMatrix() {
+		function cluster() {
 			var req = new XMLHttpRequest();
-			var formData = new FormData( document.getElementById("matrix_frm") );
-			req.open("POST", "UploadMatrix", true);
+			var formData = new FormData( document.getElementById("cluster_frm") );
+			req.open("POST", "Cluster", true);
 			req.onreadystatechange = function () {
 				console.log('state change');
 				if (req.readyState == req.DONE) {
@@ -29,18 +29,14 @@
 			};
 			req.send(formData);
 		}
- 		</script>
-    
-    
-        <form method="POST" enctype="multipart/form-data" id="matrix_frm" onsubmit="return false;">
-            File:
-            <input type="file" name="matrix" id="matrix" /> 
-            <button onclick="sendMatrix()">Upload</button> 
+ 		</script>   
+       
+        <form id="cluster_frm" onsubmit="return false;">
+            Options:
+            <button onclick="cluster()">Cluster</button> 
         </form>
-        
+       
         <br>
-        <textarea id="display" rows="6" cols="100"></textarea>
-        <br>
-        <button onclick="window.location.href='NGCHMBuilder_Step2.html'">Next</button>
+        <button onclick="window.location.href='/NGCHMBuilder_Step3.html'">Next</button>
     </body>
 </html>

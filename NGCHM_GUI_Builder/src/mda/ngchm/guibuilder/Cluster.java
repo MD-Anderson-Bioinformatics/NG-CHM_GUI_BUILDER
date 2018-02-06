@@ -27,41 +27,22 @@ import com.google.gson.GsonBuilder;
 /**
  * Servlet implementation class Upload Data Matrix
  */
-@WebServlet("/UploadMatrix")
+@WebServlet("/Cluster")
 @MultipartConfig
-public class UploadMatrix extends HttpServlet {
+public class Cluster extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		HttpSession mySession = request.getSession();
+		HttpSession mySession = request.getSession(false);
 		response.setContentType("application/json;charset=UTF-8");
 
 	    // Create path components to save the file
-	    final Part filePart = request.getPart("matrix");
 	    final String fileName = "originalMatrix.txt";
 	  
-	    OutputStream out = null;
-	    InputStream filecontent = null;
 	    final PrintWriter writer = response.getWriter();
 
 	    try {
-	        //Create a directory using the http session ID
-		    File theDir = new File(mySession.getId());
-		    theDir.mkdir();
-
 		    String matrixFile = mySession.getId() + File.separator + fileName;
-		    out = new FileOutputStream(new File(matrixFile));
-	        filecontent = filePart.getInputStream();
-
-
-	        int read = 0;
-	        final byte[] bytes = new byte[1024];
-
-	        while ((read = filecontent.read(bytes)) != -1) {
-	            out.write(bytes, 0, read);
-	        }
-	        
-	        out.close();
 	        
 	        String jsonMatrixCorner = getTopOfMatrix(matrixFile, 20, 20);
 	        
@@ -71,12 +52,6 @@ public class UploadMatrix extends HttpServlet {
 	        writer.println("<br/> ERROR: " + e.getMessage());
 
 	    } finally {
-	        if (out != null) {
-	            out.close();
-	        }
-	        if (filecontent != null) {
-	            filecontent.close();
-	        }
 	        if (writer != null) {
 	            writer.close();
 	        }
