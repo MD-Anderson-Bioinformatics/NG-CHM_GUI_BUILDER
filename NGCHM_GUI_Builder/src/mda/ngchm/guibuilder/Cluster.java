@@ -1,52 +1,47 @@
 package mda.ngchm.guibuilder;
 
-
-
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
-import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.servlet.http.Part;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import javax.script.ScriptEngine;
+import org.renjin.script.RenjinScriptEngineFactory;
+
 
 /**
  * Servlet implementation class Upload Data Matrix
  */
 @WebServlet("/Cluster")
-@MultipartConfig
 public class Cluster extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
+	private static final ThreadLocal<ScriptEngine> ENGINE = new ThreadLocal<>();
+	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession mySession = request.getSession(false);
 		response.setContentType("application/json;charset=UTF-8");
+		
+		// Obtain the script engine for this thread
+		ScriptEngine engine = getScriptEngine();
 
-	    // Create path components to save the file
-	    final String fileName = "originalMatrix.txt";
-	  
 	    final PrintWriter writer = response.getWriter();
 
 	    try {
-		    String matrixFile = mySession.getId() + File.separator + fileName;
+		    String matrixFile = mySession.getId()  + "/originalMatrix.txt";
+		    String rowOrder = mySession.getId()  + "/rowOrder.txt";
+		    String colOrder = mySession.getId()  + "/colOrder.txt";
+		    String rowDendro = mySession.getId()  + "/rowDendro.txt";
+		    String colDendro = mySession.getId()  + "/colDendro.txt";
+		    	    
+		    //performOrdering(engine, matrixFile, "Hierarchical", "row", "euclidean", "ward", rowOrder, rowDendro);
+		    performOrdering(engine, matrixFile, "Random", "row", "euclidean", "ward", rowOrder, rowDendro);
 	        
-	        String jsonMatrixCorner = getTopOfMatrix(matrixFile, 20, 20);
-	        
-	        writer.println(jsonMatrixCorner);
+	        writer.println("OK");
 	    } catch (Exception e) {
 	        writer.println("Error uploading matrix.");
 	        writer.println("<br/> ERROR: " + e.getMessage());
@@ -62,32 +57,62 @@ public class Cluster extends HttpServlet {
 		doGet(request, response);
 	}
 
+   
+	private ScriptEngine getScriptEngine() {
+    	ScriptEngine engine = ENGINE.get();
+    	if(engine == null) {
+    		// Create a new ScriptEngine for this thread if one does not exist.
+    		RenjinScriptEngineFactory factory = new RenjinScriptEngineFactory();
+    		engine = factory.getScriptEngine();
+    		ENGINE.set(engine);
+    	}
+    	return engine;
+    }
 	
-	/*
-	 * Open the uploaded matrix and return the top left corner of it as a json string.
-	 */
-	private String getTopOfMatrix(String matrixFile, int numRows, int numCols) throws Exception {
-		Gson gson = new GsonBuilder().create();
-		String [][] topMatrix = new String[numRows][numCols];
-		
-		BufferedReader rdr = new BufferedReader(new FileReader(matrixFile));
-		int rowNum = 0;
-		String line = rdr.readLine();
-		while (line != null && rowNum < numRows){
-			String toks[] = line.split("\t");
-			int colNum = 0;
-			while (colNum < toks.length && colNum < numCols) {
-				topMatrix[rowNum][colNum] = toks[colNum];
-				colNum++;
+	
+	private void performOrdering(ScriptEngine engine, String matrixFile, String orderMethod, String direction, String distanceMeasure, String agglomerationMethod, String orderFile, String clusterFile) throws Exception {
+		engine.eval("dataMatrix = read.table(\"" + matrixFile + "\", header=TRUE, sep = \"\t\", row.names = 1, as.is=TRUE, na.strings=c(\"NA\",\"N/A\",\"-\",\"?\"));");
+		engine.eval("ordering <- NULL; "); 
+		if (orderMethod.equals("Hierarchical")) {
+			if (direction.equals("row")){
+				//Todo  "      if (distanceMeasure == \"correlation\") { geneGeneCor <- cor(t(matrixData), use=\"pairwise\");  distVals <- as.dist((1-geneGeneCor)/2);
+				engine.eval("distVals <- dist(dataMatrix, method=\"" + distanceMeasure + "\");");
+			} else {
+				//Todo:if (distanceMeasure == \"correlation\") { geneGeneCor <- cor(matrixData, use=\"pairwise\"); distVals <- as.dist((1-geneGeneCor)/2);
+				engine.eval("distVals <- dist(t(matrixData), method=\"" + distanceMeasure + "\");");
 			}
-			line = rdr.readLine();
-			rowNum++;
+			engine.eval("ordering <- hclust(distVals, method=\"" + agglomerationMethod + "\");");
+			writeHCDataTSVs(engine, "ordering", clusterFile, orderFile);
+		}  else if (orderMethod.equals("Random")){
+			if (direction.equals("row")){
+				engine.eval("headerList <- rownames(dataMatrix);");
+			} else {
+				engine.eval("headerList <- colnames(dataMatrix);");
+			}
+			engine.eval("ordering <- sample(headerList, length(headerList));");
+			writeOrderTSVs(engine, "ordering", "headerList", orderFile);		
+		} else if (orderMethod.equals("Original")){
+			engine.eval("headerList <- colnames(dataMatrix);");
+			writeOrderTSVs(engine, "headerList", "headerList", orderFile);		
 		}
-		rdr.close();
-		
-		String jsonMatrixTop = gson.toJson(topMatrix); 
-		return jsonMatrixTop;
 	}
+
+	private void writeHCDataTSVs(ScriptEngine engine, String hclustOrder, String clusterFile, String orderFile) throws Exception {
+		engine.eval("data<-cbind(" + hclustOrder + "$merge, " + hclustOrder + "$height, deparse.level=0);");
+		engine.eval("colnames(data)<-c(\"A\", \"B\", \"Height\");");
+		engine.eval("write.table(data, file = \"" + clusterFile + "\", append = FALSE, quote = FALSE, sep = \"\t\", row.names=FALSE);");
+		engine.eval("data=matrix(,length(" + hclustOrder + "$labels),2);" );
+		engine.eval("for (i in 1:length(" + hclustOrder + "$labels)) { data[i,1] = " + hclustOrder + "$labels[i]; data[i,2] = which(" + hclustOrder + "$order==i); }");
+		engine.eval("colnames(data)<-c(\"Id\", \"Order\");" );
+		engine.eval("write.table(data, file = \"" + orderFile + "\", append = FALSE, quote = FALSE, sep = \"\t\", row.names=FALSE); ");
+	}
+	
+	private void writeOrderTSVs(ScriptEngine engine, String newOrderVar, String origOrderVar, String orderFile) throws Exception {
+		engine.eval("data=matrix(,length(" + origOrderVar + "),2);" );
+		engine.eval("for (i in 1:length(" + origOrderVar + ")) { data[i,1] = " + origOrderVar + "[i]; data[i,2] = which(" + newOrderVar + " == " + origOrderVar + "[i]); }");
+		engine.eval("colnames(data)<-c(\"Id\", \"Order\");" );
+		engine.eval("write.table(data, file = \"" + orderFile + "\", append = FALSE, quote = FALSE, sep = \"\t\", row.names=FALSE); ");
+	}	
 
 }
 
