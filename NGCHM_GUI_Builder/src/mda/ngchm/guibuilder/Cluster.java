@@ -9,9 +9,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
 import javax.script.ScriptEngine;
 import org.renjin.script.RenjinScriptEngineFactory;
+
+import mda.ngchm.datagenerator.HeatmapDataGenerator;
 
 
 /**
@@ -26,22 +27,37 @@ public class Cluster extends HttpServlet {
 		HttpSession mySession = request.getSession(false);
 		response.setContentType("application/json;charset=UTF-8");
 		
-		// Obtain the script engine for this thread
+		// Obtain R script engine for this thread
 		ScriptEngine engine = getScriptEngine();
 
 	    final PrintWriter writer = response.getWriter();
 
 	    try {
-		    String matrixFile = mySession.getId()  + "/originalMatrix.txt";
-		    String rowOrder = mySession.getId()  + "/rowOrder.txt";
-		    String colOrder = mySession.getId()  + "/colOrder.txt";
-		    String rowDendro = mySession.getId()  + "/rowDendro.txt";
-		    String colDendro = mySession.getId()  + "/colDendro.txt";
+	    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
+	        workingDir = workingDir + "/" + mySession.getId();
+		    String matrixFile = workingDir  + "/originalMatrix.txt";
+		    String rowOrder = workingDir  + "/rowOrder.txt";
+		    String colOrder = workingDir  + "/colOrder.txt";
+		    String rowDendro = workingDir  + "/rowDendro.txt";
+		    String colDendro = workingDir  + "/colDendro.txt";
 		    	    
-		    //performOrdering(engine, matrixFile, "Hierarchical", "row", "euclidean", "ward", rowOrder, rowDendro);
-		    performOrdering(engine, matrixFile, "Random", "row", "euclidean", "ward", rowOrder, rowDendro);
+		    performOrdering(engine, matrixFile, request.getParameter("ColOrder"), "column", request.getParameter("ColDistance"), request.getParameter("ColAgglomeration"), colOrder, colDendro);
+		    performOrdering(engine, matrixFile, request.getParameter("RowOrder"), "row", request.getParameter("RowDistance"), request.getParameter("RowAgglomeration"), rowOrder, rowDendro);
 	        
-	        writer.println("OK");
+		    //build properties file
+		    HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
+		    HeatmapPropertiesManager.Heatmap map = mgr.getMap();
+		    map.chm_name = "test";
+		    map.chm_description = "test description";
+		    map.matrix_files.add(mgr.new MatrixFile("d1", matrixFile, "average" ));
+		    map.row_configuration = mgr.new Order(request.getParameter("RowOrder"), request.getParameter("RowDistance"), request.getParameter("RowAgglomeration"), rowOrder, rowDendro);
+		    map.col_configuration = mgr.new Order(request.getParameter("ColOrder"), request.getParameter("ColDistance"), request.getParameter("ColAgglomeration"), colOrder, colDendro);
+		    map.output_location = workingDir  + "/" + map.chm_name;
+		    String propFile = mgr.save();
+		    String genArgs[] = new String[] {propFile, "-NGCHM"};
+			String errMsg = HeatmapDataGenerator.processHeatMap(genArgs);
+		    //ToDo: Check for errors
+		    writer.println("MapBuildDir/" + mySession.getId() + "/" + map.chm_name + "|" + map.chm_name + ".ngchm");
 	    } catch (Exception e) {
 	        writer.println("Error uploading matrix.");
 	        writer.println("<br/> ERROR: " + e.getMessage());
@@ -79,7 +95,7 @@ public class Cluster extends HttpServlet {
 				engine.eval("distVals <- dist(dataMatrix, method=\"" + distanceMeasure + "\");");
 			} else {
 				//Todo:if (distanceMeasure == \"correlation\") { geneGeneCor <- cor(matrixData, use=\"pairwise\"); distVals <- as.dist((1-geneGeneCor)/2);
-				engine.eval("distVals <- dist(t(matrixData), method=\"" + distanceMeasure + "\");");
+				engine.eval("distVals <- dist(t(dataMatrix), method=\"" + distanceMeasure + "\");");
 			}
 			engine.eval("ordering <- hclust(distVals, method=\"" + agglomerationMethod + "\");");
 			writeHCDataTSVs(engine, "ordering", clusterFile, orderFile);

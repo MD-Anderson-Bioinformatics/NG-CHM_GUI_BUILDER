@@ -46,13 +46,14 @@ public class UploadMatrix extends HttpServlet {
 
 	    try {
 	        //Create a directory using the http session ID
-		    File theDir = new File(mySession.getId());
+	    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
+	    	workingDir = workingDir + "/" + mySession.getId();
+		    File theDir = new File(workingDir);
 		    theDir.mkdir();
 
-		    String matrixFile = mySession.getId() + File.separator + fileName;
+		    String matrixFile = workingDir + "/" + fileName;
 		    out = new FileOutputStream(new File(matrixFile));
 	        filecontent = filePart.getInputStream();
-
 
 	        int read = 0;
 	        final byte[] bytes = new byte[1024];

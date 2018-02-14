@@ -1,16 +1,37 @@
-<!DOCTYPE html>
+
 <html lang="en">
     <head>
         <title>Cluster</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     </head>
     <body>
+        <br>
+		<div style="margin: 1em 0 0 5%; width: 90%;">
+		<div id='NGCHMEmbed' style="background-color: white; height: 70%; margin-bottom: 0.25em; border: 2px solid gray; padding: 5px"></div>
+		</div>   		
+		<script src='javascript/ngchmWidget-min.js'></script>
+
 		<script type="text/Javascript">
-		topMatrixJson = null;
+		function toURIString( form ) {
+			var urlString = "";
+			var elements = form.querySelectorAll( "input, select, textarea" );
+			for( var i = 0; i < elements.length; ++i ) {
+				var element = elements[i];
+				var name = element.name;
+				var value = element.value;
+				if( name ) {
+					urlString = urlString + (urlString=="" ? "" : "&") + encodeURIComponent(name) + '=' + encodeURIComponent(value)
+				}
+			}
+
+			return urlString;
+		}		
+		
 		function cluster() {
 			var req = new XMLHttpRequest();
-			var formData = new FormData( document.getElementById("cluster_frm") );
+			var formData = toURIString( document.getElementById("cluster_frm") );
 			req.open("POST", "Cluster", true);
+			req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 			req.onreadystatechange = function () {
 				console.log('state change');
 				if (req.readyState == req.DONE) {
@@ -21,22 +42,70 @@
 			        } else {
 			        	//Got corner of matrix data.
 			        	console.log('200');
-			        	topMatrixJson = req.response;
-			        	topMatrixString = JSON.parse(req.response);
-			        	document.getElementById('display').value = topMatrixString;
+			        	result = req.response;
+			        	pieces = result.trim().split("|");
+			        	NgChm.UTIL.embedCHM(pieces[1], pieces[0]);
 				    }
 				}
 			};
 			req.send(formData);
 		}
  		</script>   
-       
+               
         <form id="cluster_frm" onsubmit="return false;">
-            Options:
+                     
+            Select Column Ordering Options: <br>
+            <select name="ColOrder" id="ColOrder">
+  				<option value="Hierarchical">Hierarchical Clustering</option>
+  				<option value="Random">Random</option>
+  				<option value="Original">Original Order</option>
+			</select> 
+            <select name="ColDistance" id="ColDistance">
+  				<option value="euclidean">Euclidean</option>
+				<option value="binary">Binary</option>
+				<option value="manhattan">Manhattan</option>
+				<option value="maximum">Maximum</option>
+				<option value="canberra">Canberra</option>	    
+				<option value="minkowski">Minkowski</option>	    
+				<option value="correlation">Correlation</option>	    
+ 			</select>
+            <select name="ColAgglomeration" id="ColAgglomeration">
+				<option value="average">Average Linkage</option>
+				<option value="complete">Complete Linkage</option>
+				<option value="single">Single Linkage</option>
+				<option value="ward" selected="true">Ward</option>
+				<option value="mcquitty">Mcquitty</option>	    
+				<option value="median">Median</option>	    
+				<option value="centroid">Centroid</option>	
+			</select>	    
+			<br>
+            Select Row Ordering Options: <br>
+            <select name="RowOrder" id="RowOrder">
+  				<option value="Hierarchical">Hierarchical Clustering</option>
+  				<option value="Random">Random</option>
+  				<option value="Original">Original Order</option>
+			</select> 
+             <select name="RowDistance" id="RowDistance">
+  				<option value="euclidean">Euclidean</option>
+				<option value="binary">Binary</option>
+				<option value="manhattan">Manhattan</option>
+				<option value="maximum">Maximum</option>
+				<option value="canberra">Canberra</option>	    
+				<option value="minkowski">Minkowski</option>	    
+				<option value="correlation">Correlation</option>	    
+ 			</select>
+            <select name="RowAgglomeration" id="RowAgglomeration">
+				<option value="average">Average Linkage</option>
+				<option value="complete">Complete Linkage</option>
+				<option value="single">Single Linkage</option>
+				<option value="ward" selected="true">Ward</option>
+				<option value="mcquitty">Mcquitty</option>	    
+				<option value="median">Median</option>	    
+				<option value="centroid">Centroid</option>	
+			</select>	    
             <button onclick="cluster()">Cluster</button> 
         </form>
        
-        <br>
         <button onclick="window.location.href='/NGCHMBuilder_Step3.html'">Next</button>
     </body>
 </html>
