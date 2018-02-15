@@ -1,5 +1,7 @@
 package mda.ngchm.guibuilder;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
@@ -70,7 +72,13 @@ public class HeatmapPropertiesManager {
 		out.close();
 		return propFile;
 	}
-	public void load(String directory) throws Exception {
-		
+	
+	public void load() throws Exception {
+		Gson gson = new Gson();
+		String propFile = directory + "/heatmapProperties.json";
+		BufferedReader in = new BufferedReader(new FileReader(propFile));
+		String jsonStr = in.readLine();
+		theMap = gson.fromJson(jsonStr, Heatmap.class );
+		in.close();
 	}
 }

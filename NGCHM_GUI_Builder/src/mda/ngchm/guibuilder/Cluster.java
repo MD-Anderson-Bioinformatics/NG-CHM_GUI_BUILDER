@@ -36,6 +36,14 @@ public class Cluster extends HttpServlet {
 	    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
 	        workingDir = workingDir + "/" + mySession.getId();
 		    String matrixFile = workingDir  + "/originalMatrix.txt";
+		    HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
+		    //mgr.load();  Note - should get map name, desc, and matrix from prevous step
+		    //for now, set them.
+		    HeatmapPropertiesManager.Heatmap map = mgr.getMap();
+		    map.chm_name = "test";
+		    map.chm_description = "test description";
+		    map.matrix_files.add(mgr.new MatrixFile("d1", matrixFile, "average" ));  
+		    
 		    String rowOrder = workingDir  + "/rowOrder.txt";
 		    String colOrder = workingDir  + "/colOrder.txt";
 		    String rowDendro = workingDir  + "/rowDendro.txt";
@@ -45,15 +53,12 @@ public class Cluster extends HttpServlet {
 		    performOrdering(engine, matrixFile, request.getParameter("RowOrder"), "row", request.getParameter("RowDistance"), request.getParameter("RowAgglomeration"), rowOrder, rowDendro);
 	        
 		    //build properties file
-		    HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
-		    HeatmapPropertiesManager.Heatmap map = mgr.getMap();
-		    map.chm_name = "test";
-		    map.chm_description = "test description";
-		    map.matrix_files.add(mgr.new MatrixFile("d1", matrixFile, "average" ));
 		    map.row_configuration = mgr.new Order(request.getParameter("RowOrder"), request.getParameter("RowDistance"), request.getParameter("RowAgglomeration"), rowOrder, rowDendro);
 		    map.col_configuration = mgr.new Order(request.getParameter("ColOrder"), request.getParameter("ColDistance"), request.getParameter("ColAgglomeration"), colOrder, colDendro);
 		    map.output_location = workingDir  + "/" + map.chm_name;
 		    String propFile = mgr.save();
+		    
+		    
 		    String genArgs[] = new String[] {propFile, "-NGCHM"};
 			String errMsg = HeatmapDataGenerator.processHeatMap(genArgs);
 		    //ToDo: Check for errors
