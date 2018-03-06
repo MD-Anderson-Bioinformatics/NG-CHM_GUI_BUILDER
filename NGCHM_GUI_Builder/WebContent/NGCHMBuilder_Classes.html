@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>NG-CHM Builder</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	 	<script src="javascript/NGCHM_GUI_Util.js"></script>
+	 	<script src="javascript/CovariateFiles.js"></script>
+	 	<script src="javascript/lib/handsontable.full.min.js"></script>
+		<link rel="stylesheet" href="css/handsontable.full.css">
+		<link rel="stylesheet" href="css/NGCHM_GUI.css">
+		<script type="text/Javascript">
+			NgChmGui.mapProperties = null;
+			NgChmGui.UTIL.getHeatmapProperties(NgChmGui.COV.loadData);
+	 	</script>
+    </head>
+    <body style="font-family: sans-serif; font-size: 100%;">
+	   <div class="mdaServiceHeader" id="mdaServiceHeader">
+	        <div id="mda_header" class="mdaServiceHeaderLogo">
+	        	<a href="https://www.mdanderson.org/education-and-research/departments-programs-and-labs/departments-and-divisions/bioinformatics-and-computational-biology/index.html"  target="_blank">
+	           		<img id="mdaLogo" src="images/mdabcblogo262x108.png" alt=""/>
+	           </a>
+	       	</div>
+	 		<div id='map_info'>
+     			<div id="mapName"  class="inputText" style="font-size: 14px;color: rgb(51, 51, 51);"></div>
+    			<div id="mapDesc" class="inputText"  style="font-size: 14px;color: rgb(51, 51, 51);"></div>
+	  		</div>
+	    </div>   
+	    <div id="container">   
+
+		</div>
+	</body>
+</html>

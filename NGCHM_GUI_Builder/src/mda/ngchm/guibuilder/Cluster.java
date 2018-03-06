@@ -35,7 +35,7 @@ public class Cluster extends HttpServlet {
 	    try {
 	    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
 	        workingDir = workingDir + "/" + mySession.getId();
-		    String matrixFile = workingDir  + "/originalMatrix.txt";
+		    String matrixFile = workingDir  + "/workingMatrix.txt";
 		    HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
 		    //mgr.load();  Note - should get map name, desc, and matrix from prevous step
 		    //for now, set them.

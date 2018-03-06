@@ -46,8 +46,21 @@ public class HeatmapPropertiesManager {
 		
 	}
 	
+	public class ColorMap {
+		public String type;
+		public ColorMap (String type) {
+			this.type = type;
+		}
+	}
+	
 	public class Classification {
-		
+		public String name;
+		public String path;
+		public String position;
+		public ColorMap color_map;
+		public Classification (String name, String path, String position, ColorMap cmap) {
+			this.name = name; this.path = path; this.position = position; this.color_map = cmap;
+		}
 	}
 
 	
@@ -73,12 +86,13 @@ public class HeatmapPropertiesManager {
 		return propFile;
 	}
 	
-	public void load() throws Exception {
+	public String load() throws Exception {
 		Gson gson = new Gson();
 		String propFile = directory + "/heatmapProperties.json";
 		BufferedReader in = new BufferedReader(new FileReader(propFile));
 		String jsonStr = in.readLine();
 		theMap = gson.fromJson(jsonStr, Heatmap.class );
 		in.close();
+		return jsonStr;
 	}
 }

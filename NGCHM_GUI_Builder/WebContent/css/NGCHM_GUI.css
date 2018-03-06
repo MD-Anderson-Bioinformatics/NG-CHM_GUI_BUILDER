@@ -1,0 +1,171 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Dec 28, 2017, 2:55:30 PM
+    Author     : cjacoby
+*/
+
+div.mdaServiceHeader
+{
+	position: relative;
+	display: inline-flex;
+	float: none;
+	width: 100%;
+	height: 60px;
+	color: #666;
+	margin: 2px 0px 4px 0px;
+	background-color: white;
+	border-bottom: 4px solid #da0505;
+	font-family: sans-serif;
+}
+
+div.mdaServiceHeaderLogo
+{
+	left: 0px;
+	display: inline-block;
+	width: auto;
+    padding: 0px 30px 0px 0px !important;
+}
+
+div.mdaServiceHeaderLogo img
+{
+	height: 54px;
+}
+
+.image-upload > input
+{
+    display: none;
+}
+
+.inputText
+{
+    padding: 5px 5px 0px 0px !important;
+}
+
+#fileNameText
+{
+	rows: 1;
+	cols: 60;
+	border: none;
+}
+
+
+#fileLookup
+{
+	width: 100%;
+    padding: 10px 0px 0px 0px !important;
+}
+
+
+#matrix {
+    height: 50%;
+    width: 95%;
+    padding: 5px 5px 5px 10px !important;
+}
+
+#matrixDisplay {
+    height: 70%;
+    width: 100%;
+    background-color: lightgrey;
+    overflow-y: scroll;
+}
+
+#example table {
+    width: 50%;
+}
+
+#ag-grid {
+    margin-top: 50px;
+    border: 1px solid green;
+}
+
+.handsontable .yellow {
+  background: yellow;
+}
+
+.handsontable .red {
+  background: red;
+}
+
+.handsontable .green {
+  background:  	#90EE90;
+}
+
+.chmTblRow {
+	display: 'none';
+    height: 0px;
+	padding: 0px;
+    font-size: 80% !important;
+    font-family: Arial;
+    font-weight: normal;
+    color: #0843c1;
+    vertical-align: center;
+}
+
+
+
+/* Added to disable highlighting on table */
+.handsontable .wtBorder {
+  display: none !important;
+}
+
+#box_outer {
+    margin-top: 100px;
+    height: 200px;
+    width: 300px;
+    background-color: purple;
+    position: relative
+}
+
+#box_inner {
+    position: absolute;
+    background-color: blue;
+    top: 10%;
+    left: 10%;
+    height: 100px;
+    width: 150px;
+}
+
+#msgBox {
+    margin: 5px !important;
+    top: 10%;
+    right: 5%;
+    padding: 2px 2px 2px 2px !important;
+    border: 1px solid #1a1a1a;
+    border-radius: 15px;
+    font-size: 90% !important;
+    font-family: Arial;
+    font-weight: normal;
+    background: #dddddd;
+    color: #000000;
+    z-index: 10000;
+    text-align: center;
+    height: auto;
+    width: auto;
+    box-shadow: 5px 5px 5px #777777;
+    white-space: nowrap;
+    box-sizing: border-box
+}
+#msgBoxTxt {
+    box-sizing: border-box;
+    text-align: left;
+}
+
+#msgBoxHdr {
+    display: table;
+    font-size: 18px;
+    font-weight: bold;
+    color: #0843c1;
+    margin: auto;
+    width: 100%;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    background: #CBD1EA;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+}
+
