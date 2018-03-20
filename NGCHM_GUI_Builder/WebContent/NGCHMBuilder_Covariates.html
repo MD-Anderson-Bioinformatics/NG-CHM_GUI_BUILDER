@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>NG-CHM Builder</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	 	<script src="javascript/NGCHM_GUI_Util.js"></script>
+	 	<script src="javascript/ColorMap.js"></script>
+	 	<script src="javascript/CovariateFiles.js"></script>
+	 	<script src="javascript/lib/handsontable.full.min.js"></script>
+		<link rel="stylesheet" href="css/handsontable.full.css">
+		<link rel="stylesheet" href="css/NGCHM_GUI.css">
+		<script type="text/Javascript">
+			NgChmGui.mapProperties = null;
+		 	window.onload = function() {
+				NgChmGui.UTIL.getHeatmapProperties(NgChmGui.COV.loadData);
+				NgChmGui.UTIL.messageBoxConfigure();
+		 		var chmFileItem = document.getElementById('image-upload');
+				chmFileItem.addEventListener('change', NgChmGui.COV.readyUpload, false);
+		 	}
+	 	</script>
+    </head>
+    <body style="font-family: sans-serif; font-size: 100%;">
+	   <div class="serviceHeader" id="serviceHeader">
+	        <div id="mda_header" class="serviceHeaderLogo">
+	        	<a href="https://www.mdanderson.org/education-and-research/departments-programs-and-labs/departments-and-divisions/bioinformatics-and-computational-biology/index.html"  target="_blank">
+	           		<img id="mdaLogo" src="images/mdabcblogo262x108.png" alt=""/>
+	           </a>
+	       	</div>
+	 		<div id='map_info'>
+     			<div id="mapName"  class="inputText" style="font-size: 14px;color: rgb(51, 51, 51);"></div>
+    			<div id="mapDesc" class="inputText"  style="font-size: 14px;color: rgb(51, 51, 51);"></div>
+	  		</div>
+	    </div>   
+       	<div id="covarDisplayContainer" class="display_container" style="position: relative;">
+	 		<div id="covarAdd" style="position: relative;display: none;">   
+		        <form method="POST" enctype="multipart/form-data" id="covar_add" onsubmit="return false;">
+	 	        	<div class="sec-header">Add Covariate Bar:</div>
+		        	<table id="covarLookupTbl">
+		        		<tr><td style='line-height:4px;' colspan=2>&nbsp;</td></tr>
+		        		<tr class='chmTR'>
+		        			<td>
+					        	<div class="image-upload" id="image-upload">
+								    <label for="file-input">
+								        <img src="images/selectFileButton.png"/>
+								    </label>
+				    				<input id="file-input" type="file" name="covar" id="covar"/>
+								</div>
+							</td>
+						</tr>
+		        		<tr><td style='line-height:4px;' colspan=2>&nbsp;</td></tr>
+		        		<tr class='chmTR' colspan='2' style='font-weight: bold;'>
+		        			<td>
+		        				&nbsp;&nbsp;File Name:<span id="covarNameText" style="font-weight: bold;padding-left: 10px;"></span>
+		        			</td>
+		        		</tr>
+		        		<tr><td style='line-height:4px;' colspan=2>&nbsp;</td></tr>
+		        		<tr class='chmTR' colspan='2' style='font-weight: bold;'>
+		        			<td>&nbsp;&nbsp;Name:&nbsp;&nbsp;<input name='covName' id='covName' maxlength='30' size='25'>
+		        			</td>
+		        		</tr>
+		        		<tr><td style='line-height:4px;' colspan=2>&nbsp;</td></tr>
+		        		<tr class='chmTR' colspan='2' style='font-weight: bold;'>
+		        			<td>
+		        				&nbsp;&nbsp;Axis:&nbsp;&nbsp;&nbsp;&nbsp;<select name='axisType' id='axisType'> <option value='column'>Column</option><option value='row'>Row</option></select>
+		        			</td>
+		        		</tr>
+		        		<tr><td style='line-height:4px;' colspan=2>&nbsp;</td></tr>
+		        		<tr class='chmTR'>
+		        			<td colspan='2' style='font-weight: bold;'>
+								&nbsp;&nbsp;Type:&nbsp;&nbsp;&nbsp;<select name='colorType' id='colorType'> <option value='discrete'>Discrete</option><option value='continuous'>Continuous</option></select>
+							</td>
+						</tr>
+		        		<tr><td style='line-height:4px;' colspan=2>&nbsp;</td></tr>
+		        		<tr><td style='line-height:4px;' colspan=2>&nbsp;</td></tr>
+		        		<tr>
+		        			<td>
+								<img id='covUpload_cancel_btn' src='images/cancelButton.png' alt='Cluster the Data' style="vertical-align: bottom;" onclick="NgChmGui.COV.hideCovarUpload()" />
+								<img id='covUpload_apply_btn' src='images/uploadButton.png' alt='Cluster the Data' style="vertical-align: bottom;display: none" onclick="NgChmGui.COV.addCovariateBar()" />
+							</td>
+						</tr>
+					</table>
+		        </form>
+		    </div>
+	 		<div id="covarRemoval" style="position: relative;display: none;">   
+		        <form method="POST" enctype="multipart/form-data" id="covar_remove" onsubmit="return false;">
+	 	        	<div id='covarRemoveLabel' class="sec-header">Remove Covariate Bar:</div>
+		        	<table id="covarLookupTbl">
+		        		<tr><td style='line-height:4px;' colspan=2>&nbsp;</td></tr>
+		        		<tr>
+		        			<td>
+								<img id='covRemove_cancel_btn' src='images/cancelButton.png' alt='Cancel Covariate Removal' style="vertical-align: bottom;" onclick="NgChmGui.COV.hideCovarRemoval()" />
+							</td>
+		        			<td>
+								<img id='covRemove_apply_btn' src='images/deleteButton.png' alt='Remove Covariate' style="vertical-align: bottom;" onclick="NgChmGui.COV.removeCovariateBar()" />
+							</td>
+						</tr>
+					</table>
+		        </form>
+		    </div>	 		
+		    <div id="covarSelection" class="data_entry_container" style="width: 30%">
+	 	        <form id="covar_frm" onsubmit="return false;">
+					<div id="preferencesPanel" style="display: none;">
+					</div>
+
+					<br/>
+					<img id='apply_btn' src='images/applyButton.png' alt='Cluster the Data' style="vertical-align: bottom;" onclick="NgChmGui.COV.applyCovariateSettings()" />
+				</form> 		
+		        <div id="covarNextButton"  class="next_btn">  
+		        	<img id='covarNext_btn' src='images/nextButton.png' alt='Go to next step' onclick="NgChmGui.COV.processCovariates();" />		
+		        </div>   
+			</div>
+	        <div id="clusterView" class="layout_display_container" style="margin: 1em 0 0 5%; width: 60%;">
+				<div id='NGCHMEmbed' style="background-color: white; height: 85%; margin-bottom: 0.25em; padding: 5px"></div>
+				<script src='javascript/ngchmWidget-min.js'></script>
+				 <script> NgChmGui.UTIL.editWidgetForBuilder();</script>
+			</div>
+		</div>
+		<div id="msgBox" style="display: none; position: absolute; background-color: rgb(230, 240, 255);"></div>
+	</body>
+</html>

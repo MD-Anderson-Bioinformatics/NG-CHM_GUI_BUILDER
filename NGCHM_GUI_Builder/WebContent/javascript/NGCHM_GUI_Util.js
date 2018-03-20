@@ -52,6 +52,10 @@ NgChmGui.createNS = function (namespace) {
 //Define Namespace for NgChm UTIL
 NgChmGui.createNS('NgChmGui.UTIL');
 
+NgChmGui.UTIL.maxValues = 2147483647;
+NgChmGui.UTIL.minValues = -2147483647;
+NgChmGui.UTIL.debug = false;
+
 NgChmGui.UTIL.toURIString = function(form) {
 	var urlString = "";
 	var elements = form.querySelectorAll( "input, select, textarea");
@@ -73,23 +77,26 @@ NgChmGui.UTIL.editWidgetForBuilder = function() {
 	document.getElementById('summary_box_canvas').style.display = 'none';
 	document.getElementById('bottom_buttons').style.display = 'none';
 	document.getElementById('barMenu_btn').style.display = 'none';
+	document.getElementById('mdaServiceHeader').style.border = 'none';
 }
 
 NgChmGui.UTIL.getHeatmapProperties = function(loadFunction) {
 	var req = new XMLHttpRequest();
 	req.open("POST", "MapProperties", true);
 	req.onreadystatechange = function () {
-		console.log('state change');
+		if (NgChmGui.UTIL.debug) {console.log('state change');}
 		if (req.readyState == req.DONE) {
-			console.log('done');
+			if (NgChmGui.UTIL.debug) {console.log('done');}
 	        if (req.status != 200) {
-	        	console.log('not 200');
+				if (NgChmGui.UTIL.debug) {console.log('not 200');}
 	            console.log('Failed to upload matrix '  + req.status);
 	        } else {
 	        	//Got corner of matrix data.
-	        	console.log('200');
+				if (NgChmGui.UTIL.debug) {console.log('200');}
 	        	NgChmGui.mapProperties = JSON.parse(req.response);
-	        	loadFunction();
+	        	if (typeof loadFunction !== 'undefined') {
+		        	loadFunction();
+	        	}
 		    }
 		}
 	};
@@ -133,8 +140,9 @@ NgChmGui.UTIL.setMessageBoxHeader = function(headerText) {
 }
 
 NgChmGui.UTIL.setMessageBoxText = function(text, rows) {
+	var msgBox = document.getElementById('msgBox');
 	var msgBoxTxt = document.getElementById('msgBoxTxt');
-	var textBoxHeight = (rows * 8) + 95;
+	var textBoxHeight = (rows * 9) + 95;
 	msgBoxTxt.style.width = '320px';
 	msgBox.style.height = textBoxHeight+ 'px';
 	msgBoxTxt.innerHTML = text;
@@ -157,8 +165,109 @@ NgChmGui.UTIL.matrixValidationError = function(msgText, rows) {
 	NgChmGui.UTIL.initMessageBox();
 	NgChmGui.UTIL.setMessageBoxHeader("Matrix Selection Error(s)");
 	NgChmGui.UTIL.setMessageBoxText(msgText, rows);
-	NgChmGui.UTIL.setMessageBoxButton(3, "images/cancelButton.png", "", "NgChmGui.UTIL.messageBoxCancel");
+	NgChmGui.UTIL.setMessageBoxButton(3, "images/closeButton.png", "", "NgChmGui.UTIL.messageBoxCancel");
 	document.getElementById('msgBox').style.display = '';
+}
+
+NgChmGui.UTIL.barTypeSelectionError = function() {
+	NgChmGui.UTIL.initMessageBox();
+	NgChmGui.UTIL.setMessageBoxHeader("Covariate Data Entry Warning");
+	NgChmGui.UTIL.setMessageBoxText("<br>Color map must be continuous to produce bar or scatter plots.<br><br>", 2);
+	NgChmGui.UTIL.setMessageBoxButton(3, "images/closeButton.png", "", "NgChmGui.UTIL.messageBoxCancel");
+	document.getElementById('msgBox').style.display = '';
+}
+
+NgChmGui.UTIL.matrixLoadingError = function() {
+	NgChmGui.UTIL.initMessageBox();
+	NgChmGui.UTIL.setMessageBoxHeader("Matrix Loading Error");
+	NgChmGui.UTIL.setMessageBoxText("<br>Unable to load selected matrix.  Please try again.<br><br>", 2);
+	NgChmGui.UTIL.setMessageBoxButton(3, "images/closeButton.png", "", "NgChmGui.UTIL.messageBoxCancel");
+	document.getElementById('msgBox').style.display = '';
+}
+
+
+NgChmGui.UTIL.messageBoxConfigure = function() {
+	var msgBox = document.getElementById('msgBox');
+	msgBox.innerHTML = "<div class='msgBoxHdr' id='msgBoxHdr'></div><table><tbody><tr class='chmTR'><td><div id='msgBoxTxt' style='display: inherit;font-size: 12px; background-color: rgb(230, 240, 255);'></div><table><tbody><tr><td align='left'><img id='msgBoxBtnImg_1' align='top' style='display: inherit;'></td><td align='left'><img id='msgBoxBtnImg_2' align='top' style='display: inherit;'></td><td align='right'><img id='msgBoxBtnImg_3' align='top' style='display: inherit;'></td><td align='right'><img id='msgBoxBtnImg_4' align='top' style='display: inherit;'></td></tr></tbody></table></td></tr></tbody></table>";
+}
+
+NgChmGui.UTIL.duplicateCovarError = function(axis,name) {
+	NgChmGui.UTIL.initMessageBox();
+	NgChmGui.UTIL.setMessageBoxHeader("Duplicate Covariate Entry Warning");
+	NgChmGui.UTIL.setMessageBoxText("<br>A "+axis+" covariate already exists with the name:  "+name+"<br>Please select a different name if you still wish to add this bar.<br><br>", 3);
+	NgChmGui.UTIL.setMessageBoxButton(3, "images/closeButton.png", "", "NgChmGui.UTIL.messageBoxCancel");
+	document.getElementById('msgBox').style.display = '';
+}
+
+
+
+/**********************************************************************************
+ * FUNCTION - getDivElement: The purpose of this function is to create and 
+ * return a DIV html element that is configured for a help pop-up panel.
+ **********************************************************************************/
+NgChmGui.UTIL.getDivElement = function(elemName) {
+    var divElem = document.createElement('div');
+    divElem.id = elemName;
+    divElem.style.display="none";
+    return divElem;
+}
+
+/**********************************************************************************
+ * FUNCTION - setTableRow: The purpose of this function is to set a row into a help
+ * or configuration html TABLE item for a given help pop-up panel. It receives text for 
+ * the header column, detail column, and the number of columns to span as inputs.
+ **********************************************************************************/
+NgChmGui.UTIL.setTableRow = function(tableObj, tdArray, colSpan, align) {
+	var tr = tableObj.insertRow();
+	tr.className = "chmTR";
+	for (var i = 0; i < tdArray.length; i++) {
+		var td = tr.insertCell(i);
+		if (typeof colSpan != 'undefined') {
+			td.colSpan = colSpan;
+		}
+		if (i === 0) {
+			td.style.fontWeight="bold";
+		}
+		td.innerHTML = tdArray[i];
+		if (typeof align != 'undefined') {
+			td.align = align;
+		}
+	}
+}
+
+/**********************************************************************************
+ * FUNCTION - formatBlankRow: The purpose of this function is to return the html
+ * text for a blank row.
+ **********************************************************************************/
+NgChmGui.UTIL.formatBlankRow = function() {
+	return "<td style='line-height:4px;' colspan=2>&nbsp;</td>";
+}
+
+/**********************************************************************************
+ * FUNCTION - addBlankRow: The purpose of this function is to return the html
+ * text for a blank row.
+ **********************************************************************************/
+NgChmGui.UTIL.addBlankRow = function(addDiv, rowCnt) {
+	addDiv.insertRow().innerHTML = NgChmGui.UTIL.formatBlankRow();
+	if (typeof rowCnt !== 'undefined') {
+		for (var i=1;i<rowCnt;i++) {
+			addDiv.insertRow().innerHTML = NgChmGui.UTIL.formatBlankRow();
+		}
+	}
+	return;
+}
+
+/**********************************************************************************
+ * FUNCTION - toTitleCase: The purpose of this function is to change the case of
+ * the first letter of the first word in each sentence passed in.
+ **********************************************************************************/
+NgChmGui.UTIL.toTitleCase = function(string) {
+    // \u00C0-\u00ff for a happy Latin-1
+    return string.toLowerCase().replace(/_/g, ' ').replace(/\b([a-z\u00C0-\u00ff])/g, function (_, initial) {
+        return initial.toUpperCase();
+    }).replace(/(\s(?:de|a|o|e|da|do|em|ou|[\u00C0-\u00ff]))\b/ig, function (_, match) {
+        return match.toLowerCase();
+    });
 }
 
 

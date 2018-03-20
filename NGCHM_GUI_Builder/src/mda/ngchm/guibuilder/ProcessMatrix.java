@@ -19,6 +19,8 @@ import javax.servlet.http.HttpSession;
 
 import com.google.gson.Gson;
 
+import mda.ngchm.guibuilder.HeatmapPropertiesManager.Order;
+
 /**
  * Servlet implementation class Upload Data Matrix
  */
@@ -36,7 +38,9 @@ public class ProcessMatrix extends HttpServlet {
 		private int RowLabelRow;
 		private int ColLabelCol;
 		public ArrayList<Integer> RowCovs = new ArrayList<Integer>();
+		public ArrayList<String> RowCovTypes = new ArrayList<String>();
 		public ArrayList<Integer> ColCovs = new ArrayList<Integer>();
+		public ArrayList<String> ColCovTypes = new ArrayList<String>();
 	}
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -83,22 +87,35 @@ public class ProcessMatrix extends HttpServlet {
 		    //Remove any existing matrix files as we are putting a new one on the map
 		    map.matrix_files.removeAll(map.matrix_files);
 			map.matrix_files.add(mgr.new MatrixFile(matrixConfig.MatrixName, matrixFile, "average" ));  
+
+			//Add "default" row/col order configurations in original order
+		    map.row_configuration = mgr.new Order("Original");
+		    map.col_configuration = mgr.new Order("Original");
+			
 		    //Remove any existing covariate files as we are putting a new one on the map
 		    map.classification_files.removeAll(map.classification_files);
+		    ProcessCovariate cov = new ProcessCovariate();
 	        //Construct and write out files for each row covariate bar contained in the matrix file
+		    int covCtr = 1;
 	        for (int i=0;i<matrixConfig.RowCovs.size();i++) {
 	        	int covCol = matrixConfig.RowCovs.get(i);
-	        	String covFileName = workingDir + "/rowClass_"+ (i+1) + ".txt";
+	        	String covType = matrixConfig.RowCovTypes.get(i);
+	        	String covFileName = workingDir + "/covariate_"+ covCtr + ".txt";
 	        	String covName = buildFilteredRowCovariate(workingDir, matrixConfig, covFileName, covCol);
-	        	map.classification_files.add(mgr.new Classification(covName,covFileName,"row", null));
+	        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructDefaultCovariate(mgr, covName, covFileName, "row", covType);
+	        	map.classification_files.add(classJsonObj);	    
+	        	covCtr++;
 	        }
 
 			//Construct and write out files for each column covariate bar contained in the matrix file
 	        for (int i=0;i<matrixConfig.ColCovs.size();i++) {
 	        	int covRow = matrixConfig.ColCovs.get(i);
-	        	String covFileName = workingDir + "/colClass_"+ (i+1) + ".txt";
+	        	String covType = matrixConfig.ColCovTypes.get(i);
+	        	String covFileName = workingDir + "/covariate_"+ covCtr + ".txt";
 		        String covName = buildFilteredColCovariate(workingDir, matrixConfig, covFileName, covRow);
-	        	map.classification_files.add(mgr.new Classification(covName,covFileName,"column", null));
+	        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructDefaultCovariate(mgr, covName, covFileName, "column", covType);
+	        	map.classification_files.add(classJsonObj);	        	 
+	        	covCtr++;
 	        }
 
 			map.output_location = workingDir  + "/" + matrixConfig.MapName;

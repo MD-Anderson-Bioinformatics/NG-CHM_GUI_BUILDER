@@ -8,87 +8,105 @@
 		<link rel="stylesheet" href="css/NGCHM_GUI.css">
  		<script type="text/Javascript">
 			NgChmGui.mapProperties = null;
-			NgChmGui.UTIL.getHeatmapProperties(NgChmGui.FILE.loadClusterData);
+		 	window.onload = function() {
+				NgChmGui.UTIL.getHeatmapProperties(NgChmGui.FILE.loadClusterData);
+				NgChmGui.UTIL.messageBoxConfigure();
+		 	}
 	 	</script>
      </head>
     <body style="font-family: sans-serif; font-size: 100%;">
- 	   <div class="mdaServiceHeader" id="mdaServiceHeader">
-	        <div id="mda_header" class="mdaServiceHeaderLogo">
+ 	   <div class="serviceHeader" id="serviceHeader">
+	        <div id="mda_header" class="serviceHeaderLogo">
 	        	<a href="https://www.mdanderson.org/education-and-research/departments-programs-and-labs/departments-and-divisions/bioinformatics-and-computational-biology/index.html"  target="_blank">
 	           		<img id="mdaLogo" src="images/mdabcblogo262x108.png" alt=""/>
 	           </a>
 	       	</div>
 	 		<div id='map_info'>
-     			<div id="mapName"  class="inputText" style="font-size: 14px;color: rgb(51, 51, 51);"></div>
+     			<div id="mapName" class="inputText" style="font-size: 14px;color: rgb(51, 51, 51);"></div>
     			<div id="mapDesc" class="inputText"  style="font-size: 14px;color: rgb(51, 51, 51);"></div>
 	  		</div>
 	    </div>   
         <br>
- 		<div id="clusterSelection">
- 	        <form id="cluster_frm" onsubmit="return false;">
-	            <b>Select Column Ordering Options:</b>
-	            <select name="ColOrder" id="ColOrder">
-	  				<option value="Hierarchical">Hierarchical Clustering</option>
-	  				<option value="Random">Random</option>
-	  				<option value="Original">Original Order</option>
-				</select> &nbsp;
-	            <select name="ColDistance" id="ColDistance">
-	  				<option value="euclidean">Euclidean</option>
-					<option value="binary">Binary</option>
-					<option value="manhattan">Manhattan</option>
-					<option value="maximum">Maximum</option>
-					<option value="canberra">Canberra</option>	    
-					<option value="minkowski">Minkowski</option>	    
-					<option value="correlation">Correlation</option>	    
-	 			</select>&nbsp;
-	            <select name="ColAgglomeration" id="ColAgglomeration">
-					<option value="average">Average Linkage</option>
-					<option value="complete">Complete Linkage</option>
-					<option value="single">Single Linkage</option>
-					<option value="ward" selected="true">Ward</option>
-					<option value="mcquitty">Mcquitty</option>	    
-					<option value="median">Median</option>	    
-					<option value="centroid">Centroid</option>	
-				</select>	    
-				
-				<b>&nbsp;&nbsp;&nbsp;&nbsp;Select Row Ordering Options:</b> 
-	            <select name="RowOrder" id="RowOrder">
-	  				<option value="Hierarchical">Hierarchical Clustering</option>
-	  				<option value="Random">Random</option>
-	  				<option value="Original">Original Order</option>
-				</select> &nbsp;
-	             <select name="RowDistance" id="RowDistance">
-	  				<option value="euclidean">Euclidean</option>
-					<option value="binary">Binary</option>
-					<option value="manhattan">Manhattan</option>
-					<option value="maximum">Maximum</option>
-					<option value="canberra">Canberra</option>	    
-					<option value="minkowski">Minkowski</option>	    
-					<option value="correlation">Correlation</option>	    
-	 			</select>&nbsp;
-	            <select name="RowAgglomeration" id="RowAgglomeration">
-					<option value="average">Average Linkage</option>
-					<option value="complete">Complete Linkage</option>
-					<option value="single">Single Linkage</option>
-					<option value="ward" selected="true">Ward</option>
-					<option value="mcquitty">Mcquitty</option>	    
-					<option value="median">Median</option>	    
-					<option value="centroid">Centroid</option>	
-				</select>	    
-				&nbsp;&nbsp;&nbsp;<img id='cluster_btn' src='images/clusterButton.png' alt='Cluster the Data' style="vertical-align: bottom;" onclick="NgChmGui.FILE.clusterMatrixData()" />
-	        </form>
-	    </div>
-        <div style="margin: 1em 0 0 5%; width: 60%;">
-			<div id='NGCHMEmbed' style="background-color: white; height: 75%; margin-bottom: 0.25em; border: 2px solid gray; padding: 5px"></div>
+       	<div id="clusterDisplayContainer" class="display_container" style="position: relative">
+	 		<div id="clusterSelection" class="data_entry_container" style="width: 20%">
+	 	        <form id="cluster_frm" onsubmit="return false;">
+	 	        	<div class="sec-header">Select Column Ordering Options:</div>
+					<table class="data_entry">
+						<tr><td>
+				            <select name="ColOrder" id="ColOrder">
+				  				<option value="Hierarchical">Hierarchical Clustering</option>
+				  				<option value="Random">Random</option>
+				  				<option value="Original">Original Order</option>
+							</select> 
+						</td></tr>
+						<tr><td>
+				            <select name="ColDistance" id="ColDistance">
+				  				<option value="euclidean">Euclidean</option>
+								<option value="binary">Binary</option>
+								<option value="manhattan">Manhattan</option>
+								<option value="maximum">Maximum</option>
+								<option value="canberra">Canberra</option>	    
+								<option value="minkowski">Minkowski</option>	    
+								<option value="correlation">Correlation</option>	    
+				 			</select>
+						</td></tr>
+						<tr><td>
+				            <select name="ColAgglomeration" id="ColAgglomeration">
+								<option value="average">Average Linkage</option>
+								<option value="complete">Complete Linkage</option>
+								<option value="single">Single Linkage</option>
+								<option value="ward" selected="true">Ward</option>
+								<option value="mcquitty">Mcquitty</option>	    
+								<option value="median">Median</option>	    
+								<option value="centroid">Centroid</option>	
+							</select><br/><br/>	    
+						</td></tr>
+					</table>
+	 	        	<div class="sec-header">Select Row Ordering Options:</div>
+					<table class="data_entry">
+						<tr><td>
+				            <select name="RowOrder" id="RowOrder">
+				  				<option value="Hierarchical">Hierarchical Clustering</option>
+				  				<option value="Random">Random</option>
+				  				<option value="Original">Original Order</option>
+							</select>
+						</td></tr>
+						<tr><td>
+				             <select name="RowDistance" id="RowDistance">
+				  				<option value="euclidean">Euclidean</option>
+								<option value="binary">Binary</option>
+								<option value="manhattan">Manhattan</option>
+								<option value="maximum">Maximum</option>
+								<option value="canberra">Canberra</option>	    
+								<option value="minkowski">Minkowski</option>	    
+								<option value="correlation">Correlation</option>	    
+				 			</select>
+						</td></tr>
+						<tr><td>
+				            <select name="RowAgglomeration" id="RowAgglomeration">
+								<option value="average">Average Linkage</option>
+								<option value="complete">Complete Linkage</option>
+								<option value="single">Single Linkage</option>
+								<option value="ward" selected="true">Ward</option>
+								<option value="mcquitty">Mcquitty</option>	    
+								<option value="median">Median</option>	    
+								<option value="centroid">Centroid</option>	
+							</select>	    
+						</td></tr>
+					</table>
+					<br/>
+					<img id='cluster_btn' src='images/clusterButton.png' alt='Cluster the Data' style="vertical-align: bottom;" onclick="NgChmGui.FILE.clusterMatrixData()" />
+			        <div id="clusterNextButton"  class="next_btn" style="display: none;">  
+			        	<img id='clusterNext_btn' src='images/nextButton.png' alt='Go to next step' onclick="NgChmGui.UTIL.matrixLoadingError();" />		
+			        </div>   
+		        </form>
+		    </div>			
+	        <div id="clusterView" class="layout_display_container" style="margin: 1em 0 0 5%; width: 60%;">
+				<div id='NGCHMEmbed' style="background-color: white; height: 85%; margin-bottom: 0.25em; padding: 5px"></div>
+				<script src='javascript/ngchmWidget-min.js'></script>
+				 <script> NgChmGui.UTIL.editWidgetForBuilder();</script>
+			</div>
 		</div>   		
-		<script src='javascript/ngchmWidget-min.js'></script>
-         <div id="clusterView" style="display: none;">  
-        	&nbsp;&nbsp;<img id='next2_btn' src='images/nextButton.png' alt='Go to next step' onclick="window.location.href='/NGCHMBuilder_Step3.html'" />		
-         </div>   
-		<script> NgChmGui.UTIL.editWidgetForBuilder();</script>
-
-
-               
-
-    </body>
+		<div id="msgBox" style="display: none; position: absolute; background-color: rgb(230, 240, 255);"></div>
+   </body>
 </html>

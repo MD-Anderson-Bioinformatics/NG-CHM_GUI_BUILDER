@@ -36,6 +36,9 @@ public class HeatmapPropertiesManager {
 		public String order_file;
 		public String dendro_file;
 		public ArrayList<String> data_type = new ArrayList<String>();
+		public Order (String order_method) {
+			this.order_method = order_method;
+		}
 		public Order (String order_method, String distance_metric, String agglomeration_method, String order_file,	String dendro_file) {
 			this.order_method = order_method; this .distance_metric = distance_metric; this.agglomeration_method = agglomeration_method;
 			this.order_file = order_file; this.dendro_file = dendro_file;
@@ -48,18 +51,41 @@ public class HeatmapPropertiesManager {
 	
 	public class ColorMap {
 		public String type;
-		public ColorMap (String type) {
+		public String missing;
+		public ArrayList<String> thresholds = new ArrayList<String>();
+		public ArrayList<String> colors = new ArrayList<String>();
+		public ColorMap (String type, String missing, ArrayList<String> thresholds, ArrayList<String> colors) {
 			this.type = type;
+			this.missing = missing;
+			this.thresholds = thresholds;
+			this.colors = colors;
 		}
 	}
 	
 	public class Classification {
 		public String name;
 		public String path;
+		public String height;
 		public String position;
+		public String bar_type;
+		public String fg_color;
+		public String bg_color;
+		public String low_bound;
+		public String high_bound;
+		public String show;
 		public ColorMap color_map;
-		public Classification (String name, String path, String position, ColorMap cmap) {
-			this.name = name; this.path = path; this.position = position; this.color_map = cmap;
+		public Classification (String name, String path, String position, String showVal, String heightVal, String barType, String fgColor, String bgColor, String lowBound, String highBound, ColorMap cmap) {
+			this.name = name; 
+			this.path = path; 
+			this.position = position; 
+			this.show = showVal;
+			this.height = heightVal;
+			this.bar_type = barType; 
+			this.fg_color = fgColor; 
+			this.bg_color = bgColor; 
+			this.low_bound = lowBound; 
+			this.high_bound = highBound;
+			this.color_map = cmap;
 		}
 	}
 

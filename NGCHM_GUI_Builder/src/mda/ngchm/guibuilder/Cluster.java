@@ -35,34 +35,38 @@ public class Cluster extends HttpServlet {
 	    try {
 	    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
 	        workingDir = workingDir + "/" + mySession.getId();
-		    String matrixFile = workingDir  + "/workingMatrix.txt";
+
+	        //Retrieve heat map properties
 		    HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
-		    //mgr.load();  Note - should get map name, desc, and matrix from prevous step
-		    //for now, set them.
+		    mgr.load();
 		    HeatmapPropertiesManager.Heatmap map = mgr.getMap();
-		    map.chm_name = "test";
-		    map.chm_description = "test description";
-		    map.matrix_files.add(mgr.new MatrixFile("d1", matrixFile, "average" ));  
 		    
+		    //Get first matrix file for clustering 
+		    String matrixFile = map.matrix_files.get(0).path;
+		    
+		    //Create paths for clustering output files
 		    String rowOrder = workingDir  + "/rowOrder.txt";
 		    String colOrder = workingDir  + "/colOrder.txt";
 		    String rowDendro = workingDir  + "/rowDendro.txt";
 		    String colDendro = workingDir  + "/colDendro.txt";
-		    	    
+		    
+		    //Cluster heat map data
 		    performOrdering(engine, matrixFile, request.getParameter("ColOrder"), "column", request.getParameter("ColDistance"), request.getParameter("ColAgglomeration"), colOrder, colDendro);
 		    performOrdering(engine, matrixFile, request.getParameter("RowOrder"), "row", request.getParameter("RowDistance"), request.getParameter("RowAgglomeration"), rowOrder, rowDendro);
 	        
-		    //build properties file
+		    //Add clustering entries to heatmapProperties file
 		    map.row_configuration = mgr.new Order(request.getParameter("RowOrder"), request.getParameter("RowDistance"), request.getParameter("RowAgglomeration"), rowOrder, rowDendro);
 		    map.col_configuration = mgr.new Order(request.getParameter("ColOrder"), request.getParameter("ColDistance"), request.getParameter("ColAgglomeration"), colOrder, colDendro);
-		    map.output_location = workingDir  + "/" + map.chm_name;
+		    
+		    //Save changes to heatmapProperties file
 		    String propFile = mgr.save();
 		    
-		    
+		    //Call HeatmapDataGenerator to generate final heat map .ngchm file
 		    String genArgs[] = new String[] {propFile, "-NGCHM"};
 			String errMsg = HeatmapDataGenerator.processHeatMap(genArgs);
 		    //ToDo: Check for errors
 		    writer.println("MapBuildDir/" + mySession.getId() + "/" + map.chm_name + "|" + map.chm_name + ".ngchm");
+
 	    } catch (Exception e) {
 	        writer.println("Error uploading matrix.");
 	        writer.println("<br/> ERROR: " + e.getMessage());

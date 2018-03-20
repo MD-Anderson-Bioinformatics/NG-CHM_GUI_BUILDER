@@ -11,30 +11,29 @@
 		<script type="text/Javascript">
 			var matrixFile = new NgChmGui.FILE.Matrix();
 			NgChmGui.matrixFile = matrixFile.getMatrixFile();
+			NgChmGui.covCheck = false;
 			NgChmGui.UTIL.getHeatmapProperties(NgChmGui.FILE.loadData);
 		 	window.onload = function() {
 		 		var chmFileItem = document.getElementById('image-upload');
 				chmFileItem.addEventListener('change', NgChmGui.matrixFile.sendMatrix, false);
+				NgChmGui.UTIL.messageBoxConfigure();
 		 	};	
 	 	</script>
     </head>
     <body style="font-family: sans-serif; font-size: 100%;">
-	   <div class="mdaServiceHeader" id="mdaServiceHeader">
-	        <div id="mda_header" class="mdaServiceHeaderLogo">
+	   <div class="serviceHeader" id="serviceHeader">
+	        <div id="mda_header" class="serviceHeaderLogo">
 	        	<a href="https://www.mdanderson.org/education-and-research/departments-programs-and-labs/departments-and-divisions/bioinformatics-and-computational-biology/index.html"  target="_blank">
 	           		<img id="mdaLogo" src="images/mdabcblogo262x108.png" alt=""/>
 	           </a>
 	       	</div>
-	 		<div id='map_info'>
-		 		<div id='map_name' class="inputText">
-	     			<div id="mapName"><b>Heat Map Name:</b>&nbsp;&nbsp;<input name="mapNameValue" id="mapNameValue" size="40"></input></div>
-	  		    </div>
-		 		<div id='map_desc' class="inputText">
-	     			<div id="mapName"><b>Heat Map Desc:</b>&nbsp;&nbsp;&nbsp;<input name="mapDescValue" id="mapDescValue" size="100"></input></div>
-	  		    </div>
-	  		</div>
 	    </div>   
 	    <div id="container">   
+	 		<div id='map_info'>
+		 		<div id='map_name' class="inputText">
+	     			<div id="mapName" style="font-size: 14px; color: #0843c1;"><b>Heat Map Name:</b>&nbsp;&nbsp;<input name="mapNameValue" id="mapNameValue" size="40"></input><b>&nbsp;&nbsp;&nbsp;Heat Map Desc:</b>&nbsp;&nbsp;&nbsp;<input name="mapDescValue" id="mapDescValue" size="100"></input></div>
+	  		    </div>
+	  		</div>
 	 		<div id="fileLookup">   
 		        <form method="POST" enctype="multipart/form-data" id="matrix_frm" onsubmit="return false;">
 		        	<div class="image-upload" id="image-upload">
@@ -46,6 +45,9 @@
 					</div>
 		        </form>
 		    </div>
+			<div id="preferencesPanel" style="display: none;">
+
+			</div>
 		    <div id="matrix" style="display: none;">
 		 		<div id='matrix_name' class="inputText" style="display: none;">
 	     			<div id="matrixName"><b>Matrix Name:</b>&nbsp;&nbsp;<input name="matrixNameValue" id="matrixNameValue" size="40" value="Data Layer 1"></input></div>
@@ -59,38 +61,11 @@
 		        <br><br>
 		        <div id="matrixDisplay" style="display: none;"></div>
 		        <br>
-			    <img id='next1_btn' src='images/nextButton.png' alt='Go to next step' onclick='NgChmGui.matrixFile.processMatrix();' />
 		    </div>
-			<div id="msgBox" style="display: none; position: absolute; background-color: rgb(230, 240, 255);">
-				<div class="msgBoxHdr" id="msgBoxHdr"></div>  
-				<table>
-					<tbody>
-						<tr class="chmTblRow">
-							<td>
-								<div id="msgBoxTxt" style="display: inherit;font-size: 12px; background-color: rgb(230, 240, 255);"></div>
-								<table>
-									<tbody>
-										<tr>
-											<td align="left">
-													<img id="msgBoxBtnImg_1" align="top" style="display: inherit;">
-											</td>
-											<td align="left">
-													<img id="msgBoxBtnImg_2" align="top" style="display: inherit;">
-											</td>
-											<td align="right">
-													<img id="msgBoxBtnImg_3" align="top" style="display: inherit;">
-											</td>
-											<td align="right">
-													<img id="msgBoxBtnImg_4" align="top" style="display: inherit;">
-											</td>
-										</tr>
-									</tbody>
-								</table> 
-							</td>
-						</tr>
-					</tbody>
-				</table>
-			</div>		
+	        <div id="matrixNextButton" class="next_btn" style="display: none;">
+		    	<img id='matrixNext_btn' class="next_btn" src='images/nextButton.png' alt='Go to next step' onclick='NgChmGui.matrixFile.processMatrix();' />
+		    </div>
+			<div id="msgBox" style="display: none; position: absolute; background-color: rgb(230, 240, 255);"></div>
 		</div>
 	</body>
 </html>

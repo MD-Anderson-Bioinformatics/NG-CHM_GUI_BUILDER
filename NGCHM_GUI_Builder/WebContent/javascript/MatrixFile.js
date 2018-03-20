@@ -37,18 +37,18 @@ NgChmGui.FILE.clusterMatrixData =  function() {
 	req.open("POST", "Cluster", true);
 	req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	req.onreadystatechange = function () {
-		console.log('state change');
+		if (NgChmGui.UTIL.debug) {console.log('state change');}
 		if (req.readyState == req.DONE) {
-			console.log('done');
+			if (NgChmGui.UTIL.debug) {console.log('done');}
 	        if (req.status != 200) {
-	        	console.log('not 200');
+	    		if (NgChmGui.UTIL.debug) {console.log('not 200');}
 	            console.log('Failed to upload matrix '  + req.status);
 	        } else {
-	        	console.log('200');
+	    		if (NgChmGui.UTIL.debug) {console.log('200');}
 	        	result = req.response;
 	        	pieces = result.trim().split("|");
 	        	NgChm.UTIL.embedCHM(pieces[1], pieces[0]);
-	        	document.getElementById('clusterView').style.display = '';
+	        	document.getElementById('clusterNextButton').style.display = '';
 	    		NgChm.postLoad = function () {
 	    			NgChm.heatMap.addEventListener(function (event, level) {
 	    				if (event == NgChm.MMGR.Event_INITIALIZED) {
@@ -62,6 +62,41 @@ NgChmGui.FILE.clusterMatrixData =  function() {
 		}
 	};
 	req.send(formData);
+}
+
+
+NgChmGui.FILE.setupCovarDataEntry = function(colCovs,colLabels,rowCovs,rowLabels,matrixData) {
+	var prefsPanelDiv = document.getElementById("preferencesPanel");    
+	var classPrefsDiv = NgChmGui.UTIL.getDivElement("classPrefsDiv");
+	var headerPrefsDiv = NgChmGui.UTIL.getDivElement("classTypeHeader");
+	var prefContents = document.createElement("TABLE");
+	NgChmGui.UTIL.addBlankRow(prefContents)
+	NgChmGui.UTIL.addBlankRow(prefContents)
+	NgChmGui.UTIL.setTableRow(prefContents, ["Enter Color Types for Selected Covariates"],2);
+	var colorTypeOptions = "<option value='discrete'>Discrete</option><option value='continuous'>Continuous</option></select>";
+	NgChmGui.UTIL.addBlankRow(prefContents)
+	NgChmGui.UTIL.setTableRow(prefContents, ["Column Covariates:"],2);
+	for (var i=0;i<colCovs.length;i++) {
+		var covPos = colCovs[i];
+		var colorTypeOptionsSelect = "<select name='rowColorTypePref_"+covPos+"' id='colColorTypePref_"+covPos+"';>" // onchange='NgChm.UPM.showPlotTypeProperties(&quot;"+keyRC+"&quot;)';>"
+		colorTypeOptionsSelect = colorTypeOptionsSelect+colorTypeOptions;
+		NgChmGui.UTIL.setTableRow(prefContents, ["&nbsp;&nbsp;"+matrixData[covPos][colLabels]+ ":", colorTypeOptionsSelect]);
+		NgChmGui.UTIL.addBlankRow(prefContents)
+	}
+	NgChmGui.UTIL.addBlankRow(prefContents)
+	NgChmGui.UTIL.setTableRow(prefContents, ["Row Covariates:"],2);
+	for (var i=0;i<rowCovs.length;i++) {
+		var covPos = rowCovs[i];
+		var colorTypeOptionsSelect = "<select name='rowColorTypePref_"+covPos+"' id='rowColorTypePref_"+covPos+"';>" // onchange='NgChm.UPM.showPlotTypeProperties(&quot;"+keyRC+"&quot;)';>"
+		colorTypeOptionsSelect = colorTypeOptionsSelect+colorTypeOptions;
+		NgChmGui.UTIL.setTableRow(prefContents, ["&nbsp;&nbsp;"+matrixData[covPos][rowLabels]+ ":", colorTypeOptionsSelect]);
+		NgChmGui.UTIL.addBlankRow(prefContents)
+	}
+	classPrefsDiv.appendChild(prefContents);
+	classPrefsDiv.style.display='';
+	prefsPanelDiv.appendChild(classPrefsDiv);
+	prefsPanelDiv.style.display='';
+	document.getElementById("matrix").style.display = 'none';
 }
 
 
@@ -79,11 +114,11 @@ NgChmGui.FILE.MatrixFile = function() {
 		var formData = new FormData( document.getElementById("matrix_frm") );
 		req.open("POST", "UploadMatrix", true);
 		req.onreadystatechange = function () {
-			console.log('state change');
+			if (NgChmGui.UTIL.debug) {console.log('state change');}
 			if (req.readyState == req.DONE) {
-				console.log('done');
+				if (NgChmGui.UTIL.debug) {console.log('done');}
 		        if (req.status != 200) {
-		        	console.log('not 200');
+		    		if (NgChmGui.UTIL.debug) {console.log('not 200');}
 		            console.log('Failed to upload matrix '  + req.status);
 		        } else {
 		        	//Display file name to right of file open button
@@ -91,12 +126,13 @@ NgChmGui.FILE.MatrixFile = function() {
 		        	//Remove any previous dtat from matrix display box
 		        	clearDisplayBox();
 		        	//Got corner of matrix data.
-		        	console.log('200');
+		    		if (NgChmGui.UTIL.debug) {console.log('200');}
 		        	topMatrixString = JSON.parse(req.response);
 		        	var matrixBox = document.getElementById('matrix');
 		        	var matrixDisplayBox = document.getElementById('matrixDisplay');
 		        	matrixBox.style.display = '';
 		        	matrixDisplayBox.style.display = '';
+		        	document.getElementById('matrixNextButton').style.display = ''
 		        	dataTable = Object.keys(topMatrixString).map(function(k) { return topMatrixString[k] });
 		        	loadDataFromFile();
 			    }
@@ -108,19 +144,28 @@ NgChmGui.FILE.MatrixFile = function() {
 	this.processMatrix = function() {
 		var req = new XMLHttpRequest();
 		var validMatrix = validateMatrixEntries();
-		if (validMatrix) {
+		var validCovEntries = true;
+		if ((rowCovs.length > 0) || (colCovs.length > 0)) {
+			if (document.getElementById("classPrefsDiv") === null) {
+				validCovEntries = false;
+				NgChmGui.FILE.setupCovarDataEntry(colCovs,colLabelCol,rowCovs,rowLabelRow,topMatrixString);
+			}
+		}
+		if ((validMatrix) && (validCovEntries)) {
 			var matrixJson = getJsonData();
 			req.open("POST", "ProcessMatrix", true);
 			req.setRequestHeader("Content-Type", "application/json");
 			req.onreadystatechange = function () {
-				console.log('state change');
+				if (NgChmGui.UTIL.debug) {console.log('state change');}
 				if (req.readyState == req.DONE) {
-					console.log('done');
+					if (NgChmGui.UTIL.debug) {console.log('done');}
 			        if (req.status != 200) {
-			        	console.log('not 200');
+						if (NgChmGui.UTIL.debug) {console.log('not 200');}
 			            console.log('Failed to process matrix '  + req.status);
+			            NgChmGui.UTIL.matrixLoadingError();
 			        } else {
-			        	console.log('200');
+						if (NgChmGui.UTIL.debug) {console.log('200');}
+			        	window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Covariates.html","_self")
 				    }
 				}
 			};
@@ -179,7 +224,17 @@ NgChmGui.FILE.MatrixFile = function() {
     	textSpan.appendChild(document.createTextNode(fileNameTxt));
 	}
 	
-	 function getJsonData() {     
+	 function getJsonData() { 
+		var colCovTypes = [];
+		var rowCovTypes = [];
+		for (var i=0;i<colCovs.length;i++) {
+			var covPos = colCovs[i];
+			colCovTypes.push(document.getElementById("colColorTypePref_"+covPos).value);
+		}
+		for (var i=0;i<rowCovs.length;i++) {
+			var covPos = rowCovs[i];
+			rowCovTypes.push(document.getElementById("rowColorTypePref_"+covPos).value);
+		}
 		var someData =  {MapName: document.getElementById('mapNameValue').value,
 		                 MapDesc: document.getElementById('mapDescValue').value,
 		                 MatrixName: document.getElementById('matrixNameValue').value,
@@ -190,7 +245,9 @@ NgChmGui.FILE.MatrixFile = function() {
 		                 RowLabelRow: rowLabelRow,
 		                 ColLabelCol: colLabelCol,
 		                 RowCovs: rowCovs,
-		                 ColCovs: colCovs};
+		                 ColCovs: colCovs,
+				         RowCovTypes: rowCovTypes,
+				         ColCovTypes: colCovTypes};
 		return JSON.stringify(someData);
 	}
 
@@ -228,15 +285,15 @@ NgChmGui.FILE.MatrixFile = function() {
 				var changeType = 'lab';
 				if (rowLabelRadio.checked) {
 					rowLabelRow = row;
-					var rowPos = rowCovs.indexOf(row);
+					var rowPos = colCovs.indexOf(row);
 					if (rowPos >= 0) {
-						rowCovs.splice(rowPos, 1);
+						colCovs.splice(rowPos, 1);
 					}
 				} else if (colLabelRadio.checked) {
 					colLabelCol = col;
-					var colPos = colCovs.indexOf(col);
+					var colPos = rowCovs.indexOf(col);
 					if (colPos >= 0) {
-						colCovs.splice(colPos, 1);
+						rowCovs.splice(colPos, 1);
 					}
 				} else if (rowCovRadio.checked) {
 					changeType = 'cov';
@@ -275,6 +332,7 @@ NgChmGui.FILE.MatrixFile = function() {
 	    });
 		setAllSelections(hot,'lab')
         hot.render();
+		return hot;
 	}
 
 	function selectDataStartSelection(hot,row,col) {
