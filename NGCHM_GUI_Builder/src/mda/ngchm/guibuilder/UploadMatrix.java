@@ -64,7 +64,7 @@ public class UploadMatrix extends HttpServlet {
 	        
 	        out.close();
 	        
-	        String jsonMatrixCorner = getTopOfMatrix(matrixFile, 20, 20);
+	        String jsonMatrixCorner = Util.getTopOfMatrix(matrixFile, 20, 20);
 	        
 	        writer.println(jsonMatrixCorner);
 	    } catch (Exception e) {
@@ -89,32 +89,6 @@ public class UploadMatrix extends HttpServlet {
 	}
 
 	
-	/*
-	 * Open the uploaded matrix and return the top left corner of it as a json string.
-	 */
-	private String getTopOfMatrix(String matrixFile, int numRows, int numCols) throws Exception {
-		Gson gson = new GsonBuilder().create();
-		String [][] topMatrix = new String[numRows][numCols];
-		
-		BufferedReader rdr = new BufferedReader(new FileReader(matrixFile));
-		int rowNum = 0;
-		String line = rdr.readLine();
-		while (line != null && rowNum < numRows){
-			String toks[] = line.split("\t");
-			int colNum = 0;
-			while (colNum < toks.length && colNum < numCols) {
-				topMatrix[rowNum][colNum] = toks[colNum];
-				colNum++;
-			}
-			line = rdr.readLine();
-			rowNum++;
-		}
-		rdr.close();
-		
-		String jsonMatrixTop = gson.toJson(topMatrix); 
-		return jsonMatrixTop;
-	}
-
 }
 
 

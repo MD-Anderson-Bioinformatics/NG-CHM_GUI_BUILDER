@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>NG-CHM Builder</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	 	<script src="javascript/NGCHM_GUI_Util.js"></script>
+	 	<script src="javascript/Transform.js"></script>
+	 	<script src="javascript/MatrixFile.js"></script>
+	 	<script src="javascript/lib/handsontable.full.min.js"></script>
+	 	<script src="javascript/lib/html5-canvas-bar-graph.js"></script>
+		<link rel="stylesheet" href="css/handsontable.full.css">
+		<link rel="stylesheet" href="css/NGCHM_GUI.css">
+ 		<script type="text/Javascript">
+			NgChmGui.mapProperties = null;
+			NgChmGui.UTIL.getHeatmapProperties(NgChmGui.FILE.loadClusterData);
+	 	</script>
+    </head>
+    <body style="font-family: sans-serif; font-size: 100%;" onload="NgChmGui.TRANS.getWorkingMatrix();">
+ 	   <div class="mdaServiceHeader" id="mdaServiceHeader">
+	        <div id="mda_header" class="mdaServiceHeaderLogo">
+	        	<a href="https://www.mdanderson.org/education-and-research/departments-programs-and-labs/departments-and-divisions/bioinformatics-and-computational-biology/index.html"  target="_blank">
+	           		<img id="mdaLogo" src="images/mdabcblogo262x108.png" alt=""/>
+	           </a>
+	       	</div>
+	 		<div id='map_info'>
+     			<div id="mapName"  class="inputText" style="font-size: 14px;color: rgb(51, 51, 51);"></div>
+    			<div id="mapDesc" class="inputText"  style="font-size: 14px;color: rgb(51, 51, 51);"></div>
+	  		</div>
+	    </div>   
+        <br>
+	    <div id="trans_container" style="height: 100%">   
+	 		<div id="transforms" style="float: left; width: 400px;">
+	 	        <form id="missing_frm" onsubmit="return false;">
+	 	        	<br>
+		            <b>Missing / Invalid Data:</b><br><br>
+		             &nbsp; &nbsp;Select a correction:
+		            <select name="Correction" id="Correction" onchange='NgChmGui.TRANS.selectCorrection()'>
+		  				<option value=""></option>
+		  				<option value="ReplaceNonNumeric">Replace Non-Numeric</option>
+		  				<option value="FillMissing">Fill Missing</option>
+					</select> 
+					<div id='ReplaceNonNumeric' style="display: none;">
+						<br>&nbsp; &nbsp;Replace Non-Numeric Values With:<br>
+						&nbsp; &nbsp;&nbsp;&nbsp;<input type="radio" name="nreplace" value="N/A" onclick="NgChmGui.TRANS.enableButton('correct_btn')"> N/A<br>
+  						&nbsp; &nbsp;&nbsp;&nbsp;<input type="radio" name="nreplace" value="zero" onclick="NgChmGui.TRANS.enableButton('correct_btn')"> Zero<br>
+  						&nbsp; &nbsp;&nbsp;&nbsp;<input type="radio" name="nreplace" value="rowmean" onclick="NgChmGui.TRANS.enableButton('correct_btn')"> Row Mean<br>
+  						&nbsp; &nbsp;&nbsp;&nbsp;<input type="radio" name="nreplace" value="colmean" onclick="NgChmGui.TRANS.enableButton('correct_btn')"> Column Mean<br>
+					</div>
+					<div id='FillMissing' style="display: none;">
+						<br>&nbsp; &nbsp;Replace Missing Values With:<br>
+  						&nbsp; &nbsp;&nbsp;&nbsp;<input type="radio" name="mreplace" value="zero" onclick="NgChmGui.TRANS.enableButton('correct_btn')"> Zero<br>
+  						&nbsp; &nbsp;&nbsp;&nbsp;<input type="radio" name="mreplace" value="rowmean" onclick="NgChmGui.TRANS.enableButton('correct_btn')"> Row Mean<br>
+  						&nbsp; &nbsp;&nbsp;&nbsp;<input type="radio" name="mreplace" value="colmean" onclick="NgChmGui.TRANS.enableButton('correct_btn')"> Column Mean<br>
+  						&nbsp; &nbsp;&nbsp;&nbsp;<input type="radio" name="mreplace" value="rowmin" onclick="NgChmGui.TRANS.enableButton('correct_btn')"> Row Minimum Value<br>
+  						&nbsp; &nbsp;&nbsp;&nbsp;<input type="radio" name="mreplace" value="colmin" onclick="NgChmGui.TRANS.enableButton('correct_btn')"> Column Minimum Value<br>
+					</div>
+					<br>
+					 &nbsp; &nbsp;<input id='correct_btn' type="image" src='images/applyButton.png' alt='Correct Invalid / Missing' onclick="NgChmGui.TRANS.correctMatrixData()" style="opacity: 0.3; display: none" disabled/>
+		        </form>
+		        <br>
+	 	        <form id="filter_frm" onsubmit="return false;">
+	 	        	<br>
+		            <b>Filter Data:</b><br><br>
+		            &nbsp; &nbsp;Select a filter:
+		            <select name="Filter" id="Filter" onchange='NgChmGui.TRANS.selectFilter()'>
+		  				<option value=""></option>
+		  				<option value="Variation">Variation</option>
+		  				<option value="Range">Range</option>
+		  				<option value="MissingData">Missing Data</option>
+					</select>
+					<br>
+					<div id='Variation' style="display: none;">
+						<br>&nbsp; &nbsp;Operate On:<br>
+						&nbsp; &nbsp;&nbsp;&nbsp;<input type="radio" name="vrowcol" value="row" checked> Row<br>
+  						&nbsp; &nbsp;&nbsp;&nbsp;<input type="radio" name="vrowcol" value="col"> Column<br>
+						<br>&nbsp; &nbsp;Method:<br>
+  						&nbsp; &nbsp;&nbsp;&nbsp;<input type="radio" name="vfiltermethod" value="std_value" onclick="NgChmGui.TRANS.enableButton('filter_btn')"> Remove if Standard Deviation &lt;&nbsp; &nbsp;<input type="text" name="std_limit" size=3><br>
+  						&nbsp; &nbsp;&nbsp;&nbsp;<input type="radio" name="vfiltermethod" value="pct" onclick="NgChmGui.TRANS.enableButton('filter_btn')"> Keep <input type="number" name="std_pct" min="0" max="99" style="width: 35px;">% with highest Standard Deviation  <br>
+  						&nbsp; &nbsp;&nbsp;&nbsp;<input type="radio" name="vfiltermethod" value="fixednum" onclick="NgChmGui.TRANS.enableButton('filter_btn')"> Keep <input type="text" name="std_num_keep" size=3> rows/cols with highest Standard Deviation  <br>
+					</div>
+					<div id='Range' style="display: none;">
+						<br>&nbsp; &nbsp;Operate On:<br>
+						&nbsp; &nbsp;&nbsp;&nbsp;<input type="radio" name="rrowcol" value="row" checked> Row<br>
+  						&nbsp; &nbsp;&nbsp;&nbsp;<input type="radio" name="rrowcol" value="col"> Column<br>
+						<br>&nbsp; &nbsp;Method:<br>
+  						&nbsp; &nbsp;&nbsp;&nbsp;<input type="radio" name="rfiltermethod" value="allless" onclick="NgChmGui.TRANS.enableButton('filter_bt'n)"> Remove if All Values &lt;&nbsp;&nbsp;<input type="text" name="arange_min" size=3><br>
+  						&nbsp; &nbsp;&nbsp;&nbsp;<input type="radio" name="rfiltermethod" value="allgreater" onclick="NgChmGui.TRANS.enableButton('filter_btn')"> Remove if All Values &gt;&nbsp;&nbsp;<input type="text" name="arange_max" size=3><br>
+  						&nbsp; &nbsp;&nbsp;&nbsp;<input type="radio" name="rfiltermethod" value="oneless" onclick="NgChmGui.TRANS.enableButton('filter_bt'n)"> Remove if One Value &lt;&nbsp;&nbsp;<input type="text" name="1range_min" size=3><br>
+  						&nbsp; &nbsp;&nbsp;&nbsp;<input type="radio" name="rfiltermethod" value="onegreater" onclick="NgChmGui.TRANS.enableButton('filter_btn')"> Remove if One Value &gt;&nbsp;&nbsp;<input type="text" name="1range_max" size=3><br>
+  						&nbsp; &nbsp;&nbsp;&nbsp;<input type="radio" name="rfiltermethod" value="oneval" onclick="NgChmGui.TRANS.enableButton('filter_btn')">   Keep if 1+ Values &gt;&nbsp;&nbsp;<input type="text" name="range_max" size=3><br> 
+					</div>
+					<div id='MissingData' style="display: none;">
+						<br>&nbsp; &nbsp;Operate On:<br>
+						&nbsp; &nbsp;&nbsp;&nbsp;<input type="radio" name="mrowcol" value="row" checked> Row<br>
+  						&nbsp; &nbsp;&nbsp;&nbsp;<input type="radio" name="mrowcol" value="col"> Column<br>
+						<br>&nbsp; &nbsp;Method:<br>
+  						&nbsp; &nbsp;&nbsp;&nbsp;<input type="radio" name="mfiltermethod" value="pctgreater" onclick="NgChmGui.TRANS.enableButton('filter_btn')"> Remove if &gt;&nbsp; <input type="number" name="std_pct" min="0" max="99" style="width: 35px;">% Missing Values<br>
+  						&nbsp; &nbsp;&nbsp;&nbsp;<input type="radio" name="mfiltermethod" value="pctless" onclick="NgChmGui.TRANS.enableButton('filter_btn')"> Remove if &gt; <input type="text" name="std_num_keep" size=3> (number) Missing Values<br>  
+					</div>
+					<br>
+					&nbsp; &nbsp;<input id='filter_btn' type="image" src='images/applyButton.png' alt='Filter Data' onclick="NgChmGui.TRANS.filterMatrixData()" style="opacity: 0.3; display: none" disabled/>
+		        </form>
+		        <br>
+	 	        <form id="trans_frm" onsubmit="return false;">
+	 	        	<br>
+		            <b>Transform Data:</b><br><br>
+		             &nbsp; &nbsp;Select a transform:
+		            <select name="Transform" id="Transform" onchange="NgChmGui.TRANS.selectTransform()">
+		  				<option value=""></option>
+		  				<option value="Log">Log</option>
+		  				<option value="MeanCenter">Mean Center</option>
+		  				<option value="Z-Norm">Z-Norm</option>
+					</select> 
+					<br>
+					<div id='Log' style="display: none;">
+						<br>&nbsp; &nbsp;Method:<br>
+  						&nbsp; &nbsp;&nbsp;&nbsp;<input type="radio" name="tlfiltermethod" value="log10" onclick="NgChmGui.TRANS.enableButton('trans_btn')"> Log Base 10<br>
+  						&nbsp; &nbsp;&nbsp;&nbsp;<input type="radio" name="tlfiltermethod" value="naturalLog" onclick="NgChmGui.TRANS.enableButton('filter_btn')"> Natural Log <br>
+					</div>
+					<div id='MeanCenter' style="display: none;">
+						<br>&nbsp; &nbsp;Mean Center:<br>
+						&nbsp; &nbsp;&nbsp;&nbsp;<input type="radio" name="tmrowcol" value="row" onclick="NgChmGui.TRANS.enableButton('filter_btn')"> Row<br>
+  						&nbsp; &nbsp;&nbsp;&nbsp;<input type="radio" name="tmrowcol" value="col" onclick="NgChmGui.TRANS.enableButton('filter_btn')"> Column<br>
+					</div>
+					<div id='Z-Norm' style="display: none;">
+						<br>&nbsp; &nbsp;Z-Normalize:<br>
+						&nbsp; &nbsp;&nbsp;&nbsp;<input type="radio" name="tmrowcol" value="row" onclick="NgChmGui.TRANS.enableButton('filter_btn')"> Row<br>
+  						&nbsp; &nbsp;&nbsp;&nbsp;<input type="radio" name="tmrowcol" value="col" onclick="NgChmGui.TRANS.enableButton('filter_btn')"> Column<br>
+					</div>
+					<br>
+					&nbsp;&nbsp;<input id='trans_btn' type="image" src='images/applyButton.png' alt='Transform the Matrix' onclick="NgChmGui.TRANS" style="opacity: 0.3; display: none" disabled/>
+		        </form>
+		        <br>
+		        <br>
+	            <b>Restore Original Matrix:</b>
+				&nbsp; &nbsp;<input id='restore_btn' type="image" src='images/resetButton.png' alt='Restore Matrix' onclick="NgChmGui.TRANS" />
+	            <br><br>	        
+		        <br>
+		        <br>
+			    <img id='prev1_btn' src='images/prevButton.png' alt='Go to previous step' onclick='NgChmGui.' style="float: left; padding: 10px;" />
+			    <img id='next1_btn' src='images/nextButton.png' alt='Go to next step' onclick='NgChmGui.' style="float: right; padding: 10px;" />
+		    </div>
+		    <div id="trans_data" style="float: right; width: calc(100% - 450px); padding-left:50px;">
+		    	<br><br>
+		     	<div id="matrix_stats" style="float: left;">
+		        	<b>Number of Rows:</b>  <label id="numRows"></label><br> <br>
+		        	<b>Number of Columns:</b> <label id="numCols"></label><br><br> 
+		        	<b>Missing Values:</b> <label id="numMissing"></label><br><br>
+		        	<b>Invalid Values:</b> <label id="numInvalid"></label><br><br>
+		        	&nbsp;<br>
+		        	&nbsp;<br>
+		        	&nbsp;<br>
+		    	</div>
+		    	<div id="matrix_histo" style="float: right;">
+		    		<b>Data Distribution:</b><br>
+		    		<canvas id="histo_canvas" style="width: 500px; height: 150px;"></canvas>
+		    	</div>    
+		        <br>
+		        <br>
+		        <div id="matrixDisplay" style="display: none; "></div>
+		    </div>
+		</div>
+	</body>
+</html>

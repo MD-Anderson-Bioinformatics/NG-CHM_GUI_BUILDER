@@ -63,7 +63,7 @@ NgChmGui.UTIL.toURIString = function(form) {
 		var element = elements[i];
 		var name = element.name;
 		var value = element.value;
-		if(name) {
+		if(name && (element.type != 'radio') || (element.checked == true)){
 			urlString = urlString + (urlString=="" ? "" : "&") + encodeURIComponent(name) + '=' + encodeURIComponent(value)
 		}
 	}
