@@ -565,6 +565,6 @@ NgChmGui.COV.processCovariates = function() {
 		};
 		req.send(matrixJson);
 	}  */
-	window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Cluster.html","_self")
+	window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Transform.html","_self")
 }
 

@@ -17,6 +17,7 @@
 		 		var chmFileItem = document.getElementById('image-upload');
 				chmFileItem.addEventListener('change', NgChmGui.matrixFile.sendMatrix, false);
 				NgChmGui.UTIL.messageBoxConfigure();
+				NgChm.UTIL.embedCHM(NgChmGui.FILE.Map, NgChmGui.FILE.Dir);
 		 	};	
 	 	</script>
     </head>
