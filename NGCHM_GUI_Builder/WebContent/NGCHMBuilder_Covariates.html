@@ -97,22 +97,25 @@
 					</table>
 		        </form>
 		    </div>	 		
-		    <div id="covarSelection" class="data_entry_container" style="width: 30%">
+		    <div id="covarSelection" class="data_entry_container" style="width: 25%">
 	 	        <form id="covar_frm" onsubmit="return false;">
 					<div id="preferencesPanel" style="display: none;">
 					</div>
 
 					<br/>
-					<img id='apply_btn' src='images/applyButton.png' alt='Cluster the Data' style="vertical-align: bottom;" onclick="NgChmGui.COV.applyCovariateSettings()" />
+					<img id='apply_btn' src='images/applyButton.png' alt='Cluster the Data' style="vertical-align: bottom;" onclick="NgChmGui.COV.applyCovariateSettings(1);" />
 				</form> 		
+		        <div id="covarPrevButton"  class="prev_btn">  
+		        	<img id='covarPrev_btn' src='images/prevButton.png' alt='Go to previous step' onclick='window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Matrix.html","_self")' />		
+		        </div>   
 		        <div id="covarNextButton"  class="next_btn">  
-		        	<img id='covarNext_btn' src='images/nextButton.png' alt='Go to next step' onclick="NgChmGui.COV.processCovariates();" />		
+		        	<img id='covarNext_btn' src='images/nextButton.png' alt='Go to next step' onclick="NgChmGui.COV.applyCovariateSettings(2);" />		
 		        </div>   
 			</div>
 	        <div id="clusterView" class="layout_display_container" style="margin: 1em 0 0 5%; width: 60%;">
-				<div id='NGCHMEmbed' style="background-color: white; height: 85%; margin-bottom: 0.25em; padding: 5px"></div>
+				<div id='NGCHMEmbed' style="background-color: white; height: 85%; margin-bottom: 0.25em; padding: 5px;"></div>
 				<script src='javascript/ngchmWidget-min.js'></script>
-				 <script> NgChmGui.UTIL.editWidgetForBuilder();</script>
+				 <script> NgChmGui.UTIL.editWidgetForCovarView();</script>
 			</div>
 		</div>
 		<div id="msgBox" style="display: none; position: absolute; background-color: rgb(230, 240, 255);"></div>

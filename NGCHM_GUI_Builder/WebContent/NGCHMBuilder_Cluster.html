@@ -10,6 +10,7 @@
 			NgChmGui.mapProperties = null;
 		 	window.onload = function() {
 				NgChmGui.UTIL.getHeatmapProperties(NgChmGui.FILE.loadClusterData);
+				NgChmGui.FILE.loadClusterView();
 				NgChmGui.UTIL.messageBoxConfigure();
 		 	}
 	 	</script>
@@ -28,19 +29,19 @@
 	    </div>   
         <br>
        	<div id="clusterDisplayContainer" class="display_container" style="position: relative">
-	 		<div id="clusterSelection" class="data_entry_container" style="width: 20%">
+	 		<div id="clusterSelection" class="data_entry_container" style="width: 25%">
 	 	        <form id="cluster_frm" onsubmit="return false;">
 	 	        	<div class="sec-header">Select Column Ordering Options:</div>
 					<table class="data_entry">
 						<tr><td>
-				            <select name="ColOrder" id="ColOrder">
+				            <select name="ColOrder" id="ColOrder" onchange="NgChmGui.FILE.setColOrderVisibility();">
 				  				<option value="Hierarchical">Hierarchical Clustering</option>
 				  				<option value="Random">Random</option>
 				  				<option value="Original">Original Order</option>
 							</select> 
 						</td></tr>
 						<tr><td>
-				            <select name="ColDistance" id="ColDistance">
+				            <select name="ColDistance" id="ColDistance" style="display: none;">
 				  				<option value="euclidean">Euclidean</option>
 								<option value="binary">Binary</option>
 								<option value="manhattan">Manhattan</option>
@@ -51,7 +52,7 @@
 				 			</select>
 						</td></tr>
 						<tr><td>
-				            <select name="ColAgglomeration" id="ColAgglomeration">
+				            <select name="ColAgglomeration" id="ColAgglomeration" style="display: none;">
 								<option value="average">Average Linkage</option>
 								<option value="complete">Complete Linkage</option>
 								<option value="single">Single Linkage</option>
@@ -65,14 +66,14 @@
 	 	        	<div class="sec-header">Select Row Ordering Options:</div>
 					<table class="data_entry">
 						<tr><td>
-				            <select name="RowOrder" id="RowOrder">
+				            <select name="RowOrder" id="RowOrder" onchange="NgChmGui.FILE.setRowOrderVisibility();">
 				  				<option value="Hierarchical">Hierarchical Clustering</option>
 				  				<option value="Random">Random</option>
 				  				<option value="Original">Original Order</option>
 							</select>
 						</td></tr>
 						<tr><td>
-				             <select name="RowDistance" id="RowDistance">
+				             <select name="RowDistance" id="RowDistance" style="display: none;">
 				  				<option value="euclidean">Euclidean</option>
 								<option value="binary">Binary</option>
 								<option value="manhattan">Manhattan</option>
@@ -83,7 +84,7 @@
 				 			</select>
 						</td></tr>
 						<tr><td>
-				            <select name="RowAgglomeration" id="RowAgglomeration">
+				            <select name="RowAgglomeration" id="RowAgglomeration" style="display: none;">
 								<option value="average">Average Linkage</option>
 								<option value="complete">Complete Linkage</option>
 								<option value="single">Single Linkage</option>
@@ -96,6 +97,9 @@
 					</table>
 					<br/>
 					<img id='cluster_btn' src='images/clusterButton.png' alt='Cluster the Data' style="vertical-align: bottom;" onclick="NgChmGui.FILE.clusterMatrixData()" />
+			        <div id="clusterPrevButton"  class="prev_btn">  
+			        	<img id='clusterPrev_btn' src='images/prevButton.png' alt='Go to previous step' onclick='window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Transform.html","_self")' />		
+			        </div>   
 			        <div id="clusterNextButton"  class="next_btn" style="display: none;">  
 			        	<img id='clusterNext_btn' src='images/nextButton.png' alt='Go to next step' onclick='window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Format.html","_self")' />		
 			        </div>   

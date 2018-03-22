@@ -19,7 +19,7 @@ import javax.servlet.http.HttpSession;
 
 import com.google.gson.Gson;
 
-import mda.ngchm.guibuilder.HeatmapPropertiesManager.Order;
+import mda.ngchm.datagenerator.HeatmapDataGenerator;
 
 /**
  * Servlet implementation class Upload Data Matrix
@@ -82,7 +82,7 @@ public class ProcessMatrix extends HttpServlet {
 	        }
 	        
 	        HeatmapPropertiesManager.Heatmap map = mgr.getMap();
-		    map.chm_name = matrixConfig.MapName;
+		    map.chm_name = matrixConfig.MapName.trim();
 		    map.chm_description = matrixConfig.MapDesc;
 		    //Remove any existing matrix files as we are putting a new one on the map
 		    map.matrix_files.removeAll(map.matrix_files);
@@ -119,7 +119,11 @@ public class ProcessMatrix extends HttpServlet {
 	        }
 
 			map.output_location = workingDir  + "/" + matrixConfig.MapName;
-		    mgr.save();
+			String props = mgr.save();
+
+		    //Call HeatmapDataGenerator to generate final heat map .ngchm file
+		    String genArgs[] = new String[] {props, "-NGCHM"};
+			String errMsg = HeatmapDataGenerator.processHeatMap(genArgs);
 			
 			System.out.println("END Processing Matrix: " + new Date()); 
 	    } catch (Exception e) {

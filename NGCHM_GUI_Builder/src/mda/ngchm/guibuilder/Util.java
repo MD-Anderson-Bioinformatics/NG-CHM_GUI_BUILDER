@@ -57,9 +57,14 @@ public class Util {
 		return tmpWorking;
 	}
 
-	public static boolean isNumeric(String str)
-	{
-	  return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
+	public static boolean isNumeric(String str)	{
+	  try  {  
+	    @SuppressWarnings("unused")
+		double d = Double.parseDouble(str);
+	  }   catch(Exception e)  { 
+	    return false;  
+	  }  
+	  return true;  
 	}
-
+	
 }

@@ -2,7 +2,6 @@
 //Define Namespace for NgChmGui MatrixFile
 NgChmGui.createNS('NgChmGui.TRANS');
 
-
 NgChmGui.TRANS.getWorkingMatrix =  function() {
 	var req = new XMLHttpRequest();
 	req.open("GET", "GetWorkingMatrix", true);
@@ -106,7 +105,9 @@ NgChmGui.TRANS.selectCorrection =  function() {
 	if (div !== undefined && div !== null) {
 		div.style.display = '';
 		document.getElementById('correct_btn').style.display = '';
-	}	
+	}	else {
+		document.getElementById('correct_btn').style.display = 'none';
+	}
 }
 
 NgChmGui.TRANS.selectFilter =  function() {
@@ -119,7 +120,9 @@ NgChmGui.TRANS.selectFilter =  function() {
 	if (div !== undefined && div !== null) {
 		div.style.display = '';
 		document.getElementById('filter_btn').style.display = '';
-	}		
+	}	else {
+		document.getElementById('filter_btn').style.display = 'none';
+	}
 }
 
 NgChmGui.TRANS.selectTransform =  function() {
@@ -132,7 +135,9 @@ NgChmGui.TRANS.selectTransform =  function() {
 	if (div !== undefined && div !== null) {
 		div.style.display = '';
 		document.getElementById('trans_btn').style.display = '';
-	}		
+	}	else {
+		document.getElementById('trans_btn').style.display = 'none';
+	}
 }
 
 NgChmGui.TRANS.enableButton = function(buttonId) {

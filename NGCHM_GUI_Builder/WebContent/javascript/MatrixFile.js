@@ -1,36 +1,94 @@
-
 //Define Namespace for NgChmGui MatrixFile
 NgChmGui.createNS('NgChmGui.FILE');
 
-//Create a MatrixManager to retrieve heat maps. 
-//Need to specify a fileSrc of heat map data - 
-//web server or local file.
+/**********************************************************************************
+ * FUNCTION - Matrix: This function creates a matrix file object for displaying the
+ * user selected matrix on the Matrix screen.
+ **********************************************************************************/
 NgChmGui.FILE.Matrix = function(fileSrc) {
 	this.getMatrixFile = function () {
 		return  new NgChmGui.FILE.MatrixFile( );
 	}	
 };  
 
+/**********************************************************************************
+ * FUNCTION - loadData: This function populates the name and description fields
+ * on the Matrix Screen
+ **********************************************************************************/
 NgChmGui.FILE.loadData =  function() {
 	document.getElementById("mapNameValue").value = NgChmGui.mapProperties.chm_name;
 	document.getElementById("mapDescValue").value = NgChmGui.mapProperties.chm_description;
 
 }
 
+/**********************************************************************************
+ * FUNCTION - loadClusterData: This function populates the dropdowns for row
+ * and column ordering on the cluster screen.
+ **********************************************************************************/
 NgChmGui.FILE.loadClusterData =  function() {
 	NgChmGui.UTIL.loadHeaderData();
 	if (typeof NgChmGui.mapProperties.col_configuration !== 'undefined') {
 		document.getElementById("ColOrder").value = NgChmGui.mapProperties.col_configuration.order_method;
-		document.getElementById("ColDistance").value = NgChmGui.mapProperties.col_configuration.distance_metric;
-		document.getElementById("ColAgglomeration").value = NgChmGui.mapProperties.col_configuration.agglomeration_method;
+		if (document.getElementById("ColOrder").value !== "Hierarchical") {
+			document.getElementById("ColDistance").value = "euclidean";
+			document.getElementById("ColAgglomeration").value = "ward";
+		} else {
+			document.getElementById("ColDistance").value = NgChmGui.mapProperties.col_configuration.distance_metric;
+			document.getElementById("ColAgglomeration").value = NgChmGui.mapProperties.col_configuration.agglomeration_method;
+		}
+		NgChmGui.FILE.setColOrderVisibility();
 	}
 	if (typeof NgChmGui.mapProperties.row_configuration !== 'undefined') {
 		document.getElementById("RowOrder").value = NgChmGui.mapProperties.row_configuration.order_method;
-		document.getElementById("RowDistance").value = NgChmGui.mapProperties.row_configuration.distance_metric;
-		document.getElementById("RowAgglomeration").value = NgChmGui.mapProperties.row_configuration.agglomeration_method;
+		if (document.getElementById("RowOrder").value !== "Hierarchical") {
+			document.getElementById("RowDistance").value = "euclidean";
+			document.getElementById("RowAgglomeration").value = "ward";
+		} else {
+			document.getElementById("RowDistance").value = NgChmGui.mapProperties.row_configuration.distance_metric;
+			document.getElementById("RowAgglomeration").value = NgChmGui.mapProperties.row_configuration.agglomeration_method;
+		}
+		NgChmGui.FILE.setRowOrderVisibility();
 	}
 }
 
+/**********************************************************************************
+ * FUNCTION - setColOrderVisibility: This function sets the visibility of the column
+ * agglomeration and distance metric dropdowns, based on the order method selected.
+ **********************************************************************************/
+NgChmGui.FILE.setColOrderVisibility =  function() {
+	var distance = document.getElementById("ColDistance");
+	var agglom = document.getElementById("ColAgglomeration");
+	if (document.getElementById("ColOrder").value !== "Hierarchical") {
+		distance.style.display = 'none';
+		agglom.style.display = 'none';
+	} else {
+		distance.style.display = '';
+		agglom.style.display = '';
+	}
+}
+
+/**********************************************************************************
+ * FUNCTION - setRowOrderVisibility: This function sets the visibility of the row
+ * agglomeration and distance metric dropdowns, based on the order method selected.
+ **********************************************************************************/
+NgChmGui.FILE.setRowOrderVisibility =  function(orderVal) {
+	var distance = document.getElementById("RowDistance");
+	var agglom = document.getElementById("RowAgglomeration");
+	if (document.getElementById("RowOrder").value !== "Hierarchical") {
+		distance.style.display = 'none';
+		agglom.style.display = 'none';
+	} else {
+		distance.style.display = '';
+		agglom.style.display = '';
+	}
+}
+
+
+/**********************************************************************************
+ * FUNCTION - clusterMatrixData: This function calls the servlet to cluster matrix 
+ * data (from the Cluster Panel) and displays the resultant heatmap changes in 
+ * the view panel on the cluster screen.
+ **********************************************************************************/
 NgChmGui.FILE.clusterMatrixData =  function() {
 	var req = new XMLHttpRequest();
 	var formData = NgChmGui.UTIL.toURIString( document.getElementById("cluster_frm") );
@@ -64,42 +122,84 @@ NgChmGui.FILE.clusterMatrixData =  function() {
 	req.send(formData);
 }
 
-
-NgChmGui.FILE.setupCovarDataEntry = function(colCovs,colLabels,rowCovs,rowLabels,matrixData) {
-	var prefsPanelDiv = document.getElementById("preferencesPanel");    
-	var classPrefsDiv = NgChmGui.UTIL.getDivElement("classPrefsDiv");
-	var headerPrefsDiv = NgChmGui.UTIL.getDivElement("classTypeHeader");
-	var prefContents = document.createElement("TABLE");
-	NgChmGui.UTIL.addBlankRow(prefContents)
-	NgChmGui.UTIL.addBlankRow(prefContents)
-	NgChmGui.UTIL.setTableRow(prefContents, ["Enter Color Types for Selected Covariates"],2);
-	var colorTypeOptions = "<option value='discrete'>Discrete</option><option value='continuous'>Continuous</option></select>";
-	NgChmGui.UTIL.addBlankRow(prefContents)
-	NgChmGui.UTIL.setTableRow(prefContents, ["Column Covariates:"],2);
-	for (var i=0;i<colCovs.length;i++) {
-		var covPos = colCovs[i];
-		var colorTypeOptionsSelect = "<select name='rowColorTypePref_"+covPos+"' id='colColorTypePref_"+covPos+"';>" // onchange='NgChm.UPM.showPlotTypeProperties(&quot;"+keyRC+"&quot;)';>"
-		colorTypeOptionsSelect = colorTypeOptionsSelect+colorTypeOptions;
-		NgChmGui.UTIL.setTableRow(prefContents, ["&nbsp;&nbsp;"+matrixData[covPos][colLabels]+ ":", colorTypeOptionsSelect]);
-		NgChmGui.UTIL.addBlankRow(prefContents)
-	}
-	NgChmGui.UTIL.addBlankRow(prefContents)
-	NgChmGui.UTIL.setTableRow(prefContents, ["Row Covariates:"],2);
-	for (var i=0;i<rowCovs.length;i++) {
-		var covPos = rowCovs[i];
-		var colorTypeOptionsSelect = "<select name='rowColorTypePref_"+covPos+"' id='rowColorTypePref_"+covPos+"';>" // onchange='NgChm.UPM.showPlotTypeProperties(&quot;"+keyRC+"&quot;)';>"
-		colorTypeOptionsSelect = colorTypeOptionsSelect+colorTypeOptions;
-		NgChmGui.UTIL.setTableRow(prefContents, ["&nbsp;&nbsp;"+matrixData[covPos][rowLabels]+ ":", colorTypeOptionsSelect]);
-		NgChmGui.UTIL.addBlankRow(prefContents)
-	}
-	classPrefsDiv.appendChild(prefContents);
-	classPrefsDiv.style.display='';
-	prefsPanelDiv.appendChild(classPrefsDiv);
-	prefsPanelDiv.style.display='';
-	document.getElementById("matrix").style.display = 'none';
+/**********************************************************************************
+ * FUNCTION - loadClusterView: This function runs when the cluster panel is
+ * initially loading and drawing the heatmap image in the view panel.
+ **********************************************************************************/
+NgChmGui.FILE.loadClusterView = function() {
+	var req = new XMLHttpRequest();
+	req.open("GET", "Cluster", true);
+	req.setRequestHeader("Content-Type", "application/json");
+	req.onreadystatechange = function () {
+		if (NgChmGui.UTIL.debug) {console.log('state change');}
+		if (req.readyState == req.DONE) {
+			if (NgChmGui.UTIL.debug) {console.log('done');}
+	        if (req.status != 200) {
+			if (NgChmGui.UTIL.debug) {console.log('not 200');}
+	            console.log('Failed to load cluster view changes '  + req.status);
+	            NgChmGui.UTIL.matrixLoadingError();
+	        } else {
+				if (NgChmGui.UTIL.debug) {console.log('200');}
+	        	result = req.response;
+	        	pieces = result.trim().split("|");
+	        	NgChm.UTIL.embedCHM(pieces[1], pieces[0]);
+	    		NgChm.postLoad = function () {
+	    			NgChm.heatMap.addEventListener(function (event, level) {
+	    				if (event == NgChm.MMGR.Event_INITIALIZED) {
+	    					document.getElementById('detail_chm').style.width = '4%';
+	    					document.getElementById('summary_chm').style.width = '96%';
+	    					NgChm.SUM.summaryResize();  
+	    		   		 }
+	    			});	
+	    		};	
+		    }
+		}
+	};
+	req.send();
 }
 
+/**********************************************************************************
+ * FUNCTION - addCovarDataEntry: This function will add a covariate file
+ * color type preference panel to the data entry (left) panel on the Matrix
+ * screen when a user adds a covariate bar by clicking on  on the matrix display 
+ * handsontable.
+ **********************************************************************************/
+NgChmGui.FILE.addCovarDataEntry = function(item, id, name, itemCtr) {
+	var prefsPanelDiv = document.getElementById("matrixCovsPanel");
+	if (itemCtr === 0) {
+	   	var covarTitle = NgChmGui.UTIL.getDivElement("covarPrefsTitle");
+	   	covarTitle.className = 'sec-header';
+	   	covarTitle.innerHTML = "Enter Color Type for Covariates"
+   		covarTitle.style.display = '';
+		prefsPanelDiv.appendChild(covarTitle);
+	}
+   	var covarDiv = NgChmGui.UTIL.getDivElement(item+"Div_"+id);
+   	covarDiv.className = 'pref-header';
+	var colorTypeOptionsSelect = "<select name='"+item+"Pref_"+id+"' id='"+item+"Pref_"+id+"';>" 
+	var colorTypeOptions = "<option value='discrete'>Discrete</option><option value='continuous'>Continuous</option></select>";
+	colorTypeOptionsSelect = colorTypeOptionsSelect+colorTypeOptions;
+	covarDiv.innerHTML = "&nbsp;&nbsp;"+name+":&nbsp;&nbsp;"+colorTypeOptionsSelect;
+	prefsPanelDiv.appendChild(covarDiv);
+	covarDiv.style.display = '';
+}
 
+/**********************************************************************************
+ * FUNCTION - removeCovarDataEntry: This function will remove a covariate file
+ * color type preference panel from the data entry (left) panel on the Matrix
+ * screen when a user removes a covariate bar by clicking on it for a second time
+ * on the matrix display handsontable.
+ **********************************************************************************/
+NgChmGui.FILE.removeCovarDataEntry = function(item, id, itemCtr) {
+	var itemDiv = document.getElementById(item+"Div_"+id); 
+	itemDiv.remove();
+	if (itemCtr === 1) {
+		document.getElementById("covarPrefsTitle").remove(); 
+	}
+}
+
+/**********************************************************************************
+ * FUNCTION - MatrixFile: This function defines the MatrixFile object.
+ **********************************************************************************/
 NgChmGui.FILE.MatrixFile = function() {
 	var dataTable = [];
 	var colLabelCol = 0;
@@ -109,6 +209,12 @@ NgChmGui.FILE.MatrixFile = function() {
 	var colCovs = [];
 	var firstDataPos = [0,0];
 
+	/**********************************************************************************
+	 * FUNCTION - sendMatrix: This function executes when a user uploads a matrix file
+	 * by selecting a matrix file.  It calls a servlet that uploads the matrix file
+	 * to the session directory for the current heat map, receives a grid (portion) of
+	 * that matrix file, and displays that grid in a handsontable object.
+	 **********************************************************************************/
 	this.sendMatrix = function() {
 		var req = new XMLHttpRequest();
 		var formData = new FormData( document.getElementById("matrix_frm") );
@@ -141,17 +247,16 @@ NgChmGui.FILE.MatrixFile = function() {
 		req.send(formData);
 	}
 	
+	/**********************************************************************************
+	 * FUNCTION - processMatrix: This function executes when a user presses the next
+	 * button on the Matrix screen.  It processes the matrix to create a working matrix
+	 * based upon user inputs from the Matrix screen and calls the next screen
+	 * in the build process.
+	 **********************************************************************************/
 	this.processMatrix = function() {
 		var req = new XMLHttpRequest();
 		var validMatrix = validateMatrixEntries();
-		var validCovEntries = true;
-		if ((rowCovs.length > 0) || (colCovs.length > 0)) {
-			if (document.getElementById("classPrefsDiv") === null) {
-				validCovEntries = false;
-				NgChmGui.FILE.setupCovarDataEntry(colCovs,colLabelCol,rowCovs,rowLabelRow,topMatrixString);
-			}
-		}
-		if ((validMatrix) && (validCovEntries)) {
+		if (validMatrix) {
 			var matrixJson = getJsonData();
 			req.open("POST", "ProcessMatrix", true);
 			req.setRequestHeader("Content-Type", "application/json");
@@ -173,6 +278,10 @@ NgChmGui.FILE.MatrixFile = function() {
 		}
 	}
 	
+	/**********************************************************************************
+	 * FUNCTION - validateMatrixEntries: This function validates user entries for 
+	 * name and description on the Matrix screen returning a boolean for validity.
+	 **********************************************************************************/
 	function validateMatrixEntries() {
 		var valid = true;
 		var msgText = "";
@@ -202,6 +311,10 @@ NgChmGui.FILE.MatrixFile = function() {
 		return valid;
 	}
 	
+	/**********************************************************************************
+	 * FUNCTION - clearDisplayBox: This function clears all contents of the handsontable
+	 * object.
+	 **********************************************************************************/
 	function clearDisplayBox() {
 		colLabelCol = 0;
 		rowLabelRow = 0;
@@ -214,6 +327,10 @@ NgChmGui.FILE.MatrixFile = function() {
     	}
 	}
 	
+	/**********************************************************************************
+	 * FUNCTION - displayFileName: This function displays the file name selected next
+	 * to the "Open Matrix File" button.
+	 **********************************************************************************/
 	function displayFileName() {
     	var textSpan = document.getElementById('fileNameText');
     	while( textSpan.firstChild) {
@@ -224,6 +341,10 @@ NgChmGui.FILE.MatrixFile = function() {
     	textSpan.appendChild(document.createTextNode(fileNameTxt));
 	}
 	
+	/**********************************************************************************
+	 * FUNCTION - getJsonData: This function create a JSON data object of all the 
+	 * user entries in the Matrix screen to be passed to the ProcessMatrix servlet.
+	 **********************************************************************************/
 	 function getJsonData() { 
 		var colCovTypes = [];
 		var rowCovTypes = [];
@@ -251,6 +372,10 @@ NgChmGui.FILE.MatrixFile = function() {
 		return JSON.stringify(someData);
 	}
 
+	/**********************************************************************************
+	 * FUNCTION - loadDataFromFile: This function loads the handsontable object with
+	 * data retrieved from the user selected input matrix.
+	 **********************************************************************************/
 	function loadDataFromFile() {
 		var getData = (function () {
 			return function () {
@@ -280,6 +405,7 @@ NgChmGui.FILE.MatrixFile = function() {
 				var selColor;
 		      	var row = data.row;
 		      	var col = data.col;
+		      	var covCtr = colCovs.length+rowCovs.length;
 				var rowMeta = hot.getCellMeta(row, 0);
 				var colMeta = hot.getCellMeta(0, col);
 				var changeType = 'lab';
@@ -303,8 +429,10 @@ NgChmGui.FILE.MatrixFile = function() {
 					}
 					if (colPos < 0) {
 						rowCovs.push(col);
+						NgChmGui.FILE.addCovarDataEntry("rowColorType", col, hot.getDataAtCell(rowLabelRow,col),covCtr); 
 					} else {
 						rowCovs.splice(colPos, 1);
+						NgChmGui.FILE.removeCovarDataEntry("rowColorType", col, covCtr);
 					}
 				} else if (colCovRadio.checked) {
 					changeType = 'cov';
@@ -314,8 +442,10 @@ NgChmGui.FILE.MatrixFile = function() {
 					}
 					if (rowPos < 0) {
 						colCovs.push(row);
+						NgChmGui.FILE.addCovarDataEntry("colColorType", row, hot.getDataAtCell(row,colLabelCol),covCtr); 
 					} else {
 						colCovs.splice(rowPos, 1);
+						NgChmGui.FILE.removeCovarDataEntry("colColorType", row, covCtr); 
 					}
 				} else if (dataStartRadio.checked) {
 					changeType = 'ds';

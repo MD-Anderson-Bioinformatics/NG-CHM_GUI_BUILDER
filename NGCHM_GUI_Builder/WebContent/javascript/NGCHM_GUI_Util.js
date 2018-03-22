@@ -78,7 +78,21 @@ NgChmGui.UTIL.editWidgetForBuilder = function() {
 	document.getElementById('bottom_buttons').style.display = 'none';
 	document.getElementById('barMenu_btn').style.display = 'none';
 	document.getElementById('mdaServiceHeader').style.border = 'none';
+	document.getElementById('column_dendro_canvas').style.display = '';
+	document.getElementById('row_dendro_canvas').style.display = '';
 }
+
+NgChmGui.UTIL.editWidgetForCovarView = function() {
+	document.getElementById('divider').style.display = 'none';
+	document.getElementById('column_dendro_canvas').style.display = 'none';
+	document.getElementById('row_dendro_canvas').style.display = 'none';
+	document.getElementById('detail_chm').style.display = 'none';
+	document.getElementById('summary_box_canvas').style.display = 'none';
+	document.getElementById('bottom_buttons').style.display = 'none';
+	document.getElementById('barMenu_btn').style.display = 'none';
+	document.getElementById('mdaServiceHeader').style.border = 'none';
+}
+
 
 NgChmGui.UTIL.getHeatmapProperties = function(loadFunction) {
 	var req = new XMLHttpRequest();

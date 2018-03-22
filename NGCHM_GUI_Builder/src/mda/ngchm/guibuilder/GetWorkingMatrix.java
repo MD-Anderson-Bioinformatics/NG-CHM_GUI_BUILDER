@@ -48,7 +48,7 @@ public class GetWorkingMatrix extends HttpServlet {
 		    String matrixFile = workingDir  + "/workingMatrix.txt";
 	        
 		    NumberFormat nf = new DecimalFormat("#,###.00");
-	        String jsonMatrixCorner = Util.getTopOfMatrix(matrixFile, 20, 10);
+	        String jsonMatrixCorner = Util.getTopOfMatrix(matrixFile, 20, 11);
 		    MatrixCounts counts = getMatrixCounts(matrixFile);
 		    StringBuffer jsonHisto = new StringBuffer();
 		    jsonHisto.append("\"histoBins\": [");
