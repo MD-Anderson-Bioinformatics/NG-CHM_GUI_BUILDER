@@ -42,11 +42,8 @@ NgChmGui.createNS = function (namespace) {
     return parent;
 };
 
-
-
-
 /**
- * General purpose javascript helper funcitons
+ * General purpose javascript helper functions
  */
 
 //Define Namespace for NgChm UTIL
@@ -56,6 +53,9 @@ NgChmGui.UTIL.maxValues = 2147483647;
 NgChmGui.UTIL.minValues = -2147483647;
 NgChmGui.UTIL.debug = false;
 
+/**********************************************************************************
+ * FUNCTION - toURIString: The purpose of this function to convert a URI to a string.
+ **********************************************************************************/
 NgChmGui.UTIL.toURIString = function(form) {
 	var urlString = "";
 	var elements = form.querySelectorAll( "input, select, textarea");
@@ -71,6 +71,10 @@ NgChmGui.UTIL.toURIString = function(form) {
 	return urlString;
 }		
 
+/**********************************************************************************
+ * FUNCTION - editWidgetForBuilder: The purpose of this function to hide various
+ * parts of the embedded heatmap widget for the Cluster screen.
+ **********************************************************************************/
 NgChmGui.UTIL.editWidgetForBuilder = function() {
 	document.getElementById('divider').style.display = 'none';
 	document.getElementById('detail_chm').style.display = 'none';
@@ -82,6 +86,10 @@ NgChmGui.UTIL.editWidgetForBuilder = function() {
 	document.getElementById('row_dendro_canvas').style.display = '';
 }
 
+/**********************************************************************************
+ * FUNCTION - editWidgetForCovarView: The purpose of this function to hide various
+ * parts of the embedded heatmap widget for the Covariate screen.
+ **********************************************************************************/
 NgChmGui.UTIL.editWidgetForCovarView = function() {
 	document.getElementById('divider').style.display = 'none';
 	document.getElementById('column_dendro_canvas').style.display = 'none';
@@ -93,7 +101,11 @@ NgChmGui.UTIL.editWidgetForCovarView = function() {
 	document.getElementById('mdaServiceHeader').style.border = 'none';
 }
 
-
+/**********************************************************************************
+ * FUNCTION - getHeatmapProperties: The purpose of this function to retrieve 
+ * heatmapProperties for a given screen (it is called from multiple places) and 
+ * then call that screen's "load" function.
+ **********************************************************************************/
 NgChmGui.UTIL.getHeatmapProperties = function(loadFunction) {
 	var req = new XMLHttpRequest();
 	req.open("POST", "MapProperties", true);
@@ -117,9 +129,20 @@ NgChmGui.UTIL.getHeatmapProperties = function(loadFunction) {
 	req.send();
 }
 
+/**********************************************************************************
+ * FUNCTION - loadHeaderData: The purpose of this function display header data
+ * on all screens BUT the Matrix screen.  It will display the heatmap name and 
+ * description OR text indicating that the user's session has expired
+ **********************************************************************************/
 NgChmGui.UTIL.loadHeaderData =  function() {
-	document.getElementById("mapName").innerHTML = "<b>Heat Map Name:</b>&nbsp;&nbsp;"+NgChmGui.mapProperties.chm_name;
-	document.getElementById("mapDesc").innerHTML = "<b>Heat Map Desc:</b>&nbsp;&nbsp;"+NgChmGui.mapProperties.chm_description;
+	if (NgChmGui.UTIL.elemExist(NgChmGui.mapProperties.chm_name)) {
+		document.getElementById("mapName").innerHTML = "<b>Heat Map Name:</b>&nbsp;&nbsp;"+NgChmGui.mapProperties.chm_name;
+		document.getElementById("mapDesc").innerHTML = "<b>Heat Map Desc:</b>&nbsp;&nbsp;"+NgChmGui.mapProperties.chm_description;
+	} else {
+		document.getElementById("mapName").innerHTML = "<b>Your Session Has Expired</b>";
+		setTimeout(function(){window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Matrix.html","_self"); }, 2000);
+		
+	}
 }
 
 /**********************************************************************************
@@ -132,6 +155,7 @@ NgChmGui.UTIL.loadHeaderData =  function() {
  * 3. setMessageBoxText - Places text in the message box body.
  * 4. setMessageBoxButton - Configures and places a button on the message box.
  * 5. messageBoxCancel - Closes the message box when a Cancel is requested.  
+ * 6. messageBoxConfigure - Adds the html for the message box to the screen's html.  
  **********************************************************************************/
 NgChmGui.UTIL.initMessageBox = function() {
 	var msgBox = document.getElementById('msgBox');
@@ -175,6 +199,15 @@ NgChmGui.UTIL.messageBoxCancel = function() {
 	NgChmGui.UTIL.initMessageBox();
 }
 
+NgChmGui.UTIL.messageBoxConfigure = function() {
+	var msgBox = document.getElementById('msgBox');
+	msgBox.innerHTML = "<div class='msgBoxHdr' id='msgBoxHdr'></div><table><tbody><tr class='chmTR'><td><div id='msgBoxTxt' style='display: inherit;font-size: 12px; background-color: rgb(230, 240, 255);'></div><table><tbody><tr><td align='left'><img id='msgBoxBtnImg_1' align='top' style='display: inherit;'></td><td align='left'><img id='msgBoxBtnImg_2' align='top' style='display: inherit;'></td><td align='right'><img id='msgBoxBtnImg_3' align='top' style='display: inherit;'></td><td align='right'><img id='msgBoxBtnImg_4' align='top' style='display: inherit;'></td></tr></tbody></table></td></tr></tbody></table>";
+}
+
+/**********************************************************************************
+ * FUNCTION - matrixValidationError: The purpose of this function display a message
+ * box when the user has not entered all required data on the Matrix screen.
+ **********************************************************************************/
 NgChmGui.UTIL.matrixValidationError = function(msgText, rows) {
 	NgChmGui.UTIL.initMessageBox();
 	NgChmGui.UTIL.setMessageBoxHeader("Matrix Selection Error(s)");
@@ -183,14 +216,10 @@ NgChmGui.UTIL.matrixValidationError = function(msgText, rows) {
 	document.getElementById('msgBox').style.display = '';
 }
 
-NgChmGui.UTIL.barTypeSelectionError = function() {
-	NgChmGui.UTIL.initMessageBox();
-	NgChmGui.UTIL.setMessageBoxHeader("Covariate Data Entry Warning");
-	NgChmGui.UTIL.setMessageBoxText("<br>Color map must be continuous to produce bar or scatter plots.<br><br>", 2);
-	NgChmGui.UTIL.setMessageBoxButton(3, "images/closeButton.png", "", "NgChmGui.UTIL.messageBoxCancel");
-	document.getElementById('msgBox').style.display = '';
-}
-
+/**********************************************************************************
+ * FUNCTION - matrixLoadingError: The purpose of this function display a message
+ * box when system is unable to load a matrix file.
+ **********************************************************************************/
 NgChmGui.UTIL.matrixLoadingError = function() {
 	NgChmGui.UTIL.initMessageBox();
 	NgChmGui.UTIL.setMessageBoxHeader("Matrix Loading Error");
@@ -199,12 +228,10 @@ NgChmGui.UTIL.matrixLoadingError = function() {
 	document.getElementById('msgBox').style.display = '';
 }
 
-
-NgChmGui.UTIL.messageBoxConfigure = function() {
-	var msgBox = document.getElementById('msgBox');
-	msgBox.innerHTML = "<div class='msgBoxHdr' id='msgBoxHdr'></div><table><tbody><tr class='chmTR'><td><div id='msgBoxTxt' style='display: inherit;font-size: 12px; background-color: rgb(230, 240, 255);'></div><table><tbody><tr><td align='left'><img id='msgBoxBtnImg_1' align='top' style='display: inherit;'></td><td align='left'><img id='msgBoxBtnImg_2' align='top' style='display: inherit;'></td><td align='right'><img id='msgBoxBtnImg_3' align='top' style='display: inherit;'></td><td align='right'><img id='msgBoxBtnImg_4' align='top' style='display: inherit;'></td></tr></tbody></table></td></tr></tbody></table>";
-}
-
+/**********************************************************************************
+ * FUNCTION - duplicateCovarError: The purpose of this function display a message
+ * box when the user attempts to add a duplicate covariate bar on the same axis.
+ **********************************************************************************/
 NgChmGui.UTIL.duplicateCovarError = function(axis,name) {
 	NgChmGui.UTIL.initMessageBox();
 	NgChmGui.UTIL.setMessageBoxHeader("Duplicate Covariate Entry Warning");
@@ -213,7 +240,17 @@ NgChmGui.UTIL.duplicateCovarError = function(axis,name) {
 	document.getElementById('msgBox').style.display = '';
 }
 
-
+/**********************************************************************************
+ * FUNCTION - elemExist: The purpose of this function is evaluate the existence
+ * of a given JS object and return true/false.
+ **********************************************************************************/
+NgChmGui.UTIL.elemExist = function(elem) {
+	if ((elem !== null) && (typeof elem !== 'undefined')) {
+		return true;
+	} else {
+		return false;
+	}
+}
 
 /**********************************************************************************
  * FUNCTION - getDivElement: The purpose of this function is to create and 

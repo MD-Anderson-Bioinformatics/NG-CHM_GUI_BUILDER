@@ -9,15 +9,11 @@
 		<link rel="stylesheet" href="css/handsontable.full.css">
 		<link rel="stylesheet" href="css/NGCHM_GUI.css">
 		<script type="text/Javascript">
-			var matrixFile = new NgChmGui.FILE.Matrix();
-			NgChmGui.matrixFile = matrixFile.getMatrixFile();
-			NgChmGui.covCheck = false;
-			NgChmGui.UTIL.getHeatmapProperties(NgChmGui.FILE.loadData);
+			NgChmGui.UTIL.getHeatmapProperties(NgChmGui.FILE.loadData); 
 		 	window.onload = function() {
 		 		var chmFileItem = document.getElementById('image-upload');
 				chmFileItem.addEventListener('change', NgChmGui.matrixFile.sendMatrix, false);
 				NgChmGui.UTIL.messageBoxConfigure();
-				NgChm.UTIL.embedCHM(NgChmGui.FILE.Map, NgChmGui.FILE.Dir);
 		 	};	
 	 	</script>
     </head>
@@ -45,8 +41,8 @@
 			    <br>
 		 		<div id='map_info'>
 			 		<div id='map_name' class="inputText">
-		     			<div id="mapName" style="font-size: 14px; color: #0843c1;"><b>Heat Map Name:</b>&nbsp;&nbsp;<input name="mapNameValue" id="mapNameValue" size="40"></input></div><br>
-		     			<div id="mapDesc" style="font-size: 14px; color: #0843c1;"><b>Heat Map Desc:</b>&nbsp;&nbsp;<textarea name="mapDescValue" id="mapDescValue" rows="4" cols="40"></textarea></div>
+		     			<div id="mapName" style="font-size: 14px; color: #0843c1;"><b>Heat Map Name:</b>&nbsp;&nbsp;<input name="mapNameValue" id="mapNameValue" size="40" onchange='NgChmGui.FILE.changeNameDesc()'></input></div><br>
+		     			<div id="mapDesc" style="font-size: 14px; color: #0843c1;"><b>Heat Map Desc:</b>&nbsp;&nbsp;<textarea name="mapDescValue" id="mapDescValue" rows="4" cols="40" onchange='NgChmGui.FILE.changeNameDesc()'></textarea></div>
 				 		<div id='matrix_name' class="inputText" style="display: none;">
 			     			<div id="matrixName"><b>Matrix Name:</b>&nbsp;&nbsp;<input name="matrixNameValue" id="matrixNameValue" size="40" value="Data Layer 1"></input></div>
 			  		    </div>
@@ -62,8 +58,8 @@
 			    <div id="matrix" style="display: none;">
 			        <br><b>Define the incoming data matrix: Select from the following controls and click on the grid to edit the location of labels, covariate bars, and the location at which the matrix data begins in the imported file.</b><br>
 					<br>
-					<input type="radio" id="rowlabelPos" name="rowType" value="rowLabel" checked> Label Row (red)
-					<input type="radio" id="collabelPos" name="rowType" value="colLabel"> Label Column (red)
+					<input type="radio" id="rowlabelPos" name="rowType" value="rowLabel" checked> Row Labels (red)
+					<input type="radio" id="collabelPos" name="rowType" value="colLabel"> Column Labels (red)
 			  		<input type="radio" id="rowCovPos" name="rowType" value="rowCov"> Row Covariates (yellow)
 			  		<input type="radio" id="colCovPos" name="rowType" value="colCov"> Column Covariates (yellow)
 			  		<input type="radio" id="dataStart" name="rowType" value="dataStart"> Data Start Location (green)

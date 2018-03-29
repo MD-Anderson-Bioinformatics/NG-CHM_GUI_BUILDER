@@ -18,6 +18,7 @@ public class HeatmapPropertiesManager {
 		public Order col_configuration;
 		public Order row_configuration;
 		public String output_location;
+		public BuilderConfig builder_config;
 	}
 	
 	public class MatrixFile {
@@ -26,6 +27,34 @@ public class HeatmapPropertiesManager {
 		public String summary_method;
 		public MatrixFile (String name, String path, String summary_method) {
 			this.name = name; this.path = path; this.summary_method = summary_method;
+		}
+	}
+	
+	public class BuilderConfig {
+		public MatrixGridConfig matrix_grid_config;
+		public BuilderConfig (MatrixGridConfig gridConfig) {
+			this.matrix_grid_config = gridConfig;
+		}
+	}
+	
+	public class MatrixGridConfig {
+		public String mapName;
+		public String mapDesc;
+		public String matrixName;
+		public int firstDataRow;
+		public int firstDataCol;
+		public int dataStartRow;
+		public int dataStartCol;
+		public int rowLabelRow;
+		public int colLabelCol;
+		public ArrayList<Integer> rowCovs = new ArrayList<Integer>();
+		public ArrayList<String> rowCovTypes = new ArrayList<String>();
+		public ArrayList<Integer> colCovs = new ArrayList<Integer>();
+		public ArrayList<String> colCovTypes = new ArrayList<String>();
+		public MatrixGridConfig (int fdRow, int fdCol, int dsRow, int dsCol, int rowLabel, int colLabel, ArrayList<Integer> rowCovs, ArrayList<String> rowCovTypes, ArrayList<Integer> colCovs,  ArrayList<String> colCovTypes) {
+			this.firstDataRow = fdRow; this.firstDataCol = fdCol; this.dataStartRow = dsRow; this.dataStartCol = dsCol; 
+			this.rowLabelRow = rowLabel; this.colLabelCol = colLabel; this.rowCovs = rowCovs; this.rowCovTypes = rowCovTypes; 
+			this.colCovs = colCovs; this.colCovTypes = colCovTypes;
 		}
 	}
 	
@@ -103,22 +132,37 @@ public class HeatmapPropertiesManager {
 	}
 	
 	public String save() throws Exception {
-		Gson gson = new Gson();
-		String jsonStr = gson.toJson(theMap);
 		String propFile = directory + "/heatmapProperties.json";
 		PrintWriter out = new PrintWriter(propFile);
-		out.println(jsonStr);
-		out.close();
+		try {
+			Gson gson = new Gson();
+			String jsonStr = gson.toJson(theMap);
+			out.println(jsonStr);
+			out.close();
+		} catch (Exception e) {
+			// do something
+		} finally {
+			out.close();
+			out = null;
+		}
 		return propFile;
 	}
 	
 	public String load() throws Exception {
-		Gson gson = new Gson();
 		String propFile = directory + "/heatmapProperties.json";
 		BufferedReader in = new BufferedReader(new FileReader(propFile));
-		String jsonStr = in.readLine();
-		theMap = gson.fromJson(jsonStr, Heatmap.class );
-		in.close();
+		String jsonStr = null;
+		try {
+			Gson gson = new Gson();
+			jsonStr = in.readLine();
+			theMap = gson.fromJson(jsonStr, Heatmap.class );
+			in.close();
+		} catch (Exception e) {
+			// do something
+		} finally {
+			in.close();
+			in = null;
+		}
 		return jsonStr;
 	}
 }

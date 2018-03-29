@@ -49,7 +49,6 @@ NgChmGui.COV.setupClassPrefs = function(classes) {
 	} else {
 		var noClassesDiv = NgChmGui.COV.getEmptyClassesPanel();
 		classPrefsDiv.appendChild(noClassesDiv);
-		noClassesDiv.style.display='none';
 	}
 	return classPrefsDiv; 
 }
@@ -69,6 +68,7 @@ NgChmGui.COV.getEmptyClassesPanel = function () {
 	NgChmGui.UTIL.setTableRow(noClassesTbl,["&nbsp;&nbsp;<b>No Covariates Assigned</b>"]);
 	NgChmGui.UTIL.addBlankRow(noClassesTbl);
 	noClassesDiv.appendChild(noClassesTbl);
+	noClassesDiv.style.display='none';
 	return noClassesDiv;
 }
 
@@ -322,8 +322,9 @@ NgChmGui.COV.loadNewCovariateBar = function() {
 	var classIdx = classes.length-1;
 	var lastClass = classes[classIdx];
 	var key =  NgChmGui.COV.getClassKey(lastClass);
-	if (classPrefsList.options[0].value === 'NONE') {
+	if (classPrefsList.options[0].value === 'classPref_NONE') {
 		classPrefsList.remove(0);
+		document.getElementById("classPref_NONE").style.display = 'none';
 	}
 	var classContentsDiv = NgChmGui.COV.setupCovariatePanel(lastClass,classIdx);
 	classPrefsDiv.appendChild(classContentsDiv);
@@ -416,12 +417,12 @@ NgChmGui.COV.removeCovariateBar = function() {
 	var selectedDiv = document.getElementById(selectedValue);
 	selectedDiv.parentNode.removeChild(selectedDiv);
 	classSelect.remove(selectedBarIdx);
-	if (classSelect.length > 0) {
-		NgChmGui.COV.showClassSelection(0);	        
-	} else {
-		classSelect.options[classSelect.options.length] = new Option('NONE', 'NONE');
+	if (classSelect.length < 1) {
+		var noClassesDiv = NgChmGui.COV.getEmptyClassesPanel();
+		document.getElementById("classPrefsDiv").appendChild(noClassesDiv);
 	}
 	NgChmGui.COV.hideCovarRemoval();
+	NgChmGui.COV.showClassSelection(0);
 }
 
 /**********************************************************************************
@@ -494,9 +495,7 @@ NgChmGui.COV.showClassSelection = function(selIndex) {
 		selIndex = classList.selectedIndex;
 	}
 	var key = classList.options[selIndex].value;
-	if (key !== 'NONE') {
-		document.getElementById(key).style.display="block";
-	}
+	document.getElementById(key).style.display="block";
 }
 
 /**********************************************************************************
@@ -507,9 +506,7 @@ NgChmGui.COV.hideAllClassDivs = function() {
 	var classBtn = document.getElementById("classPref_list");
 	for (var i=0; i<classBtn.length; i++){
 		var selectedDivId = classBtn.options[i].value;
-		if (selectedDivId !== 'NONE') {
-			document.getElementById(selectedDivId).style.display = 'none';
-		}
+		document.getElementById(selectedDivId).style.display = 'none';
 	}
 }
 
@@ -594,7 +591,7 @@ NgChmGui.COV.applyCovariateSettings = function(typ) {
 		    			});	
 		    		};	
 				} else {
-					window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Transform.html","_self");
+					window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Cluster.html","_self");
 			    }
 			}
 		};

@@ -5,7 +5,7 @@ NgChmGui.createNS('NgChmGui.FILE');
  * FUNCTION - Matrix: This function creates a matrix file object for displaying the
  * user selected matrix on the Matrix screen.
  **********************************************************************************/
-NgChmGui.FILE.Matrix = function(fileSrc) {
+NgChmGui.FILE.Matrix = function() {
 	this.getMatrixFile = function () {
 		return  new NgChmGui.FILE.MatrixFile( );
 	}	
@@ -16,8 +16,13 @@ NgChmGui.FILE.Matrix = function(fileSrc) {
  * on the Matrix Screen
  **********************************************************************************/
 NgChmGui.FILE.loadData =  function() {
-	document.getElementById("mapNameValue").value = NgChmGui.mapProperties.chm_name;
-	document.getElementById("mapDescValue").value = NgChmGui.mapProperties.chm_description;
+	var properties = NgChmGui.mapProperties;
+	var matrixFile = new NgChmGui.FILE.Matrix();
+	NgChmGui.matrixFile = matrixFile.getMatrixFile();
+	if (NgChmGui.UTIL.elemExist(NgChmGui.mapProperties.chm_name)) {
+		document.getElementById("mapNameValue").value = NgChmGui.mapProperties.chm_name;
+		document.getElementById("mapDescValue").value = NgChmGui.mapProperties.chm_description;
+	}
 
 }
 
@@ -82,7 +87,6 @@ NgChmGui.FILE.setRowOrderVisibility =  function(orderVal) {
 		agglom.style.display = '';
 	}
 }
-
 
 /**********************************************************************************
  * FUNCTION - clusterMatrixData: This function calls the servlet to cluster matrix 
@@ -175,7 +179,7 @@ NgChmGui.FILE.addCovarDataEntry = function(item, id, name, itemCtr) {
 	}
    	var covarDiv = NgChmGui.UTIL.getDivElement(item+"Div_"+id);
    	covarDiv.className = 'pref-header';
-	var colorTypeOptionsSelect = "<select name='"+item+"Pref_"+id+"' id='"+item+"Pref_"+id+"';>" 
+	var colorTypeOptionsSelect = "<select name='"+item+"Pref_"+id+"' id='"+item+"Pref_"+id+"' onchange='NgChmGui.FILE.colorTypeChange();';>" 
 	var colorTypeOptions = "<option value='discrete'>Discrete</option><option value='continuous'>Continuous</option></select>";
 	colorTypeOptionsSelect = colorTypeOptionsSelect+colorTypeOptions;
 	covarDiv.innerHTML = "&nbsp;&nbsp;"+name+":&nbsp;&nbsp;"+colorTypeOptionsSelect;
@@ -183,6 +187,30 @@ NgChmGui.FILE.addCovarDataEntry = function(item, id, name, itemCtr) {
 	covarDiv.style.display = '';
 }
 
+/**********************************************************************************
+ * FUNCTION - colorTypeChange: This function updates the "hasChanged" indicator 
+ * variable on the MatrixFile object.  It fires when the user changes a value on
+ * any of the color_type dropdowns on the Matrix screen. This will be used to determine 
+ * whether the Matrix screen needs to be processed when the NEXT button is pressed.
+ **********************************************************************************/
+NgChmGui.FILE.colorTypeChange = function() {
+	NgChmGui.matrixFile.setChangedState(true);
+}
+
+/**********************************************************************************
+ * FUNCTION - changeNameDesc: This function updates the "hasChanged" indicator 
+ * variable on the MatrixFile object.  It fires when the user changes the value for
+ * heat map name or description on the Matrix screen. This will be used to determine 
+ * whether the Matrix screen needs to be processed when the NEXT button is pressed.
+ **********************************************************************************/
+NgChmGui.FILE.changeNameDesc = function() {
+	if (document.getElementById('mapNameValue').value !== NgChmGui.mapProperties.chm_name) {
+		NgChmGui.matrixFile.setChangedState(true);
+	}
+	if (document.getElementById('mapDescValue').value !== NgChmGui.mapProperties.chm_description) {
+		NgChmGui.matrixFile.setChangedState(true);
+	}
+}
 /**********************************************************************************
  * FUNCTION - removeCovarDataEntry: This function will remove a covariate file
  * color type preference panel from the data entry (left) panel on the Matrix
@@ -201,6 +229,7 @@ NgChmGui.FILE.removeCovarDataEntry = function(item, id, itemCtr) {
  * FUNCTION - MatrixFile: This function defines the MatrixFile object.
  **********************************************************************************/
 NgChmGui.FILE.MatrixFile = function() {
+	var hasChanged = false;
 	var dataTable = [];
 	var colLabelCol = 0;
 	var rowLabelRow = 0;
@@ -208,7 +237,11 @@ NgChmGui.FILE.MatrixFile = function() {
 	var rowCovs = [];
 	var colCovs = [];
 	var firstDataPos = [0,0];
-
+	
+	this.setChangedState = function(state) {
+		hasChanged = state;
+	}
+	
 	/**********************************************************************************
 	 * FUNCTION - sendMatrix: This function executes when a user uploads a matrix file
 	 * by selecting a matrix file.  It calls a servlet that uploads the matrix file
@@ -227,20 +260,22 @@ NgChmGui.FILE.MatrixFile = function() {
 		    		if (NgChmGui.UTIL.debug) {console.log('not 200');}
 		            console.log('Failed to upload matrix '  + req.status);
 		        } else {
-		        	//Display file name to right of file open button
-		        	displayFileName();
-		        	//Remove any previous dtat from matrix display box
-		        	clearDisplayBox();
-		        	//Got corner of matrix data.
 		    		if (NgChmGui.UTIL.debug) {console.log('200');}
-		        	topMatrixString = JSON.parse(req.response);
-		        	var matrixBox = document.getElementById('matrix');
-		        	var matrixDisplayBox = document.getElementById('matrixDisplay');
-		        	matrixBox.style.display = '';
-		        	matrixDisplayBox.style.display = '';
-		        	document.getElementById('matrixNextButton').style.display = ''
-		        	dataTable = Object.keys(topMatrixString).map(function(k) { return topMatrixString[k] });
-		        	loadDataFromFile();
+		        	//Display file name to right of file open button
+		        	if (displayFileName()) {
+			        	//Remove any previous dtat from matrix display box
+			        	clearDisplayBox();
+			        	//Got corner of matrix data.
+			    		resetGridToDefaults();
+			        	topMatrixString = JSON.parse(req.response);
+			        	var matrixBox = document.getElementById('matrix');
+			        	var matrixDisplayBox = document.getElementById('matrixDisplay');
+			        	matrixBox.style.display = '';
+			        	matrixDisplayBox.style.display = '';
+			        	document.getElementById('matrixNextButton').style.display = ''
+			        	dataTable = Object.keys(topMatrixString).map(function(k) { return topMatrixString[k] });
+			        	loadDataFromFile();
+		        	}
 			    }
 			}
 		};
@@ -256,28 +291,59 @@ NgChmGui.FILE.MatrixFile = function() {
 	this.processMatrix = function() {
 		var req = new XMLHttpRequest();
 		var validMatrix = validateMatrixEntries();
+		var dataChanged = getChangeState();
 		if (validMatrix) {
-			var matrixJson = getJsonData();
-			req.open("POST", "ProcessMatrix", true);
-			req.setRequestHeader("Content-Type", "application/json");
-			req.onreadystatechange = function () {
-				if (NgChmGui.UTIL.debug) {console.log('state change');}
-				if (req.readyState == req.DONE) {
-					if (NgChmGui.UTIL.debug) {console.log('done');}
-			        if (req.status != 200) {
-						if (NgChmGui.UTIL.debug) {console.log('not 200');}
-			            console.log('Failed to process matrix '  + req.status);
-			            NgChmGui.UTIL.matrixLoadingError();
-			        } else {
-						if (NgChmGui.UTIL.debug) {console.log('200');}
-			        	window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Covariates.html","_self")
-				    }
-				}
-			};
-			req.send(matrixJson);
+			if (dataChanged) {
+				var matrixJson = getJsonData();
+				req.open("POST", "ProcessMatrix", true);
+				req.setRequestHeader("Content-Type", "application/json");
+				req.onreadystatechange = function () {
+					if (NgChmGui.UTIL.debug) {console.log('state change');}
+					if (req.readyState == req.DONE) {
+						if (NgChmGui.UTIL.debug) {console.log('done');}
+				        if (req.status != 200) {
+							if (NgChmGui.UTIL.debug) {console.log('not 200');}
+				            console.log('Failed to process matrix '  + req.status);
+				            NgChmGui.UTIL.matrixLoadingError();
+				        } else {
+							if (NgChmGui.UTIL.debug) {console.log('200');}
+				        	window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Transform.html","_self")
+					    }
+					}
+				};
+				req.send(matrixJson);
+			} else {
+	        	window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Transform.html","_self")
+			}
 		}
 	}
 	
+	/**********************************************************************************
+	 * FUNCTION - resetGridToDefaults: This function resets all user grid selections
+	 * to their default values.  It is run whenever a new matrix file is opened.
+	 **********************************************************************************/
+	function resetGridToDefaults() {
+		//Reset grid positioning/selections to defaults
+		dataTable = [];
+		colLabelCol = 0;
+		rowLabelRow = 0;
+		dataStartPos = [1,1];
+		rowCovs = [];
+		colCovs = [];
+		firstDataPos = [0,0];
+		hasChanged = true;
+		//Remove any color_type dropdown lists from Matrix screen
+		var colorDropdowns = document.querySelectorAll('*[id*="ColorTypeDiv"]');
+		for (var i=0;i<colorDropdowns.length;i++) {
+			var elem = colorDropdowns[i]
+			elem.remove();
+		}
+	}
+	
+	function getChangeState() {
+		return hasChanged;
+	}
+
 	/**********************************************************************************
 	 * FUNCTION - validateMatrixEntries: This function validates user entries for 
 	 * name and description on the Matrix screen returning a boolean for validity.
@@ -329,16 +395,22 @@ NgChmGui.FILE.MatrixFile = function() {
 	
 	/**********************************************************************************
 	 * FUNCTION - displayFileName: This function displays the file name selected next
-	 * to the "Open Matrix File" button.
+	 * to the "Open Matrix File" button.  This function is also used to determine if the 
+	 * user "canceled" the file open process.  The returned boolean will be evaluated
+	 * and the newly uploaded file display process will be halted.
 	 **********************************************************************************/
 	function displayFileName() {
+		var filePath = document.getElementById('file-input').value;
+		if ((filePath === null) || (filePath === '')) {
+			return false;
+		}
     	var textSpan = document.getElementById('fileNameText');
     	while( textSpan.firstChild) {
     		textSpan.removeChild( textSpan.firstChild );
     	}
-    	var filePath = document.getElementById('file-input').value;
     	var fileNameTxt = "  "+filePath.substring(12,filePath.length);
     	textSpan.appendChild(document.createTextNode(fileNameTxt));
+    	return true;
 	}
 	
 	/**********************************************************************************
@@ -356,19 +428,19 @@ NgChmGui.FILE.MatrixFile = function() {
 			var covPos = rowCovs[i];
 			rowCovTypes.push(document.getElementById("rowColorTypePref_"+covPos).value);
 		}
-		var someData =  {MapName: document.getElementById('mapNameValue').value,
-		                 MapDesc: document.getElementById('mapDescValue').value,
-		                 MatrixName: document.getElementById('matrixNameValue').value,
-		                 FirstDataRow: firstDataPos[0],
-		                 FirstDataCol: firstDataPos[1],
-		                 DataStartRow: dataStartPos[0],
-		                 DataStartCol: dataStartPos[1],
-		                 RowLabelRow: rowLabelRow,
-		                 ColLabelCol: colLabelCol,
-		                 RowCovs: rowCovs,
-		                 ColCovs: colCovs,
-				         RowCovTypes: rowCovTypes,
-				         ColCovTypes: colCovTypes};
+		var someData =  {mapName: document.getElementById('mapNameValue').value,
+		                 mapDesc: document.getElementById('mapDescValue').value,
+		                 matrixName: document.getElementById('matrixNameValue').value,
+		                 firstDataRow: firstDataPos[0],
+		                 firstDataCol: firstDataPos[1],
+		                 dataStartRow: dataStartPos[0],
+		                 dataStartCol: dataStartPos[1],
+		                 rowLabelRow: rowLabelRow,
+		                 colLabelCol: colLabelCol,
+		                 rowCovs: rowCovs,
+		                 colCovs: colCovs,
+				         rowCovTypes: rowCovTypes,
+				         colCovTypes: colCovTypes};
 		return JSON.stringify(someData);
 	}
 
@@ -605,5 +677,90 @@ NgChmGui.FILE.MatrixFile = function() {
 			    }
 		    }
 	}
-
+	
+	/**********************************************************************************
+	 * FUNCTION - reloadGridFromConfig: This function reloads the handsontable from 
+	 * saved grid config properties.  Colors that table and creates/populates any
+	 * covariate color type dropdowns on the Matrix screen.
+	 **********************************************************************************/
+	function reloadGridFromConfig() {
+		var gridConfig = NgChmGui.mapProperties.builder_config.matrix_grid_config;
+		colLabelCol = gridConfig.colLabelCol;
+		rowLabelRow = gridConfig.rowLabelRow;
+		dataStartPos = [gridConfig.dataStartRow, gridConfig.dataStartCol];
+		rowCovs = gridConfig.rowCovs;
+		colCovs = gridConfig.colCovs;
+		firstDataPos = [gridConfig.firstDataRow, gridConfig.firstDataCol];
+		loadDataFromFile();
+		if (colCovs.length > 0) {
+			for (var i =0;i<colCovs.length;i++) {
+				var heading = dataTable[(colCovs[i])] [colLabelCol];
+				NgChmGui.FILE.addCovarDataEntry("colColorType", colCovs[i], heading, colCovs.length+rowCovs.length); 
+				var colorType = "discrete";
+				for (var j=0;j<NgChmGui.mapProperties.classification_files.length;j++) {
+					if ((heading === NgChmGui.mapProperties.classification_files[j].name) && (NgChmGui.mapProperties.classification_files[j].position = "column")) {
+						colorType = NgChmGui.mapProperties.classification_files[j].color_map.type;
+						break;
+					}
+				}
+				document.getElementById("colColorTypePref_"+ colCovs[i]).value = colorType;
+			}
+		}
+		if (rowCovs.length > 0) {
+			for (var i =0;i<rowCovs.length;i++) {
+				var heading = dataTable[rowLabelRow] [(rowCovs[i])];
+				NgChmGui.FILE.addCovarDataEntry("rowColorType", rowCovs[i], heading, colCovs.length+rowCovs.length); 
+				var colorType = "discrete";
+				for (var j=0;j<NgChmGui.mapProperties.classification_files.length;j++) {
+					if ((heading === NgChmGui.mapProperties.classification_files[j].name) && (NgChmGui.mapProperties.classification_files[j].position = "row")) {
+						colorType = NgChmGui.mapProperties.classification_files[j].color_map.type;
+						break;
+					}
+				}
+				document.getElementById("rowColorTypePref_"+ rowCovs[i]).value = colorType;
+			}
+		}
+	}
+	
+	/**********************************************************************************
+	 * This section of JS runs when a Matrix File object is created.  If the map properties 
+	 * contain the builder_config JSON node that contains a user's previous handsontable 
+	 * grid selections, this function will retrieve the original top-left matrix grid
+	 * and reload the handsontable, adding covariate dropdowns and grid coloring
+	 * where necessary to the Matrix screen.
+	 **********************************************************************************/
+	if (NgChmGui.UTIL.elemExist(NgChmGui.mapProperties.builder_config)) {
+		var req = new XMLHttpRequest();
+		req.open("POST", "ReloadMatrix", true);
+		req.onreadystatechange = function () {
+			if (NgChmGui.UTIL.debug) {console.log('state change');}
+			if (req.readyState == req.DONE) {
+				if (NgChmGui.UTIL.debug) {console.log('done');}
+		        if (req.status != 200) {
+		    		if (NgChmGui.UTIL.debug) {console.log('not 200');}
+		            console.log('Failed to upload matrix '  + req.status);
+		        } else {
+		        	//Display file name to right of file open button
+		        	displayFileName();
+		        	//Remove any previous dtat from matrix display box
+		        	clearDisplayBox();
+		        	//Got corner of matrix data.
+		    		if (NgChmGui.UTIL.debug) {console.log('200');}
+		    		var responseStr = req.response;
+		    		if (responseStr.trim() !==  "no_data") {
+			        	topMatrixString = JSON.parse(req.response);
+			        	var matrixBox = document.getElementById('matrix');
+			        	var matrixDisplayBox = document.getElementById('matrixDisplay');
+			        	matrixBox.style.display = '';
+			        	matrixDisplayBox.style.display = '';
+			        	document.getElementById('matrixNextButton').style.display = ''
+			        	dataTable = Object.keys(topMatrixString).map(function(k) { return topMatrixString[k] });
+			        	reloadGridFromConfig();
+		    		}
+			    }
+			}
+		};
+		req.send();
+	}
+	
 };

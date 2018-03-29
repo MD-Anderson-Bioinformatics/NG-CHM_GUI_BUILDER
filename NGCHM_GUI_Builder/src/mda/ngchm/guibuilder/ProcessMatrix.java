@@ -7,7 +7,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Date;
 
 import javax.servlet.ServletException;
@@ -27,21 +26,6 @@ import mda.ngchm.datagenerator.HeatmapDataGenerator;
 @WebServlet("/ProcessMatrix")
 public class ProcessMatrix extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private class MatrixConfigData {
-		private String MapName;
-		private String MapDesc;
-		private String MatrixName;
-		private int FirstDataRow;
-		private int FirstDataCol;
-		private int DataStartRow;
-		private int DataStartCol;
-		private int RowLabelRow;
-		private int ColLabelCol;
-		public ArrayList<Integer> RowCovs = new ArrayList<Integer>();
-		public ArrayList<String> RowCovTypes = new ArrayList<String>();
-		public ArrayList<Integer> ColCovs = new ArrayList<Integer>();
-		public ArrayList<String> ColCovTypes = new ArrayList<String>();
-	}
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
@@ -68,13 +52,14 @@ public class ProcessMatrix extends HttpServlet {
 	    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
 	        workingDir = workingDir + "/" + mySession.getId();
 
+	        HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
+
 			//Get/set matrix configuration data from request
-			MatrixConfigData matrixConfig = getMatrixConfigData(request);
+	        HeatmapPropertiesManager.MatrixGridConfig matrixConfig = getMatrixConfigData(request);
 	    	
 			//Construct and write out a working matrix file that has been filtered of covariate and whitespace rows/columns.
 	        String matrixFile = buildFilteredMatrix(workingDir, matrixConfig);
 	        
-	        HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
 	        File propFile = new File(workingDir + "/heatmapProperties.json");
 	        //Check for pre-existence of properties file.  If exists, load from properties manager
 	        if (propFile.exists()) {
@@ -82,11 +67,12 @@ public class ProcessMatrix extends HttpServlet {
 	        }
 	        
 	        HeatmapPropertiesManager.Heatmap map = mgr.getMap();
-		    map.chm_name = matrixConfig.MapName.trim();
-		    map.chm_description = matrixConfig.MapDesc;
+	        map.builder_config = (mgr.new BuilderConfig(matrixConfig));
+	        map.chm_name = matrixConfig.mapName.trim();
+		    map.chm_description = matrixConfig.mapDesc;
 		    //Remove any existing matrix files as we are putting a new one on the map
 		    map.matrix_files.removeAll(map.matrix_files);
-			map.matrix_files.add(mgr.new MatrixFile(matrixConfig.MatrixName, matrixFile, "average" ));  
+			map.matrix_files.add(mgr.new MatrixFile(matrixConfig.matrixName, matrixFile, "average"));  
 
 			//Add "default" row/col order configurations in original order
 		    map.row_configuration = mgr.new Order("Original");
@@ -97,9 +83,9 @@ public class ProcessMatrix extends HttpServlet {
 		    ProcessCovariate cov = new ProcessCovariate();
 	        //Construct and write out files for each row covariate bar contained in the matrix file
 		    int covCtr = 1;
-	        for (int i=0;i<matrixConfig.RowCovs.size();i++) {
-	        	int covCol = matrixConfig.RowCovs.get(i);
-	        	String covType = matrixConfig.RowCovTypes.get(i);
+	        for (int i=0;i<matrixConfig.rowCovs.size();i++) {
+	        	int covCol = matrixConfig.rowCovs.get(i);
+	        	String covType = matrixConfig.rowCovTypes.get(i);
 	        	String covFileName = workingDir + "/covariate_"+ covCtr + ".txt";
 	        	String covName = buildFilteredRowCovariate(workingDir, matrixConfig, covFileName, covCol);
 	        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructDefaultCovariate(mgr, covName, covFileName, "row", covType);
@@ -108,9 +94,9 @@ public class ProcessMatrix extends HttpServlet {
 	        }
 
 			//Construct and write out files for each column covariate bar contained in the matrix file
-	        for (int i=0;i<matrixConfig.ColCovs.size();i++) {
-	        	int covRow = matrixConfig.ColCovs.get(i);
-	        	String covType = matrixConfig.ColCovTypes.get(i);
+	        for (int i=0;i<matrixConfig.colCovs.size();i++) {
+	        	int covRow = matrixConfig.colCovs.get(i);
+	        	String covType = matrixConfig.colCovTypes.get(i);
 	        	String covFileName = workingDir + "/covariate_"+ covCtr + ".txt";
 		        String covName = buildFilteredColCovariate(workingDir, matrixConfig, covFileName, covRow);
 	        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructDefaultCovariate(mgr, covName, covFileName, "column", covType);
@@ -118,7 +104,7 @@ public class ProcessMatrix extends HttpServlet {
 	        	covCtr++;
 	        }
 
-			map.output_location = workingDir  + "/" + matrixConfig.MapName;
+			map.output_location = workingDir  + "/" + matrixConfig.mapName;
 			String props = mgr.save();
 
 		    //Call HeatmapDataGenerator to generate final heat map .ngchm file
@@ -137,7 +123,7 @@ public class ProcessMatrix extends HttpServlet {
 		
 	}
 
-	private MatrixConfigData getMatrixConfigData(HttpServletRequest request) throws Exception {
+	private HeatmapPropertiesManager.MatrixGridConfig getMatrixConfigData(HttpServletRequest request) throws Exception {
 		StringBuilder buffer = new StringBuilder();
 	    BufferedReader reader = request.getReader();
 	    String line;
@@ -146,7 +132,7 @@ public class ProcessMatrix extends HttpServlet {
 	    }
 	    String data = buffer.toString();
 	    // Parse payload into JSON Object
-	    MatrixConfigData matrixConfig = new Gson().fromJson(data, MatrixConfigData.class);
+	    HeatmapPropertiesManager.MatrixGridConfig matrixConfig = new Gson().fromJson(data, HeatmapPropertiesManager.MatrixGridConfig.class);
 	    
 	    return matrixConfig; 
 	}
@@ -159,7 +145,7 @@ public class ProcessMatrix extends HttpServlet {
 	 * file will contain only the matix data, exclusive of any covariate
 	 * bar and/or whitespace columns/rows in the original matrix.
 	 ******************************************************************/
-	private String buildFilteredMatrix(String workingDir, MatrixConfigData matrixConfig) throws Exception {
+	private String buildFilteredMatrix(String workingDir, HeatmapPropertiesManager.MatrixGridConfig matrixConfig) throws Exception {
 	    String originalFile = workingDir + "/originalMatrix.txt";
 	    String workingFile = workingDir + "/workingMatrix.txt";
 		BufferedReader reader = new BufferedReader(new FileReader(originalFile));
@@ -168,18 +154,18 @@ public class ProcessMatrix extends HttpServlet {
 			int rowNum = 0;
 			String line = reader.readLine();
 			while (line != null) {
-				if (rowNum < matrixConfig.FirstDataRow) {
+				if (rowNum < matrixConfig.firstDataRow) {
 					//ignore
 				} else {
 					String toks[] = line.split("\t");
-					if (rowNum == matrixConfig.RowLabelRow) {
+					if (rowNum == matrixConfig.rowLabelRow) {
 						boolean offset = false;
-						if (!toks[matrixConfig.ColLabelCol].trim().equals("")) {
+						if (!toks[matrixConfig.colLabelCol].trim().equals("")) {
 							offset = true;
 						}
 						writeOutMatrixRow(matrixConfig, writer, toks, offset);
 						writer.write("\n");
-					} else if (rowNum >= matrixConfig.DataStartRow) {
+					} else if (rowNum >= matrixConfig.dataStartRow) {
 						writeOutMatrixRow(matrixConfig, writer, toks, false); 
 						writer.write("\n");
 					}
@@ -196,15 +182,15 @@ public class ProcessMatrix extends HttpServlet {
 		return workingFile;
 	}
    
-	private void writeOutMatrixRow(MatrixConfigData matrixConfig, BufferedWriter writer, String toks[], boolean offset) throws Exception {
+	private void writeOutMatrixRow(HeatmapPropertiesManager.MatrixGridConfig matrixConfig, BufferedWriter writer, String toks[], boolean offset) throws Exception {
 		int endPoint = toks.length;
-		int startPoint = matrixConfig.DataStartCol;
+		int startPoint = matrixConfig.dataStartCol;
 		if (offset) {
 			endPoint = endPoint - 1;
 			startPoint = startPoint - 1;
 			writer.write(" " + "\t");
 		} else {
-			writer.write(toks[matrixConfig.ColLabelCol] + "\t"); 
+			writer.write(toks[matrixConfig.colLabelCol] + "\t"); 
 		}
 		for (int i = startPoint; i < endPoint; i++) {
 			writer.write(toks[i]);
@@ -219,7 +205,7 @@ public class ProcessMatrix extends HttpServlet {
 	 * This method constructs a column covariate bar data file from contents
 	 * extracted from the original data matrix uploaded to the builder.
 	 ******************************************************************/
-	private String buildFilteredColCovariate(String workingDir, MatrixConfigData matrixConfig, String covFileName, int covCol) throws Exception {
+	private String buildFilteredColCovariate(String workingDir, HeatmapPropertiesManager.MatrixGridConfig matrixConfig, String covFileName, int covCol) throws Exception {
 	    String originalFile = workingDir + "/originalMatrix.txt";
 		String covName = "";
 		BufferedReader reader = new BufferedReader(new FileReader(originalFile));
@@ -231,17 +217,17 @@ public class ProcessMatrix extends HttpServlet {
 			String covToks[] = null;
 			int labelOffset = 0;
 			while (line != null) {
-				if (rowNum < matrixConfig.FirstDataRow) {
+				if (rowNum < matrixConfig.firstDataRow) {
 					//ignore
 				} else {
-					if (rowNum == matrixConfig.RowLabelRow) {
+					if (rowNum == matrixConfig.rowLabelRow) {
 						labelToks = line.split("\t");
-						if (!labelToks[matrixConfig.ColLabelCol].trim().equals("")) {
+						if (!labelToks[matrixConfig.colLabelCol].trim().equals("")) {
 							labelOffset++;
 						}
 					} else if (rowNum == covCol) {
 						covToks = line.split("\t");
-						covName = covToks[matrixConfig.ColLabelCol];
+						covName = covToks[matrixConfig.colLabelCol];
 					}
 					if ((labelToks != null) && (covToks != null)) {
 						break;
@@ -250,7 +236,7 @@ public class ProcessMatrix extends HttpServlet {
 				rowNum++;
 				line = reader.readLine();
 			}
-			for (int i=matrixConfig.DataStartCol;i<covToks.length;i++) {
+			for (int i=matrixConfig.dataStartCol;i<covToks.length;i++) {
 				String label = labelToks[i-labelOffset];
 				String value = covToks[i];
 				if (!value.equals("")) {
@@ -272,7 +258,7 @@ public class ProcessMatrix extends HttpServlet {
 	 * This method constructs a row covariate bar data file from contents
 	 * extracted from the original data matrix uploaded to the builder.
 	 ******************************************************************/
-	private String buildFilteredRowCovariate(String workingDir, MatrixConfigData matrixConfig, String covFileName, int covRow) throws Exception {
+	private String buildFilteredRowCovariate(String workingDir, HeatmapPropertiesManager.MatrixGridConfig matrixConfig, String covFileName, int covRow) throws Exception {
 	    String originalFile = workingDir + "/originalMatrix.txt";
 		String covName = "";
 		BufferedReader reader = new BufferedReader(new FileReader(originalFile));
@@ -281,19 +267,19 @@ public class ProcessMatrix extends HttpServlet {
 			int rowNum = 0;
 			String line = reader.readLine();
 			while (line != null) {
-				if (rowNum < matrixConfig.FirstDataRow) {
+				if (rowNum < matrixConfig.firstDataRow) {
 					//ignore
-				} else if (rowNum == matrixConfig.RowLabelRow) {
+				} else if (rowNum == matrixConfig.rowLabelRow) {
 					String toks[] = line.split("\t");
 					int labelPos = covRow;  
-					int labelOffset = matrixConfig.ColLabelCol;  
+					int labelOffset = matrixConfig.colLabelCol;  
 					if (!toks[labelOffset].trim().equals("")) {
 						labelPos--;
 					}
 					covName = toks[labelPos];
-				} else if (rowNum >= matrixConfig.DataStartRow) {
+				} else if (rowNum >= matrixConfig.dataStartRow) {
 					String toks[] = line.split("\t");
-					String covLabel = toks[matrixConfig.ColLabelCol];
+					String covLabel = toks[matrixConfig.colLabelCol];
 					String covValue = toks[covRow];
 					writer.write(covLabel+"\t"+covValue+"\n");
 				}

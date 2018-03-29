@@ -1,12 +1,7 @@
 package mda.ngchm.guibuilder;
 
-
-
-
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -21,8 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 
 /**
  * Servlet implementation class Upload Data Matrix
@@ -45,28 +39,29 @@ public class UploadMatrix extends HttpServlet {
 	    final PrintWriter writer = response.getWriter();
 
 	    try {
-	        //Create a directory using the http session ID
-	    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
-	    	workingDir = workingDir + "/" + mySession.getId();
-		    File theDir = new File(workingDir);
-		    theDir.mkdir();
-
-		    String matrixFile = workingDir + "/" + fileName;
-		    out = new FileOutputStream(new File(matrixFile));
-	        filecontent = filePart.getInputStream();
-
-	        int read = 0;
-	        final byte[] bytes = new byte[1024];
-
-	        while ((read = filecontent.read(bytes)) != -1) {
-	            out.write(bytes, 0, read);
-	        }
-	        
-	        out.close();
-	        
-	        String jsonMatrixCorner = Util.getTopOfMatrix(matrixFile, 20, 20);
-	        
+	    	String jsonMatrixCorner = "no data";
+	    	if (filePart.getSize() > 0) {
+		        //Create a directory using the http session ID
+		    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
+		    	workingDir = workingDir + "/" + mySession.getId();
+			    File theDir = new File(workingDir);
+				if (!theDir.mkdir()) {
+					FileUtils.cleanDirectory(theDir);
+				}
+			    String matrixFile = workingDir + "/" + fileName;
+			    out = new FileOutputStream(new File(matrixFile));
+		        filecontent = filePart.getInputStream();
+	
+		        int read = 0;
+		        final byte[] bytes = new byte[1024];
+	
+		        while ((read = filecontent.read(bytes)) != -1) {
+		            out.write(bytes, 0, read);
+		        }
+		        jsonMatrixCorner = Util.getTopOfMatrix(matrixFile, 20, 20);
+	    	}
 	        writer.println(jsonMatrixCorner);
+	        out.close();
 	    } catch (Exception e) {
 	        writer.println("Error uploading matrix.");
 	        writer.println("<br/> ERROR: " + e.getMessage());

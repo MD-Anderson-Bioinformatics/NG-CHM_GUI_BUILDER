@@ -42,15 +42,21 @@ public class MapProperties extends HttpServlet {
 			
 			//Get heat map construction directory from session
 	    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
-	        workingDir = workingDir + "/" + mySession.getId();
-
-	        HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
-	        File propFile = new File(workingDir + "/heatmapProperties.json");
-	        //Check for pre-existence of properties file.  If exists, load from properties manager
 	        String propJSON = "{}";
-	        if (propFile.exists()) {
-	        	propJSON = mgr.load();
-	        }
+	    	if (mySession == null) {
+		        propJSON = "{\"no_session\": 1}";
+	    	} else {
+		        workingDir = workingDir + "/" + mySession.getId();
+	
+		        HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
+		        File propFile = new File(workingDir + "/heatmapProperties.json");
+		        //Check for pre-existence of properties file.  If exists, load from properties manager
+		        if (propFile.exists()) {
+		        	propJSON = mgr.load();
+		        } else {
+		        	propJSON = "{\"nofile\": 1}";
+		        }
+	    	}
 	       	response.setContentType("application/json");
 	    	response.getWriter().write(propJSON.toString());
 	    	response.flushBuffer();
