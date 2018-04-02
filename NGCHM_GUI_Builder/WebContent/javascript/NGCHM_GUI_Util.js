@@ -158,28 +158,28 @@ NgChmGui.UTIL.loadHeaderData =  function() {
  * 6. messageBoxConfigure - Adds the html for the message box to the screen's html.  
  **********************************************************************************/
 NgChmGui.UTIL.initMessageBox = function() {
-	var msgBox = document.getElementById('msgBox');
+	var msgBox = document.getElementById('message');
 	var headerpanel = document.getElementById('mdaServiceHeader');
 	
-	document.getElementById('msgBox').style.display = 'none';
-	document.getElementById('msgBoxBtnImg_1').style.display = 'none';
-	document.getElementById('msgBoxBtnImg_2').style.display = 'none';
-	document.getElementById('msgBoxBtnImg_3').style.display = 'none';
-	document.getElementById('msgBoxBtnImg_4').style.display = 'none';
-	document.getElementById('msgBoxBtnImg_1')['onclick'] = null;
-	document.getElementById('msgBoxBtnImg_2')['onclick'] = null;
-	document.getElementById('msgBoxBtnImg_3')['onclick'] = null;
-	document.getElementById('msgBoxBtnImg_4')['onclick'] = null;
+	document.getElementById('message').style.display = 'none';
+	document.getElementById('messageBtnImg_1').style.display = 'none';
+	document.getElementById('messageBtnImg_2').style.display = 'none';
+	document.getElementById('messageBtnImg_3').style.display = 'none';
+	document.getElementById('messageBtnImg_4').style.display = 'none';
+	document.getElementById('messageBtnImg_1')['onclick'] = null;
+	document.getElementById('messageBtnImg_2')['onclick'] = null;
+	document.getElementById('messageBtnImg_3')['onclick'] = null;
+	document.getElementById('messageBtnImg_4')['onclick'] = null;
 }
 
 NgChmGui.UTIL.setMessageBoxHeader = function(headerText) {
-	var msgBoxHdr = document.getElementById('msgBoxHdr');
+	var msgBoxHdr = document.getElementById('messageHdr');
 	msgBoxHdr.innerHTML = headerText;
 }
 
 NgChmGui.UTIL.setMessageBoxText = function(text, rows) {
-	var msgBox = document.getElementById('msgBox');
-	var msgBoxTxt = document.getElementById('msgBoxTxt');
+	var msgBox = document.getElementById('message');
+	var msgBoxTxt = document.getElementById('messageTxt');
 	var textBoxHeight = (rows * 9) + 95;
 	msgBoxTxt.style.width = '320px';
 	msgBox.style.height = textBoxHeight+ 'px';
@@ -187,7 +187,7 @@ NgChmGui.UTIL.setMessageBoxText = function(text, rows) {
 }
 
 NgChmGui.UTIL.setMessageBoxButton = function(buttonId, imageSrc, altText, onClick) {
-	var buttonImg = document.getElementById('msgBoxBtnImg_'+buttonId);
+	var buttonImg = document.getElementById('messageBtnImg_'+buttonId);
 	buttonImg.style.display = '';
 	buttonImg.src = imageSrc;
 	buttonImg.alt = altText;
@@ -200,8 +200,8 @@ NgChmGui.UTIL.messageBoxCancel = function() {
 }
 
 NgChmGui.UTIL.messageBoxConfigure = function() {
-	var msgBox = document.getElementById('msgBox');
-	msgBox.innerHTML = "<div class='msgBoxHdr' id='msgBoxHdr'></div><table><tbody><tr class='chmTR'><td><div id='msgBoxTxt' style='display: inherit;font-size: 12px; background-color: rgb(230, 240, 255);'></div><table><tbody><tr><td align='left'><img id='msgBoxBtnImg_1' align='top' style='display: inherit;'></td><td align='left'><img id='msgBoxBtnImg_2' align='top' style='display: inherit;'></td><td align='right'><img id='msgBoxBtnImg_3' align='top' style='display: inherit;'></td><td align='right'><img id='msgBoxBtnImg_4' align='top' style='display: inherit;'></td></tr></tbody></table></td></tr></tbody></table>";
+	var msgBox = document.getElementById('message');
+	msgBox.innerHTML = "<div class='messageHdr' id='messageHdr'></div><table><tbody><tr class='chmTR'><td><div id='messageTxt' style='display: inherit;font-size: 12px; background-color: rgb(230, 240, 255);'></div><table><tbody><tr><td align='left'><img id='messageBtnImg_1' align='top' style='display: inherit;'></td><td align='left'><img id='messageBtnImg_2' align='top' style='display: inherit;'></td><td align='right'><img id='messageBtnImg_3' align='top' style='display: inherit;'></td><td align='right'><img id='messageBtnImg_4' align='top' style='display: inherit;'></td></tr></tbody></table></td></tr></tbody></table>";
 }
 
 /**********************************************************************************
@@ -213,7 +213,7 @@ NgChmGui.UTIL.matrixValidationError = function(msgText, rows) {
 	NgChmGui.UTIL.setMessageBoxHeader("Matrix Selection Error(s)");
 	NgChmGui.UTIL.setMessageBoxText(msgText, rows);
 	NgChmGui.UTIL.setMessageBoxButton(3, "images/closeButton.png", "", "NgChmGui.UTIL.messageBoxCancel");
-	document.getElementById('msgBox').style.display = '';
+	document.getElementById('message').style.display = '';
 }
 
 /**********************************************************************************
@@ -225,7 +225,7 @@ NgChmGui.UTIL.matrixLoadingError = function() {
 	NgChmGui.UTIL.setMessageBoxHeader("Matrix Loading Error");
 	NgChmGui.UTIL.setMessageBoxText("<br>Unable to load selected matrix.  Please try again.<br><br>", 2);
 	NgChmGui.UTIL.setMessageBoxButton(3, "images/closeButton.png", "", "NgChmGui.UTIL.messageBoxCancel");
-	document.getElementById('msgBox').style.display = '';
+	document.getElementById('message').style.display = '';
 }
 
 /**********************************************************************************
@@ -235,9 +235,9 @@ NgChmGui.UTIL.matrixLoadingError = function() {
 NgChmGui.UTIL.duplicateCovarError = function(axis,name) {
 	NgChmGui.UTIL.initMessageBox();
 	NgChmGui.UTIL.setMessageBoxHeader("Duplicate Covariate Entry Warning");
-	NgChmGui.UTIL.setMessageBoxText("<br>A "+axis+" covariate already exists with the name:  "+name+"<br>Please select a different name if you still wish to add this bar.<br><br>", 3);
+	NgChmGui.UTIL.setMessageBoxText("<br>A "+axis+" covariate already exists with the name:  "+name+"<br><br>Please select a different name if you still wish to add this bar.<br><br>", 4);
 	NgChmGui.UTIL.setMessageBoxButton(3, "images/closeButton.png", "", "NgChmGui.UTIL.messageBoxCancel");
-	document.getElementById('msgBox').style.display = '';
+	document.getElementById('message').style.display = '';
 }
 
 /**********************************************************************************

@@ -316,6 +316,7 @@ NgChmGui.COV.addCovariateBar = function() {
  * and displays the covariates data entry panel.  
  **********************************************************************************/
 NgChmGui.COV.loadNewCovariateBar = function() {
+	document.getElementById('file-input').value = null;
 	var classPrefsDiv = document.getElementById("classPrefsDiv");
 	var classPrefsList = document.getElementById("classPref_list");
 	var classes = NgChmGui.mapProperties.classification_files;
@@ -376,8 +377,12 @@ NgChmGui.COV.hideCovarUpload = function() {
  **********************************************************************************/
 NgChmGui.COV.openCovarRemoval = function() {
 	 var selectedBar = document.getElementById("classPref_list");
+	 var selectedBarVal = selectedBar.value; 
+	 var selectedClass = NgChmGui.COV.getClassFromPanel(selectedBarVal);
 	 var selectedText = selectedBar.options[selectedBar.selectedIndex].text;
-	 var remLabel = document.getElementById("covarRemoveLabel").innerHTML = "Remove Covariate Bar:&nbsp;&nbsp;"+selectedText;
+	 var remLabel = document.getElementById("covarRemoveLabel").innerHTML = "Remove Covariate Bar:&nbsp;&nbsp;"+selectedClass.name+" - "+selectedClass.position;
+	 document.getElementById("remCovName").value = selectedClass.name;
+	 document.getElementById("remAxisType").value = selectedClass.position;
 	 document.getElementById("covarSelection").style.display = 'none';
 	 document.getElementById("covarRemoval").style.display = '';
 	
@@ -394,10 +399,35 @@ NgChmGui.COV.hideCovarRemoval = function() {
 }
 
 /**********************************************************************************
- * FUNCTION - removeCovariateBar: This function removes a covariate panel from
- * the covariate data entry panel and dropdown.  
+ * FUNCTION - removeCovariateBar: This function calls a servlet to remove a covariate
+ * bar from the heatmapProperties configuration for a heat map on the server and then
+ * calls the function that cleans up the Covariate screen.
  **********************************************************************************/
 NgChmGui.COV.removeCovariateBar = function() {
+	var req = new XMLHttpRequest();
+	var formData = new FormData( document.getElementById("covar_remove") );
+	req.open("POST", "RemoveCovariate", true);
+	req.onreadystatechange = function () {
+		if (NgChmGui.UTIL.debug) {console.log('state change');}
+		if (req.readyState == req.DONE) {
+			if (NgChmGui.UTIL.debug) {console.log('done');}
+	        if (req.status != 200) {
+	    		if (NgChmGui.UTIL.debug) {console.log('not 200');}
+	            console.log('Failed to remove covariate '  + req.status);
+	        } else {
+	        	NgChmGui.COV.removeCovariateBarFromScreen();
+	        }
+		}
+	};
+	req.send(formData);
+}
+
+/**********************************************************************************
+ * FUNCTION - removeCovariateBar: This function removes a covariate panel from
+ * the covariate data entry panel and dropdown.  This happens after the covariate
+ * has been removed from the heatmapProperties config on the server.
+ **********************************************************************************/
+NgChmGui.COV.removeCovariateBarFromScreen = function() {
 	var classSelect = document.getElementById("classPref_list");
 	var selectedBarIdx = classSelect.selectedIndex;
 	var selectedValue = classSelect.value;
@@ -465,7 +495,7 @@ NgChmGui.COV.setBreaksToPalette = function(key, id, preset, missingColor, type) 
 					document.getElementById(colorId+"_colorPref").value = preset[j];
 				} 
 			} 
-			document.getElementById("missing_colorPref_"+key).value = missingColor; 
+			document.getElementById("missing_colorPrefCp_"+key).value = missingColor; 
 		} else { // if colors need to be blended
 			var classItem = NgChmGui.mapProperties.classification_files[id];
 			var thresholds = classItem.color_map.thresholds;
@@ -480,7 +510,7 @@ NgChmGui.COV.setBreaksToPalette = function(key, id, preset, missingColor, type) 
 				var breakpoint = thresholds[j];
 				document.getElementById(colorId+"_colorPref").value = csTemp.getRgbToHex(csTemp.getColor(breakpoint)); 
 			} 
-			document.getElementById("missing_colorPref_"+key).value = csTemp.getRgbToHex(csTemp.getColor("Missing")); 
+			document.getElementById("missing_colorPrefCp_"+key).value = csTemp.getRgbToHex(csTemp.getColor("Missing")); 
 		}
 }	
 
@@ -524,7 +554,7 @@ NgChmGui.COV.loadCovariateView = function() {
 		if (req.readyState == req.DONE) {
 			if (NgChmGui.UTIL.debug) {console.log('done');}
 	        if (req.status != 200) {
-			if (NgChmGui.UTIL.debug) {console.log('not 200');}
+	        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
 	            console.log('Failed to process covariate changes '  + req.status);
 	            NgChmGui.UTIL.matrixLoadingError();
 	        } else {
@@ -568,7 +598,7 @@ NgChmGui.COV.applyCovariateSettings = function(typ) {
 		if (req.readyState == req.DONE) {
 			if (NgChmGui.UTIL.debug) {console.log('done');}
 	        if (req.status != 200) {
-			if (NgChmGui.UTIL.debug) {console.log('not 200');}
+	        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
 	            console.log('Failed to process covariate changes '  + req.status);
 	            NgChmGui.UTIL.matrixLoadingError();
 	        } else {
@@ -588,7 +618,7 @@ NgChmGui.COV.applyCovariateSettings = function(typ) {
 		    					sumCanvas.style.width = '55%';
 		    					sumCanvas.style.height = '100%';
 		    		   		 }
-		    			});	
+		    			});	 
 		    		};	
 				} else {
 					window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Cluster.html","_self");

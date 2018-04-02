@@ -139,7 +139,7 @@ NgChmGui.FILE.loadClusterView = function() {
 		if (req.readyState == req.DONE) {
 			if (NgChmGui.UTIL.debug) {console.log('done');}
 	        if (req.status != 200) {
-			if (NgChmGui.UTIL.debug) {console.log('not 200');}
+	        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
 	            console.log('Failed to load cluster view changes '  + req.status);
 	            NgChmGui.UTIL.matrixLoadingError();
 	        } else {

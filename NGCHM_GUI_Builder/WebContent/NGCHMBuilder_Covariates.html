@@ -84,6 +84,8 @@
 	 		<div id="covarRemoval" style="position: relative;display: none;">   
 		        <form method="POST" enctype="multipart/form-data" id="covar_remove" onsubmit="return false;">
 	 	        	<div id='covarRemoveLabel' class="sec-header">Remove Covariate Bar:</div>
+		        	<input name='remCovName' id='remCovName' type='hidden'>
+		        	<input name='remAxisType' id='remAxisType' type='hidden'>
 		        	<table id="covarLookupTbl">
 		        		<tr><td style='line-height:4px;' colspan=2>&nbsp;</td></tr>
 		        		<tr>
@@ -98,13 +100,11 @@
 		        </form>
 		    </div>	 		
 		    <div id="covarSelection" class="data_entry_container" style="width: 25%">
-	 	        <form id="covar_frm" onsubmit="return false;">
-					<div id="preferencesPanel" style="display: none;">
-					</div>
+				<div id="preferencesPanel" style="display: none;">
+				</div>
 
-					<br/>
-					<img id='apply_btn' src='images/applyButton.png' alt='Cluster the Data' style="vertical-align: bottom;" onclick="NgChmGui.COV.applyCovariateSettings(1);" />
-				</form> 		
+				<br/>
+				<img id='apply_btn' src='images/applyButton.png' alt='Cluster the Data' style="vertical-align: bottom;" onclick="NgChmGui.COV.applyCovariateSettings(1);" />
 		        <div id="covarPrevButton"  class="prev_btn">  
 		        	<img id='covarPrev_btn' src='images/prevButton.png' alt='Go to previous step' onclick='window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Transform.html","_self")' />		
 		        </div>   
@@ -118,6 +118,6 @@
 				 <script> NgChmGui.UTIL.editWidgetForCovarView();</script>
 			</div>
 		</div>
-		<div id="msgBox" style="display: none; position: absolute; background-color: rgb(230, 240, 255);"></div>
+		<div id="message" style="display: none; position: absolute; background-color: rgb(230, 240, 255);"></div>
 	</body>
 </html>

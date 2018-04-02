@@ -11,9 +11,13 @@
 		<script type="text/Javascript">
 			NgChmGui.UTIL.getHeatmapProperties(NgChmGui.FILE.loadData); 
 		 	window.onload = function() {
-		 		var chmFileItem = document.getElementById('image-upload');
-				chmFileItem.addEventListener('change', NgChmGui.matrixFile.sendMatrix, false);
 				NgChmGui.UTIL.messageBoxConfigure();
+		 		var chmFileItem = document.getElementById('image-upload');
+		 		if (!NgChmGui.UTIL.elemExist(NgChmGui.matrixFile)) {
+		 			setTimeout(function(){ chmFileItem.addEventListener('change', NgChmGui.matrixFile.sendMatrix, false); }, 2000);
+		 		} else {
+					chmFileItem.addEventListener('change', NgChmGui.matrixFile.sendMatrix, false);
+		 		}
 		 	};	
 	 	</script>
     </head>
@@ -68,7 +72,7 @@
 			        <br>
 			    </div>
 			</div>
-			<div id="msgBox" style="display: none; position: absolute; background-color: rgb(230, 240, 255);"></div>
+			<div id="message" style="display: none; position: absolute; background-color: rgb(230, 240, 255);"></div>
 		</div>
 	</body>
 </html>

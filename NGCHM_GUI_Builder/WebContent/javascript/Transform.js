@@ -6,14 +6,14 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 	var req = new XMLHttpRequest();
 	req.open("GET", "GetWorkingMatrix", true);
 	req.onreadystatechange = function () {
-		console.log('state change');
+		if (NgChmGui.UTIL.debug) {console.log('state change');}
 		if (req.readyState == req.DONE) {
-			console.log('done');
+			if (NgChmGui.UTIL.debug) {console.log('done');}
 	        if (req.status != 200) {
-	        	console.log('not 200');
+	        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
 	            console.log('Failed to get working matrix '  + req.status);
 	        } else {
-	        	console.log('200');
+				if (NgChmGui.UTIL.debug) {console.log('200');}
 	        	matrixInfo = JSON.parse(req.response);
 	        	document.getElementById('numRows').innerHTML = matrixInfo.numRows;
 	        	document.getElementById('numCols').innerHTML = matrixInfo.numCols;
@@ -151,14 +151,14 @@ NgChmGui.TRANS.correctMatrixData =  function() {
 	req.open("POST", "CorrectMatrix", true);
 	req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	req.onreadystatechange = function () {
-		console.log('state change');
+		if (NgChmGui.UTIL.debug) {console.log('state change');}
 		if (req.readyState == req.DONE) {
-			console.log('done');
+			if (NgChmGui.UTIL.debug) {console.log('done');}
 	        if (req.status != 200) {
-	        	console.log('not 200');
+	        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
 	            console.log('Failed to correct matrix '  + req.status);
 	        } else {
-	        	console.log('200');
+				if (NgChmGui.UTIL.debug) {console.log('200');}
 	        	result = req.response;
 	        	NgChmGui.TRANS.getWorkingMatrix();
 		    }
@@ -173,14 +173,14 @@ NgChmGui.TRANS.filterMatrixData =  function() {
 	req.open("POST", "FilterMatrix", true);
 	req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	req.onreadystatechange = function () {
-		console.log('state change');
+		if (NgChmGui.UTIL.debug) {console.log('state change');}
 		if (req.readyState == req.DONE) {
-			console.log('done');
+			if (NgChmGui.UTIL.debug) {console.log('done');}
 	        if (req.status != 200) {
-	        	console.log('not 200');
+	        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
 	            console.log('Failed to filter matrix '  + req.status);
 	        } else {
-	        	console.log('200');
+				if (NgChmGui.UTIL.debug) {console.log('200');}
 	        	result = req.response;
 	        	NgChmGui.TRANS.getWorkingMatrix();
 		    }

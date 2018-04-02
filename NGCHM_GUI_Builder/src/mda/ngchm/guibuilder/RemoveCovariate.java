@@ -16,12 +16,14 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 
+import mda.ngchm.guibuilder.HeatmapPropertiesManager.BuilderConfig;
+
 /**
  * Servlet implementation class Upload Data Matrix
  */
-@WebServlet("/UploadCovariate")
+@WebServlet("/RemoveCovariate")
 @MultipartConfig
-public class UploadCovariate extends HttpServlet {
+public class RemoveCovariate extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -29,10 +31,8 @@ public class UploadCovariate extends HttpServlet {
 		response.setContentType("application/json;charset=UTF-8");
 
 	    // Create path components to save the file
-	    final Part filePart = request.getPart("covar");
-	    final String covName = request.getParameter("covName");
-	    final String colorType = request.getParameter("colorType");
-	    final String axisType = request.getParameter("axisType");
+	    final String covName = request.getParameter("remCovName");
+	    final String axisType = request.getParameter("remAxisType");
 	  
 	    OutputStream out = null;
 	    InputStream filecontent = null;
@@ -55,21 +55,15 @@ public class UploadCovariate extends HttpServlet {
         	if (covFile.exists()) {
         		covFile.delete();
         	}
-		    out = new FileOutputStream(new File(covFileName));
-	        filecontent = filePart.getInputStream();
-	        int read = 0;
-	        final byte[] bytes = new byte[1024];
-
-	        while ((read = filecontent.read(bytes)) != -1) {
-	            out.write(bytes, 0, read);
-	        }
-	        out.close();
-
-		    ProcessCovariate cov = new ProcessCovariate();
-        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructDefaultCovariate(mgr, covName, covFileName, axisType, colorType);
-        	map.classification_files.add(classJsonObj);	 
-		    mgr.save();
-	        
+        	int indexToRem = 0;
+        	for (int i=0;i < map.classification_files.size(); i++) {
+        		HeatmapPropertiesManager.Classification currClass = map.classification_files.get(i);
+        		if (currClass.name.equals(covName) && (currClass.position.equals(axisType))) {
+        			indexToRem = i;
+        		}
+        	}
+        	map.classification_files.remove(indexToRem);
+        	mgr.save();
 	    } catch (Exception e) {
 	        writer.println("Error uploading covariate.");
 	        writer.println("<br/> ERROR: " + e.getMessage());
