@@ -31,28 +31,29 @@ NgChmGui.FILE.loadData =  function() {
  * and column ordering on the cluster screen.
  **********************************************************************************/
 NgChmGui.FILE.loadClusterData =  function() {
-	NgChmGui.UTIL.loadHeaderData();
-	if (typeof NgChmGui.mapProperties.col_configuration !== 'undefined') {
-		document.getElementById("ColOrder").value = NgChmGui.mapProperties.col_configuration.order_method;
-		if (document.getElementById("ColOrder").value !== "Hierarchical") {
-			document.getElementById("ColDistance").value = "euclidean";
-			document.getElementById("ColAgglomeration").value = "ward";
-		} else {
-			document.getElementById("ColDistance").value = NgChmGui.mapProperties.col_configuration.distance_metric;
-			document.getElementById("ColAgglomeration").value = NgChmGui.mapProperties.col_configuration.agglomeration_method;
+	if (NgChmGui.UTIL.loadHeaderData()) {
+		if (typeof NgChmGui.mapProperties.col_configuration !== 'undefined') {
+			document.getElementById("ColOrder").value = NgChmGui.mapProperties.col_configuration.order_method;
+			if (document.getElementById("ColOrder").value !== "Hierarchical") {
+				document.getElementById("ColDistance").value = "euclidean";
+				document.getElementById("ColAgglomeration").value = "ward";
+			} else {
+				document.getElementById("ColDistance").value = NgChmGui.mapProperties.col_configuration.distance_metric;
+				document.getElementById("ColAgglomeration").value = NgChmGui.mapProperties.col_configuration.agglomeration_method;
+			}
+			NgChmGui.FILE.setColOrderVisibility();
 		}
-		NgChmGui.FILE.setColOrderVisibility();
-	}
-	if (typeof NgChmGui.mapProperties.row_configuration !== 'undefined') {
-		document.getElementById("RowOrder").value = NgChmGui.mapProperties.row_configuration.order_method;
-		if (document.getElementById("RowOrder").value !== "Hierarchical") {
-			document.getElementById("RowDistance").value = "euclidean";
-			document.getElementById("RowAgglomeration").value = "ward";
-		} else {
-			document.getElementById("RowDistance").value = NgChmGui.mapProperties.row_configuration.distance_metric;
-			document.getElementById("RowAgglomeration").value = NgChmGui.mapProperties.row_configuration.agglomeration_method;
+		if (typeof NgChmGui.mapProperties.row_configuration !== 'undefined') {
+			document.getElementById("RowOrder").value = NgChmGui.mapProperties.row_configuration.order_method;
+			if (document.getElementById("RowOrder").value !== "Hierarchical") {
+				document.getElementById("RowDistance").value = "euclidean";
+				document.getElementById("RowAgglomeration").value = "ward";
+			} else {
+				document.getElementById("RowDistance").value = NgChmGui.mapProperties.row_configuration.distance_metric;
+				document.getElementById("RowAgglomeration").value = NgChmGui.mapProperties.row_configuration.agglomeration_method;
+			}
+			NgChmGui.FILE.setRowOrderVisibility();
 		}
-		NgChmGui.FILE.setRowOrderVisibility();
 	}
 }
 
@@ -110,7 +111,6 @@ NgChmGui.FILE.clusterMatrixData =  function() {
 	        	result = req.response;
 	        	pieces = result.trim().split("|");
 	        	NgChm.UTIL.embedCHM(pieces[1], pieces[0]);
-	        	document.getElementById('clusterNextButton').style.display = '';
 	    		NgChm.postLoad = function () {
 	    			NgChm.heatMap.addEventListener(function (event, level) {
 	    				if (event == NgChm.MMGR.Event_INITIALIZED) {
@@ -124,42 +124,6 @@ NgChmGui.FILE.clusterMatrixData =  function() {
 		}
 	};
 	req.send(formData);
-}
-
-/**********************************************************************************
- * FUNCTION - loadClusterView: This function runs when the cluster panel is
- * initially loading and drawing the heatmap image in the view panel.
- **********************************************************************************/
-NgChmGui.FILE.loadClusterView = function() {
-	var req = new XMLHttpRequest();
-	req.open("GET", "Cluster", true);
-	req.setRequestHeader("Content-Type", "application/json");
-	req.onreadystatechange = function () {
-		if (NgChmGui.UTIL.debug) {console.log('state change');}
-		if (req.readyState == req.DONE) {
-			if (NgChmGui.UTIL.debug) {console.log('done');}
-	        if (req.status != 200) {
-	        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
-	            console.log('Failed to load cluster view changes '  + req.status);
-	            NgChmGui.UTIL.matrixLoadingError();
-	        } else {
-				if (NgChmGui.UTIL.debug) {console.log('200');}
-	        	result = req.response;
-	        	pieces = result.trim().split("|");
-	        	NgChm.UTIL.embedCHM(pieces[1], pieces[0]);
-	    		NgChm.postLoad = function () {
-	    			NgChm.heatMap.addEventListener(function (event, level) {
-	    				if (event == NgChm.MMGR.Event_INITIALIZED) {
-	    					document.getElementById('detail_chm').style.width = '4%';
-	    					document.getElementById('summary_chm').style.width = '96%';
-	    					NgChm.SUM.summaryResize();  
-	    		   		 }
-	    			});	
-	    		};	
-		    }
-		}
-	};
-	req.send();
 }
 
 /**********************************************************************************

@@ -4,12 +4,13 @@
         <title>NG-CHM Builder</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	 	<script src="javascript/NGCHM_GUI_Util.js"></script>
-	 	<script src="javascript/MatrixFile.js"></script>
+	 	<script src="javascript/ColorMap.js"></script>
+	 	<script src="javascript/FormatOutput.js"></script>
 		<link rel="stylesheet" href="css/NGCHM_GUI.css">
  		<script type="text/Javascript">
 			NgChmGui.mapProperties = null;
 		 	window.onload = function() {
-				NgChmGui.UTIL.getHeatmapProperties(NgChmGui.FILE.loadClusterData);
+				NgChmGui.UTIL.getHeatmapProperties(NgChmGui.FORMAT.loadData);
 				NgChmGui.UTIL.messageBoxConfigure();
 		 	}
 	 	</script>
@@ -27,16 +28,18 @@
 	  		</div>
 	    </div>   
        	<div id="FormatDisplayContainer" class="display_container" style="position: relative">
-	 		<div id="formatSelection" class="data_entry_container" style="width: 20%">
-				
-        		<b>Set Heat Map Colors</b><br><br>
-        		<b>Heat Map Breaks</b><br><br>
-        		<b>Top Items</b><br><br>
-				
-				<img id='prev1_btn' src='images/prevButton.png' alt='Go to previous step' onclick='window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Cluster.html","_self")' style="float: left; padding: 10px;" />
-			    <img id='next1_btn' src='images/nextButton.png' alt='Go to next step' onclick='window.open("/NGCHM_GUI_Builder/NGCHMBuilder_HeatMap.html","_self")' style="float: right; padding: 10px;" />
-				
-		    </div>			
+		    <div id="formatSelection" class="data_entry_container" style="width: 25%">
+				<div id="preferencesPanel" style="display: none;">
+				</div>
+				<br/>
+				<img id='apply_btn' src='images/applyButton.png' alt='Cluster the Data' style="vertical-align: bottom;" onclick="NgChmGui.COV.applyCovariateSettings(1);" />
+		        <div id="covarPrevButton"  class="prev_btn">  
+		        	<img id='covarPrev_btn' src='images/prevButton.png' alt='Go to previous step' onclick='window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Cluster.html","_self")' />		
+		        </div>   
+		        <div id="covarNextButton"  class="next_btn">  
+		        	<img id='covarNext_btn' src='images/nextButton.png' alt='Go to next step' onclick="NgChmGui.COV.applyCovariateSettings(2);" />		
+		        </div>   
+			</div>
 	        <div id="formatView" class="layout_display_container" style="margin: 1em 0 0 5%; width: 60%;">
 				<div id='NGCHMEmbed' style="background-color: white; height: 85%; margin-bottom: 0.25em; padding: 5px"></div>
 				<script src='javascript/ngchmWidget-min.js'></script>

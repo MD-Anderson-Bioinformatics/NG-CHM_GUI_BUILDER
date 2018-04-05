@@ -12,6 +12,10 @@ table.data_entry td {
 	padding: 2px 0px 2px 5px
 }
 
+table.breakPrefsTable td {
+	padding: 0px 10px 5px 10px;
+}
+
 div.serviceHeader
 {
 	position: relative;
@@ -145,6 +149,7 @@ div.serviceHeaderLogo img
     vertical-align: center;
 }
 
+
 /* Added to disable highlighting on table */
 .handsontable .wtBorder {
   display: none !important;
@@ -268,7 +273,6 @@ div.serviceHeaderLogo img
 
 .preferencesSubPanel {
 	position: absolute;
-    display: none;
     height: 93%;
     width: 100%;
     overflow: auto;

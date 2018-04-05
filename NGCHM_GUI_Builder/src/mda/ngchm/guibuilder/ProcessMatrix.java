@@ -7,7 +7,10 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -17,8 +20,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 
 import mda.ngchm.datagenerator.HeatmapDataGenerator;
+import mda.ngchm.guibuilder.HeatmapPropertiesManager.ColorMap;
+import mda.ngchm.guibuilder.HeatmapPropertiesManager.Heatmap;
 
 /**
  * Servlet implementation class Upload Data Matrix
@@ -72,7 +78,7 @@ public class ProcessMatrix extends HttpServlet {
 		    map.chm_description = matrixConfig.mapDesc;
 		    //Remove any existing matrix files as we are putting a new one on the map
 		    map.matrix_files.removeAll(map.matrix_files);
-			map.matrix_files.add(mgr.new MatrixFile(matrixConfig.matrixName, matrixFile, "average"));  
+			map.matrix_files.add(mgr.new MatrixFile(matrixConfig.matrixName, matrixFile, "average", null));  
 
 			//Add "default" row/col order configurations in original order
 		    map.row_configuration = mgr.new Order("Original");
@@ -107,10 +113,19 @@ public class ProcessMatrix extends HttpServlet {
 			map.output_location = workingDir  + "/" + matrixConfig.mapName;
 			String props = mgr.save();
 
+			//TEMPORARY BEGIN:  LOGIC HERE TO BE REMOVED AFTER BUILD IS MOVED
+			//TO THE TRANSFORM SCREEN'S NEXT BUTTON
 		    //Call HeatmapDataGenerator to generate final heat map .ngchm file
 		    String genArgs[] = new String[] {props, "-NGCHM"};
 			String errMsg = HeatmapDataGenerator.processHeatMap(genArgs);
 			
+			//After heat map is generated, retrieve matrix file color map calculated
+			//by generator for mapConfig.json and place it on heatmapProperties.json
+			HeatmapPropertiesManager.ColorMap theMap = setDefaultMatrixColors(workingDir, map);
+			map.matrix_files.get(0).color_map = theMap;
+			mgr.save();
+			//TEMPORARY END:  LOGIC HERE TO BE REMOVED AFTER BUILD IS MOVED
+
 			System.out.println("END Processing Matrix: " + new Date()); 
 	    } catch (Exception e) {
 	        writer.println("Error creating initial heat map properties.");
@@ -123,6 +138,48 @@ public class ProcessMatrix extends HttpServlet {
 		
 	}
 
+	/*******************************************************************
+	 * METHOD: setDefaultMatrixColors
+	 *
+	 * This method retrieves the color map created for the matrix
+	 * by the HeatmapDataGenerator process (including calculated
+	 * thresholds) and places that data on the heatmapProperties.json.
+	 ******************************************************************/
+	public HeatmapPropertiesManager.ColorMap setDefaultMatrixColors(String directory, HeatmapPropertiesManager.Heatmap map) throws Exception {
+		HeatmapPropertiesManager.ColorMap theMap = null;
+		String propFile = directory + "/"+map.chm_name+"/mapConfig.json";
+		BufferedReader in = new BufferedReader(new FileReader(propFile));
+		try {
+	        HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(directory);
+			Gson gson = new Gson();
+			String jsonStr = in.readLine();
+			LinkedTreeMap<?, ?> result = gson.fromJson(jsonStr , LinkedTreeMap.class);
+			LinkedTreeMap<?, ?> dc = (LinkedTreeMap<?, ?>) result.get("data_configuration");
+			LinkedTreeMap<?, ?> mi = (LinkedTreeMap<?, ?>) dc.get("map_information");
+			LinkedTreeMap<?, ?> dl = (LinkedTreeMap<?, ?>) mi.get("data_layer");
+			LinkedTreeMap<?, ?> dl1 = (LinkedTreeMap<?, ?>) dl.get("dl1");
+			LinkedTreeMap<?, ?> cmap = (LinkedTreeMap<?, ?>) dl1.get("color_map");
+			String type = (String) cmap.get("type");
+			@SuppressWarnings("unchecked")
+			ArrayList<String> colors = (ArrayList<String>) cmap.get("colors");
+			@SuppressWarnings("unchecked")
+			ArrayList<String> thresholds = (ArrayList<String>) cmap.get("thresholds");
+			String missing = (String) cmap.get("missing");
+			theMap = mgr.new ColorMap(type,colors, thresholds,missing);
+		} finally {
+			in.close();
+			in = null;
+		}
+		return theMap;
+	}
+
+	/*******************************************************************
+	 * METHOD: getMatrixConfigData
+	 *
+	 * This method retrieves the matrix configuration information from
+	 * the heatmapProperties.json.  It is used to re-draw the 
+	 * handsontable grid when the screen is re-loaded.
+	 ******************************************************************/
 	private HeatmapPropertiesManager.MatrixGridConfig getMatrixConfigData(HttpServletRequest request) throws Exception {
 		StringBuilder buffer = new StringBuilder();
 	    BufferedReader reader = request.getReader();
@@ -138,7 +195,7 @@ public class ProcessMatrix extends HttpServlet {
 	}
 	
 	/*******************************************************************
-	 * METHOD: buildFilteredRowCovariate AND writeOutMatrixRow
+	 * METHOD: buildFilteredMatrix AND writeOutMatrixRow
 	 *
 	 * This method and the one that follows it contruct a new "working"
 	 * data matrix file from the file uploaded to the builder.  This
@@ -199,6 +256,7 @@ public class ProcessMatrix extends HttpServlet {
 			} 
 		}
 	}
+
 	/*******************************************************************
 	 * METHOD: buildFilteredColCovariate
 	 *

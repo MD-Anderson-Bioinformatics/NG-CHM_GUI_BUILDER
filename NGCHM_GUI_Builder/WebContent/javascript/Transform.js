@@ -2,6 +2,12 @@
 //Define Namespace for NgChmGui MatrixFile
 NgChmGui.createNS('NgChmGui.TRANS');
 
+NgChmGui.TRANS.loadTranform = function () {
+	if (NgChmGui.UTIL.loadHeaderData()) {
+ 		NgChmGui.TRANS.getWorkingMatrix();	
+	}
+}
+
 NgChmGui.TRANS.getWorkingMatrix =  function() {
 	var req = new XMLHttpRequest();
 	req.open("GET", "GetWorkingMatrix", true);

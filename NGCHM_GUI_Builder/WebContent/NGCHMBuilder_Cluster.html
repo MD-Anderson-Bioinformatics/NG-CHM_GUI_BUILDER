@@ -10,7 +10,7 @@
 			NgChmGui.mapProperties = null;
 		 	window.onload = function() {
 				NgChmGui.UTIL.getHeatmapProperties(NgChmGui.FILE.loadClusterData);
-				NgChmGui.FILE.loadClusterView();
+				NgChmGui.UTIL.loadHeatMapView();
 				NgChmGui.UTIL.messageBoxConfigure();
 		 	}
 	 	</script>
@@ -100,7 +100,7 @@
 			        <div id="clusterPrevButton"  class="prev_btn">  
 			        	<img id='clusterPrev_btn' src='images/prevButton.png' alt='Go to previous step' onclick='window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Covariates.html","_self")' />		
 			        </div>   
-			        <div id="clusterNextButton"  class="next_btn" style="display: none;">  
+			        <div id="clusterNextButton"  class="next_btn">  
 			        	<img id='clusterNext_btn' src='images/nextButton.png' alt='Go to next step' onclick='window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Format.html","_self")' />		
 			        </div>   
 		        </form>

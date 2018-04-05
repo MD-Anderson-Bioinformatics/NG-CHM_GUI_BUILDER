@@ -9,15 +9,17 @@ NgChmGui.createNS('NgChmGui.COV');
  **********************************************************************************/
 NgChmGui.COV.loadData =  function() {
 	NgChmGui.UTIL.loadHeaderData();
-	var prefsPanelDiv = document.getElementById("preferencesPanel");
-	prefsPanelDiv.style.left = 0;
-	prefsPanelDiv.style.right = "";
-	var classes = NgChmGui.mapProperties.classification_files;
-	var classPrefsDiv = NgChmGui.COV.setupClassPrefs(classes);
-	NgChmGui.COV.setClassPrefOptions(classes);
-	NgChmGui.COV.loadCovariateView();
-	classPrefsDiv.style.display = '';
-	prefsPanelDiv.style.display = '';
+	if (NgChmGui.UTIL.loadHeaderData()) {
+		var prefsPanelDiv = document.getElementById("preferencesPanel");
+		prefsPanelDiv.style.left = 0;
+		prefsPanelDiv.style.right = "";
+		var classes = NgChmGui.mapProperties.classification_files;
+		var classPrefsDiv = NgChmGui.COV.setupClassPrefs(classes);
+		NgChmGui.COV.setClassPrefOptions(classes);
+		NgChmGui.COV.loadCovariateView();
+		classPrefsDiv.style.display = '';
+		prefsPanelDiv.style.display = '';
+	}
 }
 
 /**********************************************************************************
@@ -542,43 +544,16 @@ NgChmGui.COV.hideAllClassDivs = function() {
 
 /**********************************************************************************
  * FUNCTION - loadCovariateView: This function runs when the covariates panel is
- * initially loading and drawing the heatmap image in the view panel.
+ * initially loading and drawing the heatmap image in the view panel.  It calls
+ * a generic servlet for retrieving the heatmap into the widget viewer, but makes
+ * a few minor display changes specific to the Covariates screen.
  **********************************************************************************/
 NgChmGui.COV.loadCovariateView = function() {
-	var req = new XMLHttpRequest();
-	NgChmGui.COV.applyClassPrefs();
-	req.open("GET", "ProcessCovariate", true);
-	req.setRequestHeader("Content-Type", "application/json");
-	req.onreadystatechange = function () {
-		if (NgChmGui.UTIL.debug) {console.log('state change');}
-		if (req.readyState == req.DONE) {
-			if (NgChmGui.UTIL.debug) {console.log('done');}
-	        if (req.status != 200) {
-	        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
-	            console.log('Failed to process covariate changes '  + req.status);
-	            NgChmGui.UTIL.matrixLoadingError();
-	        } else {
-				if (NgChmGui.UTIL.debug) {console.log('200');}
-	        	result = req.response;
-	        	pieces = result.trim().split("|");
-	        	NgChm.UTIL.embedCHM(pieces[1], pieces[0]);
-	    		NgChm.postLoad = function () {
-	    			NgChm.heatMap.addEventListener(function (event, level) {
-	    				if (event == NgChm.MMGR.Event_INITIALIZED) {
-	    					document.getElementById('detail_chm').style.width = '4%';
-	    					document.getElementById('summary_chm').style.width = '96%';
-	    					NgChm.SUM.summaryResize();  
-	    					var sumCanvas = document.getElementById('summary_canvas');
-	    					sumCanvas.style.left = '20%';
-	    					sumCanvas.style.width = '55%';
-	    					sumCanvas.style.height = '100%';
-	    		   		 }
-	    			});	
-	    		};	
-		    }
-		}
-	};
-	req.send();
+	NgChmGui.UTIL.loadHeatMapView();
+	var sumCanvas = document.getElementById('summary_canvas');
+	sumCanvas.style.left = '20%';
+	sumCanvas.style.width = '55%';
+	sumCanvas.style.height = '100%';
 }
 
 /**********************************************************************************
@@ -604,28 +579,22 @@ NgChmGui.COV.applyCovariateSettings = function(typ) {
 	        } else {
 				if (NgChmGui.UTIL.debug) {console.log('200');}
 				if (typ === 1) {
-		        	result = req.response;
-		        	pieces = result.trim().split("|");
-		        	NgChm.UTIL.embedCHM(pieces[1], pieces[0]);
-		    		NgChm.postLoad = function () {
-		    			NgChm.heatMap.addEventListener(function (event, level) {
-		    				if (event == NgChm.MMGR.Event_INITIALIZED) {
-		    					document.getElementById('detail_chm').style.width = '4%';
-		    					document.getElementById('summary_chm').style.width = '96%';
-		    					NgChm.SUM.summaryResize();  
-		    					var sumCanvas = document.getElementById('summary_canvas');
-		    					sumCanvas.style.left = '20%';
-		    					sumCanvas.style.width = '55%';
-		    					sumCanvas.style.height = '100%';
-		    		   		 }
-		    			});	 
-		    		};	
+					NgChmGui.UTIL.buildHeatMap(NgChmGui.COV.loadCovariateView);
 				} else {
-					window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Cluster.html","_self");
-			    }
+					NgChmGui.UTIL.buildHeatMap(NgChmGui.COV.gotoClusterScreen);
+				}
 			}
 		};
 	}
 	req.send(formData);
 }
+
+/**********************************************************************************
+ * FUNCTION - gotoClusterScreen: This function navigates to the next screen from
+ * the Covariate screen (the Cluster screen).
+ **********************************************************************************/
+NgChmGui.COV.gotoClusterScreen = function() {
+	window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Cluster.html","_self");
+}
+
 

@@ -32,32 +32,6 @@ public class ProcessCovariate extends HttpServlet {
 	public static Set<String> NA_VALUES = new HashSet<String>(Arrays.asList("null","NA","N/A","-","?","NAN","NaN","Na","na","n/a",""," "));
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		HttpSession mySession = request.getSession(false);
-		response.setContentType("application/json;charset=UTF-8");
-	    final PrintWriter writer = response.getWriter();
-	    try {
-			//Get heat map construction directory from session
-	    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
-	        workingDir = workingDir + "/" + mySession.getId();
-	       HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
-	        File propFile = new File(workingDir + "/heatmapProperties.json");
-	        //Check for pre-existence of properties file.  If exists, load from properties manager
-	        if (propFile.exists()) {
-	        	mgr.load();
-	        }
-	        HeatmapPropertiesManager.Heatmap map = mgr.getMap();
-			writer.println("MapBuildDir/" + mySession.getId() + "/" + map.chm_name + "|" + map.chm_name + ".ngchm");
-		} catch (Exception e) {
-	        writer.println("Error creating initial heat map properties.");
-	        writer.println("<br/> ERROR: " + e.getMessage());
-	    } finally {
-	        if (writer != null) {
-	            writer.close();
-	        }
-	    }		
-	}
-
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
 			processCovariate(request, response);
 		} catch (Exception e) {
@@ -65,6 +39,10 @@ public class ProcessCovariate extends HttpServlet {
 		}
 	}
 	
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		doGet(request, response);
+	}
+
 	private void processCovariate(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		HttpSession mySession = request.getSession(false);
 		response.setContentType("application/json;charset=UTF-8");
@@ -97,9 +75,9 @@ public class ProcessCovariate extends HttpServlet {
 		    mgr.save();
 
 		    //Call HeatmapDataGenerator to generate final heat map .ngchm file
-		    String genArgs[] = new String[] {propFile.getAbsolutePath(), "-NGCHM"};
-			String errMsg = HeatmapDataGenerator.processHeatMap(genArgs);
-			writer.println("MapBuildDir/" + mySession.getId() + "/" + map.chm_name + "|" + map.chm_name + ".ngchm");
+	//	    String genArgs[] = new String[] {propFile.getAbsolutePath(), "-NGCHM"};
+	//		String errMsg = HeatmapDataGenerator.processHeatMap(genArgs);
+	//		writer.println("MapBuildDir/" + mySession.getId() + "/" + map.chm_name + "|" + map.chm_name + ".ngchm");
 			System.out.println("END Processing Covariates: " + new Date()); 
 		} catch (Exception e) {
 	        writer.println("Error creating initial heat map properties.");
@@ -195,7 +173,7 @@ public class ProcessCovariate extends HttpServlet {
 				covBreaks.add(Float.toString(highVal));
 			}
 			ArrayList<String> covColors = getDefaultClassColors(covBreaks, type);
-			HeatmapPropertiesManager.ColorMap cm = mgr.new ColorMap(type,"#000000",covBreaks,covColors);
+			HeatmapPropertiesManager.ColorMap cm = mgr.new ColorMap(type,covColors, covBreaks,"#000000");
 			covar.color_map = cm;
 		} catch (Exception e) {
 			// do something here

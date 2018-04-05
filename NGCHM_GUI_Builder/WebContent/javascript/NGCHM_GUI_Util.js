@@ -130,6 +130,71 @@ NgChmGui.UTIL.getHeatmapProperties = function(loadFunction) {
 }
 
 /**********************************************************************************
+ * FUNCTION - buildHeatMap: This function runs when any changes are applied and the
+ * heatmap needs to be rebuilt for display.
+ **********************************************************************************/
+NgChmGui.UTIL.buildHeatMap = function(nextFunction) {
+	var req = new XMLHttpRequest();
+	req.open("POST", "HeatmapBuild", true);
+	req.setRequestHeader("Content-Type", "application/json");
+	req.onreadystatechange = function () {
+		if (NgChmGui.UTIL.debug) {console.log('state change');}
+		if (req.readyState == req.DONE) {
+			if (NgChmGui.UTIL.debug) {console.log('done');}
+	        if (req.status != 200) {
+	        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
+	            console.log('Failed to load heat map view to screen'  + req.status);
+	            NgChmGui.UTIL.heatmapBuildError();
+	        } else {
+				if (NgChmGui.UTIL.debug) {console.log('200');}
+	        	if (typeof nextFunction !== 'undefined') {
+	        		nextFunction();
+	        	}
+		    }
+		}
+	};
+	req.send();
+}
+
+
+/**********************************************************************************
+ * FUNCTION - loadHeatMapView: This function runs when any panel, that displays
+ * the heatmap at startup, is loaded.
+ **********************************************************************************/
+NgChmGui.UTIL.loadHeatMapView = function() {
+	var req = new XMLHttpRequest();
+	req.open("POST", "HeatmapView", true);
+	req.setRequestHeader("Content-Type", "application/json");
+	req.onreadystatechange = function () {
+		if (NgChmGui.UTIL.debug) {console.log('state change');}
+		if (req.readyState == req.DONE) {
+			if (NgChmGui.UTIL.debug) {console.log('done');}
+	        if (req.status != 200) {
+	        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
+	            console.log('Failed to load heat map view to screen'  + req.status);
+	            NgChmGui.UTIL.matrixLoadingError();
+	        } else {
+				if (NgChmGui.UTIL.debug) {console.log('200');}
+	        	result = req.response;
+	        	pieces = result.trim().split("|");
+	        	NgChm.UTIL.embedCHM(pieces[1], pieces[0]);
+	    		NgChm.postLoad = function () {
+	    			NgChm.heatMap.addEventListener(function (event, level) {
+	    				if (event == NgChm.MMGR.Event_INITIALIZED) {
+	    					document.getElementById('detail_chm').style.width = '4%';
+	    					document.getElementById('summary_chm').style.width = '96%';
+	    					NgChm.SUM.summaryResize();  
+	    		   		 }
+	    			});	
+	    		};	
+		    }
+		}
+	};
+	req.send();
+}
+
+
+/**********************************************************************************
  * FUNCTION - loadHeaderData: The purpose of this function display header data
  * on all screens BUT the Matrix screen.  It will display the heatmap name and 
  * description OR text indicating that the user's session has expired
@@ -138,10 +203,11 @@ NgChmGui.UTIL.loadHeaderData =  function() {
 	if (NgChmGui.UTIL.elemExist(NgChmGui.mapProperties.chm_name)) {
 		document.getElementById("mapName").innerHTML = "<b>Heat Map Name:</b>&nbsp;&nbsp;"+NgChmGui.mapProperties.chm_name;
 		document.getElementById("mapDesc").innerHTML = "<b>Heat Map Desc:</b>&nbsp;&nbsp;"+NgChmGui.mapProperties.chm_description;
+		return true;
 	} else {
 		document.getElementById("mapName").innerHTML = "<b>Your Session Has Expired</b>";
 		setTimeout(function(){window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Matrix.html","_self"); }, 2000);
-		
+		return false;
 	}
 }
 
@@ -224,6 +290,18 @@ NgChmGui.UTIL.matrixLoadingError = function() {
 	NgChmGui.UTIL.initMessageBox();
 	NgChmGui.UTIL.setMessageBoxHeader("Matrix Loading Error");
 	NgChmGui.UTIL.setMessageBoxText("<br>Unable to load selected matrix.  Please try again.<br><br>", 2);
+	NgChmGui.UTIL.setMessageBoxButton(3, "images/closeButton.png", "", "NgChmGui.UTIL.messageBoxCancel");
+	document.getElementById('message').style.display = '';
+}
+
+/**********************************************************************************
+ * FUNCTION - heatmapBuildError: The purpose of this function display a message
+ * box when system is unable to load a matrix file.
+ **********************************************************************************/
+NgChmGui.UTIL.heatmapBuildError = function() {
+	NgChmGui.UTIL.initMessageBox();
+	NgChmGui.UTIL.setMessageBoxHeader("Heatmap Build Error");
+	NgChmGui.UTIL.setMessageBoxText("<br>Unable to load changes to heat map.  Please try again.<br><br>", 2);
 	NgChmGui.UTIL.setMessageBoxButton(3, "images/closeButton.png", "", "NgChmGui.UTIL.messageBoxCancel");
 	document.getElementById('message').style.display = '';
 }

@@ -25,8 +25,9 @@ public class HeatmapPropertiesManager {
 		public String name;
 		public String path;
 		public String summary_method;
-		public MatrixFile (String name, String path, String summary_method) {
-			this.name = name; this.path = path; this.summary_method = summary_method;
+		public ColorMap color_map;
+		public MatrixFile (String name, String path, String summary_method, ColorMap cmap) {
+			this.name = name; this.path = path; this.summary_method = summary_method; this.color_map = cmap;
 		}
 	}
 	
@@ -77,13 +78,13 @@ public class HeatmapPropertiesManager {
 	public class Attrib {
 		
 	}
-	
+	 
 	public class ColorMap {
 		public String type;
-		public String missing;
-		public ArrayList<String> thresholds = new ArrayList<String>();
 		public ArrayList<String> colors = new ArrayList<String>();
-		public ColorMap (String type, String missing, ArrayList<String> thresholds, ArrayList<String> colors) {
+		public ArrayList<String> thresholds = new ArrayList<String>();
+		public String missing;
+		public ColorMap (String type, ArrayList<String> colors, ArrayList<String> thresholds, String missing) {
 			this.type = type;
 			this.missing = missing;
 			this.thresholds = thresholds;
