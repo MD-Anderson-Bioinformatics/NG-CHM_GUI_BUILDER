@@ -54,6 +54,7 @@ NgChmGui.FILE.loadClusterData =  function() {
 			}
 			NgChmGui.FILE.setRowOrderVisibility();
 		}
+		NgChmGui.UTIL.loadHeatMapView();
 	}
 }
 
@@ -90,40 +91,16 @@ NgChmGui.FILE.setRowOrderVisibility =  function(orderVal) {
 }
 
 /**********************************************************************************
- * FUNCTION - clusterMatrixData: This function calls the servlet to cluster matrix 
- * data (from the Cluster Panel) and displays the resultant heatmap changes in 
- * the view panel on the cluster screen.
+ * FUNCTION - applyClusterPrefs: This function applys changes made in the cluster
+ * panel to the mapProperties object in advance of saving the properties.
  **********************************************************************************/
-NgChmGui.FILE.clusterMatrixData =  function() {
-	var req = new XMLHttpRequest();
-	var formData = NgChmGui.UTIL.toURIString( document.getElementById("cluster_frm") );
-	req.open("POST", "Cluster", true);
-	req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	req.onreadystatechange = function () {
-		if (NgChmGui.UTIL.debug) {console.log('state change');}
-		if (req.readyState == req.DONE) {
-			if (NgChmGui.UTIL.debug) {console.log('done');}
-	        if (req.status != 200) {
-	    		if (NgChmGui.UTIL.debug) {console.log('not 200');}
-	            console.log('Failed to upload matrix '  + req.status);
-	        } else {
-	    		if (NgChmGui.UTIL.debug) {console.log('200');}
-	        	result = req.response;
-	        	pieces = result.trim().split("|");
-	        	NgChm.UTIL.embedCHM(pieces[1], pieces[0]);
-	    		NgChm.postLoad = function () {
-	    			NgChm.heatMap.addEventListener(function (event, level) {
-	    				if (event == NgChm.MMGR.Event_INITIALIZED) {
-	    					document.getElementById('detail_chm').style.width = '4%';
-	    					document.getElementById('summary_chm').style.width = '96%';
-	    					NgChm.SUM.summaryResize();  
-	    		   		 }
-	    			});	
-	    		};	
-		    }
-		}
-	};
-	req.send(formData);
+NgChmGui.FILE.applyClusterPrefs = function() {
+	NgChmGui.mapProperties.row_configuration.order_method = document.getElementById('RowOrder').value
+	NgChmGui.mapProperties.row_configuration.distance_metric = document.getElementById('RowDistance').value
+	NgChmGui.mapProperties.row_configuration.agglomeration_method = document.getElementById('RowAgglomeration').value
+	NgChmGui.mapProperties.col_configuration.order_method = document.getElementById('ColOrder').value
+	NgChmGui.mapProperties.col_configuration.distance_metric = document.getElementById('ColDistance').value
+	NgChmGui.mapProperties.col_configuration.agglomeration_method = document.getElementById('ColAgglomeration').value
 }
 
 /**********************************************************************************
@@ -271,13 +248,13 @@ NgChmGui.FILE.MatrixFile = function() {
 				            NgChmGui.UTIL.matrixLoadingError();
 				        } else {
 							if (NgChmGui.UTIL.debug) {console.log('200');}
-				        	window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Transform.html","_self")
+							NgChmGui.UTIL.gotoTransformScreen();
 					    }
 					}
 				};
 				req.send(matrixJson);
 			} else {
-	        	window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Transform.html","_self")
+				NgChmGui.UTIL.gotoTransformScreen();
 			}
 		}
 	}

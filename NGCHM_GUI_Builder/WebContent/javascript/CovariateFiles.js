@@ -16,7 +16,7 @@ NgChmGui.COV.loadData =  function() {
 		var classes = NgChmGui.mapProperties.classification_files;
 		var classPrefsDiv = NgChmGui.COV.setupClassPrefs(classes);
 		NgChmGui.COV.setClassPrefOptions(classes);
-		NgChmGui.COV.loadCovariateView();
+		NgChmGui.UTIL.loadHeatMapView();
 		classPrefsDiv.style.display = '';
 		prefsPanelDiv.style.display = '';
 	}
@@ -37,7 +37,7 @@ NgChmGui.COV.setupClassPrefs = function(classes) {
 	var classSelectStr = "<select name='classPref_list' id='classPref_list' onchange='NgChmGui.COV.showClassSelection();'></select>"
 	var addButton = "<img id='apply_btn' src='images/addButton.png' alt='Add Covariate' style='vertical-align: bottom;' onclick='NgChmGui.COV.openCovarUpload()' />";
 	var removeButton = "<img id='apply_btn' src='images/removeButton.png' alt='Remove Covariate' style='vertical-align: bottom;' onclick='NgChmGui.COV.openCovarRemoval()' />";
-	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;Covariate Bars: ", classSelectStr, addButton, removeButton]);
+	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;Covariates: ", classSelectStr, addButton, removeButton]);
 	NgChmGui.UTIL.addBlankRow(prefContents, 2);
 	classPrefsDiv.appendChild(prefContents);
 	prefsPanelDiv.appendChild(classPrefsDiv);
@@ -116,7 +116,7 @@ NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
 	var barTypeOptions = "<option value='color_plot'>Color Plot</option><option value='bar_plot'>Bar Plot</option><option value='scatter_plot'>Scatter Plot</option></select>";
 	barTypeOptionsSelect = barTypeOptionsSelect+barTypeOptions;
 
-	var barName = "<input name='namePref_"+key+"' id='namePref_"+key+"' value='"+classItem.name+"' maxlength='30' size='20'>&emsp;";
+	var barName = "<input name='namePref_"+key+"' id='namePref_"+key+"' value='"+classItem.name+"' maxlength='30' size='20' onchange='NgChmGui.UTIL.setBuildProps();'>&emsp;";
 	NgChmGui.UTIL.setTableRow(classContents, ["&nbsp;&nbsp;Bar Name:", "<b>"+NgChmGui.UTIL.toTitleCase(classItem.name)+"</b>"]);
 	NgChmGui.UTIL.setTableRow(classContents,["&nbsp;&nbsp;Bar Position: ","<b>"+NgChmGui.UTIL.toTitleCase(classItem.position)+"</b>"]);
 	NgChmGui.UTIL.setTableRow(classContents,["&nbsp;&nbsp;Color Type: ","<b>"+NgChmGui.UTIL.toTitleCase(classItem.color_map.type)+"</b>"]);
@@ -126,9 +126,9 @@ NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
 		NgChmGui.UTIL.setTableRow(classContents,["&nbsp;&nbsp;Bar Type: ","<b>"+NgChmGui.UTIL.toTitleCase(classItem.bar_type)+"</b>"]);
 	}
 	NgChmGui.UTIL.addBlankRow(classContents);
-	var barHeight = "<input name='heightPref_"+key+"' id='heightPref_"+key+"' value='"+classItem.height+"' maxlength='2' size='2'>&emsp;";
+	var barHeight = "<input name='heightPref_"+key+"' id='heightPref_"+key+"' value='"+classItem.height+"' onchange='NgChmGui.UTIL.setBuildProps();'  maxlength='2' size='2'>&emsp;";
 	NgChmGui.UTIL.setTableRow(classContents, ["&nbsp;&nbsp;Height:", barHeight]);
-	var showSelect = "<select name='showPref_"+key+"' id='showPref_"+key+"' value='"+classItem.show+"';>" // 
+	var showSelect = "<select name='showPref_"+key+"' id='showPref_"+key+"' value='"+classItem.show+"' onchange='NgChmGui.UTIL.setBuildProps();' ;>" // 
 	var showOptions = "<option value='N'>No</option><option value='Y'>Yes</option></select>";
 	showSelect = showSelect + showOptions;
 	NgChmGui.UTIL.setTableRow(classContents, ["&nbsp;&nbsp;Show:", showSelect]);
@@ -143,25 +143,25 @@ NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
 		var color = colors[j];
 		var threshId = j+"_breakPt_"+key;
 		var colorId = j+"_color_"+key;
-		var colorInput = "<input class='spectrumColor' type='color' name='"+colorId+"_colorPref' id='"+colorId+"_colorPref' value='"+color+"'>"; 
+		var colorInput = "<input class='spectrumColor' type='color' name='"+colorId+"_colorPref' id='"+colorId+"_colorPref' value='"+color+"' onchange='NgChmGui.UTIL.setBuildProps();' >"; 
 		NgChmGui.UTIL.setTableRow(prefContentsCp, ["&nbsp;&nbsp;"+threshold, colorInput]);
 	} 
 	NgChmGui.UTIL.addBlankRow(prefContentsCp);
-	NgChmGui.UTIL.setTableRow(prefContentsCp, ["&nbsp;Missing Color:",  "<input class='spectrumColor' type='color' name='missing_colorPrefCp_"+key+"' id='missing_colorPrefCp_"+key+"' value='"+classItem.color_map.missing+"'>"]);
+	NgChmGui.UTIL.setTableRow(prefContentsCp, ["&nbsp;Missing Color:",  "<input class='spectrumColor' type='color' name='missing_colorPrefCp_"+key+"' id='missing_colorPrefCp_"+key+"' value='"+classItem.color_map.missing+"' onchange='NgChmGui.UTIL.setBuildProps();' >"]);
 	NgChmGui.UTIL.addBlankRow(prefContentsCp, 3);
 	NgChmGui.UTIL.setTableRow(prefContentsCp, ["&nbsp;<u>Choose a pre-defined color palette:</u>"],3);
 	NgChmGui.UTIL.addBlankRow(prefContentsCp);
 	if (classItem.color_map.type == "discrete"){
-		var scheme1 = "<div style='display:flex'><div class='presetPalette' style='background: linear-gradient(to right, #1f77b4,#ff7f0e,#2ca02c,#d62728,#9467bd,#8c564b,#e377c2,#7f7f7f,#bcbd22,#17becf);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ",[\"#1f77b4\",\"#ff7f0e\",\"#2ca02c\", \"#d62728\", \"#9467bd\", \"#8c564b\", \"#e377c2\", \"#7f7f7f\", \"#bcbd22\", \"#17becf\"],\"#ffffff\",\""+classItem.color_map.type+"\")'> </div><div class='presetPaletteMissingColor' style='background:white'></div></div>";
-		var scheme2 = "<div style='display:flex'><div class='presetPalette' style='background: linear-gradient(to right, #1f77b4,#aec7e8,#ff7f0e,#ffbb78,#2ca02c,#98df8a,#d62728,#ff9896,#9467bd,#c5b0d5,#8c564b,#c49c94,#e377c2,#f7b6d2,#7f7f7f,#c7c7c7,#bcbd22,#dbdb8d,#17becf,#9edae5);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ", [\"#1f77b4\",\"#aec7e8\",\"#ff7f0e\",\"#ffbb78\",\"#2ca02c\",\"#98df8a\",\"#d62728\",\"#ff9896\",\"#9467bd\",\"#c5b0d5\",\"#8c564b\",\"#c49c94\",\"#e377c2\",\"#f7b6d2\",\"#7f7f7f\",\"#c7c7c7\",\"#bcbd22\",\"#dbdb8d\",\"#17becf\",\"#9edae5\"],\"#ffffff\",\""+classItem.color_map.type+"\")'> </div><div class='presetPaletteMissingColor' style='background:white'></div></div>";
-		var scheme3 = "<div style='display:flex'><div class='presetPalette' style='background: linear-gradient(to right,#393b79, #637939, #8c6d31, #843c39, #7b4173, #5254a3, #8ca252, #bd9e39, #ad494a, #a55194, #6b6ecf, #b5cf6b, #e7ba52, #d6616b, #ce6dbd, #9c9ede, #cedb9c, #e7cb94, #e7969c, #de9ed6);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ", [\"#393b79\", \"#637939\", \"#8c6d31\", \"#843c39\", \"#7b4173\", \"#5254a3\", \"#8ca252\", \"#bd9e39\", \"#ad494a\", \"#a55194\", \"#6b6ecf\", \"#b5cf6b\", \"#e7ba52\", \"#d6616b\", \"#ce6dbd\", \"#9c9ede\", \"#cedb9c\", \"#e7cb94\", \"#e7969c\", \"#de9ed6\"],\"#ffffff\",\""+classItem.color_map.type+"\")'> </div><div class='presetPaletteMissingColor' style='background:white'></div></div>";
+		var scheme1 = "<div style='display:flex'><div class='preDefPalette' style='background: linear-gradient(to right, #1f77b4,#ff7f0e,#2ca02c,#d62728,#9467bd,#8c564b,#e377c2,#7f7f7f,#bcbd22,#17becf);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ",[\"#1f77b4\",\"#ff7f0e\",\"#2ca02c\", \"#d62728\", \"#9467bd\", \"#8c564b\", \"#e377c2\", \"#7f7f7f\", \"#bcbd22\", \"#17becf\"],\"#ffffff\",\""+classItem.color_map.type+"\")'> </div><div class='preDefPaletteMissingColor' style='background:white'></div></div>";
+		var scheme2 = "<div style='display:flex'><div class='preDefPalette' style='background: linear-gradient(to right, #1f77b4,#aec7e8,#ff7f0e,#ffbb78,#2ca02c,#98df8a,#d62728,#ff9896,#9467bd,#c5b0d5,#8c564b,#c49c94,#e377c2,#f7b6d2,#7f7f7f,#c7c7c7,#bcbd22,#dbdb8d,#17becf,#9edae5);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ", [\"#1f77b4\",\"#aec7e8\",\"#ff7f0e\",\"#ffbb78\",\"#2ca02c\",\"#98df8a\",\"#d62728\",\"#ff9896\",\"#9467bd\",\"#c5b0d5\",\"#8c564b\",\"#c49c94\",\"#e377c2\",\"#f7b6d2\",\"#7f7f7f\",\"#c7c7c7\",\"#bcbd22\",\"#dbdb8d\",\"#17becf\",\"#9edae5\"],\"#ffffff\",\""+classItem.color_map.type+"\")'> </div><div class='preDefPaletteMissingColor' style='background:white'></div></div>";
+		var scheme3 = "<div style='display:flex'><div class='preDefPalette' style='background: linear-gradient(to right,#393b79, #637939, #8c6d31, #843c39, #7b4173, #5254a3, #8ca252, #bd9e39, #ad494a, #a55194, #6b6ecf, #b5cf6b, #e7ba52, #d6616b, #ce6dbd, #9c9ede, #cedb9c, #e7cb94, #e7969c, #de9ed6);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ", [\"#393b79\", \"#637939\", \"#8c6d31\", \"#843c39\", \"#7b4173\", \"#5254a3\", \"#8ca252\", \"#bd9e39\", \"#ad494a\", \"#a55194\", \"#6b6ecf\", \"#b5cf6b\", \"#e7ba52\", \"#d6616b\", \"#ce6dbd\", \"#9c9ede\", \"#cedb9c\", \"#e7cb94\", \"#e7969c\", \"#de9ed6\"],\"#ffffff\",\""+classItem.color_map.type+"\")'> </div><div class='preDefPaletteMissingColor' style='background:white'></div></div>";
 		NgChmGui.UTIL.setTableRow(prefContentsCp, [scheme1,scheme2,scheme3]);
 		NgChmGui.UTIL.setTableRow(prefContentsCp, ["&nbsp;Palette1",  "&nbsp;<b>Palette2</b>","&nbsp;<b>Palette3</b>"]);
 	} else {
-		var rainbow = "<div style='display:flex'><div class='presetPalette' style='background: linear-gradient(to right, red,orange,yellow,green,blue,violet);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ", [\"#FF0000\",\"#FF8000\",\"#FFFF00\",\"#00FF00\",\"#0000FF\",\"#FF00FF\"],\"#000000\",\""+classItem.color_map.type+"\")' > </div><div class='presetPaletteMissingColor' style='background:black'></div></div>";
-		var greyscale = "<div style='display:flex'><div class='presetPalette' style='background: linear-gradient(to right, white,black);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ", [\"#FFFFFF\",\"#000000\"],\"#FF0000\",\""+classItem.color_map.type+"\")' > </div><div class='presetPaletteMissingColor' style='background:red'></div></div>";
-		var redBlackGreen = "<div style='display:flex'><div id='setRedBlackGreen' class='presetPalette' style='background: linear-gradient(to right, green,black,red);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ", [\"#00FF00\",\"#000000\",\"#FF0000\"],\"#ffffff\",\""+classItem.color_map.type+"\")'> </div>" +
-		"<div class='presetPaletteMissingColor' style='background:white'></div></div>"
+		var rainbow = "<div style='display:flex'><div class='preDefPalette' style='background: linear-gradient(to right, red,orange,yellow,green,blue,violet);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ", [\"#FF0000\",\"#FF8000\",\"#FFFF00\",\"#00FF00\",\"#0000FF\",\"#FF00FF\"],\"#000000\",\""+classItem.color_map.type+"\")' > </div><div class='preDefPaletteMissingColor' style='background:black'></div></div>";
+		var greyscale = "<div style='display:flex'><div class='preDefPalette' style='background: linear-gradient(to right, white,black);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ", [\"#FFFFFF\",\"#000000\"],\"#FF0000\",\""+classItem.color_map.type+"\")' > </div><div class='preDefPaletteMissingColor' style='background:red'></div></div>";
+		var redBlackGreen = "<div style='display:flex'><div id='setRedBlackGreen' class='preDefPalette' style='background: linear-gradient(to right, green,black,red);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ", [\"#00FF00\",\"#000000\",\"#FF0000\"],\"#ffffff\",\""+classItem.color_map.type+"\")'> </div>" +
+		"<div class='preDefPaletteMissingColor' style='background:white'></div></div>"
 		NgChmGui.UTIL.setTableRow(prefContentsCp, [greyscale,rainbow,redBlackGreen]);
 		NgChmGui.UTIL.setTableRow(prefContentsCp, ["&nbsp;Greyscale",  "&nbsp;<b>Rainbow</b>","&nbsp;<b>Green Red</b>"]);
 	}
@@ -170,18 +170,18 @@ NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
 	//Build high/low bounds/colors sub panel for bar and scatter plot covariates
 	var helpprefsBp = NgChmGui.UTIL.getDivElement("breakPrefsBp_"+key);
 	var prefContentsBp = document.createElement("TABLE"); 
-	var lowBoundInput = "<input name='low_bound_"+key+"' id='low_bound_"+key+"' value='"+classItem.low_bound+"' maxlength='10' size='5'>&emsp;";
-	var highBoundInput = "<input name='high_bound_"+key+"' id='high_bound_"+key+"' value='"+classItem.high_bound+"' maxlength='10' size='5'>&emsp;";
+	var lowBoundInput = "<input name='low_bound_"+key+"' id='low_bound_"+key+"' value='"+classItem.low_bound+"' maxlength='10' size='5' onchange='NgChmGui.UTIL.setBuildProps();' >&emsp;";
+	var highBoundInput = "<input name='high_bound_"+key+"' id='high_bound_"+key+"' value='"+classItem.high_bound+"' maxlength='10' size='5' onchange='NgChmGui.UTIL.setBuildProps();' >&emsp;";
 	NgChmGui.UTIL.addBlankRow(prefContentsBp);
 	NgChmGui.UTIL.setTableRow(prefContentsBp, ["&nbsp;&nbsp;Lower Bound:", lowBoundInput]);
 	NgChmGui.UTIL.setTableRow(prefContentsBp, ["&nbsp;&nbsp;Lower Bound:", highBoundInput]);
 	NgChmGui.UTIL.addBlankRow(prefContentsBp);
-	var bgColorInput = "<input class='spectrumColor' type='color' name='bgColorPref_"+key+"' id='bgColorPref_"+key+"' value='"+classItem.bg_color+"'>"; 
-	var fgColorInput = "<input class='spectrumColor' type='color' name='fgColorPref_"+key+"' id='fgColorPref_"+key+"' value='"+classItem.fg_color+"'>"; 
+	var bgColorInput = "<input class='spectrumColor' type='color' name='bgColorPref_"+key+"' id='bgColorPref_"+key+"' value='"+classItem.bg_color+"' onchange='NgChmGui.UTIL.setBuildProps();' >"; 
+	var fgColorInput = "<input class='spectrumColor' type='color' name='fgColorPref_"+key+"' id='fgColorPref_"+key+"' value='"+classItem.fg_color+"' onchange='NgChmGui.UTIL.setBuildProps();' >"; 
 	NgChmGui.UTIL.setTableRow(prefContentsBp, ["&nbsp;&nbsp;Foreground Color:", fgColorInput]);
 	NgChmGui.UTIL.setTableRow(prefContentsBp, ["&nbsp;&nbsp;Background Color:", bgColorInput]);
 	NgChmGui.UTIL.addBlankRow(prefContentsBp);
-	NgChmGui.UTIL.setTableRow(prefContentsBp, ["&nbsp;Missing Color:",  "<input class='spectrumColor' type='color' name='missing_colorPrefBp_"+key+"' id='missing_colorPrefBp_"+key+"' value='"+classItem.color_map.missing+"'>"]);
+	NgChmGui.UTIL.setTableRow(prefContentsBp, ["&nbsp;Missing Color:",  "<input class='spectrumColor' type='color' name='missing_colorPrefBp_"+key+"' id='missing_colorPrefBp_"+key+"' value='"+classItem.color_map.missing+"' onchange='NgChmGui.UTIL.setBuildProps();' >"]);
 	helpprefsBp.appendChild(prefContentsBp);
 	if (classItem.bar_type === 'color_plot') {
 		helpprefsBp.style.display="none";
@@ -202,7 +202,7 @@ NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
  * FUNCTION - applyClassPrefs: This function applys changes made in the covariate
  * panels to the mapProperties object in advance of saving the properties.
  **********************************************************************************/
-NgChmGui.COV.applyClassPrefs = function() {
+NgChmGui.COV.applySettings = function() {
 	var classBars = NgChmGui.mapProperties.classification_files;
 	for (var key in classBars) {
 		var classItem = classBars[key];
@@ -284,7 +284,7 @@ NgChmGui.COV.readyUpload = function() {
  * It calls the UploadCovariate servlet, waits for the result, and then calls a 
  * function to adds a new covariate bar panel.  
  **********************************************************************************/
-NgChmGui.COV.addCovariateBar = function() {
+NgChmGui.COV.addCovariateBar = function(nextFunction) {
 	var req = new XMLHttpRequest();
 	//Validate Covar name and axis
 	var covNameValue = document.getElementById('covName').value;
@@ -306,7 +306,8 @@ NgChmGui.COV.addCovariateBar = function() {
 	    		if (NgChmGui.UTIL.debug) {console.log('not 200');}
 	            console.log('Failed to upload covariate '  + req.status);
 	        } else {
-	        	NgChmGui.UTIL.getHeatmapProperties(NgChmGui.COV.loadNewCovariateBar);
+	        	NgChmGui.mapProperties = JSON.parse(req.response);
+	        	nextFunction();
 	        }
 		}
 	};
@@ -314,29 +315,20 @@ NgChmGui.COV.addCovariateBar = function() {
 }
 
 /**********************************************************************************
- * FUNCTION - hideCovarUpload: This function closes the add covariate upload panel
- * and displays the covariates data entry panel.  
+ * FUNCTION - hideCovarUpload: This function closes the add covariate upload panel,
+ * reloads the screen, and displays the newly added covariate's data entry panel.  
  **********************************************************************************/
 NgChmGui.COV.loadNewCovariateBar = function() {
-	document.getElementById('file-input').value = null;
-	var classPrefsDiv = document.getElementById("classPrefsDiv");
-	var classPrefsList = document.getElementById("classPref_list");
+	NgChmGui.COV.hideCovarUpload();
+	var oldClassPanel = document.getElementById("classPrefsDiv");
+	if (oldClassPanel !== null) {
+		oldClassPanel.remove();
+	}
 	var classes = NgChmGui.mapProperties.classification_files;
 	var classIdx = classes.length-1;
 	var lastClass = classes[classIdx];
 	var key =  NgChmGui.COV.getClassKey(lastClass);
-	if (classPrefsList.options[0].value === 'classPref_NONE') {
-		classPrefsList.remove(0);
-		document.getElementById("classPref_NONE").style.display = 'none';
-	}
-	var classContentsDiv = NgChmGui.COV.setupCovariatePanel(lastClass,classIdx);
-	classPrefsDiv.appendChild(classContentsDiv);
-	document.getElementById('showPref_'+key).value = lastClass.show;
-	if (lastClass.color_map.type === 'continuous') {
-		document.getElementById('barTypePref_'+key).value = lastClass.bar_type;
-	}
-	classContentsDiv.style.display='none';
-	NgChmGui.COV.hideCovarUpload();
+	NgChmGui.COV.loadData();
 	NgChmGui.COV.selectClassDropdown(key);
 	NgChmGui.COV.showClassSelection();	        
 }
@@ -405,7 +397,7 @@ NgChmGui.COV.hideCovarRemoval = function() {
  * bar from the heatmapProperties configuration for a heat map on the server and then
  * calls the function that cleans up the Covariate screen.
  **********************************************************************************/
-NgChmGui.COV.removeCovariateBar = function() {
+NgChmGui.COV.removeCovariateBar = function(nextFunction) {
 	var req = new XMLHttpRequest();
 	var formData = new FormData( document.getElementById("covar_remove") );
 	req.open("POST", "RemoveCovariate", true);
@@ -417,7 +409,8 @@ NgChmGui.COV.removeCovariateBar = function() {
 	    		if (NgChmGui.UTIL.debug) {console.log('not 200');}
 	            console.log('Failed to remove covariate '  + req.status);
 	        } else {
-	        	NgChmGui.COV.removeCovariateBarFromScreen();
+	        	NgChmGui.mapProperties = JSON.parse(req.response);
+	        	nextFunction();
 	        }
 		}
 	};
@@ -426,35 +419,17 @@ NgChmGui.COV.removeCovariateBar = function() {
 
 /**********************************************************************************
  * FUNCTION - removeCovariateBar: This function removes a covariate panel from
- * the covariate data entry panel and dropdown.  This happens after the covariate
- * has been removed from the heatmapProperties config on the server.
+ * the covariate data entry panel, reloads the screen, and selects the first
+ * covariate bar for display. 
  **********************************************************************************/
 NgChmGui.COV.removeCovariateBarFromScreen = function() {
-	var classSelect = document.getElementById("classPref_list");
-	var selectedBarIdx = classSelect.selectedIndex;
-	var selectedValue = classSelect.value;
-	var classProps = NgChmGui.mapProperties.classification_files;
-	var classPropIdx = -99;
-	for (var i=0;i<classProps.length;i++) {
-		var classItem = classProps[i];
-		var selectedAxis = selectedValue.substring(0,selectedValue.indexOf("_"));
-		var selectedName = selectedValue.substring(selectedValue.indexOf("_")+1,selectedValue.length);
-		if ((classItem.position === selectedAxis) && (classItem.name === selectedName)) {
-			classPropIdx = i;
-			break;
-		}
-	}
-	NgChmGui.mapProperties.classification_files.splice(classPropIdx, 1);
-	var mapProp2 = NgChmGui.mapProperties.classification_files;
-	var selectedDiv = document.getElementById(selectedValue);
-	selectedDiv.parentNode.removeChild(selectedDiv);
-	classSelect.remove(selectedBarIdx);
-	if (classSelect.length < 1) {
-		var noClassesDiv = NgChmGui.COV.getEmptyClassesPanel();
-		document.getElementById("classPrefsDiv").appendChild(noClassesDiv);
-	}
 	NgChmGui.COV.hideCovarRemoval();
-	NgChmGui.COV.showClassSelection(0);
+	var oldClassPanel = document.getElementById("classPrefsDiv");
+	if (oldClassPanel !== null) {
+		oldClassPanel.remove();
+	}
+	NgChmGui.COV.loadData();
+	NgChmGui.COV.showClassSelection(0);	       
 }
 
 /**********************************************************************************
@@ -474,6 +449,7 @@ NgChmGui.COV.togglePlotTypeProperties = function(key) {
 		cbDiv.style.display="none";
 		bbDiv.style.display="block";
 	}
+	NgChmGui.UTIL.setBuildProps();
 }
 
 /**********************************************************************************
@@ -483,6 +459,7 @@ NgChmGui.COV.togglePlotTypeProperties = function(key) {
  * "preset" is an array of the colors in HEX of the predefined color scheme
  **********************************************************************************/
 NgChmGui.COV.setBreaksToPalette = function(key, id, preset, missingColor, type) {
+	NgChmGui.UTIL.setBuildProps();
 	var i = 0; // find number of breakpoints in the 
 	while(document.getElementById(++i+"_color_"+key+"_colorPref"));
 	var lastShown = i-1;
@@ -540,61 +517,6 @@ NgChmGui.COV.hideAllClassDivs = function() {
 		var selectedDivId = classBtn.options[i].value;
 		document.getElementById(selectedDivId).style.display = 'none';
 	}
-}
-
-/**********************************************************************************
- * FUNCTION - loadCovariateView: This function runs when the covariates panel is
- * initially loading and drawing the heatmap image in the view panel.  It calls
- * a generic servlet for retrieving the heatmap into the widget viewer, but makes
- * a few minor display changes specific to the Covariates screen.
- **********************************************************************************/
-NgChmGui.COV.loadCovariateView = function() {
-	NgChmGui.UTIL.loadHeatMapView();
-	var sumCanvas = document.getElementById('summary_canvas');
-	sumCanvas.style.left = '20%';
-	sumCanvas.style.width = '55%';
-	sumCanvas.style.height = '100%';
-}
-
-/**********************************************************************************
- * FUNCTION - applyCovariateSettings: This function runs when either the apply or
- * next button are pushed on the covariates panel.  If APPLY, all covariate changes
- * are applied to the heatmap and the heatmap image is displayed in the view panel.
- * If NEXT, the changes are applied and the next panel (e.g. Cluster) is called.
- **********************************************************************************/
-NgChmGui.COV.applyCovariateSettings = function(typ) {
-	var req = new XMLHttpRequest();
-	NgChmGui.COV.applyClassPrefs();
-	var formData = JSON.stringify(NgChmGui.mapProperties);  
-	req.open("POST", "ProcessCovariate", true);
-	req.setRequestHeader("Content-Type", "application/json");
-	req.onreadystatechange = function () {
-		if (NgChmGui.UTIL.debug) {console.log('state change');}
-		if (req.readyState == req.DONE) {
-			if (NgChmGui.UTIL.debug) {console.log('done');}
-	        if (req.status != 200) {
-	        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
-	            console.log('Failed to process covariate changes '  + req.status);
-	            NgChmGui.UTIL.matrixLoadingError();
-	        } else {
-				if (NgChmGui.UTIL.debug) {console.log('200');}
-				if (typ === 1) {
-					NgChmGui.UTIL.buildHeatMap(NgChmGui.COV.loadCovariateView);
-				} else {
-					NgChmGui.UTIL.buildHeatMap(NgChmGui.COV.gotoClusterScreen);
-				}
-			}
-		};
-	}
-	req.send(formData);
-}
-
-/**********************************************************************************
- * FUNCTION - gotoClusterScreen: This function navigates to the next screen from
- * the Covariate screen (the Cluster screen).
- **********************************************************************************/
-NgChmGui.COV.gotoClusterScreen = function() {
-	window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Cluster.html","_self");
 }
 
 

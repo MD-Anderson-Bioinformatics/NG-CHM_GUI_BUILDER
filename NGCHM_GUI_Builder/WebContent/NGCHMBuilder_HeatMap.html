@@ -33,7 +33,10 @@
         		<b>Get PDF</b><br><br>
         		<b>Get Viewer</b><br><br>
 		    </div>			
-	        <div id="formatView" class="layout_display_container" style="margin: 1em 0 0 5%; width: 60%;">
+	        <div id="covarPrevButton"  class="prev_btn">  
+	        	<img id='covarPrev_btn' src='images/prevButton.png' alt='Go to previous step' onclick='NgChmGui.UTIL.gotoFormatScreen();' />		
+	        </div>   
+	        <div id="heatMapView" class="layout_display_container" style="margin: 1em 0 0 5%; width: 60%;">
 				<div id='NGCHMEmbed' style="background-color: white; height: 85%; margin-bottom: 0.25em; padding: 5px"></div>
 				<script src='javascript/ngchmWidget-min.js'></script>
 			</div>

@@ -1,117 +1,18 @@
 package mda.ngchm.guibuilder;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
-import com.google.gson.Gson;
-
-import mda.ngchm.datagenerator.HeatmapDataGenerator;
-
 /**
- * Servlet implementation class Upload Data Matrix
+ * Methods for processing covariate information
  */
-@WebServlet("/ProcessCovariate")
-public class ProcessCovariate extends HttpServlet {
-	private static final long serialVersionUID = 1L;
+public class ProcessCovariate {
     public static final String[] defaultColors = {"#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78", "#2ca02c", "#98df8a", "#d62728", "#ff9896", "#9467bd", "#c5b0d5", "#8c564b", "#c49c94", "#e377c2", "#f7b6d2", "#7f7f7f", "#c7c7c7", "#bcbd22", "#dbdb8d", "#17becf", "#9edae5"};
 	public static Set<String> NA_VALUES = new HashSet<String>(Arrays.asList("null","NA","N/A","-","?","NAN","NaN","Na","na","n/a",""," "));
-	
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		try {
-			processCovariate(request, response);
-		} catch (Exception e) {
-	        e.printStackTrace();
-		}
-	}
-	
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		doGet(request, response);
-	}
-
-	private void processCovariate(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		HttpSession mySession = request.getSession(false);
-		response.setContentType("application/json;charset=UTF-8");
-		
-	    final PrintWriter writer = response.getWriter();
-
-	    try {
-			System.out.println("START Processing Covariates: " + new Date()); 
-			
-			//Get heat map construction directory from session
-	    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
-	        workingDir = workingDir + "/" + mySession.getId();
-
-	        HeatmapPropertiesManager.Heatmap covarConfig = getCovarConfigData(request);
-
-	        HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
-	        File propFile = new File(workingDir + "/heatmapProperties.json");
-	        //Check for pre-existence of properties file.  If exists, load from properties manager
-	        if (propFile.exists()) {
-	        	mgr.load();
-	        }
-	        HeatmapPropertiesManager.Heatmap map = mgr.getMap();
-
-		    //Remove any existing covariate files as we are putting edited preferences on the map
-		    map.classification_files.removeAll(map.classification_files);
-	        for (int i=0;i<covarConfig.classification_files.size();i++) {
-	        	HeatmapPropertiesManager.Classification nextClass = covarConfig.classification_files.get(i);
-	        	map.classification_files.add(nextClass);	    
-	        }
-		    mgr.save();
-
-		    //Call HeatmapDataGenerator to generate final heat map .ngchm file
-	//	    String genArgs[] = new String[] {propFile.getAbsolutePath(), "-NGCHM"};
-	//		String errMsg = HeatmapDataGenerator.processHeatMap(genArgs);
-	//		writer.println("MapBuildDir/" + mySession.getId() + "/" + map.chm_name + "|" + map.chm_name + ".ngchm");
-			System.out.println("END Processing Covariates: " + new Date()); 
-		} catch (Exception e) {
-	        writer.println("Error creating initial heat map properties.");
-	        writer.println("<br/> ERROR: " + e.getMessage());
-	    } finally {
-	        if (writer != null) {
-	            writer.close();
-	        }
-	    }		
-	}
-	
-	private HeatmapPropertiesManager.Heatmap getCovarConfigData(HttpServletRequest request) throws Exception {
-		StringBuilder buffer = new StringBuilder();
-	    BufferedReader reader = request.getReader();
-	    String line;
-	    while ((line = reader.readLine()) != null) {
-	        buffer.append(line);
-	    }
-	    String data = buffer.toString();
-	    // Parse payload into JSON Object
-	    HeatmapPropertiesManager.Heatmap covarConfig = new Gson().fromJson(data, HeatmapPropertiesManager.Heatmap.class);
-	    
-	    return covarConfig; 
-	}
-
-
-	public static boolean isNumeric(String str)
-	{
-		boolean isNbr = str.matches("-?\\d+(\\.\\d+)?");
-		if ((!isNbr) && (NA_VALUES.contains(str))) {
-			isNbr = true;
-		}
-		return isNbr;  
-	}
 
 	/*******************************************************************
 	 * METHOD: constructDefaultCovariate
@@ -184,7 +85,26 @@ public class ProcessCovariate extends HttpServlet {
 		return covar;
 	}
 	
+	/*******************************************************************
+	 * METHOD: isNumeric
+	 *
+	 * This method checks that an input string contains a numeric value
+	 ******************************************************************/
+	public static boolean isNumeric(String str)
+	{
+		boolean isNbr = str.matches("-?\\d+(\\.\\d+)?");
+		if ((!isNbr) && (NA_VALUES.contains(str))) {
+			isNbr = true;
+		}
+		return isNbr;  
+	}
 	
+	/*******************************************************************
+	 * METHOD: getDefaultClassColors
+	 *
+	 * This method returns a list of default covariate bar colors based
+	 * upon the color type of the bar.
+	 ******************************************************************/
     public static ArrayList<String> getDefaultClassColors(ArrayList<String> categories, String type) throws Exception {
         ArrayList<String> colors = new ArrayList<String>();
     	if (type.equals("continuous")) {

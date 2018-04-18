@@ -32,18 +32,19 @@
 				<div id="preferencesPanel" style="display: none;">
 				</div>
 				<br/>
-				<img id='apply_btn' src='images/applyButton.png' alt='Cluster the Data' style="vertical-align: bottom;" onclick="NgChmGui.COV.applyCovariateSettings(1);" />
+				<img id='apply_btn' src='images/applyButton.png' alt='Cluster the Data' style="vertical-align: bottom;" onclick="NgChmGui.UTIL.applySettings(NgChmGui.FORMAT.applySettings, NgChmGui.FORMAT.loadFormatView);" />
 		        <div id="covarPrevButton"  class="prev_btn">  
-		        	<img id='covarPrev_btn' src='images/prevButton.png' alt='Go to previous step' onclick='window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Cluster.html","_self")' />		
+		        	<img id='covarPrev_btn' src='images/prevButton.png' alt='Go to previous step' onclick='NgChmGui.UTIL.gotoClusterScreen();' />		
 		        </div>   
 		        <div id="covarNextButton"  class="next_btn">  
-		        	<img id='covarNext_btn' src='images/nextButton.png' alt='Go to next step' onclick="NgChmGui.COV.applyCovariateSettings(2);" />		
+		        	<img id='covarNext_btn' src='images/nextButton.png' alt='Go to next step' onclick='NgChmGui.UTIL.applySettings(NgChmGui.FORMAT.applySettings, NgChmGui.UTIL.gotoHeatMapScreen);' />		
 		        </div>   
 			</div>
-	        <div id="formatView" class="layout_display_container" style="margin: 1em 0 0 5%; width: 60%;">
-				<div id='NGCHMEmbed' style="background-color: white; height: 85%; margin-bottom: 0.25em; padding: 5px"></div>
+	        <div id="heatMapView" class="layout_display_container" style="margin: 1em 0 0 5%; width: 60%;">
+				<div id='labelPrefExample' class='chmDIV'></div>
+				<div id='NGCHMEmbed' style="background-color: white; height: 85%; margin-left: 10em; margin-top: 1.75em; padding: 5px"></div>
 				<script src='javascript/ngchmWidget-min.js'></script>
-				<script> NgChmGui.UTIL.editWidgetForBuilder();</script>
+	  			 <script> NgChmGui.UTIL.editWidgetForBuilder();</script>  
 			</div>
 		</div>   		
 		<div id="message" style="display: none; position: absolute; background-color: rgb(230, 240, 255);"></div>

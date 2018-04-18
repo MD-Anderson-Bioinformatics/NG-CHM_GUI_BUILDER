@@ -1,42 +1,22 @@
 package mda.ngchm.guibuilder;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import javax.script.ScriptEngine;
 import org.renjin.script.RenjinScriptEngineFactory;
-
-import mda.ngchm.datagenerator.HeatmapDataGenerator;
-
 
 /**
  * Servlet implementation class Upload Data Matrix
  */
-@WebServlet("/Cluster")
-public class Cluster extends HttpServlet {
-	private static final long serialVersionUID = 1L;
+public class Cluster  {
 	private static final ThreadLocal<ScriptEngine> ENGINE = new ThreadLocal<>();
 	
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		HttpSession mySession = request.getSession(false);
-		response.setContentType("application/json;charset=UTF-8");
-		
+	public void clusterHeatMap(String workingDir) throws ServletException, IOException {
 		// Obtain R script engine for this thread
 		ScriptEngine engine = getScriptEngine();
 
-	    final PrintWriter writer = response.getWriter();
-
 	    try {
-	    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
-	        workingDir = workingDir + "/" + mySession.getId();
-
 	        //Retrieve heat map properties
 		    HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
 		    mgr.load();
@@ -44,46 +24,54 @@ public class Cluster extends HttpServlet {
 		    
 		    //Get first matrix file for clustering 
 		    String matrixFile = map.matrix_files.get(0).path;
+		    String clusterProp = map.builder_config.buildCluster;
+		    boolean clusterRows = (clusterProp.equals("R") || clusterProp.equals("B")) ? true : false;
+		    boolean clusterCols = (clusterProp.equals("C") || clusterProp.equals("B")) ? true : false;
 		    
-		    //Create paths for clustering output files
-		    String rowOrder = workingDir  + "/rowOrder.txt";
-		    String colOrder = workingDir  + "/colOrder.txt";
-		    String rowDendro = workingDir  + "/rowDendro.txt";
-		    String colDendro = workingDir  + "/colDendro.txt";
-		    
-		    //Cluster heat map data
-		    performOrdering(engine, matrixFile, request.getParameter("ColOrder"), "column", request.getParameter("ColDistance"), request.getParameter("ColAgglomeration"), colOrder, colDendro);
-		    performOrdering(engine, matrixFile, request.getParameter("RowOrder"), "row", request.getParameter("RowDistance"), request.getParameter("RowAgglomeration"), rowOrder, rowDendro);
-	        
-		    //Add clustering entries to heatmapProperties file
-		    map.row_configuration = mgr.new Order(request.getParameter("RowOrder"), request.getParameter("RowDistance"), request.getParameter("RowAgglomeration"), rowOrder, rowDendro);
-		    map.col_configuration = mgr.new Order(request.getParameter("ColOrder"), request.getParameter("ColDistance"), request.getParameter("ColAgglomeration"), colOrder, colDendro);
-		    
+		    if (clusterRows) {
+			    //Create paths for clustering output files
+			    String rowOrder = workingDir  + "/rowOrder.txt";  
+			    String rowDendro = workingDir  + "/rowDendro.txt";  
+			    String rowOrderMethod = map.row_configuration.order_method;
+			    performOrdering(engine, matrixFile, rowOrderMethod, "row", map.row_configuration.distance_metric, map.row_configuration.agglomeration_method, rowOrder, rowDendro);  //Get from props
+			    if (rowOrderMethod.equals("Hierarchical")) {   
+			    	map.row_configuration.order_file = rowOrder;  
+			    	map.row_configuration.dendro_file = rowDendro; 
+			    	if (map.row_configuration.dendro_show.equals("NA"))	{	 	    	
+		    			map.row_configuration.dendro_show = "ALL";  
+		    			map.row_configuration.dendro_height = "100";  
+			    	}
+			    } else {
+			    	map.row_configuration.dendro_show = "NA";  
+			    	map.row_configuration.dendro_height = "10";
+			    }
+		    }
+		    if (clusterCols) {
+			    String colOrder = workingDir  + "/colOrder.txt";  
+			    String colDendro = workingDir  + "/colDendro.txt";  
+				String colOrderMethod = map.col_configuration.order_method;
+				performOrdering(engine, matrixFile, colOrderMethod, "column", map.col_configuration.distance_metric, map.col_configuration.agglomeration_method, colOrder, colDendro);  //Get from props
+			    if (colOrderMethod.equals("Hierarchical")) {   
+			    	map.col_configuration.order_file = colOrder;  
+			    	map.col_configuration.dendro_file = colDendro; 
+			    	if (map.col_configuration.dendro_show.equals("NA"))	{	 	    	
+		    			map.col_configuration.dendro_show = "ALL";  
+		    			map.col_configuration.dendro_height = "100";  
+			    	}
+			    } else {
+			    	map.col_configuration.dendro_show = "NA";  
+			    	map.col_configuration.dendro_height = "10";
+			    }
+		    }
+		    map.builder_config.buildCluster = "N";
 		    //Save changes to heatmapProperties file
-		    String propFile = mgr.save();
-		    
-		    //Call HeatmapDataGenerator to generate final heat map .ngchm file
-		    String genArgs[] = new String[] {propFile, "-NGCHM"};
-			String errMsg = HeatmapDataGenerator.processHeatMap(genArgs);
-		    //ToDo: Check for errors
-		    writer.println("MapBuildDir/" + mySession.getId() + "/" + map.chm_name + "|" + map.chm_name + ".ngchm");
+		    mgr.save();
 
 	    } catch (Exception e) {
-	        writer.println("Error uploading matrix.");
-	        writer.println("<br/> ERROR: " + e.getMessage());
-
-	    } finally {
-	        if (writer != null) {
-	            writer.close();
-	        }
-	    }
+	    	System.out.println("Error clustering matrix: "+ e.getMessage());
+	    } 
 	}
 
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		doGet(request, response);
-	}
-	
-  
 	private ScriptEngine getScriptEngine() {
     	ScriptEngine engine = ENGINE.get();
     	if(engine == null) {

@@ -1,7 +1,6 @@
 package mda.ngchm.guibuilder;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -14,9 +13,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.servlet.http.Part;
-
-import mda.ngchm.guibuilder.HeatmapPropertiesManager.BuilderConfig;
 
 /**
  * Servlet implementation class Upload Data Matrix
@@ -63,7 +59,20 @@ public class RemoveCovariate extends HttpServlet {
         		}
         	}
         	map.classification_files.remove(indexToRem);
+	        //Mark properties as "clean" for update.
+        	map.builder_config.buildProps = "N";
         	mgr.save();
+	        //Re-build the heat map 
+		    HeatmapBuild builder = new HeatmapBuild();
+		    builder.buildHeatMap(workingDir);
+
+		    //Return edited props
+		    String propJSON = "{}";
+        	propJSON = mgr.load();
+	       	response.setContentType("application/json");
+	    	response.getWriter().write(propJSON.toString());
+	    	response.flushBuffer();
+
 	    } catch (Exception e) {
 	        writer.println("Error uploading covariate.");
 	        writer.println("<br/> ERROR: " + e.getMessage());

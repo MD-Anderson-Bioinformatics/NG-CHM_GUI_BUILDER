@@ -25,13 +25,19 @@ public class HeatmapPropertiesManager {
 		public String name;
 		public String path;
 		public String summary_method;
+		public String grid_color;
+		public String grid_show;
+		public String selection_color;
 		public ColorMap color_map;
 		public MatrixFile (String name, String path, String summary_method, ColorMap cmap) {
 			this.name = name; this.path = path; this.summary_method = summary_method; this.color_map = cmap;
+			this.grid_show = "Y"; this.grid_color = "#FFFFFF"; this.selection_color = "#00FF38";
 		}
 	}
 	
 	public class BuilderConfig {
+		public String buildProps = "N";
+		public String buildCluster = "N";
 		public MatrixGridConfig matrix_grid_config;
 		public BuilderConfig (MatrixGridConfig gridConfig) {
 			this.matrix_grid_config = gridConfig;
@@ -65,13 +71,27 @@ public class HeatmapPropertiesManager {
 		public String agglomeration_method;
 		public String order_file;
 		public String dendro_file;
+		public String dendro_show;
+		public String dendro_height;
+		public String label_display_length;
+		public String label_display_abbreviation;
+		public ArrayList<String> top_items = new ArrayList<String>();
 		public ArrayList<String> data_type = new ArrayList<String>();
+		public int[] cut_locations = null;
+		public String cut_width;
+		public String tree_cuts;
 		public Order (String order_method) {
 			this.order_method = order_method;
+			this.dendro_show = "NA";
+			this.dendro_height = "10";
+			this.label_display_length = "20";
+			this.label_display_abbreviation = "END";
+			this.cut_width = "10";
+			this.tree_cuts = "0";
 		}
-		public Order (String order_method, String distance_metric, String agglomeration_method, String order_file,	String dendro_file) {
+		public Order (String order_method, String distance_metric, String agglomeration_method, String order_file,	String dendro_file, String dendro_show, String dendro_height) {
 			this.order_method = order_method; this .distance_metric = distance_metric; this.agglomeration_method = agglomeration_method;
-			this.order_file = order_file; this.dendro_file = dendro_file;
+			this.order_file = order_file; this.dendro_file = dendro_file; this.dendro_show = dendro_show; this.dendro_height = dendro_height; 
 		}
 	}
 	
@@ -128,10 +148,20 @@ public class HeatmapPropertiesManager {
 		return theMap;
 	}
 	
+	public void setMap(Heatmap newMap) {
+		this.theMap = newMap;
+	}
+	
 	public HeatmapPropertiesManager(String directory) {
 		this.directory = directory;
 	}
 	
+	/*******************************************************************
+	 * METHOD: load
+	 *
+	 * This method saves values set on the heatMap object back to the
+	 * heatmapProperties JSON file. 
+	 ******************************************************************/
 	public String save() throws Exception {
 		String propFile = directory + "/heatmapProperties.json";
 		PrintWriter out = new PrintWriter(propFile);
@@ -149,6 +179,13 @@ public class HeatmapPropertiesManager {
 		return propFile;
 	}
 	
+	/*******************************************************************
+	 * METHOD: load
+	 *
+	 * This method loads the contents of the heatmapProperties json file,
+	 * stored in the session directory, into a heatmap object and returns
+	 * that object to the caller.
+	 ******************************************************************/
 	public String load() throws Exception {
 		String propFile = directory + "/heatmapProperties.json";
 		BufferedReader in = new BufferedReader(new FileReader(propFile));

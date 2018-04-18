@@ -82,23 +82,9 @@ NgChmGui.UTIL.editWidgetForBuilder = function() {
 	document.getElementById('bottom_buttons').style.display = 'none';
 	document.getElementById('barMenu_btn').style.display = 'none';
 	document.getElementById('mdaServiceHeader').style.border = 'none';
+	document.getElementById('summary_box_canvas').style.display = 'none';
 	document.getElementById('column_dendro_canvas').style.display = '';
 	document.getElementById('row_dendro_canvas').style.display = '';
-}
-
-/**********************************************************************************
- * FUNCTION - editWidgetForCovarView: The purpose of this function to hide various
- * parts of the embedded heatmap widget for the Covariate screen.
- **********************************************************************************/
-NgChmGui.UTIL.editWidgetForCovarView = function() {
-	document.getElementById('divider').style.display = 'none';
-	document.getElementById('column_dendro_canvas').style.display = 'none';
-	document.getElementById('row_dendro_canvas').style.display = 'none';
-	document.getElementById('detail_chm').style.display = 'none';
-	document.getElementById('summary_box_canvas').style.display = 'none';
-	document.getElementById('bottom_buttons').style.display = 'none';
-	document.getElementById('barMenu_btn').style.display = 'none';
-	document.getElementById('mdaServiceHeader').style.border = 'none';
 }
 
 /**********************************************************************************
@@ -108,7 +94,7 @@ NgChmGui.UTIL.editWidgetForCovarView = function() {
  **********************************************************************************/
 NgChmGui.UTIL.getHeatmapProperties = function(loadFunction) {
 	var req = new XMLHttpRequest();
-	req.open("POST", "MapProperties", true);
+	req.open("GET", "MapProperties", true);
 	req.onreadystatechange = function () {
 		if (NgChmGui.UTIL.debug) {console.log('state change');}
 		if (req.readyState == req.DONE) {
@@ -130,8 +116,51 @@ NgChmGui.UTIL.getHeatmapProperties = function(loadFunction) {
 }
 
 /**********************************************************************************
+ * FUNCTION - setHeatmapProperties: The purpose of this function to send heat map
+ * properties to the client and save them.
+ **********************************************************************************/
+NgChmGui.UTIL.setHeatmapProperties = function(nextFunction) {
+	var req = new XMLHttpRequest();
+	var formData = JSON.stringify(NgChmGui.mapProperties);  
+	req.open("POST", "MapProperties", true);
+	req.setRequestHeader("Content-Type", "application/json");
+	req.onreadystatechange = function () {
+		if (NgChmGui.UTIL.debug) {console.log('state change');}
+		if (req.readyState == req.DONE) {
+			if (NgChmGui.UTIL.debug) {console.log('done');}
+	        if (req.status != 200) {
+	        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
+	            console.log('Failed to process properties changes '  + req.status);
+	            NgChmGui.UTIL.matrixLoadingError();
+	        } else {
+				if (NgChmGui.UTIL.debug) {console.log('200');}
+	        	NgChmGui.mapProperties = JSON.parse(req.response);
+				if (typeof nextFunction !== 'undefined') {
+					nextFunction();
+				}
+			}
+		};
+	}
+	req.send(formData);
+}
+
+/**********************************************************************************
+ * FUNCTION - applySettings: The purpose of this function to apply any changes to 
+ * the heat map properties to the heat map on the server.  It is a generic function
+ * that is called from any screens that edit heatmapProperties data
+ **********************************************************************************/
+NgChmGui.UTIL.applySettings = function(applyFunction, nextFunction) {
+	if (NgChmGui.UTIL.buildProps() === true) {
+		applyFunction();
+		NgChmGui.UTIL.setHeatmapProperties(nextFunction);
+	} else {
+		nextFunction();
+	}
+}
+
+/**********************************************************************************
  * FUNCTION - buildHeatMap: This function runs when any changes are applied and the
- * heatmap needs to be rebuilt for display.
+ * heatmap needs to be rebuilt for display.  *****NOT CURRENTLY USED*****
  **********************************************************************************/
 NgChmGui.UTIL.buildHeatMap = function(nextFunction) {
 	var req = new XMLHttpRequest();
@@ -156,12 +185,11 @@ NgChmGui.UTIL.buildHeatMap = function(nextFunction) {
 	req.send();
 }
 
-
 /**********************************************************************************
  * FUNCTION - loadHeatMapView: This function runs when any panel, that displays
  * the heatmap at startup, is loaded.
  **********************************************************************************/
-NgChmGui.UTIL.loadHeatMapView = function() {
+NgChmGui.UTIL.loadHeatMapView = function(nextFunction) {
 	var req = new XMLHttpRequest();
 	req.open("POST", "HeatmapView", true);
 	req.setRequestHeader("Content-Type", "application/json");
@@ -177,22 +205,15 @@ NgChmGui.UTIL.loadHeatMapView = function() {
 				if (NgChmGui.UTIL.debug) {console.log('200');}
 	        	result = req.response;
 	        	pieces = result.trim().split("|");
-	        	NgChm.UTIL.embedCHM(pieces[1], pieces[0]);
-	    		NgChm.postLoad = function () {
-	    			NgChm.heatMap.addEventListener(function (event, level) {
-	    				if (event == NgChm.MMGR.Event_INITIALIZED) {
-	    					document.getElementById('detail_chm').style.width = '4%';
-	    					document.getElementById('summary_chm').style.width = '96%';
-	    					NgChm.SUM.summaryResize();  
-	    		   		 }
-	    			});	
-	    		};	
+	        	NgChm.UTIL.embedCHM(pieces[1], pieces[0], true);
+	        	if (typeof nextFunction !== 'undefined') {
+	        		nextFunction();
+	        	}
 		    }
 		}
 	};
 	req.send();
 }
-
 
 /**********************************************************************************
  * FUNCTION - loadHeaderData: The purpose of this function display header data
@@ -206,10 +227,48 @@ NgChmGui.UTIL.loadHeaderData =  function() {
 		return true;
 	} else {
 		document.getElementById("mapName").innerHTML = "<b>Your Session Has Expired</b>";
-		setTimeout(function(){window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Matrix.html","_self"); }, 2000);
+		setTimeout(function(){NgChmGui.UTIL.gotoMatrixScreen(); }, 2000);
 		return false;
 	}
 }
+
+/**********************************************************************************
+ * FUNCTION - setPropsChange: The purpose of this function is to mark the properties
+ * as "dirty".
+ **********************************************************************************/
+NgChmGui.UTIL.setBuildProps =  function() {
+	NgChmGui.mapProperties.builder_config.buildProps = "Y"
+}
+
+/**********************************************************************************
+ * FUNCTION - setBuildCluster: The purpose of this function is to mark the properties
+ * as "dirty" AND mark the properties as requiring clustering during the update
+ * process.
+ **********************************************************************************/
+NgChmGui.UTIL.setBuildCluster =  function(type) {
+	NgChmGui.UTIL.setBuildProps();
+	var currCluster = NgChmGui.mapProperties.builder_config.buildCluster;
+	if ((type === 'C') && (currCluster === 'R')) {
+		NgChmGui.mapProperties.builder_config.buildCluster= "B";
+	} else if ((type === 'R') && (currCluster === 'C')) {
+		NgChmGui.mapProperties.builder_config.buildCluster= "B";
+	} else {
+		NgChmGui.mapProperties.builder_config.buildCluster= type;
+	}
+}
+
+/**********************************************************************************
+ * FUNCTION - buildProps: The purpose of this function is query the build properties
+ * to determine if an update is necessary.
+ **********************************************************************************/
+NgChmGui.UTIL.buildProps =  function() {
+	if (NgChmGui.mapProperties.builder_config.buildProps === "Y") {
+		return true;
+	} else {
+		return false;
+	}
+}
+
 
 /**********************************************************************************
  * FUNCTIONS - MESSAGE BOX FUNCTIONS
@@ -398,6 +457,51 @@ NgChmGui.UTIL.toTitleCase = function(string) {
         return match.toLowerCase();
     });
 }
+
+NgChmGui.UTIL.getLabelText = function(text,type) { 
+	var rowConfig = NgChmGui.mapProperties.row_configuration;
+	var colConfig = NgChmGui.mapProperties.col_configuration;
+	var size = colConfig.label_display_length;
+	var elPos = colConfig.label_display_abbreviation;
+	if (type === "ROW") {
+		size = rowConfig.label_display_length;
+		elPos = rowConfig.label_display_abbreviation;
+	}
+	if (text.length > size) {
+		if (elPos === 'END') {
+			text = text.substr(0,size - 3)+"...";
+		} else if (elPos === 'MIDDLE') {
+			text = text.substr(0,(size/2 - 1))+"..."+text.substr(text.length-(size/2 - 2),text.length);
+		} else {
+			text = "..."+text.substr(text.length - (size - 3), text.length);
+		}
+	}
+	return text;
+}
+
+/**********************************************************************************
+ * FUNCTION - goto...Screen: These function navigate to the specified screen.  
+ * They are used to navigate to the next screen from a previous screen
+ **********************************************************************************/
+NgChmGui.UTIL.gotoMatrixScreen = function() {
+	window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Matrix.html","_self");
+}
+NgChmGui.UTIL.gotoTransformScreen = function() {
+	window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Transform.html","_self");
+}
+NgChmGui.UTIL.gotoCovariatesScreen = function() {
+	window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Covariates.html","_self");
+}
+NgChmGui.UTIL.gotoClusterScreen = function() {
+	window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Cluster.html","_self");
+}
+NgChmGui.UTIL.gotoFormatScreen = function() {
+	window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Format.html","_self");
+}
+NgChmGui.UTIL.gotoHeatMapScreen = function() {
+	window.open("/NGCHM_GUI_Builder/NGCHMBuilder_HeatMap.html","_self");
+}
+
 
 
 

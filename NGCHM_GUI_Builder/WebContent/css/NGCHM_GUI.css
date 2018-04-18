@@ -149,6 +149,15 @@ div.serviceHeaderLogo img
     vertical-align: center;
 }
 
+.chmDIV {
+    height: 0px;
+	padding: 0px;
+    font-size: 12px;
+    font-family: Arial;
+    font-weight: normal;
+    color: #0843c1;
+}
+
 
 /* Added to disable highlighting on table */
 .handsontable .wtBorder {
@@ -281,12 +290,12 @@ div.serviceHeaderLogo img
 }
 
 
-.presetPalette{
+.preDefPalette{
 	height:20px;
 	width:90px;
 }
 
-.presetPaletteMissingColor{
+.preDefPaletteMissingColor{
 	height:20px;
 	width:10px;
 	margin-right:10px;

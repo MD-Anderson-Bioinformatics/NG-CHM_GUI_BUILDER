@@ -68,8 +68,20 @@ public class UploadCovariate extends HttpServlet {
 		    ProcessCovariate cov = new ProcessCovariate();
         	HeatmapPropertiesManager.Classification classJsonObj = cov.constructDefaultCovariate(mgr, covName, covFileName, axisType, colorType);
         	map.classification_files.add(classJsonObj);	 
+	        //Mark properties as "clean" for update.
+        	map.builder_config.buildProps = "N";
 		    mgr.save();
 	        
+	        //Re-build the heat map 
+		    HeatmapBuild builder = new HeatmapBuild();
+		    builder.buildHeatMap(workingDir);
+
+		    //Return edited props
+		    String propJSON = "{}";
+        	propJSON = mgr.load();
+	       	response.setContentType("application/json");
+	    	response.getWriter().write(propJSON.toString());
+	    	response.flushBuffer();
 	    } catch (Exception e) {
 	        writer.println("Error uploading covariate.");
 	        writer.println("<br/> ERROR: " + e.getMessage());

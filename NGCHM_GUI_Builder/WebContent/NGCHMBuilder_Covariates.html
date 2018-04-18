@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html lang="en">
     <head>
         <title>NG-CHM Builder</title>
@@ -6,8 +6,6 @@
 	 	<script src="javascript/NGCHM_GUI_Util.js"></script>
 	 	<script src="javascript/ColorMap.js"></script>
 	 	<script src="javascript/CovariateFiles.js"></script>
-	 	<script src="javascript/lib/handsontable.full.min.js"></script>
-		<link rel="stylesheet" href="css/handsontable.full.css">
 		<link rel="stylesheet" href="css/NGCHM_GUI.css">
 		<script type="text/Javascript">
 			NgChmGui.mapProperties = null;
@@ -31,7 +29,7 @@
     			<div id="mapDesc" class="inputText"  style="font-size: 14px;color: rgb(51, 51, 51);"></div>
 	  		</div>
 	    </div>   
-       	<div id="covarDisplayContainer" class="display_container" style="position: relative;">
+       	<div id="DisplayContainer" class="display_container" style="position: relative;">
 	 		<div id="covarAdd" style="position: relative;display: none;">   
 		        <form method="POST" enctype="multipart/form-data" id="covar_add" onsubmit="return false;">
 	 	        	<div class="sec-header">Add Covariate Bar:</div>
@@ -75,7 +73,7 @@
 		        		<tr>
 		        			<td>
 								<img id='covUpload_cancel_btn' src='images/cancelButton.png' alt='Cluster the Data' style="vertical-align: bottom;" onclick="NgChmGui.COV.hideCovarUpload()" />
-								<img id='covUpload_apply_btn' src='images/uploadButton.png' alt='Cluster the Data' style="vertical-align: bottom;display: none" onclick="NgChmGui.COV.addCovariateBar()" />
+								<img id='covUpload_apply_btn' src='images/uploadButton.png' alt='Cluster the Data' style="vertical-align: bottom;display: none" onclick="NgChmGui.COV.addCovariateBar(NgChmGui.COV.loadNewCovariateBar)" />
 							</td>
 						</tr>
 					</table>
@@ -93,10 +91,10 @@
 								<img id='covRemove_cancel_btn' src='images/cancelButton.png' alt='Cancel Covariate Removal' style="vertical-align: bottom;" onclick="NgChmGui.COV.hideCovarRemoval()" />
 							</td>
 		        			<td>
-								<img id='covRemove_apply_btn' src='images/deleteButton.png' alt='Remove Covariate' style="vertical-align: bottom;" onclick="NgChmGui.COV.removeCovariateBar()" />
+								<img id='covRemove_apply_btn' src='images/deleteButton.png' alt='Remove Covariate' style="vertical-align: bottom;" onclick="NgChmGui.COV.removeCovariateBar(NgChmGui.COV.removeCovariateBarFromScreen)" />
 							</td>
 						</tr>
-					</table>
+					</table> 
 		        </form>
 		    </div>	 		
 		    <div id="covarSelection" class="data_entry_container" style="width: 25%">
@@ -104,18 +102,18 @@
 				</div>
 
 				<br/>
-				<img id='apply_btn' src='images/applyButton.png' alt='Cluster the Data' style="vertical-align: bottom;" onclick="NgChmGui.COV.applyCovariateSettings(1);" />
+				<img id='apply_btn' src='images/applyButton.png' alt='Cluster the Data' style="vertical-align: bottom;" onclick='NgChmGui.UTIL.applySettings(NgChmGui.COV.applySettings, NgChmGui.UTIL.loadHeatMapView);' />
 		        <div id="covarPrevButton"  class="prev_btn">  
-		        	<img id='covarPrev_btn' src='images/prevButton.png' alt='Go to previous step' onclick='window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Transform.html","_self")' />		
+		        	<img id='covarPrev_btn' src='images/prevButton.png' alt='Go to previous step' onclick='NgChmGui.UTIL.gotoTransformScreen();' />		
 		        </div>   
 		        <div id="covarNextButton"  class="next_btn">  
-		        	<img id='covarNext_btn' src='images/nextButton.png' alt='Go to next step' onclick="NgChmGui.COV.applyCovariateSettings(2);" />		
+		        	<img id='covarNext_btn' src='images/nextButton.png' alt='Go to next step' onclick='NgChmGui.UTIL.applySettings(NgChmGui.COV.applySettings,NgChmGui.UTIL.gotoClusterScreen);' />		
 		        </div>   
 			</div>
-	        <div id="clusterView" class="layout_display_container" style="margin: 1em 0 0 5%; width: 60%;">
-				<div id='NGCHMEmbed' style="background-color: white; height: 85%; margin-bottom: 0.25em; padding: 5px;"></div>
+	        <div id="heatMapView" class="layout_display_container" style="margin: 1em 0 0 5%; width: 60%;">
+				<div id='NGCHMEmbed' style="background-color: white; height: 85%; margin-left: 10em; margin-top: 1.75em; padding: 5px"></div>
 				<script src='javascript/ngchmWidget-min.js'></script>
-				 <script> NgChmGui.UTIL.editWidgetForCovarView();</script>
+ 				 <script> NgChmGui.UTIL.editWidgetForBuilder();</script>   
 			</div>
 		</div>
 		<div id="message" style="display: none; position: absolute; background-color: rgb(230, 240, 255);"></div>
