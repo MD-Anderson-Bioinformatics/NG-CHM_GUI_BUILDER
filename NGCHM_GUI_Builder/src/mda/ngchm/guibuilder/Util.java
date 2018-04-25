@@ -61,10 +61,19 @@ public class Util {
 	  try  {  
 	    @SuppressWarnings("unused")
 		double d = Double.parseDouble(str);
+	    if (Double.isNaN(d))
+	    	return false;
 	  }   catch(Exception e)  { 
 	    return false;  
 	  }  
 	  return true;  
+	}
+	
+	public static boolean isMissing(String str) {
+		String val = str.trim().toUpperCase();
+		if (val.equals("") || val.equals("N/A") || val.equals("NA") || val.equals(" ") || val.equals("NAN") || val.equals("?") || val.equals("-"))
+			return true;
+		return false;
 	}
 	
 }
