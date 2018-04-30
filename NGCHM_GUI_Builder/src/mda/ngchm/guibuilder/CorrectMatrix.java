@@ -79,7 +79,7 @@ public class CorrectMatrix extends HttpServlet {
 				for (int i = 1; i < toks.length; i++) {
 					if (Util.isNumeric(toks[i])) {
 						out.write("\t" + toks[i]);
-					} else if (toks[i].equals("") || toks[i].equals("N/A") || toks[i].equals("NA")) {
+					} else if (Util.isMissing(toks[i])) {
 						out.write("\t" + toks[i]);
 					} else {
 						out.write("\t" + "N/A");
