@@ -22,8 +22,8 @@ import javax.servlet.http.HttpSession;
 /**
  * Servlet implementation class CorrectMatrix
  */
-@WebServlet("/FilterMatrix")
-public class FilterMatrix extends HttpServlet {
+@WebServlet("/ResetMatrix")
+public class ResetMatrix extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -34,19 +34,21 @@ public class FilterMatrix extends HttpServlet {
 
 	    try {
 	    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
-
-	    	workingDir = workingDir + "/" + mySession.getId();
+	        workingDir = workingDir + "/" + mySession.getId();
 		    String matrixFile = workingDir  + "/workingMatrix.txt";
-		    
-		    String filter = request.getParameter("Filter");
-		    
-		    if (filter.equals("Range")){
-		    	filterRange(matrixFile, request);
-		    } else if (filter.equals("Variation")){
-		    	filterVariation(matrixFile, request);
-		    } else if (filter.equals("MissingData")){
-		    	filterMissing(matrixFile, request);
-		    }
+		    String originalFile = workingDir + "/originalMatrix.txt";
+		    Util.backupWorking(matrixFile);
+//		    String tmpWorking = Util.copyWorkingToTemp(matrixFile);
+		    BufferedReader rdr = new BufferedReader(new FileReader(originalFile));
+		    BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
+		    String line = rdr.readLine(); //Just write the header
+			while (line != null ){
+				out.write(line + "\n");
+				line = rdr.readLine();
+			}	
+			rdr.close();
+			out.close();
+//			new File(tmpWorking).delete();
 		    //Return something?
 	    } catch (Exception e) {
 	        writer.println("Error correcting matrix.");
@@ -342,7 +344,7 @@ public class FilterMatrix extends HttpServlet {
 	    		double[] deviations = getAllRowDeviations(tmpWorking);
 	    		int numKeep = 0;
 				if (filterMethod.equals("pct")){
-					double numKeepD = (deviations.length-1) * Double.parseDouble(request.getParameter("std_pct"))/100;
+					double numKeepD = deviations.length * Double.parseDouble(request.getParameter("std_pct"))/100;
 					numKeep = (int)numKeepD;
 				} else {
 					numKeep = Integer.parseInt(request.getParameter("std_num_keep"));
@@ -352,16 +354,23 @@ public class FilterMatrix extends HttpServlet {
 	    		Arrays.sort(sortDevs);
 	    		double threshold = sortDevs[sortDevs.length-numKeep];
 	    		
+	    		for (int i = 1; i < deviations.length; i++){
+	    			if (deviations[i] < threshold){
+	    				skip[i] = true;
+	    			}
+	    		}
+	    		
 	    		String line = rdr.readLine();
-	    		out.write(line + "\n");
-				line = rdr.readLine();
-				int index = 0;
 				while (line != null ){
-					if (deviations[index] >= threshold) {
-						out.write(line.toString() + "\n");
+					String toks[] = line.split("\t");
+					StringBuffer outLine = new StringBuffer();
+					outLine.append(toks[0]);
+					for (int i = 1; i < toks.length; i++) {
+						if (!skip[i]){ 
+							outLine.append("\t" + toks[i]);
+						}
 					}
-					index++;
-
+					out.write(outLine.toString() + "\n");
 					line = rdr.readLine();
 				}	
 			}
@@ -395,7 +404,7 @@ public class FilterMatrix extends HttpServlet {
 	    		double[] deviations = getColDeviations(tmpWorking);
 	    		int numKeep = 0;
 				if (filterMethod.equals("pct")){
-					double numKeepD = (deviations.length-1) * Double.parseDouble(request.getParameter("std_pct"))/100;
+					double numKeepD = deviations.length * Double.parseDouble(request.getParameter("std_pct"))/100;
 					numKeep = (int)numKeepD;
 				} else {
 					numKeep = Integer.parseInt(request.getParameter("std_num_keep"));
@@ -444,60 +453,30 @@ public class FilterMatrix extends HttpServlet {
 			String line = rdr.readLine(); //Just write the header
 			out.write(line + "\n");
 			line = rdr.readLine();
-			String headers[] = line.split("\t");
-			int thresh = 0;
-			if (filterMethod.equals("pctgreater")){
-				double numKeepD = (headers.length-1) * Double.parseDouble(request.getParameter("std_pct_missing"))/100;
-				thresh = (int)numKeepD;
-			} else {
-				thresh = Integer.parseInt(request.getParameter("std_num_missing"));
-			}
+			int threshold = 0;
+			if (request.getParameter("std_num_keep").equals("")){
+				threshold = Integer.parseInt(request.getParameter("std_num_keep"));
+			}; //std_pct
 			while (line != null ){
 				String toks[] = line.split("\t");
 				StringBuffer outLine = new StringBuffer();
 				outLine.append(toks[0]);
-				int missingNo = 0;
+				boolean skip = true;
 				for (int i = 1; i < toks.length; i++) {
-					if (toks[i].equals("") || toks[i].equals("N/A") || toks[i].equals("NA")) {//Util.isMissing(toks[i])) {
-						missingNo++;
+					if (Util.isNumeric(toks[i])) {
+						if (Double.parseDouble(toks[i]) > threshold){
+							skip = false;
+							break;
+						}	
 					}
 				}
-				if (missingNo <= thresh) {
+				if (!skip){
 					out.write(line.toString() + "\n");
 				}
 				line = rdr.readLine();
 			}
 	    } else if (axis.equals("col")) {
-	    	int[] missingNos = getNumMissingCol(tmpWorking);
-	    	String line = rdr.readLine(); //Just write the header
-//			out.write(line + "\n");
-//			line = rdr.readLine();
-			String headers[] = line.split("\t");
-			int thresh = 0;
-			if (filterMethod.equals("pct")){
-				double numKeepD = (headers.length-1) * Double.parseDouble(request.getParameter("std_pct_missing"))/100;
-				thresh = (int)numKeepD;
-			} else {
-				thresh = Integer.parseInt(request.getParameter("std_num_missing"));
-			}
-			boolean[] skip = new boolean[missingNos.length];
-			for (int i = 1; i < missingNos.length; i++) {
-				if (missingNos[i] > thresh) {
-					skip[i] = true;
-				}
-			}
-			while (line != null ){
-				String toks[] = line.split("\t");
-				StringBuffer outLine = new StringBuffer();
-				outLine.append(toks[0]);
-				for (int i = 1; i < toks.length; i++) {
-					if (!skip[i]) {
-						outLine.append("\t" + toks[i]);
-					}
-				}
-				out.write(outLine.toString() + "\n");
-				line = rdr.readLine();
-			}
+	    	
 	    }
 		
 		rdr.close();
@@ -596,7 +575,7 @@ public class FilterMatrix extends HttpServlet {
 		for (int i = 1; i < toks.length; i++) {
 			if (Util.isNumeric(toks[i])) {
 				double diff = Double.parseDouble(toks[i]) - mean;
-				deviation += diff*diff/(count-1);
+				deviation += diff*diff/total;
 			}
 		}
 		deviation = Math.sqrt(deviation);
@@ -640,7 +619,7 @@ public class FilterMatrix extends HttpServlet {
 			for (int i = 1; i < toks.length; i++) {
 				if (Util.isNumeric(toks[i])) {
 					double diff = Double.parseDouble(toks[i]) - means[i];
-					deviations[i] += diff*diff/(counts[i]-1);
+					deviations[i] += diff*diff/total;
 				}
 			}
 			sline = srdr.readLine();
@@ -657,52 +636,50 @@ public class FilterMatrix extends HttpServlet {
 		BufferedReader mrdr = new BufferedReader(new FileReader(tmpWorking));
 		String mline = mrdr.readLine(); // skip headers
 		mline = mrdr.readLine();
-		int numRows = 0;
+		int lineLength = mline.split("\t").length;
 		
 		//get the means
+		double[] means = new double[lineLength];
+		int[] counts = new int[lineLength];
+		int total = 0;
 		while (mline != null ){
-			numRows++;
+			double dev = getRowDeviation(mline);
+			String toks[] = mline.split("\t");
+			for (int i = 1; i < toks.length; i++) {
+				if (Util.isNumeric(toks[i])) {
+					means[i] += Double.parseDouble(toks[i]);
+					counts[i]++;
+				}
+			}
+			total++;
 			mline = mrdr.readLine();
 		}
 		mrdr.close();
 		
+		for (int i = 0; i < means.length; i++){
+			means[i] = means[i]/counts[i];
+		}
+		
+		// get the variances
 		BufferedReader srdr = new BufferedReader(new FileReader(tmpWorking));
 		String sline = srdr.readLine(); // skip headers
 		sline = srdr.readLine();
-		
-		double[] devs = new double[numRows];
-		int count = 0;
-		//get the means
+		double[] deviations = new double[lineLength];
 		while (sline != null ){
-			double dev = getRowDeviation(sline);
-			devs[count] = dev;
-			count++;
+			String toks[] = sline.split("\t");
+			for (int i = 1; i < toks.length; i++) {
+				if (Util.isNumeric(toks[i])) {
+					double diff = Double.parseDouble(toks[i]) - means[i];
+					deviations[i] += diff*diff/total;
+				}
+			}
 			sline = srdr.readLine();
 		}
 		srdr.close();
 		
-		return devs;
-	}
-	
-	private static int[] getNumMissingCol(String tmpWorking) throws Exception{ // TODO: may need to profile this for larger matrix sizes
-		BufferedReader mrdr = new BufferedReader(new FileReader(tmpWorking));
-		String mline = mrdr.readLine(); // skip headers
-		mline = mrdr.readLine();
-		int lineLength = mline.split("\t").length;
-		
-		//get the means
-		int[] missingNos = new int[lineLength];
-		while (mline != null ){
-			String toks[] = mline.split("\t");
-			for (int i = 1; i < toks.length; i++) {
-				if (toks[i].equals("") || toks[i].equals("N/A") || toks[i].equals("NA")) {
-					missingNos[i] ++;
-				}
-			}
-			mline = mrdr.readLine();
+		for (int i = 1; i < deviations.length; i++){
+			deviations[i] = Math.sqrt(deviations[i]);
 		}
-		mrdr.close();
-		
-		return missingNos;
+		return deviations;
 	}
 }

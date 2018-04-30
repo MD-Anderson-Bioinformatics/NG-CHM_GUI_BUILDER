@@ -12,12 +12,10 @@
 		<link rel="stylesheet" href="css/NGCHM_GUI.css">
  		<script type="text/Javascript">
 			NgChmGui.mapProperties = null;
-		 	window.onload = function() {
-				NgChmGui.UTIL.getHeatmapProperties(NgChmGui.TRANS.loadTranform);
-		 	}
+			NgChmGui.UTIL.getHeatmapProperties(NgChmGui.UTIL.loadHeaderData);
 	 	</script>
     </head>
-    <body style="font-family: sans-serif; font-size: 100%;">
+    <body style="font-family: sans-serif; font-size: 100%;" onload="NgChmGui.TRANS.getWorkingMatrix();">
 	   <div class="serviceHeader" id="serviceHeader">
 	        <div id="mda_header" class="serviceHeaderLogo">
 	        	<a href="https://www.mdanderson.org/education-and-research/departments-programs-and-labs/departments-and-divisions/bioinformatics-and-computational-biology/index.html"  target="_blank">
@@ -38,12 +36,12 @@
 	 	        	<div class="pref-header">Select a correction:
 			            <select name="Correction" id="Correction" onchange='NgChmGui.TRANS.selectCorrection()'>
 			  				<option value=""></option>
-			  				<option value="ReplaceNonNumeric">Replace Non-Numeric</option>
+			  				<option value="ReplaceNonNumeric">Replace Invalid</option>
 			  				<option value="FillMissing">Fill Missing</option>
 						</select> 
 					</div>
 					<div id='ReplaceNonNumeric' style="display: none;">
-		 	        	<div class="pref-header2">Replace Non-Numeric Values With:
+		 	        	<div class="pref-header2">Replace Invalid Values With:
 		 	        		<br>
 		 	        		<div class="pref-header3">
 								<input type="radio" name="nreplace" value="N/A" onclick="NgChmGui.TRANS.enableButton('correct_btn')"> N/A<br>
@@ -75,7 +73,7 @@
 	 	        	<div class="pref-header">Select a filter:
 			            <select name="Filter" id="Filter" onchange='NgChmGui.TRANS.selectFilter()'>
 			  				<option value=""></option>
-			  				<option value="Variation">Variation</option>
+			  				<option value="Variation">Standard Deviation</option>
 			  				<option value="Range">Range</option>
 			  				<option value="MissingData">Missing Data</option>
 						</select>
@@ -127,8 +125,8 @@
 		 	        	<div class="pref-header2">Method:
 		 	        		<br>
 		 	        		<div class="pref-header3">
-		  						<input type="radio" name="mfiltermethod" value="pctgreater" onclick="NgChmGui.TRANS.enableButton('filter_btn')"> Remove if &gt;&nbsp; <input type="number" name="std_pct" min="0" max="99" style="width: 35px;">% Missing Values<br>
-		  						<input type="radio" name="mfiltermethod" value="pctless" onclick="NgChmGui.TRANS.enableButton('filter_btn')"> Remove if &gt; <input type="text" name="std_num_keep" size=3> (number) Missing Values<br>  
+		  						<input type="radio" name="mfiltermethod" value="pctgreater" onclick="NgChmGui.TRANS.enableButton('filter_btn')"> Remove if &gt;&nbsp; <input type="number" name="std_pct_missing" min="0" max="99" style="width: 35px;">% Missing Values<br>
+		  						<input type="radio" name="mfiltermethod" value="pctless" onclick="NgChmGui.TRANS.enableButton('filter_btn')"> Remove if &gt; <input type="text" name="std_num_missing" size=3> (number) Missing Values<br>  
 		  					</div>
 	  					</div>
 					</div>
@@ -145,6 +143,7 @@
 			  				<option value="Log">Log</option>
 			  				<option value="MeanCenter">Mean Center</option>
 			  				<option value="Z-Norm">Z-Norm</option>
+			  				<option value="Arithmetic">Arithmetic</option>
 						</select> 
 					</div>
 					<div id='Log' style="display: none;">
@@ -152,7 +151,8 @@
 		 	        		<br>
 		 	        		<div class="pref-header3">
 		 						<input type="radio" name="tlfiltermethod" value="log10" onclick="NgChmGui.TRANS.enableButton('trans_btn')"> Log Base 10<br>
-		  						<input type="radio" name="tlfiltermethod" value="naturalLog" onclick="NgChmGui.TRANS.enableButton('filter_btn')"> Natural Log <br>
+		  						<input type="radio" name="tlfiltermethod" value="naturalLog" onclick="NgChmGui.TRANS.enableButton('trans_btn')"> Natural Log <br>
+		  						<input type="radio" name="tlfiltermethod" value="log2" onclick="NgChmGui.TRANS.enableButton('trans_btn')"> Log Base 2 <br>
 		  					</div>
 	  					</div>
 					</div>
@@ -160,8 +160,8 @@
 		 	        	<div class="pref-header2">Mean Center:
 		 	        		<br>
 		 	        		<div class="pref-header3">
-								<input type="radio" name="tmrowcol" value="row" onclick="NgChmGui.TRANS.enableButton('filter_btn')"> Row<br>
-		  						<input type="radio" name="tmrowcol" value="col" onclick="NgChmGui.TRANS.enableButton('filter_btn')"> Column<br>
+								<input type="radio" name="tmrowcol" value="row" onclick="NgChmGui.TRANS.enableButton('trans_btn')"> Row<br>
+		  						<input type="radio" name="tmrowcol" value="col" onclick="NgChmGui.TRANS.enableButton('trans_btn')"> Column<br>
 		  					</div>
 	  					</div>
 					</div>
@@ -169,18 +169,27 @@
 		 	        	<div class="pref-header2">Z-Normalize:
 		 	        		<br>
 		 	        		<div class="pref-header3">
-								<input type="radio" name="tmrowcol" value="row" onclick="NgChmGui.TRANS.enableButton('filter_btn')"> Row<br>
-		  						<input type="radio" name="tmrowcol" value="col" onclick="NgChmGui.TRANS.enableButton('filter_btn')"> Column<br>
+								<input type="radio" name="tmrowcol" value="row" onclick="NgChmGui.TRANS.enableButton('trans_btn')"> Row<br>
+		  						<input type="radio" name="tmrowcol" value="col" onclick="NgChmGui.TRANS.enableButton('trans_btn')"> Column<br>
+		  					</div>
+	  					</div>
+					</div>
+					<div id='Arithmetic' style="display: none;">
+		 	        	<div class="pref-header2">Method:
+		 	        		<br>
+		 	        		<div class="pref-header3">
+		 						<input type="radio" name="tatransformmethod" value="add" onclick="NgChmGui.TRANS.enableButton('trans_btn')"> Add &nbsp; <input type="number" name="add_value" style="width: 35px;">to All Values<br>
+		  						<input type="radio" name="tatransformmethod" value="multiply" onclick="NgChmGui.TRANS.enableButton('trans_btn')"> Multiply &nbsp; <input type="number" name="multiply_value" style="width: 35px;">to All Values<br>
 		  					</div>
 	  					</div>
 					</div>
 	 	        	<div class="pref-header">
-						<input id='trans_btn' type="image" src='images/applyButton.png' alt='Transform the Matrix' onclick="NgChmGui.TRANS" style="opacity: 0.3; display: none" disabled/>
+						<input id='trans_btn' type="image" src='images/applyButton.png' alt='Transform the Matrix' onclick="NgChmGui.TRANS.transformMatrixData()" style="opacity: 0.3; display: none" disabled/>
 					</div>
 		        </form>
 		        <br>
  	        	<div class="sec-header">Restore Original Matrix:</div>
-				<input id='restore_btn' type="image" src='images/resetButton.png' alt='Restore Matrix' onclick="NgChmGui.TRANS"/>
+				<input id='restore_btn' type="image" src='images/resetButton.png' alt='Restore Matrix' onclick="NgChmGui.TRANS.resetMatrix()"/>
 	            <br><br><br><br>
 		    </div>
 		    <div id="trans_data" style="float: right; width: calc(100% - 450px); padding-left:50px;">
@@ -203,10 +212,10 @@
 		        <div id="matrixDisplay" style="display: none; "></div>
 		    </div>
 	        <div id="transPrevButton"  class="prev_btn">  
-			    <img id='prev1_btn' src='images/prevButton.png' alt='Go to previous step' onclick='NgChmGui.UTIL.gotoMatrixScreen();' />
+			    <img id='prev1_btn' src='images/prevButton.png' alt='Go to previous step' onclick='window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Matrix.html","_self")' />
 	        </div>   
 	        <div id="transNextButton"  class="next_btn">  
-			    <img id='next1_btn' src='images/nextButton.png' alt='Go to next step' onclick='NgChmGui.UTIL.gotoCovariatesScreen();' />
+			    <img id='next1_btn' src='images/nextButton.png' alt='Go to next step' onclick='window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Covariates.html","_self")' />
 	        </div>   
 			<div id="message" style="display: none; position: absolute; background-color: rgb(230, 240, 255);"></div>
 		</div>
