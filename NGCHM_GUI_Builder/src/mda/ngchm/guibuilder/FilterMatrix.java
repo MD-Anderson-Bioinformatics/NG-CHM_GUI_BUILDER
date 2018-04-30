@@ -458,7 +458,7 @@ public class FilterMatrix extends HttpServlet {
 				outLine.append(toks[0]);
 				int missingNo = 0;
 				for (int i = 1; i < toks.length; i++) {
-					if (toks[i].equals("") || toks[i].equals("N/A") || toks[i].equals("NA")) {//Util.isMissing(toks[i])) {
+					if (Util.isMissing(toks[i])) {
 						missingNo++;
 					}
 				}
@@ -695,7 +695,7 @@ public class FilterMatrix extends HttpServlet {
 		while (mline != null ){
 			String toks[] = mline.split("\t");
 			for (int i = 1; i < toks.length; i++) {
-				if (toks[i].equals("") || toks[i].equals("N/A") || toks[i].equals("NA")) {
+				if (Util.isMissing(toks[i])) {
 					missingNos[i] ++;
 				}
 			}

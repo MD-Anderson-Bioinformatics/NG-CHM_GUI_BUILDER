@@ -79,7 +79,7 @@ public class CorrectMatrix extends HttpServlet {
 				for (int i = 1; i < toks.length; i++) {
 					if (Util.isNumeric(toks[i])) {
 						out.write("\t" + toks[i]);
-					} else if (toks[i].equals("") || toks[i].equals("N/A") || toks[i].equals("NA")) {
+					} else if (Util.isMissing(toks[i])) {
 						out.write("\t" + toks[i]);
 					} else {
 						out.write("\t" + replacement);
@@ -102,7 +102,7 @@ public class CorrectMatrix extends HttpServlet {
 				for (int i = 1; i < toks.length; i++) {
 					if (Util.isNumeric(toks[i])) {
 						out.write("\t" + toks[i]);
-					} else if (toks[i].equals("") || toks[i].equals("N/A") || toks[i].equals("NA")) {
+					} else if (Util.isMissing(toks[i])) {
 						out.write("\t" + toks[i]);
 					} else {
 						out.write("\t" + mean);
@@ -124,7 +124,7 @@ public class CorrectMatrix extends HttpServlet {
 				for (int i = 1; i < toks.length; i++) {
 					if (Util.isNumeric(toks[i])) {
 						out.write("\t" + toks[i]);
-					} else if (toks[i].equals("") || toks[i].equals("N/A") || toks[i].equals("NA")) {
+					} else if (Util.isMissing(toks[i])) {
 						out.write("\t" + toks[i]);
 					} else {
 						out.write("\t" + means[i]);
@@ -157,7 +157,7 @@ public class CorrectMatrix extends HttpServlet {
 				String toks[] = line.split("\t");
 				out.write(toks[0]);
 				for (int i = 1; i < toks.length; i++) {
-					if (toks[i].equals("") || toks[i].equals("N/A") || toks[i].equals("NA")) {
+					if (Util.isMissing(toks[i])) {
 						out.write("\t" + replacement);
 					} else {
 						out.write("\t" + toks[i]);
@@ -177,7 +177,7 @@ public class CorrectMatrix extends HttpServlet {
 				float mean = getRowMean(toks);
 				
 				for (int i = 1; i < toks.length; i++) {
-					if (toks[i].equals("") || toks[i].equals("N/A") || toks[i].equals("NA")) {
+					if (Util.isMissing(toks[i])) {
 						out.write("\t" + mean);
 					} else {
 						out.write("\t" + toks[i]);
@@ -196,7 +196,7 @@ public class CorrectMatrix extends HttpServlet {
 				String toks[] = line.split("\t");
 				out.write(toks[0]);
 				for (int i = 1; i < toks.length; i++) {
-					if (toks[i].equals("") || toks[i].equals("N/A") || toks[i].equals("NA")) {
+					if (Util.isMissing(toks[i])) {
 						out.write("\t" + means[i]);
 					} else {
 						out.write("\t" + toks[i]);
@@ -216,7 +216,7 @@ public class CorrectMatrix extends HttpServlet {
 				float min = getRowMin(toks);
 				
 				for (int i = 1; i < toks.length; i++) {
-					if (toks[i].equals("") || toks[i].equals("N/A") || toks[i].equals("NA")) {
+					if (Util.isMissing(toks[i])) {
 						out.write("\t" + min);
 					} else {
 						out.write("\t" + toks[i]);
@@ -235,7 +235,7 @@ public class CorrectMatrix extends HttpServlet {
 				String toks[] = line.split("\t");
 				out.write(toks[0]);
 				for (int i = 1; i < toks.length; i++) {
-					if (toks[i].equals("") || toks[i].equals("N/A") || toks[i].equals("NA")) {
+					if (Util.isMissing(toks[i])) {
 						out.write("\t" + mins[i]);
 					} else {
 						out.write("\t" + toks[i]);
