@@ -42,6 +42,34 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 	        	var histoCounts = matrixInfo.histoCounts; 
 	        	histoCounts.unshift(matrixInfo.numMissing);
 	        	graph.update(histoCounts);//[matrixInfo.numMissing,matrixInfo.histoCounts]);
+	        	
+	        	var rowSDCtx = document.getElementById("row_sd_histo_canvas").getContext("2d");
+	            
+	        	var rowSDGraph = new BarGraph(rowSDCtx);
+	        	rowSDGraph.margin = 2;
+	        	rowSDGraph.width = 450;
+	        	rowSDGraph.height = 150;
+	        	rowSDGraph.colors = ['blue'];
+	        	var histoBins = matrixInfo.rowStdHistoBins;
+//	        	histoBins.unshift("Missing");
+	        	rowSDGraph.xAxisLabelArr = histoBins;//["Missing Values", matrixInfo.histoBins];
+	        	var histoCounts = matrixInfo.rowStdHistoCounts; 
+//	        	histoCounts.unshift(matrixInfo.numMissing);
+	        	rowSDGraph.update(histoCounts);//[matrixInfo.numMissing,matrixInfo.histoCounts]);
+	        	
+	        	var colSDCtx = document.getElementById("col_sd_histo_canvas").getContext("2d");
+	            
+	        	var colSDGraph = new BarGraph(colSDCtx);
+	        	colSDGraph.margin = 2;
+	        	colSDGraph.width = 450;
+	        	colSDGraph.height = 150;
+	        	colSDGraph.colors = ['blue'];
+	        	var histoBins = matrixInfo.colStdHistoBins;
+//	        	histoBins.unshift("Missing");
+	        	colSDGraph.xAxisLabelArr = histoBins;//["Missing Values", matrixInfo.histoBins];
+	        	var histoCounts = matrixInfo.colStdHistoCounts; 
+//	        	histoCounts.unshift(matrixInfo.numMissing);
+	        	colSDGraph.update(histoCounts);//[matrixInfo.numMissing,matrixInfo.histoCounts]);
 		    }
 		}
 	};
@@ -99,6 +127,20 @@ NgChmGui.TRANS.resetPanel = function(dropdown_set) {
 	if (dropdown_set != 'Transform') {
 		document.getElementById('Transform').value = '';	
 		document.getElementById('trans_btn').style.display = 'none';
+	}
+}
+
+NgChmGui.TRANS.selectHistogram =  function() {
+	var sel = document.getElementById('Histogram');
+	var histogram = sel.options[sel.selectedIndex].value;
+		
+	var histos = ["matrix_histo", "row_sd_matrix_histo","col_sd_matrix_histo"];
+	for (var i =0; i < histos.length; i ++){
+		document.getElementById(histos[i]).style.display = "none";
+	}
+	var div = document.getElementById(histogram);
+	if (div !== undefined && div !== null) {
+		div.style.display = '';
 	}
 }
 
