@@ -35,9 +35,12 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 	        	graph.margin = 2;
 	        	graph.width = 450;
 	        	graph.height = 150;
-	        	graph.colors = ['blue'];
 	        	var histoBins = matrixInfo.histoBins;
 	        	histoBins.unshift("Missing");
+	        	var colors = new Array(histoBins.length);
+	        	colors[0] = 'black';
+	        	colors.fill('blue',1,colors.length);
+	        	graph.colors = colors;
 	        	graph.xAxisLabelArr = histoBins;//["Missing Values", matrixInfo.histoBins];
 	        	var histoCounts = matrixInfo.histoCounts; 
 	        	histoCounts.unshift(matrixInfo.numMissing);
