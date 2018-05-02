@@ -113,19 +113,6 @@ public class ProcessMatrix extends HttpServlet {
 			map.output_location = workingDir  + "/" + matrixConfig.mapName;
 			String props = mgr.save();
 
-			//TEMPORARY BEGIN:  LOGIC HERE TO BE REMOVED AFTER BUILD IS MOVED
-			//TO THE TRANSFORM SCREEN'S NEXT BUTTON
-		    //Call HeatmapDataGenerator to generate final heat map .ngchm file
-		    String genArgs[] = new String[] {props, "-NGCHM"};
-			String errMsg = HeatmapDataGenerator.processHeatMap(genArgs);
-			
-			//After heat map is generated, retrieve matrix file color map calculated
-			//by generator for mapConfig.json and place it on heatmapProperties.json
-			HeatmapPropertiesManager.ColorMap theMap = setDefaultMatrixColors(workingDir, map);
-			map.matrix_files.get(0).color_map = theMap;
-			mgr.save();
-			//TEMPORARY END:  LOGIC HERE TO BE REMOVED AFTER BUILD IS MOVED
-
 			System.out.println("END Processing Matrix: " + new Date()); 
 	    } catch (Exception e) {
 	        writer.println("Error creating initial heat map properties.");
