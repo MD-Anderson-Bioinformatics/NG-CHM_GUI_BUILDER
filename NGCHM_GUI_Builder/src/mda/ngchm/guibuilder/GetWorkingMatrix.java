@@ -259,7 +259,7 @@ public class GetWorkingMatrix extends HttpServlet {
 		//Now create binned data of column stdev values.
 		minStdev = Double.POSITIVE_INFINITY;
 		maxStdev = Double.NEGATIVE_INFINITY;
-		for (int i = 0; i < colStdev.length; i++) {
+		for (int i = 1; i < colStdev.length; i++) {
 			if (colStdev[i] < minStdev)
 				minStdev = colStdev[i];
 			if (colStdev[i] > maxStdev)

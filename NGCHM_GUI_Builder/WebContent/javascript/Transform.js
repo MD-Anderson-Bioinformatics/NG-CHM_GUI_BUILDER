@@ -284,3 +284,20 @@ NgChmGui.TRANS.resetMatrix =  function() {
 	};
 	req.send(formData);
 }
+
+//Function called when Next button is pressed.  
+NgChmGui.TRANS.done =  function() {
+	//We need to build the heatmap for the next page.
+	NgChmGui.UTIL.buildHeatMap(NgChmGui.TRANS.update)
+}
+
+//After heatmpap builds, fetch the properties to get
+//updated properties like color map.
+NgChmGui.TRANS.update = function () {
+	NgChmGui.UTIL.getHeatmapProperties(NgChmGui.TRANS.next);
+}
+
+//When update completes, go to next page.
+NgChmGui.TRANS.next = function() {
+	window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Covariates.html","_self");
+}

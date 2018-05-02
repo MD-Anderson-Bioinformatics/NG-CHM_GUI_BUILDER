@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -16,6 +18,7 @@ public class Util {
 	public static String getTopOfMatrix(String matrixFile, int numRows, int numCols) throws Exception {
 		Gson gson = new GsonBuilder().create();
 		String [][] topMatrix = new String[numRows][numCols];
+		NumberFormat nf = new DecimalFormat("#,##0.000");
 		
 		BufferedReader rdr = new BufferedReader(new FileReader(matrixFile));
 		int rowNum = 0;
@@ -24,7 +27,8 @@ public class Util {
 			String toks[] = line.split("\t");
 			int colNum = 0;
 			while (colNum < toks.length && colNum < numCols) {
-				topMatrix[rowNum][colNum] = toks[colNum];
+				//Format value to three decimal places if it is numeric
+				topMatrix[rowNum][colNum] = isNumeric(toks[colNum]) ? nf.format(Double.parseDouble(toks[colNum])) : toks[colNum];
 				colNum++;
 			}
 			line = rdr.readLine();
