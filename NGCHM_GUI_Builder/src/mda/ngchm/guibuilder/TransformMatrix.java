@@ -275,6 +275,26 @@ public class TransformMatrix extends HttpServlet {
 				out.write("\n");
 				line = rdr.readLine();
 			}	
+		} else if (operation.equals("subtract")) {
+			float subVal = Float.parseFloat(request.getParameter("subtract_value"));
+			String line = rdr.readLine(); //Just write the header
+			out.write(line + "\n");
+			line = rdr.readLine();
+			
+			while (line != null ){
+				String toks[] = line.split("\t");
+				out.write(toks[0]);
+				for (int i = 1; i < toks.length; i++) {
+					if (Util.isNumeric(toks[i])) {
+						float val = Float.parseFloat(toks[i]) * subVal;
+						out.write("\t" + val);
+					} else {
+						out.write("\t" + toks[i]);
+					}
+				}
+				out.write("\n");
+				line = rdr.readLine();
+			}	
 		} else if (operation.equals("multiply")) {
 			float multiVal = Float.parseFloat(request.getParameter("multiply_value"));
 			String line = rdr.readLine(); //Just write the header
@@ -287,6 +307,26 @@ public class TransformMatrix extends HttpServlet {
 				for (int i = 1; i < toks.length; i++) {
 					if (Util.isNumeric(toks[i])) {
 						float val = Float.parseFloat(toks[i]) * multiVal;
+						out.write("\t" + val);
+					} else {
+						out.write("\t" + toks[i]);
+					}
+				}
+				out.write("\n");
+				line = rdr.readLine();
+			}	
+		} else if (operation.equals("divide")) {
+			float divVal = Float.parseFloat(request.getParameter("divide_value"));
+			String line = rdr.readLine(); //Just write the header
+			out.write(line + "\n");
+			line = rdr.readLine();
+			
+			while (line != null ){
+				String toks[] = line.split("\t");
+				out.write(toks[0]);
+				for (int i = 1; i < toks.length; i++) {
+					if (Util.isNumeric(toks[i])) {
+						float val = Float.parseFloat(toks[i]) / divVal;
 						out.write("\t" + val);
 					} else {
 						out.write("\t" + toks[i]);
