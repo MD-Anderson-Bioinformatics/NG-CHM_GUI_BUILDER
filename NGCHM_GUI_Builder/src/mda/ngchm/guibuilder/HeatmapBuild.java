@@ -1,8 +1,11 @@
 package mda.ngchm.guibuilder;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Date;
 
 import javax.servlet.ServletException;
@@ -12,7 +15,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
+
 import mda.ngchm.datagenerator.HeatmapDataGenerator;
+import mda.ngchm.guibuilder.HeatmapPropertiesManager.ColorMap;
 
 /**
  * Servlet implementation class to build a heatmap using the HeatmapDataGenerator
@@ -65,12 +72,58 @@ public class HeatmapBuild extends HttpServlet {
 			    String genArgs[] = new String[] {propsPath, "-NGCHM"};
 				String errMsg = HeatmapDataGenerator.processHeatMap(genArgs);
 	        }
+	        mgr.load();
 	        HeatmapPropertiesManager.Heatmap map = mgr.getMap();
+	        
+	        //If the map has not been built before, save the auto-generated break points to the properties.
+	        if (map.matrix_files.get(0).color_map == null) {
+	        	HeatmapPropertiesManager.ColorMap theMap = setDefaultMatrixColors(workingDir, map);
+	        	map.matrix_files.get(0).color_map = theMap;
+	        	mgr.save();
+	        }	
+	        
 			System.out.println("END Build Heatmap: " + new Date()); 
 	    } catch (Exception e) {
 	    	throw e;
 	    }			
 	}
+	
+	
+	/*******************************************************************
+	 * METHOD: setDefaultMatrixColors
+	 *
+	 * This method retrieves the color map created for the matrix
+	 * by the HeatmapDataGenerator process (including calculated
+	 * thresholds) and places that data on the heatmapProperties.json.
+	 ******************************************************************/
+	private HeatmapPropertiesManager.ColorMap setDefaultMatrixColors(String directory, HeatmapPropertiesManager.Heatmap map) throws Exception {
+		HeatmapPropertiesManager.ColorMap theMap = null;
+		String propFile = directory + "/"+map.chm_name+"/mapConfig.json";
+		BufferedReader in = new BufferedReader(new FileReader(propFile));
+		try {
+	        HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(directory);
+			Gson gson = new Gson();
+			String jsonStr = in.readLine();
+			LinkedTreeMap<?, ?> result = gson.fromJson(jsonStr , LinkedTreeMap.class);
+			LinkedTreeMap<?, ?> dc = (LinkedTreeMap<?, ?>) result.get("data_configuration");
+			LinkedTreeMap<?, ?> mi = (LinkedTreeMap<?, ?>) dc.get("map_information");
+			LinkedTreeMap<?, ?> dl = (LinkedTreeMap<?, ?>) mi.get("data_layer");
+			LinkedTreeMap<?, ?> dl1 = (LinkedTreeMap<?, ?>) dl.get("dl1");
+			LinkedTreeMap<?, ?> cmap = (LinkedTreeMap<?, ?>) dl1.get("color_map");
+			String type = (String) cmap.get("type");
+			@SuppressWarnings("unchecked")
+			ArrayList<String> colors = (ArrayList<String>) cmap.get("colors");
+			@SuppressWarnings("unchecked")
+			ArrayList<String> thresholds = (ArrayList<String>) cmap.get("thresholds");
+			String missing = (String) cmap.get("missing");
+			theMap = mgr.new ColorMap(type,colors, thresholds,missing);
+		} finally {
+			in.close();
+			in = null;
+		}
+		return theMap;
+	}
+
 	
 }
 

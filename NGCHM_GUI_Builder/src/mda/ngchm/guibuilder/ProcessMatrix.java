@@ -125,40 +125,6 @@ public class ProcessMatrix extends HttpServlet {
 		
 	}
 
-	/*******************************************************************
-	 * METHOD: setDefaultMatrixColors
-	 *
-	 * This method retrieves the color map created for the matrix
-	 * by the HeatmapDataGenerator process (including calculated
-	 * thresholds) and places that data on the heatmapProperties.json.
-	 ******************************************************************/
-	public HeatmapPropertiesManager.ColorMap setDefaultMatrixColors(String directory, HeatmapPropertiesManager.Heatmap map) throws Exception {
-		HeatmapPropertiesManager.ColorMap theMap = null;
-		String propFile = directory + "/"+map.chm_name+"/mapConfig.json";
-		BufferedReader in = new BufferedReader(new FileReader(propFile));
-		try {
-	        HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(directory);
-			Gson gson = new Gson();
-			String jsonStr = in.readLine();
-			LinkedTreeMap<?, ?> result = gson.fromJson(jsonStr , LinkedTreeMap.class);
-			LinkedTreeMap<?, ?> dc = (LinkedTreeMap<?, ?>) result.get("data_configuration");
-			LinkedTreeMap<?, ?> mi = (LinkedTreeMap<?, ?>) dc.get("map_information");
-			LinkedTreeMap<?, ?> dl = (LinkedTreeMap<?, ?>) mi.get("data_layer");
-			LinkedTreeMap<?, ?> dl1 = (LinkedTreeMap<?, ?>) dl.get("dl1");
-			LinkedTreeMap<?, ?> cmap = (LinkedTreeMap<?, ?>) dl1.get("color_map");
-			String type = (String) cmap.get("type");
-			@SuppressWarnings("unchecked")
-			ArrayList<String> colors = (ArrayList<String>) cmap.get("colors");
-			@SuppressWarnings("unchecked")
-			ArrayList<String> thresholds = (ArrayList<String>) cmap.get("thresholds");
-			String missing = (String) cmap.get("missing");
-			theMap = mgr.new ColorMap(type,colors, thresholds,missing);
-		} finally {
-			in.close();
-			in = null;
-		}
-		return theMap;
-	}
 
 	/*******************************************************************
 	 * METHOD: getMatrixConfigData
