@@ -27,8 +27,8 @@ public class Util {
 			String toks[] = line.split("\t");
 			int colNum = 0;
 			while (colNum < toks.length && colNum < numCols) {
-				//Format value to three decimal places if it is numeric but not NaN
-				topMatrix[rowNum][colNum] = isNumeric(toks[colNum]) && !Double.isNaN(Double.parseDouble(toks[colNum])) ? nf.format(Double.parseDouble(toks[colNum])) : toks[colNum];
+				//Format value to three decimal places if it is numeric 
+				topMatrix[rowNum][colNum] = isNumeric(toks[colNum]) ? nf.format(Double.parseDouble(toks[colNum])) : toks[colNum];
 				colNum++;
 			}
 			line = rdr.readLine();
@@ -65,6 +65,8 @@ public class Util {
 	  try  {  
 	    @SuppressWarnings("unused")
 		double d = Double.parseDouble(str);
+	    if (Double.isNaN(d))
+	       	return false;
 	  }   catch(Exception e)  { 
 	    return false;  
 	  }  
