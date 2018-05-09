@@ -2,6 +2,27 @@
 //Define Namespace for NgChmGui MatrixFile
 NgChmGui.createNS('NgChmGui.TRANS');
 
+/**********************************************************************************
+ * FUNCTION - hideAllTransDivs: This function toggles all the panels on the tranforms
+ * page to invisible.
+ **********************************************************************************/
+NgChmGui.TRANS.hideAllTransDivs =  function() {
+	document.getElementById('missingDiv').style.display = 'none';
+	document.getElementById('filterDiv').style.display = 'none';
+	document.getElementById('transDiv').style.display = 'none';
+}
+
+/**********************************************************************************
+ * FUNCTION - showTransSelection: This function toggles the panels on the Transform
+ * page to the value selected in the Tranforms dropdown.
+ **********************************************************************************/
+NgChmGui.TRANS.showTransSelection =  function() {
+	var transList = document.getElementById("transPref_list");
+	NgChmGui.TRANS.hideAllTransDivs();
+	var key = transList.options[transList.selectedIndex].value;
+	document.getElementById(key).style.display="block";
+}
+
 NgChmGui.TRANS.getWorkingMatrix =  function() {
 	var req = new XMLHttpRequest();
 	req.open("GET", "GetWorkingMatrix", true);
@@ -28,6 +49,9 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 	        	matrixDisplayBox.style.display = '';
 	        	dataTable = Object.keys(topMatrixString).map(function(k) { return topMatrixString[k] });
 	        	loadDataFromFile();
+	        	//resize handsontable view box for tranform screen.
+	        	var dispBox = document.getElementById("matrixDisplay");
+	        	dispBox.style.height = '65%';
 	        	
 	        	var ctx = document.getElementById("histo_canvas").getContext("2d");
     
@@ -106,32 +130,21 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 			        return cellProperties;
 			      }
 		    });
+		    //This statement fills the table view with colors (red for labels/green for data)
+    	    for(var i = 0; i < hot.countRows(); i++){
+    		    for(var j = 0; j < hot.countCols(); j++){
+    		    	if (i === 0) {
+    		    		hot.setCellMeta(i, j, 'className', 'red');
+    		    	} else {
+    		    		if (j === 0) {
+    		    			hot.setCellMeta(i, j, 'className', 'red');
+    		    		} else {
+    		    			hot.setCellMeta(i, j, 'className', 'green');
+    		    		}
+    		    	}
+    			}
+    	    }
 	        hot.render();
-	}
-}
-
-NgChmGui.TRANS.resetPanel = function(dropdown_set) {
-	document.getElementById('ReplaceInvalid').style.display = 'none';
-	document.getElementById('FillMissing').style.display = 'none';
-	document.getElementById('Variation').style.display = 'none';
-	document.getElementById('Range').style.display = 'none';
-	document.getElementById('MissingData').style.display = 'none';
-	document.getElementById('Log').style.display = 'none';
-	document.getElementById('MeanCenter').style.display = 'none';
-	document.getElementById('Z-Norm').style.display = 'none';
-	document.getElementById('Arithmetic').style.display = 'none';
-		
-	if (dropdown_set != 'Correction') {
-		document.getElementById('Correction').value = '';	
-		document.getElementById('correct_btn').style.display = 'none';
-	}
-	if (dropdown_set != 'Filter') {
-		document.getElementById('Filter').value = '';	
-		document.getElementById('filter_btn').style.display = 'none';
-	}
-	if (dropdown_set != 'Transform') {
-		document.getElementById('Transform').value = '';	
-		document.getElementById('trans_btn').style.display = 'none';
 	}
 }
 
@@ -150,7 +163,8 @@ NgChmGui.TRANS.selectHistogram =  function() {
 }
 
 NgChmGui.TRANS.selectCorrection =  function() {
-	NgChmGui.TRANS.resetPanel('Correction');
+	document.getElementById('ReplaceNonNumeric').style.display = 'none';
+	document.getElementById('FillMissing').style.display = 'none';
 	var sel = document.getElementById('Correction');
 	var correction = sel.options[sel.selectedIndex].value;
 		
@@ -165,7 +179,9 @@ NgChmGui.TRANS.selectCorrection =  function() {
 }
 
 NgChmGui.TRANS.selectFilter =  function() {
-	NgChmGui.TRANS.resetPanel('Filter');
+	document.getElementById('Variation').style.display = 'none';
+	document.getElementById('Range').style.display = 'none';
+	document.getElementById('MissingData').style.display = 'none';
 	var sel = document.getElementById('Filter');
 	var filter = sel.options[sel.selectedIndex].value;
 		
@@ -180,7 +196,10 @@ NgChmGui.TRANS.selectFilter =  function() {
 }
 
 NgChmGui.TRANS.selectTransform =  function() {
-	NgChmGui.TRANS.resetPanel('Transform');
+	document.getElementById('Log').style.display = 'none';
+	document.getElementById('MeanCenter').style.display = 'none';
+	document.getElementById('Z-Norm').style.display = 'none';
+	document.getElementById('Arithmetic').style.display = 'none';
 	var sel = document.getElementById('Transform');
 	var filter = sel.options[sel.selectedIndex].value;
 		

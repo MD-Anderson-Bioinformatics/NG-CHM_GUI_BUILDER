@@ -8,7 +8,6 @@ NgChmGui.createNS('NgChmGui.COV');
  * entry panels.  
  **********************************************************************************/
 NgChmGui.COV.loadData =  function() {
-	NgChmGui.UTIL.loadHeaderData();
 	if (NgChmGui.UTIL.loadHeaderData()) {
 		var prefsPanelDiv = document.getElementById("preferencesPanel");
 		prefsPanelDiv.style.left = 0;

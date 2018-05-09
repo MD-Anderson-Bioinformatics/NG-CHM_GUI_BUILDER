@@ -8,14 +8,12 @@
 		<link rel="stylesheet" href="css/NGCHM_GUI.css">
  		<script type="text/Javascript">
 			NgChmGui.mapProperties = null;
-			NgChmGui.UTIL.getHeatmapProperties(function() {var out = NgChmGui.mapProperties.output_location;
-														   NGCHM_DIR = out.substring(out.indexOf("MapBuildDir"));
-														   NGCHM = NgChmGui.mapProperties.chm_name + ".ngchm";});
-
-			function downloadMap() {window.open(NGCHM_DIR + "/" + NGCHM);}
+		 	window.onload = function() {
+				NgChmGui.UTIL.getHeatmapProperties(NgChmGui.FILE.HeatmapLoad);
+		 	}
 	 	</script>
     </head>
-    <body style="font-family: sans-serif; font-size: 100%;" onload="NgChm.UTIL.embedCHM(NGCHM, NGCHM_DIR);">
+    <body style="font-family: sans-serif; font-size: 100%;">
  	   <div class="serviceHeader" id="serviceHeader">
 	        <div id="mda_header" class="serviceHeaderLogo">
 	        	<a href="https://www.mdanderson.org/education-and-research/departments-programs-and-labs/departments-and-divisions/bioinformatics-and-computational-biology/index.html"  target="_blank">
@@ -28,18 +26,24 @@
 	  		</div>
 	    </div>   
        	<div id="FormatDisplayContainer" class="display_container" style="position: relative">
-	 		<div id="formatSelection" class="data_entry_container" style="width: 20%">
-        		<br>
-        		<a onclick="downloadMap();"><b>DownLoad NG-CHM</b></a><br><br>
-        		
-         		<a onclick="NgChm.PDF.openPdfPrefs(this,null);"><b>Get PDF of Heat Map</b></a><br><br>
-
-         		<a href="ngChmApp.html" download><b>Get Heat Map Viewer</b></a><br><br>
+	 		<div id="formatSelection" class="data_entry_container" style="width: 15%">
+	 			<br>
+        		<div class="image-container">
+					<img id='downloadMap_btn' src='images/ngChmDownloadButton.png' alt='Download the heat map to NG-CHM file' onclick='NgChmGui.UTIL.downloadMap();' />
+				</div>
+				<br><br>
+        		<div class="image-container">
+	 				<img id='downloadPdf_btn' src='images/ngChmPdfButton.png' alt='Download the heat map to PDF file' onclick='NgChm.PDF.openPdfPrefs(this,null);' />
+				</div>
+ 				<br><br>
+        		<div class="image-container">
+	 				<a class="downloadViewer_btn" id="nonpressed" href="ngChmApp.html" download><img src="images/ngChmViewerButton.png"/></a>
+				</div>
  		    </div>			
 	        <div id="covarPrevButton"  class="prev_btn">  
 	        	<img id='covarPrev_btn' src='images/prevButton.png' alt='Go to previous step' onclick='NgChmGui.UTIL.gotoFormatScreen();' />		
 	        </div>   
-	        <div id="heatMapView" class="layout_display_container" style="margin: 1em 0 0 5%; width: 60%;">
+	        <div id="heatMapView" class="layout_display_container" style="margin: 1em 0 0 5%; width: 75%;">
 				<div id='NGCHMEmbed' style="background-color: white; height: 85%; margin-bottom: 0.25em; padding: 5px"></div>
 				<script src='javascript/ngchmWidget-min.js'></script>
 			</div>

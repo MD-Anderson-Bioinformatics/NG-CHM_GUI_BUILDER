@@ -231,7 +231,7 @@ NgChmGui.UTIL.loadHeatMapView = function(nextFunction) {
  * description OR text indicating that the user's session has expired
  **********************************************************************************/
 NgChmGui.UTIL.loadHeaderData =  function() {
-	if (NgChmGui.UTIL.elemExist(NgChmGui.mapProperties.chm_name)) {
+	if ((NgChmGui.mapProperties !== null) && (NgChmGui.UTIL.elemExist(NgChmGui.mapProperties.chm_name))) {
 		document.getElementById("mapName").innerHTML = "<b>Heat Map Name:</b>&nbsp;&nbsp;"+NgChmGui.mapProperties.chm_name;
 		document.getElementById("mapDesc").innerHTML = "<b>Heat Map Desc:</b>&nbsp;&nbsp;"+NgChmGui.mapProperties.chm_description;
 		return true;
@@ -526,6 +526,25 @@ NgChmGui.UTIL.gotoFormatScreen = function() {
 }
 NgChmGui.UTIL.gotoHeatMapScreen = function() {
 	window.open("/NGCHM_GUI_Builder/NGCHMBuilder_HeatMap.html","_self");
+}
+
+/**********************************************************************************
+ * FUNCTION - downloadMap: This function downloads the NG-CHM for the heat map
+ * to an NGCHM file.
+ **********************************************************************************/
+NgChmGui.UTIL.downloadMap = function() {
+	window.open(NgChmGui.mapProperties.output_location.substring(NgChmGui.mapProperties.output_location.indexOf("MapBuildDir")) + "/" + NgChmGui.mapProperties.chm_name + ".ngchm");
+}
+
+/**********************************************************************************
+ * FUNCTION - downloadViewer: This function downloads the NG-CHM viewer software
+ * html file.
+ **********************************************************************************/
+NgChmGui.UTIL.downloadViewer = function() {
+	  var dl = document.createElement('a');
+	  dl.setAttribute('href', NgChmGui.mapProperties.output_location.substring(0,NgChmGui.mapProperties.output_location.indexOf("MapBuildDir")));
+	  dl.setAttribute('download', 'ngChmApp.html');
+	  dl.click();
 }
 
 

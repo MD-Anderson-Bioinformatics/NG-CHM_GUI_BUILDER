@@ -12,6 +12,16 @@ NgChmGui.FILE.Matrix = function() {
 };  
 
 /**********************************************************************************
+ * FUNCTION - HeatmapLoad: This function performs load functions for the HeatMap
+ * screen.
+ **********************************************************************************/
+NgChmGui.FILE.HeatmapLoad = function() {
+	if (NgChmGui.UTIL.loadHeaderData()) {
+		NgChmGui.UTIL.loadHeatMapView();
+	}
+}
+
+/**********************************************************************************
  * FUNCTION - loadData: This function populates the name and description fields
  * on the Matrix Screen
  **********************************************************************************/
