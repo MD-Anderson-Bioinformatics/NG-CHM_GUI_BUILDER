@@ -474,7 +474,7 @@ public class FilterMatrix extends HttpServlet {
 //			line = rdr.readLine();
 			String headers[] = line.split("\t");
 			int thresh = 0;
-			if (filterMethod.equals("pct")){
+			if (filterMethod.equals("pctgreater")){
 				double numKeepD = (headers.length-1) * Double.parseDouble(request.getParameter("std_pct_missing"))/100;
 				thresh = (int)numKeepD;
 			} else {

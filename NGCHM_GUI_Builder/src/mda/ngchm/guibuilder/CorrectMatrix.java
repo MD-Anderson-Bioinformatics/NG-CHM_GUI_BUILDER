@@ -37,7 +37,7 @@ public class CorrectMatrix extends HttpServlet {
 		    
 		    String correction = request.getParameter("Correction");
 		    
-		    if (correction.equals("ReplaceNonNumeric"))
+		    if (correction.equals("ReplaceInvalid"))
 		    	replaceNonNumeric(matrixFile, request);
 		    else if (correction.equals("FillMissing"))
 		    	fillMissing(matrixFile, request);
