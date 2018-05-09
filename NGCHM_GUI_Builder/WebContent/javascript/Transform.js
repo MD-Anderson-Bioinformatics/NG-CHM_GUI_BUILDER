@@ -74,9 +74,11 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 //	        	histoCounts.unshift(matrixInfo.numMissing);
 	        	colSDGraph.update(histoCounts);//[matrixInfo.numMissing,matrixInfo.histoCounts]);
 		    }
+	        NgChmGui.UTIL.hideLoading();
 		}
 	};
 	req.send();
+	NgChmGui.UTIL.showLoading();
 	
 	function loadDataFromFile() {
 
@@ -109,7 +111,7 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 }
 
 NgChmGui.TRANS.resetPanel = function(dropdown_set) {
-	document.getElementById('ReplaceNonNumeric').style.display = 'none';
+	document.getElementById('ReplaceInvalid').style.display = 'none';
 	document.getElementById('FillMissing').style.display = 'none';
 	document.getElementById('Variation').style.display = 'none';
 	document.getElementById('Range').style.display = 'none';
@@ -212,11 +214,14 @@ NgChmGui.TRANS.correctMatrixData =  function() {
 	        } else {
 				if (NgChmGui.UTIL.debug) {console.log('200');}
 	        	result = req.response;
+	        	NgChmGui.TRANS.updateLog(document.getElementById("missing_frm"));
 	        	NgChmGui.TRANS.getWorkingMatrix();
 		    }
+	        NgChmGui.UTIL.hideLoading();
 		}
 	};
 	req.send(formData);
+	NgChmGui.UTIL.showLoading();
 }
 
 NgChmGui.TRANS.filterMatrixData =  function() {
@@ -234,11 +239,14 @@ NgChmGui.TRANS.filterMatrixData =  function() {
 	        } else {
 				if (NgChmGui.UTIL.debug) {console.log('200');}
 	        	result = req.response;
+	        	NgChmGui.TRANS.updateLog(document.getElementById("filter_frm") );
 	        	NgChmGui.TRANS.getWorkingMatrix();
 		    }
+	        NgChmGui.UTIL.hideLoading();
 		}
 	};
 	req.send(formData);
+	NgChmGui.UTIL.showLoading();
 }
 
 NgChmGui.TRANS.transformMatrixData =  function() {
@@ -256,16 +264,19 @@ NgChmGui.TRANS.transformMatrixData =  function() {
 	        } else {
 				if (NgChmGui.UTIL.debug) {console.log('200');}
 	        	result = req.response;
+	        	NgChmGui.TRANS.updateLog(document.getElementById("trans_frm"));
 	        	NgChmGui.TRANS.getWorkingMatrix();
 		    }
+	        NgChmGui.UTIL.hideLoading();
 		}
 	};
 	req.send(formData);
+	NgChmGui.UTIL.showLoading();
 }
 
 NgChmGui.TRANS.resetMatrix =  function() {
 	var req = new XMLHttpRequest();
-	var formData = NgChmGui.UTIL.toURIString( document.getElementById("trans_frm") );
+	var formData = NgChmGui.UTIL.toURIString( );
 	req.open("POST", "ResetMatrix", true);
 	req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	req.onreadystatechange = function () {
@@ -278,11 +289,55 @@ NgChmGui.TRANS.resetMatrix =  function() {
 	        } else {
 				if (NgChmGui.UTIL.debug) {console.log('200');}
 	        	result = req.response;
+	        	NgChmGui.TRANS.updateLog();
 	        	NgChmGui.TRANS.getWorkingMatrix();
 		    }
+	        NgChmGui.UTIL.hideLoading();
 		}
 	};
 	req.send(formData);
+	NgChmGui.UTIL.showLoading();
+}
+
+NgChmGui.TRANS.updateLog =  function(form){//formData) {
+	var log = document.getElementById("change_log");
+	var updateText = "";
+	if (form){
+		var urlString = "";
+		var elements = form.querySelectorAll( "input, select, textarea");
+		for( var i = 0; i < elements.length; ++i) {
+			var element = elements[i];
+			if ((element.attributes.logText) && (element.offsetParent) && (element.type == 'radio') && (element.checked == true)){
+				var text = element.attributes.logText.value;
+				var bracketIndex = 0, breaker = 0;
+				while (text.indexOf("[",bracketIndex)>-1 && breaker < 10){
+					var parseValStart = text.indexOf("[");
+					var parseValEnd = text.indexOf("]");
+					bracketIndex = parseValStart;
+					var name = text.substring(parseValStart+1,parseValEnd);
+					var nameEls = document.getElementsByName(name);
+					var parseVal = "";
+					for (var j = 0; j < nameEls.length; j++){
+						if (nameEls[j].type == "radio"){
+							if (nameEls[j].checked){
+								parseVal = nameEls[j].value;
+							}
+//							parseVal = nameEls[j].value;
+						} else {
+							parseVal = nameEls[j].value;
+						}
+					}
+					text = text.replace("[" + name + "]", parseVal);
+					breaker++;
+				}
+				updateText += text;
+			}
+		}
+	} else {
+		updateText += "Reset the Matrix";
+	}
+	log.innerHTML += updateText + "<br>";
+	
 }
 
 //Function called when Next button is pressed.  

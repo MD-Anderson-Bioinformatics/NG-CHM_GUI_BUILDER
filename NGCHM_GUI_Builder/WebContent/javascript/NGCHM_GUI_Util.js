@@ -57,14 +57,24 @@ NgChmGui.UTIL.debug = false;
  * FUNCTION - toURIString: The purpose of this function to convert a URI to a string.
  **********************************************************************************/
 NgChmGui.UTIL.toURIString = function(form) {
-	var urlString = "";
-	var elements = form.querySelectorAll( "input, select, textarea");
-	for( var i = 0; i < elements.length; ++i) {
-		var element = elements[i];
-		var name = element.name;
-		var value = element.value;
-		if(name && (element.type != 'radio') || (element.checked == true)){
-			urlString = urlString + (urlString=="" ? "" : "&") + encodeURIComponent(name) + '=' + encodeURIComponent(value)
+	if (form){
+		var urlString = "";
+		var elements = form.querySelectorAll( "input, select, textarea");
+		for( var i = 0; i < elements.length; ++i) {
+			var element = elements[i];
+			var name = element.name;
+			var value = element.value;
+			if(name && ( element.type == "select-one" || // Is it a dropdown?
+					((element.offsetParent) && (element.type == 'radio') && (element.checked == true)))){ // is it a radio button? 
+				urlString = urlString + (urlString=="" ? "" : "&") + encodeURIComponent(name) + '=' + encodeURIComponent(value);
+				if (((element.offsetParent) && (element.type == 'radio') && (element.checked == true))){ // this radio item is checked, check the next element to see if it is a text input associated with this?
+					if (elements[i+1].type == "number" || elements[i+1].type == "text"){
+						var nname = elements[i+1].name;
+						var nvalue = elements[i+1].value;
+						urlString = urlString + (urlString=="" ? "" : "&") + encodeURIComponent(nname) + '=' + encodeURIComponent(nvalue);
+					}
+				}
+			}
 		}
 	}
 
@@ -478,6 +488,22 @@ NgChmGui.UTIL.getLabelText = function(text,type) {
 	}
 	return text;
 }
+
+NgChmGui.UTIL.showLoading = function() { 
+	var loadingDiv = document.createElement("div");
+	loadingDiv.id = "loadOverlay";
+	var spinner = document.createElement("div");
+	spinner.classList.add("loader");
+	loadingDiv.appendChild(spinner);
+	document.body.appendChild(loadingDiv);
+	
+}
+
+NgChmGui.UTIL.hideLoading = function() { 
+	var loadingDiv = document.getElementById("loadOverlay");
+	loadingDiv.parentElement.removeChild(loadingDiv);
+}
+
 
 /**********************************************************************************
  * FUNCTION - goto...Screen: These function navigate to the specified screen.  
