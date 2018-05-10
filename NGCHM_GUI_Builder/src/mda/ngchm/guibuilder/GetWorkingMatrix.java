@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -146,7 +147,7 @@ public class GetWorkingMatrix extends HttpServlet {
 
 		int numCols = line.split("\t").length;
 		//Array for mean of each row and each column.
-		double rowMean[] = new double[numCols];
+		ArrayList<Double> rowMean = new ArrayList<Double>();
 		double colMean[] = new double[numCols];
 		int colCount[] = new int[numCols];
 		
@@ -178,7 +179,7 @@ public class GetWorkingMatrix extends HttpServlet {
 			}
 			
 			if (numRowValues > 0)
-				rowMean[counts.numRows-1] = rowSum/numRowValues;
+				rowMean.add(rowSum/numRowValues);
 			line = rdr.readLine();
 		}	
 		rdr.close();
@@ -217,7 +218,7 @@ public class GetWorkingMatrix extends HttpServlet {
 				if (Util.isNumeric(val)) {
 					double dVal = Double.parseDouble(val);
 					counts.bin_count[Math.max(9 - (int)((counts.maxVal - dVal) / binSize), 0)]++;
-					rowStdevSum += Math.pow(dVal - rowMean[currentRow], 2);
+					rowStdevSum += Math.pow(dVal - rowMean.get(currentRow), 2);
 					numRowValues++;
 					colStdev[i] += Math.pow(dVal - colMean[i], 2);
 				}	
