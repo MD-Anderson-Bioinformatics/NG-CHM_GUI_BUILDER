@@ -206,6 +206,7 @@ NgChmGui.FILE.MatrixFile = function() {
 		req.onreadystatechange = function () {
 			if (NgChmGui.UTIL.debug) {console.log('state change');}
 			if (req.readyState == req.DONE) {
+				NgChmGui.UTIL.hideLoading();
 				if (NgChmGui.UTIL.debug) {console.log('done');}
 		        if (req.status != 200) {
 		    		if (NgChmGui.UTIL.debug) {console.log('not 200');}
@@ -228,7 +229,6 @@ NgChmGui.FILE.MatrixFile = function() {
 			        	loadDataFromFile();
 		        	}
 			    }
-		        NgChmGui.UTIL.hideLoading();
 			}
 		};
 		NgChmGui.UTIL.showLoading();
@@ -688,6 +688,7 @@ NgChmGui.FILE.MatrixFile = function() {
 		req.onreadystatechange = function () {
 			if (NgChmGui.UTIL.debug) {console.log('state change');}
 			if (req.readyState == req.DONE) {
+				NgChmGui.UTIL.hideLoading();
 				if (NgChmGui.UTIL.debug) {console.log('done');}
 		        if (req.status != 200) {
 		    		if (NgChmGui.UTIL.debug) {console.log('not 200');}
@@ -711,7 +712,6 @@ NgChmGui.FILE.MatrixFile = function() {
 			        	reloadGridFromConfig();
 		    		}
 			    }
-		        NgChmGui.UTIL.hideLoading();
 			}
 		};
 		NgChmGui.UTIL.showLoading();

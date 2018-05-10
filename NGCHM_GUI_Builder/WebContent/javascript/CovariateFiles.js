@@ -300,6 +300,7 @@ NgChmGui.COV.addCovariateBar = function(nextFunction) {
 	req.onreadystatechange = function () {
 		if (NgChmGui.UTIL.debug) {console.log('state change');}
 		if (req.readyState == req.DONE) {
+			NgChmGui.UTIL.hideLoading();
 			if (NgChmGui.UTIL.debug) {console.log('done');}
 	        if (req.status != 200) {
 	    		if (NgChmGui.UTIL.debug) {console.log('not 200');}
@@ -308,7 +309,6 @@ NgChmGui.COV.addCovariateBar = function(nextFunction) {
 	        	NgChmGui.mapProperties = JSON.parse(req.response);
 	        	nextFunction();
 	        }
-	        NgChmGui.UTIL.hideLoading();
 		}
 	};
 	NgChmGui.UTIL.showLoading();
@@ -405,6 +405,7 @@ NgChmGui.COV.removeCovariateBar = function(nextFunction) {
 	req.onreadystatechange = function () {
 		if (NgChmGui.UTIL.debug) {console.log('state change');}
 		if (req.readyState == req.DONE) {
+			NgChmGui.UTIL.hideLoading();
 			if (NgChmGui.UTIL.debug) {console.log('done');}
 	        if (req.status != 200) {
 	    		if (NgChmGui.UTIL.debug) {console.log('not 200');}
@@ -413,7 +414,6 @@ NgChmGui.COV.removeCovariateBar = function(nextFunction) {
 	        	NgChmGui.mapProperties = JSON.parse(req.response);
 	        	nextFunction();
 	        }
-	        NgChmGui.UTIL.hideLoading();
 		}
 	};
 	NgChmGui.UTIL.showLoading();

@@ -29,6 +29,7 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 	req.onreadystatechange = function () {
 		if (NgChmGui.UTIL.debug) {console.log('state change');}
 		if (req.readyState == req.DONE) {
+			NgChmGui.UTIL.hideLoading();
 			if (NgChmGui.UTIL.debug) {console.log('done');}
 	        if (req.status != 200) {
 	        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
@@ -98,7 +99,6 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 //	        	histoCounts.unshift(matrixInfo.numMissing);
 	        	colSDGraph.update(histoCounts);//[matrixInfo.numMissing,matrixInfo.histoCounts]);
 		    }
-	        NgChmGui.UTIL.hideLoading();
 		}
 	};
 	req.send();
@@ -226,6 +226,7 @@ NgChmGui.TRANS.correctMatrixData =  function() {
 	req.onreadystatechange = function () {
 		if (NgChmGui.UTIL.debug) {console.log('state change');}
 		if (req.readyState == req.DONE) {
+			NgChmGui.UTIL.hideLoading();
 			if (NgChmGui.UTIL.debug) {console.log('done');}
 	        if (req.status != 200) {
 	        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
@@ -236,7 +237,6 @@ NgChmGui.TRANS.correctMatrixData =  function() {
 	        	NgChmGui.TRANS.updateLog(document.getElementById("missing_frm"));
 	        	NgChmGui.TRANS.getWorkingMatrix();
 		    }
-	        NgChmGui.UTIL.hideLoading();
 		}
 	};
 	req.send(formData);
@@ -251,6 +251,7 @@ NgChmGui.TRANS.filterMatrixData =  function() {
 	req.onreadystatechange = function () {
 		if (NgChmGui.UTIL.debug) {console.log('state change');}
 		if (req.readyState == req.DONE) {
+			NgChmGui.UTIL.hideLoading();
 			if (NgChmGui.UTIL.debug) {console.log('done');}
 	        if (req.status != 200) {
 	        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
@@ -261,7 +262,6 @@ NgChmGui.TRANS.filterMatrixData =  function() {
 	        	NgChmGui.TRANS.updateLog(document.getElementById("filter_frm") );
 	        	NgChmGui.TRANS.getWorkingMatrix();
 		    }
-	        NgChmGui.UTIL.hideLoading();
 		}
 	};
 	req.send(formData);
@@ -276,6 +276,7 @@ NgChmGui.TRANS.transformMatrixData =  function() {
 	req.onreadystatechange = function () {
 		if (NgChmGui.UTIL.debug) {console.log('state change');}
 		if (req.readyState == req.DONE) {
+			NgChmGui.UTIL.hideLoading();
 			if (NgChmGui.UTIL.debug) {console.log('done');}
 	        if (req.status != 200) {
 	        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
@@ -286,7 +287,6 @@ NgChmGui.TRANS.transformMatrixData =  function() {
 	        	NgChmGui.TRANS.updateLog(document.getElementById("trans_frm"));
 	        	NgChmGui.TRANS.getWorkingMatrix();
 		    }
-	        NgChmGui.UTIL.hideLoading();
 		}
 	};
 	req.send(formData);
@@ -301,6 +301,7 @@ NgChmGui.TRANS.resetMatrix =  function() {
 	req.onreadystatechange = function () {
 		if (NgChmGui.UTIL.debug) {console.log('state change');}
 		if (req.readyState == req.DONE) {
+			NgChmGui.UTIL.hideLoading();
 			if (NgChmGui.UTIL.debug) {console.log('done');}
 	        if (req.status != 200) {
 	        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
@@ -311,7 +312,6 @@ NgChmGui.TRANS.resetMatrix =  function() {
 	        	NgChmGui.TRANS.updateLog();
 	        	NgChmGui.TRANS.getWorkingMatrix();
 		    }
-	        NgChmGui.UTIL.hideLoading();
 		}
 	};
 	req.send(formData);
