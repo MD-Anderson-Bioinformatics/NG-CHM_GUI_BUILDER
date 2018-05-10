@@ -203,7 +203,10 @@ NgChmGui.UTIL.buildHeatMap = function(nextFunction) {
  * FUNCTION - loadHeatMapView: This function runs when any panel, that displays
  * the heatmap at startup, is loaded.
  **********************************************************************************/
-NgChmGui.UTIL.loadHeatMapView = function(nextFunction) {
+NgChmGui.UTIL.loadHeatMapView = function(hideDetail) {
+	if (typeof hideDetail === 'undefined') {
+		hideDetail = true;
+	}
 	var req = new XMLHttpRequest();
 	req.open("POST", "HeatmapView", true);
 	req.setRequestHeader("Content-Type", "application/json");
@@ -220,10 +223,7 @@ NgChmGui.UTIL.loadHeatMapView = function(nextFunction) {
 				if (NgChmGui.UTIL.debug) {console.log('200');}
 	        	result = req.response;
 	        	pieces = result.trim().split("|");
-	        	NgChm.UTIL.embedCHM(pieces[1], pieces[0], true);
-	        	if (typeof nextFunction !== 'undefined') {
-	        		nextFunction();
-	        	}
+	        	NgChm.UTIL.embedCHM(pieces[1], pieces[0], hideDetail);
 		    }
 		}
 	};

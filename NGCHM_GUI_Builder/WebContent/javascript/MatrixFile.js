@@ -17,7 +17,7 @@ NgChmGui.FILE.Matrix = function() {
  **********************************************************************************/
 NgChmGui.FILE.HeatmapLoad = function() {
 	if (NgChmGui.UTIL.loadHeaderData()) {
-		NgChmGui.UTIL.loadHeatMapView();
+		NgChmGui.UTIL.loadHeatMapView(false);
 	}
 }
 
