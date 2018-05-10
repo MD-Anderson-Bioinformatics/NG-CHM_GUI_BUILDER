@@ -228,8 +228,10 @@ NgChmGui.FILE.MatrixFile = function() {
 			        	loadDataFromFile();
 		        	}
 			    }
+		        NgChmGui.UTIL.hideLoading();
 			}
 		};
+		NgChmGui.UTIL.showLoading();
 		req.send(formData);
 	}
 	
@@ -709,8 +711,10 @@ NgChmGui.FILE.MatrixFile = function() {
 			        	reloadGridFromConfig();
 		    		}
 			    }
+		        NgChmGui.UTIL.hideLoading();
 			}
 		};
+		NgChmGui.UTIL.showLoading();
 		req.send();
 	}
 	

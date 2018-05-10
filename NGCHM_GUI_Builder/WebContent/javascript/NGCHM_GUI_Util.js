@@ -149,8 +149,10 @@ NgChmGui.UTIL.setHeatmapProperties = function(nextFunction) {
 					nextFunction();
 				}
 			}
+	        NgChmGui.UTIL.hideLoading();
 		};
 	}
+	NgChmGui.UTIL.showLoading();
 	req.send(formData);
 }
 
@@ -190,8 +192,10 @@ NgChmGui.UTIL.buildHeatMap = function(nextFunction) {
 	        		nextFunction();
 	        	}
 		    }
+	        NgChmGui.UTIL.showLoading();
 		}
 	};
+	NgChmGui.UTIL.showLoading();
 	req.send();
 }
 
@@ -220,8 +224,10 @@ NgChmGui.UTIL.loadHeatMapView = function(nextFunction) {
 	        		nextFunction();
 	        	}
 		    }
+	        NgChmGui.UTIL.hideLoading();
 		}
 	};
+	NgChmGui.UTIL.showLoading();
 	req.send();
 }
 

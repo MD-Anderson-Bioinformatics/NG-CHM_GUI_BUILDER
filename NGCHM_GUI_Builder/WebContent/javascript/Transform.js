@@ -163,7 +163,7 @@ NgChmGui.TRANS.selectHistogram =  function() {
 }
 
 NgChmGui.TRANS.selectCorrection =  function() {
-	document.getElementById('ReplaceNonNumeric').style.display = 'none';
+	document.getElementById('ReplaceInvalid').style.display = 'none';
 	document.getElementById('FillMissing').style.display = 'none';
 	var sel = document.getElementById('Correction');
 	var correction = sel.options[sel.selectedIndex].value;

@@ -308,8 +308,10 @@ NgChmGui.COV.addCovariateBar = function(nextFunction) {
 	        	NgChmGui.mapProperties = JSON.parse(req.response);
 	        	nextFunction();
 	        }
+	        NgChmGui.UTIL.hideLoading();
 		}
 	};
+	NgChmGui.UTIL.showLoading();
 	req.send(formData);
 }
 
@@ -411,8 +413,10 @@ NgChmGui.COV.removeCovariateBar = function(nextFunction) {
 	        	NgChmGui.mapProperties = JSON.parse(req.response);
 	        	nextFunction();
 	        }
+	        NgChmGui.UTIL.hideLoading();
 		}
 	};
+	NgChmGui.UTIL.showLoading();
 	req.send(formData);
 }
 
