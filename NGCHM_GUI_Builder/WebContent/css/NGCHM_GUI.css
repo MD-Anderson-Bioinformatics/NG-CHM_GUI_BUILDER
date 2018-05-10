@@ -235,6 +235,12 @@ div.serviceHeaderLogo img
     margin-left: 3px;
     display:inline-block;
     position:relative;
+    border-right: 3px ridge #0843c1;  /* double|groove|ridge */
+}
+
+.image-container {
+  display: flex;
+  justify-content: center;
 }
 
 .layout_display_container {
