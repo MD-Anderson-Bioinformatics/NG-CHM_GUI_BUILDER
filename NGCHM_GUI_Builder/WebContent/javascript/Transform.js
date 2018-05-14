@@ -373,5 +373,5 @@ NgChmGui.TRANS.update = function () {
 
 //When update completes, go to next page.
 NgChmGui.TRANS.next = function() {
-	window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Covariates.html","_self");
+	window.open("NGCHMBuilder_Covariates.html","_self");
 }

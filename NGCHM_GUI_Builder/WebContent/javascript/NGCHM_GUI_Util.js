@@ -516,22 +516,22 @@ NgChmGui.UTIL.hideLoading = function() {
  * They are used to navigate to the next screen from a previous screen
  **********************************************************************************/
 NgChmGui.UTIL.gotoMatrixScreen = function() {
-	window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Matrix.html","_self");
+	window.open("NGCHMBuilder_Matrix.html","_self");
 }
 NgChmGui.UTIL.gotoTransformScreen = function() {
-	window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Transform.html","_self");
+	window.open("NGCHMBuilder_Transform.html","_self");
 }
 NgChmGui.UTIL.gotoCovariatesScreen = function() {
-	window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Covariates.html","_self");
+	window.open("NGCHMBuilder_Covariates.html","_self");
 }
 NgChmGui.UTIL.gotoClusterScreen = function() {
-	window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Cluster.html","_self");
+	window.open("NGCHMBuilder_Cluster.html","_self");
 }
 NgChmGui.UTIL.gotoFormatScreen = function() {
-	window.open("/NGCHM_GUI_Builder/NGCHMBuilder_Format.html","_self");
+	window.open("NGCHMBuilder_Format.html","_self");
 }
 NgChmGui.UTIL.gotoHeatMapScreen = function() {
-	window.open("/NGCHM_GUI_Builder/NGCHMBuilder_HeatMap.html","_self");
+	window.open("NGCHMBuilder_HeatMap.html","_self");
 }
 
 /**********************************************************************************
