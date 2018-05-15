@@ -52,6 +52,9 @@ NgChmGui.createNS('NgChmGui.UTIL');
 NgChmGui.UTIL.maxValues = 2147483647;
 NgChmGui.UTIL.minValues = -2147483647;
 NgChmGui.UTIL.debug = false;
+NgChmGui.UTIL.errorPrefix = "<b><font color='red'>! -</font></b>&nbsp;&nbsp;";
+NgChmGui.UTIL.warningPrefix = "<b><font color='yellow'>* -</font></b>&nbsp;&nbsp;";
+NgChmGui.UTIL.nextLine = "<br>";
 
 /**********************************************************************************
  * FUNCTION - toURIString: The purpose of this function to convert a URI to a string.
@@ -95,6 +98,7 @@ NgChmGui.UTIL.editWidgetForBuilder = function() {
 	document.getElementById('summary_box_canvas').style.display = 'none';
 	document.getElementById('column_dendro_canvas').style.display = '';
 	document.getElementById('row_dendro_canvas').style.display = '';
+	document.getElementById('mapName').style.display = 'none';
 }
 
 /**********************************************************************************
@@ -238,11 +242,11 @@ NgChmGui.UTIL.loadHeatMapView = function(hideDetail) {
  **********************************************************************************/
 NgChmGui.UTIL.loadHeaderData =  function() {
 	if ((NgChmGui.mapProperties !== null) && (NgChmGui.UTIL.elemExist(NgChmGui.mapProperties.chm_name))) {
-		document.getElementById("mapName").innerHTML = "<b>Heat Map Name:</b>&nbsp;&nbsp;"+NgChmGui.mapProperties.chm_name;
-		document.getElementById("mapDesc").innerHTML = "<b>Heat Map Desc:</b>&nbsp;&nbsp;"+NgChmGui.mapProperties.chm_description;
+		document.getElementById("ngchmName").innerHTML = "<b>Map Name:</b>&nbsp;&nbsp;"+NgChmGui.mapProperties.chm_name;
+//		document.getElementById("mapDesc").innerHTML = "<b>Heat Map Desc:</b>&nbsp;&nbsp;"+NgChmGui.mapProperties.chm_description;
 		return true;
 	} else {
-		document.getElementById("mapName").innerHTML = "<b>Your Session Has Expired</b>";
+		document.getElementById("ngchmName").innerHTML = "<b>Your Session Has Expired</b>";
 		setTimeout(function(){NgChmGui.UTIL.gotoMatrixScreen(); }, 2000);
 		return false;
 	}
@@ -535,14 +539,6 @@ NgChmGui.UTIL.gotoHeatMapScreen = function() {
 }
 
 /**********************************************************************************
- * FUNCTION - downloadMap: This function downloads the NG-CHM for the heat map
- * to an NGCHM file.
- **********************************************************************************/
-NgChmGui.UTIL.downloadMap = function() {
-	window.open(NgChmGui.mapProperties.output_location.substring(NgChmGui.mapProperties.output_location.indexOf("MapBuildDir")) + "/" + NgChmGui.mapProperties.chm_name + ".ngchm");
-}
-
-/**********************************************************************************
  * FUNCTION - downloadViewer: This function downloads the NG-CHM viewer software
  * html file.
  **********************************************************************************/
@@ -551,6 +547,47 @@ NgChmGui.UTIL.downloadViewer = function() {
 	  dl.setAttribute('href', NgChmGui.mapProperties.output_location.substring(0,NgChmGui.mapProperties.output_location.indexOf("MapBuildDir")));
 	  dl.setAttribute('download', 'ngChmApp.html');
 	  dl.click();
+}
+
+/**********************************************************************************
+ * FUNCTION - setScreenNotes: This function loads notes to the viewer-side panel
+ * of the screen.  It is called from all screens.
+ **********************************************************************************/
+NgChmGui.UTIL.setScreenNotes = function(text) {
+	if (typeof text === 'undefined') {
+		text = " ";
+	}
+	var notes = document.getElementById("screenNotesDisplay");
+	var newLineCnt = NgChmGui.UTIL.newlines(text);
+	var noteHeight = newLineCnt * 18;
+	notes.innerHTML = text;
+	notes.style.height = noteHeight > 90 ? 90 + "px" : noteHeight + "px";
+}
+
+/**********************************************************************************
+ * FUNCTION - newlines: This function determines the number of lines in a text block.
+ **********************************************************************************/
+NgChmGui.UTIL.newlines = function(text) {
+	var textUpper = text.toUpperCase();
+	//Count new line character occurrences.  These will be counted as lines and
+	//represent the rows for error and warning messages in the text.
+    var n = 0, pos = 0;prevpos = 0;
+    while (true) {
+        pos = textUpper.indexOf("<BR>", pos);
+        if (pos >= 0) {
+            ++n;
+            pos += 4;
+        } else break;
+        var msglen = Math.ceil(text.substring(prevpos, pos).length / 100);
+        if (msglen > 1) {
+        	n = n + (msglen-1);
+        }
+        prevpos = pos;
+    }
+    //Count the lines required for displaying the last section of text.
+    var remainingRows = Math.ceil(text.substring(prevpos, text.length).length / 100);
+    n = n + remainingRows;
+    return n;
 }
 
 

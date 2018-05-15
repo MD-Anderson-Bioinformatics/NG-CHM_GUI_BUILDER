@@ -48,7 +48,7 @@ public class MapProperties extends HttpServlet {
 		        if (propFile.exists()) {
 		        	propJSON = mgr.load();
 		        } else {
-		        	propJSON = "{\"nofile\": 1}";
+		        	propJSON = "{\"no_file\": 1}";
 		        }
 	    	}
 	       	response.setContentType("application/json");

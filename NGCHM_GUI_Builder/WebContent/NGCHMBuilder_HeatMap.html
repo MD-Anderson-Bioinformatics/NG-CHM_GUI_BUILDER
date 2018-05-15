@@ -4,12 +4,12 @@
         <title>NG-CHM Builder</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	 	<script src="javascript/NGCHM_GUI_Util.js"></script>
-	 	<script src="javascript/MatrixFile.js"></script>
+	 	<script src="javascript/HeatMap.js"></script>
 		<link rel="stylesheet" href="css/NGCHM_GUI.css">
  		<script type="text/Javascript">
 			NgChmGui.mapProperties = null;
 		 	window.onload = function() {
-				NgChmGui.UTIL.getHeatmapProperties(NgChmGui.FILE.HeatmapLoad);
+				NgChmGui.UTIL.getHeatmapProperties(NgChmGui.MAP.loadData);
 		 	}
 	 	</script>
     </head>
@@ -21,15 +21,15 @@
 	           </a>
 	       	</div>
 	 		<div id='map_info'>
-     			<div id="mapName" class="inputText" style="font-size: 14px;color: rgb(51, 51, 51);"></div>
-    			<div id="mapDesc" class="inputText"  style="font-size: 14px;color: rgb(51, 51, 51);"></div>
+		    	<div id="pageTitle">NG-CHM BUILDER: Interactive Heat Map</div>
+     			<div id="ngchmName" class="inputText" style="font-size: 14px;color: rgb(51, 51, 51);"></div>
 	  		</div>
 	    </div>   
        	<div id="FormatDisplayContainer" class="display_container" style="position: relative">
 	 		<div id="formatSelection" class="data_entry_container" style="width: 15%">
 	 			<br>
         		<div class="image-container">
-					<img id='downloadMap_btn' src='images/ngChmDownloadButton.png' alt='Download the heat map to NG-CHM file' onclick='NgChmGui.UTIL.downloadMap();' />
+					<img id='downloadMap_btn' src='images/ngChmDownloadButton.png' alt='Download the heat map to NG-CHM file' onclick='NgChmGui.MAP.downloadMap();' />
 				</div>
 				<br><br>
         		<div class="image-container">
@@ -43,7 +43,9 @@
 	        <div id="covarPrevButton"  class="prev_btn">  
 	        	<img id='covarPrev_btn' src='images/prevButton.png' alt='Go to previous step' onclick='NgChmGui.UTIL.gotoFormatScreen();' />		
 	        </div>   
-	        <div id="heatMapView" class="layout_display_container" style="margin: 1em 0 0 5%; width: 75%;">
+	        <div id="heatMapView" class="layout_display_container" style="width: 75%;">
+	        	<div id="screenNotesDisplay"></div>
+	        	<br>
 				<div id='NGCHMEmbed' style="background-color: white; height: 85%; margin-bottom: 0.25em; padding: 5px"></div>
 				<script src='javascript/ngchmWidget-min.js'></script>
 			</div>

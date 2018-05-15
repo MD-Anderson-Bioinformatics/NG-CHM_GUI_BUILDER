@@ -2,6 +2,36 @@
 //Define Namespace for NgChmGui MatrixFile
 NgChmGui.createNS('NgChmGui.TRANS');
 
+NgChmGui.TRANS.pageText1 = "Perform various transformations to the selected data matrix prior to creating your NG-CHM.";
+
+/**********************************************************************************
+ * FUNCTION - loadData: This function will be executed when the transform page
+ * is opened for the first time.  
+ **********************************************************************************/
+NgChmGui.TRANS.loadData =  function() {
+	if (NgChmGui.UTIL.loadHeaderData()) {
+		NgChmGui.UTIL.setScreenNotes(NgChmGui.TRANS.pageText1);
+	};
+}
+
+/**********************************************************************************
+ * FUNCTION - validateEntries: This function validates user entries on the transform
+ * screen.
+ **********************************************************************************/
+NgChmGui.TRANS.validateEntries = function() {
+	var valid = true;
+	var pageText = "";
+	//Generate error messages
+
+	//Generate warning messages
+	
+	//Add in page instruction text
+	pageText = pageText + NgChmGui.TRANS.pageText1;
+	NgChmGui.UTIL.setScreenNotes(pageText);
+	
+	return valid;
+}
+
 /**********************************************************************************
  * FUNCTION - hideAllTransDivs: This function toggles all the panels on the tranforms
  * page to invisible.
@@ -23,6 +53,10 @@ NgChmGui.TRANS.showTransSelection =  function() {
 	document.getElementById(key).style.display="block";
 }
 
+/**********************************************************************************
+ * FUNCTION - getWorkingMatrix: This function calls the GetWorkingMatrix servlet
+ * to load the top corner of the data matrix in the view panel.
+ **********************************************************************************/
 NgChmGui.TRANS.getWorkingMatrix =  function() {
 	var req = new XMLHttpRequest();
 	req.open("GET", "GetWorkingMatrix", true);
@@ -375,3 +409,4 @@ NgChmGui.TRANS.update = function () {
 NgChmGui.TRANS.next = function() {
 	window.open("NGCHMBuilder_Covariates.html","_self");
 }
+

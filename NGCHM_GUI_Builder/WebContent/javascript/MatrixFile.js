@@ -1,6 +1,9 @@
 //Define Namespace for NgChmGui MatrixFile
 NgChmGui.createNS('NgChmGui.FILE');
 
+NgChmGui.FILE.pageText1 = "Open a selected matrix file for your heat map.  Matrix files must be comma-delimited .tsv or .txt files.  Each file must contain at least a header row and column containing labels and a body section containing a matrix of numeric data.";
+NgChmGui.FILE.pageText2 = "Define the incoming data matrix: Select from the following controls and click on the grid to edit the location of labels, covariate bars, and the location at which the matrix data begins in the imported file.";
+
 /**********************************************************************************
  * FUNCTION - Matrix: This function creates a matrix file object for displaying the
  * user selected matrix on the Matrix screen.
@@ -12,105 +15,23 @@ NgChmGui.FILE.Matrix = function() {
 };  
 
 /**********************************************************************************
- * FUNCTION - HeatmapLoad: This function performs load functions for the HeatMap
- * screen.
- **********************************************************************************/
-NgChmGui.FILE.HeatmapLoad = function() {
-	if (NgChmGui.UTIL.loadHeaderData()) {
-		NgChmGui.UTIL.loadHeatMapView(false);
-	}
-}
-
-/**********************************************************************************
- * FUNCTION - loadData: This function populates the name and description fields
+ * FUNCTION - matrixLoad: This function populates the name and description fields
  * on the Matrix Screen
  **********************************************************************************/
-NgChmGui.FILE.loadData =  function() {
+NgChmGui.FILE.loadData = function() {
 	var properties = NgChmGui.mapProperties;
 	var matrixFile = new NgChmGui.FILE.Matrix();
 	NgChmGui.matrixFile = matrixFile.getMatrixFile();
+	if ((NgChmGui.mapProperties.no_file === 1) || (NgChmGui.mapProperties.no_session === 1)){
+		NgChmGui.UTIL.setScreenNotes(NgChmGui.FILE.pageText1);
+	} else {
+		NgChmGui.UTIL.setScreenNotes(NgChmGui.FILE.pageText2);
+	}
 	if (NgChmGui.UTIL.elemExist(NgChmGui.mapProperties.chm_name)) {
 		document.getElementById("mapNameValue").value = NgChmGui.mapProperties.chm_name;
 		document.getElementById("mapDescValue").value = NgChmGui.mapProperties.chm_description;
 	}
 
-}
-
-/**********************************************************************************
- * FUNCTION - loadClusterData: This function populates the dropdowns for row
- * and column ordering on the cluster screen.
- **********************************************************************************/
-NgChmGui.FILE.loadClusterData =  function() {
-	if (NgChmGui.UTIL.loadHeaderData()) {
-		if (typeof NgChmGui.mapProperties.col_configuration !== 'undefined') {
-			document.getElementById("ColOrder").value = NgChmGui.mapProperties.col_configuration.order_method;
-			if (document.getElementById("ColOrder").value !== "Hierarchical") {
-				document.getElementById("ColDistance").value = "euclidean";
-				document.getElementById("ColAgglomeration").value = "ward";
-			} else {
-				document.getElementById("ColDistance").value = NgChmGui.mapProperties.col_configuration.distance_metric;
-				document.getElementById("ColAgglomeration").value = NgChmGui.mapProperties.col_configuration.agglomeration_method;
-			}
-			NgChmGui.FILE.setColOrderVisibility();
-		}
-		if (typeof NgChmGui.mapProperties.row_configuration !== 'undefined') {
-			document.getElementById("RowOrder").value = NgChmGui.mapProperties.row_configuration.order_method;
-			if (document.getElementById("RowOrder").value !== "Hierarchical") {
-				document.getElementById("RowDistance").value = "euclidean";
-				document.getElementById("RowAgglomeration").value = "ward";
-			} else {
-				document.getElementById("RowDistance").value = NgChmGui.mapProperties.row_configuration.distance_metric;
-				document.getElementById("RowAgglomeration").value = NgChmGui.mapProperties.row_configuration.agglomeration_method;
-			}
-			NgChmGui.FILE.setRowOrderVisibility();
-		}
-		NgChmGui.UTIL.loadHeatMapView();
-	}
-}
-
-/**********************************************************************************
- * FUNCTION - setColOrderVisibility: This function sets the visibility of the column
- * agglomeration and distance metric dropdowns, based on the order method selected.
- **********************************************************************************/
-NgChmGui.FILE.setColOrderVisibility =  function() {
-	var distance = document.getElementById("ColDistance");
-	var agglom = document.getElementById("ColAgglomeration");
-	if (document.getElementById("ColOrder").value !== "Hierarchical") {
-		distance.style.display = 'none';
-		agglom.style.display = 'none';
-	} else {
-		distance.style.display = '';
-		agglom.style.display = '';
-	}
-}
-
-/**********************************************************************************
- * FUNCTION - setRowOrderVisibility: This function sets the visibility of the row
- * agglomeration and distance metric dropdowns, based on the order method selected.
- **********************************************************************************/
-NgChmGui.FILE.setRowOrderVisibility =  function(orderVal) {
-	var distance = document.getElementById("RowDistance");
-	var agglom = document.getElementById("RowAgglomeration");
-	if (document.getElementById("RowOrder").value !== "Hierarchical") {
-		distance.style.display = 'none';
-		agglom.style.display = 'none';
-	} else {
-		distance.style.display = '';
-		agglom.style.display = '';
-	}
-}
-
-/**********************************************************************************
- * FUNCTION - applyClusterPrefs: This function applys changes made in the cluster
- * panel to the mapProperties object in advance of saving the properties.
- **********************************************************************************/
-NgChmGui.FILE.applyClusterPrefs = function() {
-	NgChmGui.mapProperties.row_configuration.order_method = document.getElementById('RowOrder').value
-	NgChmGui.mapProperties.row_configuration.distance_metric = document.getElementById('RowDistance').value
-	NgChmGui.mapProperties.row_configuration.agglomeration_method = document.getElementById('RowAgglomeration').value
-	NgChmGui.mapProperties.col_configuration.order_method = document.getElementById('ColOrder').value
-	NgChmGui.mapProperties.col_configuration.distance_metric = document.getElementById('ColDistance').value
-	NgChmGui.mapProperties.col_configuration.agglomeration_method = document.getElementById('ColAgglomeration').value
 }
 
 /**********************************************************************************
@@ -199,10 +120,14 @@ NgChmGui.FILE.MatrixFile = function() {
 	 * to the session directory for the current heat map, receives a grid (portion) of
 	 * that matrix file, and displays that grid in a handsontable object.
 	 **********************************************************************************/
-	this.sendMatrix = function() {
+	this.sendMatrix = function(isSample) {
 		var req = new XMLHttpRequest();
 		var formData = new FormData( document.getElementById("matrix_frm") );
-		req.open("POST", "UploadMatrix", true);
+		if (isSample === true) {
+			req.open("GET", "UploadMatrix", true);
+		} else {
+			req.open("POST", "UploadMatrix", true);
+		}
 		req.onreadystatechange = function () {
 			if (NgChmGui.UTIL.debug) {console.log('state change');}
 			if (req.readyState == req.DONE) {
@@ -214,7 +139,43 @@ NgChmGui.FILE.MatrixFile = function() {
 		        } else {
 		    		if (NgChmGui.UTIL.debug) {console.log('200');}
 		        	//Display file name to right of file open button
-		        	if (displayFileName()) {
+		        	if (displayFileName(isSample)) {
+			        	//Remove any previous dtat from matrix display box
+			        	clearDisplayBox();
+			        	//Got corner of matrix data.
+			    		resetGridToDefaults();
+			    		NgChmGui.UTIL.setScreenNotes(NgChmGui.FILE.pageText2);
+			        	topMatrixString = JSON.parse(req.response);
+			        	var matrixBox = document.getElementById('matrix');
+			        	var matrixDisplayBox = document.getElementById('matrixDisplay');
+			        	matrixBox.style.display = '';
+			        	matrixDisplayBox.style.display = '';
+			        	document.getElementById('matrixNextButton').style.display = ''
+			        	dataTable = Object.keys(topMatrixString).map(function(k) { return topMatrixString[k] });
+			        	loadDataFromFile();
+		        	}
+			    }
+			}
+		};
+		NgChmGui.UTIL.showLoading();
+		req.send(formData);
+	}
+	
+	this.sendSampleMatrix = function() {
+		var req = new XMLHttpRequest();
+		req.open("GET", "UploadMatrix", true);
+		req.onreadystatechange = function () {
+			if (NgChmGui.UTIL.debug) {console.log('state change');}
+			if (req.readyState == req.DONE) {
+				NgChmGui.UTIL.hideLoading();
+				if (NgChmGui.UTIL.debug) {console.log('done');}
+		        if (req.status != 200) {
+		    		if (NgChmGui.UTIL.debug) {console.log('not 200');}
+		            console.log('Failed to upload matrix '  + req.status);
+		        } else {
+		    		if (NgChmGui.UTIL.debug) {console.log('200');}
+		        	//Display file name to right of file open button
+		        	if (displayFileName(true)) {
 			        	//Remove any previous dtat from matrix display box
 			        	clearDisplayBox();
 			        	//Got corner of matrix data.
@@ -232,7 +193,7 @@ NgChmGui.FILE.MatrixFile = function() {
 			}
 		};
 		NgChmGui.UTIL.showLoading();
-		req.send(formData);
+		req.send();
 	}
 	
 	/**********************************************************************************
@@ -243,7 +204,7 @@ NgChmGui.FILE.MatrixFile = function() {
 	 **********************************************************************************/
 	this.processMatrix = function() {
 		var req = new XMLHttpRequest();
-		var validMatrix = validateMatrixEntries();
+		var validMatrix = validateEntries();
 		var dataChanged = getChangeState();
 		if (validMatrix) {
 			if (dataChanged) {
@@ -298,35 +259,31 @@ NgChmGui.FILE.MatrixFile = function() {
 	}
 
 	/**********************************************************************************
-	 * FUNCTION - validateMatrixEntries: This function validates user entries for 
+	 * FUNCTION - validateEntries: This function validates user entries for 
 	 * name and description on the Matrix screen returning a boolean for validity.
 	 **********************************************************************************/
-	function validateMatrixEntries() {
+	function validateEntries() {
 		var valid = true;
-		var msgText = "";
-		var bullet = "<br><b>-</b>";
+		var pageText = "";
+		//Generate error messages
 		if (document.getElementById('mapNameValue').value.trim() === "") {
-			msgText = msgText + bullet + " Missing Heat Map Name entry";
+			pageText = pageText + NgChmGui.UTIL.errorPrefix + "MISSING HEAT MAP NAME ENTRY." + NgChmGui.UTIL.nextLine;
+			valid = false
 		}
 		if (document.getElementById('mapDescValue').value.trim() === "") {
-			msgText = msgText + bullet + " Missing Heat Map Description entry";
+			pageText = pageText + NgChmGui.UTIL.errorPrefix + "MISSING HEAT MAP DESCRIPTION ENTRY." + NgChmGui.UTIL.nextLine;
+			valid = false
 		}
 		if (document.getElementById('matrixNameValue').value.trim() === "") {
-			msgText = msgText + bullet + " Missing Matrix Name entry";
+			pageText = pageText + NgChmGui.UTIL.errorPrefix + "MISSING MATRIX NAME ENTRY." + NgChmGui.UTIL.nextLine;
+			valid = false
 		}
-		if (rowLabelRow < 0) {
-			msgText = msgText + bullet + " Missing row label selection (in red)";
-		}
-		if (colLabelCol < 0) {
-			msgText = msgText + bullet + " Missing column label selection (in red)";
-		}
+		//Generate warning messages (if any)
 		
-		if (msgText !== "") {
-			msgText = "<br>The following data entry errors were found on the page:<br>" + msgText + "<br><br>";
-			var rows = msgText.split("<br>").length;
-			NgChmGui.UTIL.matrixValidationError(msgText, rows);
-			valid = false;
-		}
+		//Add in page instruction text
+		pageText = pageText + NgChmGui.FILE.pageText2;
+		NgChmGui.UTIL.setScreenNotes(pageText);
+		
 		return valid;
 	}
 	
@@ -352,16 +309,20 @@ NgChmGui.FILE.MatrixFile = function() {
 	 * user "canceled" the file open process.  The returned boolean will be evaluated
 	 * and the newly uploaded file display process will be halted.
 	 **********************************************************************************/
-	function displayFileName() {
-		var filePath = document.getElementById('file-input').value;
-		if ((filePath === null) || (filePath === '')) {
-			return false;
-		}
+	function displayFileName(isSample) {
     	var textSpan = document.getElementById('fileNameText');
     	while( textSpan.firstChild) {
     		textSpan.removeChild( textSpan.firstChild );
     	}
-    	var fileNameTxt = "  "+filePath.substring(12,filePath.length);
+    	var fileNameTxt = "Sample Matrix";
+		if (isSample !== true) {
+			var filePath = document.getElementById('file-input').value;
+			if ((filePath === null) || (filePath === '')) {
+				return false;
+			} else {
+				fileNameTxt = "  "+filePath.substring(12,filePath.length);
+			}
+		} 
     	textSpan.appendChild(document.createTextNode(fileNameTxt));
     	return true;
 	}

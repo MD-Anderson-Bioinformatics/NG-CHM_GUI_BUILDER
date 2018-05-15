@@ -1,6 +1,8 @@
 //Define Namespace for NgChmGui Covariate File Page
 NgChmGui.createNS('NgChmGui.FORMAT');
 
+NgChmGui.FORMAT.pageText1 = "Perform various edits to the appearance of your NG-CHM.";
+
 /**********************************************************************************
  * FUNCTION - loadData: This function will be executed when the covariates page
  * is opened for the first time.  It loads the header, sets up the left data 
@@ -9,6 +11,7 @@ NgChmGui.createNS('NgChmGui.FORMAT');
  **********************************************************************************/
 NgChmGui.FORMAT.loadData =  function() {
 	if (NgChmGui.UTIL.loadHeaderData()) {
+		NgChmGui.UTIL.setScreenNotes(NgChmGui.FORMAT.pageText1);
 		var prefsPanelDiv = document.getElementById("preferencesPanel");
 		prefsPanelDiv.style.left = 0;
 		prefsPanelDiv.style.right = "";
@@ -29,7 +32,7 @@ NgChmGui.FORMAT.setupFormatTasks = function(classes) {
 	var formatPrefsDiv = NgChmGui.UTIL.getDivElement("formatPrefsDiv");
 	var prefContents = document.createElement("TABLE");
 	NgChmGui.UTIL.addBlankRow(prefContents)
-	var formatTaskStr = "<select name='formatTask_list' id='formatTask_list' onchange='NgChmGui.FORMAT.showFormatSelection();'><option value='matrix_colors'>Matrix Colors/Breaks</option><option value='format_display'>Heat Map Display</option><option value='map_gaps'>Heat Map Gaps</option><option value='top_items'>Top Label Items</option></select>"
+	var formatTaskStr = "<select name='formatTask_list' id='formatTask_list' onchange='NgChmGui.FORMAT.showFormatSelection();'><option value='matrix_colors'>Matrix Colors/Breaks</option><option value='format_display'>Heat Map Display</option><option value='map_gaps'>Heat Map Gaps</option><option value='top_items'>Top Label Items</option><option value='link_outs'>Label Types</option></select>"
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;Format Tasks: ", formatTaskStr]);
 	NgChmGui.UTIL.addBlankRow(prefContents, 2);
 	formatPrefsDiv.appendChild(prefContents);
@@ -42,6 +45,8 @@ NgChmGui.FORMAT.setupFormatTasks = function(classes) {
 	formatPrefsDiv.appendChild(gapPrefsDiv);
 	var topItemsPrefsDiv = NgChmGui.FORMAT.setupTopItemsPrefs()
 	formatPrefsDiv.appendChild(topItemsPrefsDiv);
+	var labelTypePrefsDiv = NgChmGui.FORMAT.setupLabelTypePrefs()
+	formatPrefsDiv.appendChild(labelTypePrefsDiv);
 	return formatPrefsDiv; 
 }
 
@@ -159,8 +164,8 @@ NgChmGui.FORMAT.formatDisplayPrefs = function() {
 }
 
 /**********************************************************************************
- * FUNCTION - setupGapPrefs: This function sets up the DIV panel for displaying
- * heat top item preferences.
+ * FUNCTION - setupGapPrefs: This function sets up the DIV panel for displaying/setting
+ * heat map top item preferences.
  **********************************************************************************/
 NgChmGui.FORMAT.setupTopItemsPrefs = function() {
 	var topItemsPrefs = NgChmGui.UTIL.getDivElement("top_items");
@@ -174,14 +179,14 @@ NgChmGui.FORMAT.setupTopItemsPrefs = function() {
 	NgChmGui.UTIL.setTableRow(prefContents,["ROW LABEL TOP ITEMS"], 2);
 	NgChmGui.UTIL.addBlankRow(prefContents);
 	var topRowItemData = rowConfig.top_items.toString();
-	var topRowItems = "<textarea name='rowTopItems' id='rowTopItems' style='font-family: sans-serif;font-size: 90%;' rows='5', cols='55' onchange='NgChmGui.UTIL.setBuildProps();'>"+topRowItemData+"</textarea>";
+	var topRowItems = "<textarea name='rowTopItems' id='rowTopItems' style='font-family: sans-serif;font-size: 90%;' rows='5', cols='50' onchange='NgChmGui.UTIL.setBuildProps();'>"+topRowItemData+"</textarea>";
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Rows Items:"]);
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;"+topRowItems],2);
 	NgChmGui.UTIL.addBlankRow(prefContents,4);
 	NgChmGui.UTIL.setTableRow(prefContents,["COLUMN LABEL TOP ITEMS"], 2);
 	NgChmGui.UTIL.addBlankRow(prefContents);
 	var topColItemData = colConfig.top_items.toString();
-	var topColItems = "<textarea name='colTopItems' id='colTopItems' style='font-family: sans-serif;font-size: 90%;' rows='5', cols='55' onchange='NgChmGui.UTIL.setBuildProps();'>"+topColItemData+"</textarea>"; 
+	var topColItems = "<textarea name='colTopItems' id='colTopItems' style='font-family: sans-serif;font-size: 90%;' rows='5', cols='50' onchange='NgChmGui.UTIL.setBuildProps();'>"+topColItemData+"</textarea>"; 
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Column Items:"]);
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;"+topColItems],2);
 	topItemsPrefs.appendChild(prefContents);
@@ -189,6 +194,39 @@ NgChmGui.FORMAT.setupTopItemsPrefs = function() {
 	topItemsPrefs.style.display='none';
 
 	return topItemsPrefs;
+}
+
+/**********************************************************************************
+ * FUNCTION - setupLabelTypePrefs: This function sets up the DIV panel for displaying/
+ * setting row/column data type preferences.
+ **********************************************************************************/
+NgChmGui.FORMAT.setupLabelTypePrefs = function() {
+	var labelTypePrefs = NgChmGui.UTIL.getDivElement("link_outs");
+	var prefContents = document.createElement("TABLE");
+	var colorMap = NgChmGui.mapProperties.matrix_files[0].color_map;
+	var rowConfig = NgChmGui.mapProperties.row_configuration;
+	var colConfig = NgChmGui.mapProperties.col_configuration;
+	NgChmGui.UTIL.addBlankRow(prefContents);
+	NgChmGui.UTIL.setTableRow(prefContents,["<b>List comma-separated row/column label types to enable map link outs.</b>"]);
+	NgChmGui.UTIL.addBlankRow(prefContents);
+	NgChmGui.UTIL.setTableRow(prefContents,["ROW LABEL TYPES"], 2);
+	NgChmGui.UTIL.addBlankRow(prefContents);
+	var rowTypeData = rowConfig.data_type.toString();  //CHANGE ME
+	var rowTypeItems = "<textarea name='rowLabelTypes' id='rowLabelTypes' style='font-family: sans-serif;font-size: 90%;' rows='5', cols='50' onchange='NgChmGui.UTIL.setBuildProps();'>"+rowTypeData+"</textarea>";
+	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Label Types:"]);
+	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;"+rowTypeItems],2);
+	NgChmGui.UTIL.addBlankRow(prefContents,4);
+	NgChmGui.UTIL.setTableRow(prefContents,["COLUMN LABEL TYPES"], 2);
+	NgChmGui.UTIL.addBlankRow(prefContents);
+	var colTypeData = colConfig.data_type.toString(); //CHANGE ME
+	var colTypeItems = "<textarea name='colLabelTypes' id='colLabelTypes' style='font-family: sans-serif;font-size: 90%;' rows='5', cols='50' onchange='NgChmGui.UTIL.setBuildProps();'>"+colTypeData+"</textarea>"; 
+	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Label Types:"]);
+	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;"+colTypeItems],2);
+	labelTypePrefs.appendChild(prefContents);
+	labelTypePrefs.className = 'preferencesSubPanel';
+	labelTypePrefs.style.display='none';
+
+	return labelTypePrefs;
 }
 
 /**********************************************************************************
@@ -452,6 +490,25 @@ NgChmGui.FORMAT.getFormatTopItemsFromScreen = function() {
 	}
 }
 
+NgChmGui.FORMAT.getFormatLabelTypesFromScreen = function() {
+	var rowConfig = NgChmGui.mapProperties.row_configuration;
+  	var rowlabelItems = document.getElementById("rowLabelTypes").value.split(/[;, \r\n]+/);
+	rowConfig.data_type = [];
+	for (var i=0;i<rowlabelItems.length;i++) {
+		if (rowlabelItems[i]!==""){
+			rowConfig.data_type.push(rowlabelItems[i]);
+		}
+	}
+	var colConfig = NgChmGui.mapProperties.col_configuration;
+  	var colLabelItems = document.getElementById("colLabelTypes").value.split(/[;, \r\n]+/);
+	colConfig.data_type = [];
+	for (var i=0;i<colLabelItems.length;i++) {
+		if (colLabelItems[i]!==""){
+			colConfig.data_type.push(colLabelItems[i]);
+		}
+	}
+}
+
 /**********************************************************************************
 * FUNCTION - getMapGapsFromScreen: This function loads the heatmapProperties
 * config from the values set on the Heat Map Gaps Items panel.
@@ -672,6 +729,7 @@ NgChmGui.FORMAT.applySettings = function(typ) {
 	NgChmGui.FORMAT.getColorMapFromScreen();
 	NgChmGui.FORMAT.getFormatDisplayFromScreen();
 	NgChmGui.FORMAT.getFormatTopItemsFromScreen();
+	NgChmGui.FORMAT.getFormatLabelTypesFromScreen();
 	NgChmGui.FORMAT.getMapGapsFromScreen();
 /*	if (typ === 1) {
 		NgChmGui.UTIL.setHeatmapProperties(NgChmGui.FORMAT.loadFormatView);

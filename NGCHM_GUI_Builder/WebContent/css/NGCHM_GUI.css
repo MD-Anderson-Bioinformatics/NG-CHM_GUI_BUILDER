@@ -8,6 +8,10 @@ and open the template in the editor.
     Author     : cjacoby
 */
 
+textarea {
+  width: 95%;
+}
+
 table.data_entry td {
 	padding: 2px 0px 2px 5px
 }
@@ -90,6 +94,15 @@ div.serviceHeaderLogo img
 	padding: 5px 0px 2px 15px
 }
 
+#pageTitle
+{
+    font-family: Arial;
+    font-weight: bold;
+    font-size: 18px;
+	color: #0843c1;
+	width: 100%;
+}
+
 #fileNameText
 {
 	rows: 1;
@@ -100,8 +113,9 @@ div.serviceHeaderLogo img
 
 #fileLookup
 {
-	width: 100%;
-    padding: 10px 0px 0px 0px !important;
+	width: 20%;
+	min-width: 200px;
+    padding: 0px 0px 0px 0px !important;
 }
 
 
@@ -250,12 +264,13 @@ div.serviceHeaderLogo img
     min-width: 100px;
     vertical-align:top;
     display:inline-block;
+    margin: 7 0 0 2%;
 }
 
 .next_btn {
      position: fixed;
      bottom: 10px;
-     left:  300px;
+     left:  250px;
      padding: 0px 0px 5px 10px !important;
 }
 
@@ -334,4 +349,14 @@ div.serviceHeaderLogo img
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+#screenNotesDisplay{
+    font-family: Arial;
+    font-weight: bold;
+    font-size: 12px;
+	color: #0843c1;
+    height: 65px;
+    width: 100%;
+    overflow-y: auto;
 }

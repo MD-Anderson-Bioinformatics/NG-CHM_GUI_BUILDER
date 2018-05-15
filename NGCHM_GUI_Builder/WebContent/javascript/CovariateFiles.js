@@ -1,6 +1,8 @@
 //Define Namespace for NgChmGui Covariate File Page
 NgChmGui.createNS('NgChmGui.COV');
 
+NgChmGui.COV.pageText1 = "Add, remove, and edit covariate bars on your NG-CHM.";
+
 /**********************************************************************************
  * FUNCTION - loadData: This function will be executed when the covariates page
  * is opened for the first time.  It loads the header, sets up the left data 
@@ -9,6 +11,7 @@ NgChmGui.createNS('NgChmGui.COV');
  **********************************************************************************/
 NgChmGui.COV.loadData =  function() {
 	if (NgChmGui.UTIL.loadHeaderData()) {
+		NgChmGui.UTIL.setScreenNotes(NgChmGui.COV.pageText1);
 		var prefsPanelDiv = document.getElementById("preferencesPanel");
 		prefsPanelDiv.style.left = 0;
 		prefsPanelDiv.style.right = "";
