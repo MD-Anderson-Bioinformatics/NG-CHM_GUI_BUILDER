@@ -104,9 +104,9 @@
 				 	        	<div class="pref-header2">Method:
 				 	        		<br>
 				 	        		<div class="pref-header3">
-				  						<input type="radio" name="vfiltermethod" logText="Remove [vrowcol]s with standard deviation less than [std_limit]" value="std_value" onclick="NgChmGui.TRANS.enableButton('filter_btn')" checked> Remove if Standard Deviation &lt;&nbsp; &nbsp;<input type="text" name="std_limit" size=3><br>
-				  						<input type="radio" name="vfiltermethod" logText="Keep [std_pct]% of [vrowcol]s with highest standard deviation" value="pct" onclick="NgChmGui.TRANS.enableButton('filter_btn')"> Keep <input type="number" name="std_pct" min="0" max="99" style="width: 35px;">% with highest Standard Deviation  <br>
-				  						<input type="radio" name="vfiltermethod" logText="Keep [std_num_keep] of [vrowcol]s with highest standard deviation" value="fixednum" onclick="NgChmGui.TRANS.enableButton('filter_btn')"> Keep <input type="text" name="std_num_keep" size=3> rows/cols with highest Standard Deviation  <br>
+				  						<input type="radio" name="vfiltermethod" logText="Remove [vrowcol]s with standard deviation less than [std_limit]" value="std_value" onclick="NgChmGui.TRANS.enableButton('filter_btn')" checked> Remove if Standard Deviation &lt;&nbsp; &nbsp;<input type="text" name="std_limit" style="width: 30%"><br>
+				  						<input type="radio" name="vfiltermethod" logText="Keep [std_pct]% of [vrowcol]s with highest standard deviation" value="pct" onclick="NgChmGui.TRANS.enableButton('filter_btn')"> Keep <input type="number" name="std_pct" min="0" max="99" style="width: 10%">&nbsp;% with highest Standard Deviation  <br>
+				  						<input type="radio" name="vfiltermethod" logText="Keep [std_num_keep] of [vrowcol]s with highest standard deviation" value="fixednum" onclick="NgChmGui.TRANS.enableButton('filter_btn')"> Keep <input type="text" name="std_num_keep" style="width: 10%"> rows/cols with highest Standard Deviation  <br>
 				  					</div>
 			  					</div>
 							</div>
@@ -121,11 +121,11 @@
 				 	        	<div class="pref-header2">Method:
 				 	        		<br>
 				 	        		<div class="pref-header3">
-				  						<input type="radio" name="rfiltermethod" logText="Remove [rrowcol]s with all values less than [arange_min]" value="allless" onclick="NgChmGui.TRANS.enableButton('filter_bt'n)"  checked> Remove if All Values &lt;&nbsp;&nbsp;<input type="text" name="arange_min" size=3><br>
-				  						<input type="radio" name="rfiltermethod" logText="Remove [rrowcol]s with all values greater than [arange_max]" value="allgreater" onclick="NgChmGui.TRANS.enableButton('filter_btn')"> Remove if All Values &gt;&nbsp;&nbsp;<input type="text" name="arange_max" size=3><br>
-				  						<input type="radio" name="rfiltermethod" logText="Remove [rrowcol]s with any value less than [1range_min]" value="oneless" onclick="NgChmGui.TRANS.enableButton('filter_bt'n)"> Remove if One Value &lt;&nbsp;&nbsp;<input type="text" name="1range_min" size=3><br>
-				  						<input type="radio" name="rfiltermethod" logText="Remove [rrowcol]s with any value greater than [1range_max]" value="onegreater" onclick="NgChmGui.TRANS.enableButton('filter_btn')"> Remove if One Value &gt;&nbsp;&nbsp;<input type="text" name="1range_max" size=3><br>
-				  						<input type="radio" name="rfiltermethod" logText="Keep [vrowcol]s with one or more values greater than [range_max]" value="oneval" onclick="NgChmGui.TRANS.enableButton('filter_btn')">   Keep if 1+ Values &gt;&nbsp;&nbsp;<input type="text" name="range_max" size=3><br> 
+				  						<input type="radio" name="rfiltermethod" logText="Remove [rrowcol]s with all values less than [arange_min]" value="allless" onclick="NgChmGui.TRANS.enableButton('filter_bt'n)"  checked> Remove if All Values &lt;&nbsp;&nbsp;<input type="text" name="arange_min" style="width: 30%"><br>
+				  						<input type="radio" name="rfiltermethod" logText="Remove [rrowcol]s with all values greater than [arange_max]" value="allgreater" onclick="NgChmGui.TRANS.enableButton('filter_btn')"> Remove if All Values &gt;&nbsp;&nbsp;<input type="text" name="arange_max" style="width: 30%"><br>
+				  						<input type="radio" name="rfiltermethod" logText="Remove [rrowcol]s with any value less than [1range_min]" value="oneless" onclick="NgChmGui.TRANS.enableButton('filter_bt'n)"> Remove if One Value &lt;&nbsp;&nbsp;<input type="text" name="1range_min" style="width: 30%"><br>
+				  						<input type="radio" name="rfiltermethod" logText="Remove [rrowcol]s with any value greater than [1range_max]" value="onegreater" onclick="NgChmGui.TRANS.enableButton('filter_btn')"> Remove if One Value &gt;&nbsp;&nbsp;<input type="text" name="1range_max" style="width: 30%"><br>
+				  						<input type="radio" name="rfiltermethod" logText="Keep [vrowcol]s with one or more values greater than [range_max]" value="oneval" onclick="NgChmGui.TRANS.enableButton('filter_btn')">   Keep if 1+ Values &gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="range_max" style="width: 30%"><br> 
 				  					</div>
 			  					</div>
 							</div>
@@ -140,8 +140,8 @@
 				 	        	<div class="pref-header2">Method:
 				 	        		<br>
 				 	        		<div class="pref-header3">
-				  						<input type="radio" name="mfiltermethod" logText="Remove [mrowcol] if over [std_pct_missing]% is missing" value="pctgreater" onclick="NgChmGui.TRANS.enableButton('filter_btn')" checked> Remove if &gt;&nbsp; <input type="number" name="std_pct_missing" min="0" max="99" style="width: 35px;">% Missing Values<br>
-				  						<input type="radio" name="mfiltermethod" logText="Remove [mrowcol] if over [std_num_missing] is missing" value="pctless" onclick="NgChmGui.TRANS.enableButton('filter_btn')"> Remove if &gt; <input type="text" name="std_num_missing" size=3> (number) Missing Values<br>  
+				  						<input type="radio" name="mfiltermethod" logText="Remove [mrowcol] if over [std_pct_missing]% is missing" value="pctgreater" onclick="NgChmGui.TRANS.enableButton('filter_btn')" checked> Remove if &gt;&nbsp; <input type="number" name="std_pct_missing" min="0" max="99" style="width: 10%">&nbsp;% Missing Values<br>
+				  						<input type="radio" name="mfiltermethod" logText="Remove [mrowcol] if over [std_num_missing] is missing" value="pctless" onclick="NgChmGui.TRANS.enableButton('filter_btn')"> Remove if &gt;&nbsp; <input type="text" name="std_num_missing" style="width: 30%"> (number) Missing Values<br>  
 				  					</div>
 			  					</div>
 							</div>
@@ -196,10 +196,10 @@
 				 	        	<div class="pref-header2">Method:
 				 	        		<br>
 				 	        		<div class="pref-header3">
-				 						<input type="radio" name="tatransformmethod" logText="Add [add_value] to all values" value="add" onclick="NgChmGui.TRANS.enableButton('trans_btn')" checked> Add &nbsp; <input type="number" name="add_value" style="width: 35px;" step="any">to All Values<br>
-				 						<input type="radio" name="tatransformmethod" logText="Subtract [subtract_value] from all values" value="subtract" onclick="NgChmGui.TRANS.enableButton('trans_btn')"> Subtract &nbsp; <input type="number" name="subtract_value" style="width: 35px;" step="any">from All Values<br>
-				  						<input type="radio" name="tatransformmethod" logText="Multiply all values by [multiply_value]" value="multiply" onclick="NgChmGui.TRANS.enableButton('trans_btn')"> Multiply All Values by &nbsp; <input type="number" name="multiply_value" style="width: 35px;" step="any"><br>
-				  						<input type="radio" name="tatransformmethod" logText="Divide all values by [divide_value]" value="divide" onclick="NgChmGui.TRANS.enableButton('trans_btn')"> Divide All Values by &nbsp; <input type="number" name="divide_value" style="width: 35px;" step="any"><br>
+				 						<input type="radio" name="tatransformmethod" logText="Add [add_value] to all values" value="add" onclick="NgChmGui.TRANS.enableButton('trans_btn')" checked> Add &nbsp;<input type="number" name="add_value" style="width: 30%" step="any">&nbsp;to All Values<br>
+				 						<input type="radio" name="tatransformmethod" logText="Subtract [subtract_value] from all values" value="subtract" onclick="NgChmGui.TRANS.enableButton('trans_btn')"> Subtract &nbsp;<input type="number" name="subtract_value" style="width: 30%" step="any">&nbsp;from All Values<br>
+				  						<input type="radio" name="tatransformmethod" logText="Multiply all values by [multiply_value]" value="multiply" onclick="NgChmGui.TRANS.enableButton('trans_btn')"> Multiply All Values by &nbsp;<input type="number" name="multiply_value" style="width: 30%" step="any"><br>
+				  						<input type="radio" name="tatransformmethod" logText="Divide all values by [divide_value]" value="divide" onclick="NgChmGui.TRANS.enableButton('trans_btn')"> Divide All Values by &nbsp;&nbsp;&nbsp;&nbsp;<input type="number" name="divide_value" style="width: 30%" step="any"><br>
 				  					</div>
 			  					</div>
 							</div>
