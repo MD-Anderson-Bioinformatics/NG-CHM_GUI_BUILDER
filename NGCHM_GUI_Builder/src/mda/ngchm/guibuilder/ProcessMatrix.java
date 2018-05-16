@@ -7,10 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -20,11 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.google.gson.Gson;
-import com.google.gson.internal.LinkedTreeMap;
-
-import mda.ngchm.datagenerator.HeatmapDataGenerator;
-import mda.ngchm.guibuilder.HeatmapPropertiesManager.ColorMap;
-import mda.ngchm.guibuilder.HeatmapPropertiesManager.Heatmap;
 
 /**
  * Servlet implementation class Upload Data Matrix
@@ -111,7 +103,7 @@ public class ProcessMatrix extends HttpServlet {
 	        }
 
 			map.output_location = workingDir  + "/" + matrixConfig.mapName;
-			String props = mgr.save();
+			mgr.save();
 
 			System.out.println("END Processing Matrix: " + new Date()); 
 	    } catch (Exception e) {
@@ -158,6 +150,7 @@ public class ProcessMatrix extends HttpServlet {
 	private String buildFilteredMatrix(String workingDir, HeatmapPropertiesManager.MatrixGridConfig matrixConfig) throws Exception {
 	    String originalFile = workingDir + "/originalMatrix.txt";
 	    String workingFile = workingDir + "/workingMatrix.txt";
+	    int endPoint = getEndOfMatrix(workingDir, matrixConfig);
 		BufferedReader reader = new BufferedReader(new FileReader(originalFile));
 		BufferedWriter writer = new BufferedWriter(new FileWriter(workingFile));
 		try {
@@ -170,7 +163,7 @@ public class ProcessMatrix extends HttpServlet {
 					String toks[] = line.split("\t");
 					if (rowNum == matrixConfig.rowLabelRow) {
 						boolean offset = false;
-						if (!toks[matrixConfig.colLabelCol].trim().equals("")) {
+						if ((toks.length + 1) == endPoint) {
 							offset = true;
 						}
 						writeOutMatrixRow(matrixConfig, writer, toks, offset);
@@ -187,7 +180,9 @@ public class ProcessMatrix extends HttpServlet {
 			// do something here
 		} finally {
 			reader.close();
+			reader = null;
 			writer.close();
+			writer = null;
 		}
 		return workingFile;
 	}
@@ -196,7 +191,6 @@ public class ProcessMatrix extends HttpServlet {
 		int endPoint = toks.length;
 		int startPoint = matrixConfig.dataStartCol;
 		if (offset) {
-			endPoint = endPoint - 1;
 			startPoint = startPoint - 1;
 			writer.write(" " + "\t");
 		} else {
@@ -209,6 +203,41 @@ public class ProcessMatrix extends HttpServlet {
 			} 
 		}
 	}
+	
+	/*******************************************************************
+	 * METHOD: getEndOfMatrix
+	 *
+	 * This method breezes thru the matrix to the first data row and gets
+	 * the length of that row.  This value is used when evaluating the 
+	 * column headers row for offsets of the header values.
+	 ******************************************************************/
+	private int getEndOfMatrix(String workingDir, HeatmapPropertiesManager.MatrixGridConfig matrixConfig) throws Exception {
+	    String originalFile = workingDir + "/originalMatrix.txt";
+	    int endPoint = 0;
+		BufferedReader readr = new BufferedReader(new FileReader(originalFile));
+		try {
+			int rowNum = 0;
+			String line = readr.readLine();
+			while (line != null) {
+				if (rowNum < matrixConfig.dataStartRow) {
+					//ignore
+				} else if (rowNum == matrixConfig.dataStartRow) {
+					String toks[] = line.split("\t");
+					endPoint = toks.length;
+					break;
+				}
+				rowNum++;
+				line = readr.readLine();
+			}
+		} catch (Exception e) {
+			// do something here
+		} finally {
+			readr.close();
+			readr = null;
+		}
+		return endPoint;
+	}
+
 
 	/*******************************************************************
 	 * METHOD: buildFilteredColCovariate
