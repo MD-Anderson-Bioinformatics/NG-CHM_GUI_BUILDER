@@ -1,8 +1,6 @@
 //Define Namespace for NgChmGui Covariate File Page
 NgChmGui.createNS('NgChmGui.COV');
 
-NgChmGui.COV.pageText1 = "Add, remove, and edit covariate bars on your NG-CHM.";
-
 /**********************************************************************************
  * FUNCTION - loadData: This function will be executed when the covariates page
  * is opened for the first time.  It loads the header, sets up the left data 
@@ -11,7 +9,6 @@ NgChmGui.COV.pageText1 = "Add, remove, and edit covariate bars on your NG-CHM.";
  **********************************************************************************/
 NgChmGui.COV.loadData =  function() {
 	if (NgChmGui.UTIL.loadHeaderData()) {
-		NgChmGui.UTIL.setScreenNotes(NgChmGui.COV.pageText1);
 		var prefsPanelDiv = document.getElementById("preferencesPanel");
 		prefsPanelDiv.style.left = 0;
 		prefsPanelDiv.style.right = "";
@@ -21,8 +18,39 @@ NgChmGui.COV.loadData =  function() {
 		NgChmGui.UTIL.loadHeatMapView();
 		classPrefsDiv.style.display = '';
 		prefsPanelDiv.style.display = '';
+		NgChmGui.COV.validateEntries(false);
 	}
 }
+
+/**********************************************************************************
+ * FUNCTION - the validate function is called on page load, page exit, and when
+ * user operations are performed.  It creates conditional messages in the message
+ * area including errors and warnings.  It also returns false if errors are detected.  
+ **********************************************************************************/
+
+NgChmGui.COV.validateEntries = function(leavingPage) {
+	var valid = true;
+	var pageText = "";
+	
+	//Generate error messages
+	if (leavingPage) {
+
+	} 
+	
+	//Generate warning messages
+	
+	//Add in page instruction text
+	// Different message if we have 1 or more covariate already.
+	if (NgChmGui.mapProperties.classification_files.length > 0) {
+	   pageText = pageText + "This page can be used to modify the appearance of covariate bars.  Select the covarate bar you wish to customize from the dropdown and you may then change color settings, size, and indicate whether it should be displayed by default. For continuous covariate bars, you can also choose an alternate presentation option of bar or scatter plot. " ;
+	} else {
+	   pageText = pageText + "Covariate bars are extra descriptive information that can be added above columns or to the left of rows on a heatmap. Covariates fall into two types: 1. discrete categorical information like smoker/non-smoker and 2. continuous numerical information like age.  Covariate files are tab delimited files with two values on each row 1. a lable that matches the matrix row or column labels and 2. a value.  Use the add button to append a covariate bar or just hit next if you don't want them." ;
+	}
+	NgChmGui.UTIL.setScreenNotes(pageText);
+	
+	return valid;
+}
+
 
 /**********************************************************************************
  * FUNCTION - setupClassPrefs: This function begins the process of loading all
@@ -201,7 +229,7 @@ NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
 }	
 
 /**********************************************************************************
- * FUNCTION - applyClassPrefs: This function applys changes made in the covariate
+ * FUNCTION - applyClassPrefs: This function applies changes made in the covariate
  * panels to the mapProperties object in advance of saving the properties.
  **********************************************************************************/
 NgChmGui.COV.applySettings = function() {
@@ -258,7 +286,7 @@ NgChmGui.COV.openCovarUpload = function() {
 }
 
 /**********************************************************************************
- * FUNCTION - readyUpload: This function excutes when the user has selected a 
+ * FUNCTION - readyUpload: This function executes when the user has selected a 
  * covariate file from the file select popup window.  It places the name of the file
  * on the screen and, if the name data entry field is NOT populated, places a 
  * truncated version of the selected filename in the name data entry field.  Finally,
@@ -284,7 +312,7 @@ NgChmGui.COV.readyUpload = function() {
 /**********************************************************************************
  * FUNCTION - addCovariateBar: This function runs when the upload button is pressed.
  * It calls the UploadCovariate servlet, waits for the result, and then calls a 
- * function to adds a new covariate bar panel.  
+ * function to add a new covariate bar panel.  
  **********************************************************************************/
 NgChmGui.COV.addCovariateBar = function(nextFunction) {
 	var req = new XMLHttpRequest();
@@ -312,6 +340,7 @@ NgChmGui.COV.addCovariateBar = function(nextFunction) {
 	        	NgChmGui.mapProperties = JSON.parse(req.response);
 	        	nextFunction();
 	        }
+	        NgChmGui.COV.validateEntries(false);
 		}
 	};
 	NgChmGui.UTIL.showLoading();
@@ -524,5 +553,13 @@ NgChmGui.COV.hideAllClassDivs = function() {
 		document.getElementById(selectedDivId).style.display = 'none';
 	}
 }
+
+/*Run validation to see if we can leave the screen.*/
+NgChmGui.COV.gotoClusterScreen = function() {
+	if (NgChmGui.COV.validateEntries(true)) {
+		NgChmGui.UTIL.gotoClusterScreen();
+	}
+}
+
 
 

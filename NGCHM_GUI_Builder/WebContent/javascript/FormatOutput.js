@@ -1,17 +1,14 @@
 //Define Namespace for NgChmGui Covariate File Page
 NgChmGui.createNS('NgChmGui.FORMAT');
 
-NgChmGui.FORMAT.pageText1 = "Perform various edits to the appearance of your NG-CHM.";
-
 /**********************************************************************************
- * FUNCTION - loadData: This function will be executed when the covariates page
+ * FUNCTION - loadData: This function will be executed when the format page
  * is opened for the first time.  It loads the header, sets up the left data 
- * entry panel, and calls functions that loads covariate preferences into data
+ * entry panel, and calls functions that loads format preferences into data
  * entry panels.  
  **********************************************************************************/
 NgChmGui.FORMAT.loadData =  function() {
 	if (NgChmGui.UTIL.loadHeaderData()) {
-		NgChmGui.UTIL.setScreenNotes(NgChmGui.FORMAT.pageText1);
 		var prefsPanelDiv = document.getElementById("preferencesPanel");
 		prefsPanelDiv.style.left = 0;
 		prefsPanelDiv.style.right = "";
@@ -20,7 +17,42 @@ NgChmGui.FORMAT.loadData =  function() {
 		NgChmGui.FORMAT.loadFormatView();
 		formatPrefsDiv.style.display = '';
 		prefsPanelDiv.style.display = '';
+		NgChmGui.FORMAT.validateEntries(false);
 	}
+}
+
+/**********************************************************************************
+ * FUNCTION - the validate function is called on page load, page exit, and when
+ * user operations are performed.  It creates conditional messages in the message
+ * area including errors and warnings.  It also returns false if errors are detected.  
+ **********************************************************************************/
+
+NgChmGui.FORMAT.validateEntries = function(leavingPage) {
+	var valid = true;
+	var pageText = "";
+	
+	//Generate error messages
+	if (leavingPage) {
+
+	} 
+	
+	//Generate warning messages
+	
+	//Add in page instruction text
+    pageText = pageText + "Several tools are provided here to manipulate the appearance of your heatmap.  The Matrix Colors tool enables you to make changes to colors and threshold values that assign a color to each cell in the heatmap body.  Other advanced presentation settings include adding gaps in the heat map to seperate specific sections, adding top level labels to show the position of a few key items in the summary heat map, choosing where to show dendorgrams and how big to make them, selecting label truncation lengths, and identifying the data type of labels to enable link-out capabilities." ;
+
+    NgChmGui.UTIL.setScreenNotes(pageText);
+	
+	return valid;
+}
+
+/**********************************************************************************
+ * FUNCTION - clusteringComplete: This function gets called when the ordering has
+ * been changed and sent to the server to perform clustering.
+ **********************************************************************************/
+NgChmGui.FORMAT.applyComplete = function(){
+	NgChmGui.FORMAT.validateEntries(false);
+	NgChmGui.UTIL.loadHeatMapView();
 }
 
 /**********************************************************************************
@@ -871,4 +903,9 @@ NgChmGui.FORMAT.getTempCM = function(firstLoad){
 	return tempCM;
 }
 
-
+/* Validate and go to next screen if everything is good */
+NgChmGui.FORMAT.gotoHeatMapScreen = function() {
+	if (NgChmGui.FORMAT.validateEntries(true)){
+		NgChmGui.UTIL.gotoHeatMapScreen()
+	}
+}

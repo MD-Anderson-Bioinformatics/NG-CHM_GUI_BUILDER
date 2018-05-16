@@ -1,8 +1,6 @@
 //Define Namespace for NgChmGui MatrixFile
 NgChmGui.createNS('NgChmGui.FILE');
 
-NgChmGui.FILE.pageText1 = "Open a selected matrix file for your heat map.  Matrix files must be comma-delimited .tsv or .txt files.  Each file must contain at least a header row and column containing labels and a body section containing a matrix of numeric data.";
-NgChmGui.FILE.pageText2 = "Define the incoming data matrix: Select from the following controls and click on the grid to edit the location of labels, covariate bars, and the location at which the matrix data begins in the imported file.";
 
 /**********************************************************************************
  * FUNCTION - Matrix: This function creates a matrix file object for displaying the
@@ -22,16 +20,11 @@ NgChmGui.FILE.loadData = function() {
 	var properties = NgChmGui.mapProperties;
 	var matrixFile = new NgChmGui.FILE.Matrix();
 	NgChmGui.matrixFile = matrixFile.getMatrixFile();
-	if ((NgChmGui.mapProperties.no_file === 1) || (NgChmGui.mapProperties.no_session === 1)){
-		NgChmGui.UTIL.setScreenNotes(NgChmGui.FILE.pageText1);
-	} else {
-		NgChmGui.UTIL.setScreenNotes(NgChmGui.FILE.pageText2);
-	}
 	if (NgChmGui.UTIL.elemExist(NgChmGui.mapProperties.chm_name)) {
 		document.getElementById("mapNameValue").value = NgChmGui.mapProperties.chm_name;
 		document.getElementById("mapDescValue").value = NgChmGui.mapProperties.chm_description;
 	}
-
+	NgChmGui.FILE.validateEntries(false);
 }
 
 /**********************************************************************************
@@ -114,6 +107,14 @@ NgChmGui.FILE.MatrixFile = function() {
 		hasChanged = state;
 	}
 	
+	/* Indicate whether a data file has been loaded. */
+	this.isLoaded = function() {
+		if (dataTable.length > 0)
+			return true;
+		else
+			return false;
+	}
+	
 	/**********************************************************************************
 	 * FUNCTION - sendMatrix: This function executes when a user uploads a matrix file
 	 * by selecting a matrix file.  It calls a servlet that uploads the matrix file
@@ -144,7 +145,6 @@ NgChmGui.FILE.MatrixFile = function() {
 			        	clearDisplayBox();
 			        	//Got corner of matrix data.
 			    		resetGridToDefaults();
-			    		NgChmGui.UTIL.setScreenNotes(NgChmGui.FILE.pageText2);
 			        	topMatrixString = JSON.parse(req.response);
 			        	var matrixBox = document.getElementById('matrix');
 			        	var matrixDisplayBox = document.getElementById('matrixDisplay');
@@ -153,6 +153,7 @@ NgChmGui.FILE.MatrixFile = function() {
 			        	document.getElementById('matrixNextButton').style.display = ''
 			        	dataTable = Object.keys(topMatrixString).map(function(k) { return topMatrixString[k] });
 			        	loadDataFromFile();
+			        	NgChmGui.FILE.validateEntries(false);
 		        	}
 			    }
 			}
@@ -204,7 +205,7 @@ NgChmGui.FILE.MatrixFile = function() {
 	 **********************************************************************************/
 	this.processMatrix = function() {
 		var req = new XMLHttpRequest();
-		var validMatrix = validateEntries();
+		var validMatrix = NgChmGui.FILE.validateEntries(true);
 		var dataChanged = getChangeState();
 		if (validMatrix) {
 			if (dataChanged) {
@@ -258,34 +259,6 @@ NgChmGui.FILE.MatrixFile = function() {
 		return hasChanged;
 	}
 
-	/**********************************************************************************
-	 * FUNCTION - validateEntries: This function validates user entries for 
-	 * name and description on the Matrix screen returning a boolean for validity.
-	 **********************************************************************************/
-	function validateEntries() {
-		var valid = true;
-		var pageText = "";
-		//Generate error messages
-		if (document.getElementById('mapNameValue').value.trim() === "") {
-			pageText = pageText + NgChmGui.UTIL.errorPrefix + "MISSING HEAT MAP NAME ENTRY." + NgChmGui.UTIL.nextLine;
-			valid = false
-		}
-		if (document.getElementById('mapDescValue').value.trim() === "") {
-			pageText = pageText + NgChmGui.UTIL.errorPrefix + "MISSING HEAT MAP DESCRIPTION ENTRY." + NgChmGui.UTIL.nextLine;
-			valid = false
-		}
-		if (document.getElementById('matrixNameValue').value.trim() === "") {
-			pageText = pageText + NgChmGui.UTIL.errorPrefix + "MISSING MATRIX NAME ENTRY." + NgChmGui.UTIL.nextLine;
-			valid = false
-		}
-		//Generate warning messages (if any)
-		
-		//Add in page instruction text
-		pageText = pageText + NgChmGui.FILE.pageText2;
-		NgChmGui.UTIL.setScreenNotes(pageText);
-		
-		return valid;
-	}
 	
 	/**********************************************************************************
 	 * FUNCTION - clearDisplayBox: This function clears all contents of the handsontable
@@ -671,6 +644,7 @@ NgChmGui.FILE.MatrixFile = function() {
 			        	document.getElementById('matrixNextButton').style.display = ''
 			        	dataTable = Object.keys(topMatrixString).map(function(k) { return topMatrixString[k] });
 			        	reloadGridFromConfig();
+			        	NgChmGui.FILE.validateEntries(false);
 		    		}
 			    }
 			}
@@ -680,3 +654,46 @@ NgChmGui.FILE.MatrixFile = function() {
 	}
 	
 };
+
+/**********************************************************************************
+ * FUNCTION - validateEntries: This function validates user entries and generates
+ * user help messages in the main text area.  If user is trying to exit the screen
+ * additional validation is done.
+ **********************************************************************************/
+NgChmGui.FILE.validateEntries = function(leavingPage) {
+	NgChmGui.FILE.pageText1 = "NG-CHM heat maps require a tab delimited text file with a matrix of data.  The file must have row and column headers with labels that identify the content of the rows / columns and numeric values in the rest of the matrix.  Use the Open Matrix File button to load your matrix.   If you don't have a matrix and want to try the application use the Sapmple Matrix open button.";
+	NgChmGui.FILE.pageText2 = "The builder needs to know where the row lables, column labels, matrix data, and covariate data (if included) are located in the uploaded file.  The labels should be red and data should be green.  If not select from the following controls and click on the grid to indicate the location of labels, covariate bars, and the location at which the matrix data begins in the imported file.";
+
+	var valid = true;
+	var pageText = "";
+	
+	if (leavingPage) {
+		//Generate error messages
+		if (document.getElementById('mapNameValue').value.trim() === "") {
+			pageText = pageText + NgChmGui.UTIL.errorPrefix + "MISSING HEAT MAP NAME ENTRY." + NgChmGui.UTIL.nextLine;
+			valid = false
+		}
+		if (document.getElementById('mapDescValue').value.trim() === "") {
+			pageText = pageText + NgChmGui.UTIL.errorPrefix + "MISSING HEAT MAP DESCRIPTION ENTRY." + NgChmGui.UTIL.nextLine;
+			valid = false
+		}
+		if (document.getElementById('matrixNameValue').value.trim() === "") {
+			pageText = pageText + NgChmGui.UTIL.errorPrefix + "MISSING MATRIX NAME ENTRY." + NgChmGui.UTIL.nextLine;
+			valid = false
+		}
+	}
+	
+	//Generate warning messages (if any)
+	
+	//Add in page instruction text
+	if (NgChmGui.matrixFile.isLoaded()){
+		pageText = pageText + NgChmGui.FILE.pageText2 + NgChmGui.UTIL.nextLine;
+	} else {
+		pageText = pageText + NgChmGui.FILE.pageText1 + NgChmGui.UTIL.nextLine;;
+	}
+
+	NgChmGui.UTIL.setScreenNotes(pageText);
+	
+	return valid;
+}
+

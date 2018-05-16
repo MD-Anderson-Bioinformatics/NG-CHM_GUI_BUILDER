@@ -1,7 +1,7 @@
 //Define Namespace for NgChmGui MatrixFile
 NgChmGui.createNS('NgChmGui.MAP');
 
-NgChmGui.MAP.pageText1 = "Browse your interactive NG-CHM.";
+NgChmGui.MAP.pageText1 = "Your NG-CHM has been created!.  You can explore it here but will need to save it locally to view it later.  Use the Get Heat Map PDF button to save a local copy of the heat map as a PDF.  Note it will capture the detail panel as it is on the screen so set the zoom level and position of interest before making the PDF.  Better yet, download the NG-CHM and save it locally.  You can then get a local copy of the heat map viewer and use it to dynamically explore your heat map at any time.";
 
 /**********************************************************************************
  * FUNCTION - heatmapLoad: This function performs load functions for the HeatMap

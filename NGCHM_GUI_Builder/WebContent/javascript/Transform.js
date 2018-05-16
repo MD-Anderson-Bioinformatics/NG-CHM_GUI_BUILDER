@@ -2,31 +2,59 @@
 //Define Namespace for NgChmGui MatrixFile
 NgChmGui.createNS('NgChmGui.TRANS');
 
-NgChmGui.TRANS.pageText1 = "Perform various transformations to the selected data matrix prior to creating your NG-CHM.";
+NgChmGui.TRANS.matrixInfo = null; /* Will get loaded with statistics about the matrix */
 
 /**********************************************************************************
  * FUNCTION - loadData: This function will be executed when the transform page
  * is opened for the first time.  
  **********************************************************************************/
 NgChmGui.TRANS.loadData =  function() {
-	if (NgChmGui.UTIL.loadHeaderData()) {
-		NgChmGui.UTIL.setScreenNotes(NgChmGui.TRANS.pageText1);
-	};
+
 }
 
 /**********************************************************************************
  * FUNCTION - validateEntries: This function validates user entries on the transform
  * screen.
  **********************************************************************************/
-NgChmGui.TRANS.validateEntries = function() {
+NgChmGui.TRANS.validateEntries = function(leavingPage) {
 	var valid = true;
 	var pageText = "";
+	
 	//Generate error messages
+	if (leavingPage) {
+		if (NgChmGui.TRANS.matrixInfo.numInvalid > 0) {
+			pageText = pageText + NgChmGui.UTIL.errorPrefix + "INVALID VALUES MUST BE CORRECTED." + NgChmGui.UTIL.nextLine;
+			valid = false;
+		}	
+		if (NgChmGui.TRANS.matrixInfo.numRows > 4000) {
+			pageText = pageText + NgChmGui.UTIL.errorPrefix + "MATRIX HAS TOO MANY ROWS (>4000) FOR BUILDER. USE FILTER TO REMOVE ROWS." + NgChmGui.UTIL.nextLine;
+			valid = false;
+		}	
+		if (NgChmGui.TRANS.matrixInfo.numCols > 4000) {
+			pageText = pageText + NgChmGui.UTIL.errorPrefix + "MATRIX HAS TOO MANY COLUMNS (>4000) FOR BUILDER. USE FILTER TO REMOVE COLUMNS." + NgChmGui.UTIL.nextLine;
+			valid = false;
+		}	
+	} else {
+		//Generate warning messages
+		if (NgChmGui.TRANS.matrixInfo.numInvalid > 0) {
+			pageText = pageText + NgChmGui.UTIL.warningPrefix + "Your data contains invalid (non-numeric) cell values.  Use the Missing/Invalid transforms to replace invalid values." + NgChmGui.UTIL.nextLine;
+		}	
 
-	//Generate warning messages
+		if (NgChmGui.TRANS.matrixInfo.numRows > 1000) {
+			pageText = pageText + NgChmGui.UTIL.warningPrefix + "Your matrix has a large number of rows consider using the Filter Data transform to remove non-informative rows" + NgChmGui.UTIL.nextLine;
+		}	
+
+		if (NgChmGui.TRANS.matrixInfo.numCols > 1000) {
+			pageText = pageText + NgChmGui.UTIL.warningPrefix + "Your matrix has a large number of columns consider using the Filter Data transform to remove non-informative rows" + NgChmGui.UTIL.nextLine;
+		}	
+	}
+	
+	if (NgChmGui.TRANS.matrixInfo.minValue < 0) {
+		pageText = pageText + NgChmGui.UTIL.warningPrefix + "Your matrix has negative values.  A log transform would result in invalid values - use a different transform to remove negative values prior to log transforms." + NgChmGui.UTIL.nextLine;
+	}	
 	
 	//Add in page instruction text
-	pageText = pageText + NgChmGui.TRANS.pageText1;
+	pageText = pageText + "This page provides summary statistics of your matrix data including the distribution of values and row/column standard deviations.  Filters and transforms can be used to manipulate the matrix to produce better heat maps.  For example, a Z-norm transform could be used to normalize rows with values that differ in magnitude and a standard deviation filter could be used to remove rows with values that do not differ much across the columns." ;
 	NgChmGui.UTIL.setScreenNotes(pageText);
 	
 	return valid;
@@ -70,14 +98,14 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 	            console.log('Failed to get working matrix '  + req.status);
 	        } else {
 				if (NgChmGui.UTIL.debug) {console.log('200');}
-	        	matrixInfo = JSON.parse(req.response);
-	        	document.getElementById('numRows').innerHTML = matrixInfo.numRows;
-	        	document.getElementById('numCols').innerHTML = matrixInfo.numCols;
-	        	document.getElementById('numInvalid').innerHTML = matrixInfo.numInvalid;
-	        	document.getElementById('numMissing').innerHTML = matrixInfo.numMissing;
-	        	document.getElementById('maxVal').innerHTML = matrixInfo.maxValue;
-	        	document.getElementById('minVal').innerHTML = matrixInfo.minValue;
-	        	topMatrixString = matrixInfo.matrixsample;
+				NgChmGui.TRANS.matrixInfo = JSON.parse(req.response);
+	        	document.getElementById('numRows').innerHTML = NgChmGui.TRANS.matrixInfo.numRows;
+	        	document.getElementById('numCols').innerHTML = NgChmGui.TRANS.matrixInfo.numCols;
+	        	document.getElementById('numInvalid').innerHTML = NgChmGui.TRANS.matrixInfo.numInvalid;
+	        	document.getElementById('numMissing').innerHTML = NgChmGui.TRANS.matrixInfo.numMissing;
+	        	document.getElementById('maxVal').innerHTML = NgChmGui.TRANS.matrixInfo.maxValue;
+	        	document.getElementById('minVal').innerHTML = NgChmGui.TRANS.matrixInfo.minValue;
+	        	topMatrixString = NgChmGui.TRANS.matrixInfo.matrixsample;
 	        	var matrixBox = document.getElementById('trans_data');
 	        	var matrixDisplayBox = document.getElementById('matrixDisplay');
 	        	matrixBox.style.display = '';
@@ -94,16 +122,16 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 	        	graph.margin = 2;
 	        	graph.width = 450;
 	        	graph.height = 150;
-	        	var histoBins = matrixInfo.histoBins;
+	        	var histoBins = NgChmGui.TRANS.matrixInfo.histoBins;
 	        	histoBins.unshift("Missing");
 	        	var colors = new Array(histoBins.length);
 	        	colors[0] = 'black';
 	        	colors.fill('blue',1,colors.length);
 	        	graph.colors = colors;
-	        	graph.xAxisLabelArr = histoBins;//["Missing Values", matrixInfo.histoBins];
-	        	var histoCounts = matrixInfo.histoCounts; 
-	        	histoCounts.unshift(matrixInfo.numMissing);
-	        	graph.update(histoCounts);//[matrixInfo.numMissing,matrixInfo.histoCounts]);
+	        	graph.xAxisLabelArr = histoBins;//["Missing Values", NgChmGui.TRANS.matrixInfo.histoBins];
+	        	var histoCounts = NgChmGui.TRANS.matrixInfo.histoCounts; 
+	        	histoCounts.unshift(NgChmGui.TRANS.matrixInfo.numMissing);
+	        	graph.update(histoCounts);//[NgChmGui.TRANS.matrixInfo.numMissing,NgChmGui.TRANS.matrixInfo.histoCounts]);
 	        	
 	        	var rowSDCtx = document.getElementById("row_sd_histo_canvas").getContext("2d");
 	            
@@ -112,12 +140,12 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 	        	rowSDGraph.width = 450;
 	        	rowSDGraph.height = 150;
 	        	rowSDGraph.colors = ['blue'];
-	        	var histoBins = matrixInfo.rowStdHistoBins;
+	        	var histoBins = NgChmGui.TRANS.matrixInfo.rowStdHistoBins;
 //	        	histoBins.unshift("Missing");
-	        	rowSDGraph.xAxisLabelArr = histoBins;//["Missing Values", matrixInfo.histoBins];
-	        	var histoCounts = matrixInfo.rowStdHistoCounts; 
-//	        	histoCounts.unshift(matrixInfo.numMissing);
-	        	rowSDGraph.update(histoCounts);//[matrixInfo.numMissing,matrixInfo.histoCounts]);
+	        	rowSDGraph.xAxisLabelArr = histoBins;//["Missing Values", NgChmGui.TRANS.matrixInfo.histoBins];
+	        	var histoCounts = NgChmGui.TRANS.matrixInfo.rowStdHistoCounts; 
+//	        	histoCounts.unshift(NgChmGui.TRANS.matrixInfo.numMissing);
+	        	rowSDGraph.update(histoCounts);//[NgChmGui.TRANS.matrixInfo.numMissing,NgChmGui.TRANS.matrixInfo.histoCounts]);
 	        	
 	        	var colSDCtx = document.getElementById("col_sd_histo_canvas").getContext("2d");
 	            
@@ -126,12 +154,13 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 	        	colSDGraph.width = 450;
 	        	colSDGraph.height = 150;
 	        	colSDGraph.colors = ['blue'];
-	        	var histoBins = matrixInfo.colStdHistoBins;
+	        	var histoBins = NgChmGui.TRANS.matrixInfo.colStdHistoBins;
 //	        	histoBins.unshift("Missing");
-	        	colSDGraph.xAxisLabelArr = histoBins;//["Missing Values", matrixInfo.histoBins];
-	        	var histoCounts = matrixInfo.colStdHistoCounts; 
-//	        	histoCounts.unshift(matrixInfo.numMissing);
-	        	colSDGraph.update(histoCounts);//[matrixInfo.numMissing,matrixInfo.histoCounts]);
+	        	colSDGraph.xAxisLabelArr = histoBins;//["Missing Values", NgChmGui.TRANS.matrixInfo.histoBins];
+	        	var histoCounts = NgChmGui.TRANS.matrixInfo.colStdHistoCounts; 
+//	        	histoCounts.unshift(NgChmGui.TRANS.matrixInfo.numMissing);
+	        	colSDGraph.update(histoCounts);//[NgChmGui.TRANS.matrixInfo.numMissing,NgChmGui.TRANS.matrixInfo.histoCounts]);
+	        	NgChmGui.TRANS.validateEntries(false);
 		    }
 		}
 	};
@@ -395,6 +424,10 @@ NgChmGui.TRANS.updateLog =  function(form){//formData) {
 
 //Function called when Next button is pressed.  
 NgChmGui.TRANS.done =  function() {
+	//Validation Checks
+	if (!NgChmGui.TRANS.validateEntries(true))
+		return;
+	
 	//We need to build the heatmap for the next page.
 	NgChmGui.UTIL.buildHeatMap(NgChmGui.TRANS.update)
 }
