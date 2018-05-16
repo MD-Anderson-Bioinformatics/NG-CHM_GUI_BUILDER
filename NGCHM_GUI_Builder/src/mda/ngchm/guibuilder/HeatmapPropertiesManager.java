@@ -88,6 +88,7 @@ public class HeatmapPropertiesManager {
 			this.label_display_abbreviation = "END";
 			this.cut_width = "10";
 			this.tree_cuts = "0";
+			this.data_type.add("");
 		}
 		public Order (String order_method, String distance_metric, String agglomeration_method, String order_file,	String dendro_file, String dendro_show, String dendro_height) {
 			this.order_method = order_method; this .distance_metric = distance_metric; this.agglomeration_method = agglomeration_method;

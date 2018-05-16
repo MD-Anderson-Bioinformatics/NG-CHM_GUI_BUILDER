@@ -241,14 +241,14 @@ NgChmGui.UTIL.loadHeatMapView = function(hideDetail) {
  * description OR text indicating that the user's session has expired
  **********************************************************************************/
 NgChmGui.UTIL.loadHeaderData =  function() {
-	if ((NgChmGui.mapProperties !== null) && (NgChmGui.UTIL.elemExist(NgChmGui.mapProperties.chm_name))) {
-		document.getElementById("ngchmName").innerHTML = "<b>Map Name:</b>&nbsp;&nbsp;"+NgChmGui.mapProperties.chm_name;
-//		document.getElementById("mapDesc").innerHTML = "<b>Heat Map Desc:</b>&nbsp;&nbsp;"+NgChmGui.mapProperties.chm_description;
-		return true;
-	} else {
+	if ((NgChmGui.mapProperties.no_file === 1) || (NgChmGui.mapProperties.no_session === 1)) {
 		document.getElementById("ngchmName").innerHTML = "<b>Your Session Has Expired</b>";
 		setTimeout(function(){NgChmGui.UTIL.gotoMatrixScreen(); }, 2000);
 		return false;
+	} else {
+		document.getElementById("ngchmName").innerHTML = "<b>Map Name:</b>&nbsp;&nbsp;"+NgChmGui.mapProperties.chm_name;
+//		document.getElementById("mapDesc").innerHTML = "<b>Heat Map Desc:</b>&nbsp;&nbsp;"+NgChmGui.mapProperties.chm_description;
+		return true;
 	}
 }
 
