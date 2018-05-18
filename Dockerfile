@@ -27,4 +27,21 @@ FROM tomcat:8-jre8-alpine
 # Remove unused default apps
 RUN cd /usr/local/tomcat/webapps && rm -rf ROOT docs host-manager examples manager
 
+ARG TOMCAT_UID=1000
+ARG TOMCAT_GID=1000
+ARG TOMCAT_USER=tomcat
+ARG TOMCAT_GROUP=tomcat
+RUN set -x ; \
+    addgroup -g ${TOMCAT_GID} -S ${TOMCAT_GROUP} ; \
+    adduser -u ${TOMCAT_UID} -S -G ${TOMCAT_GROUP} ${TOMCAT_USER} && exit 0; exit 1
+
+RUN chown -R ${TOMCAT_UID}:${TOMCAT_GID} /usr/local/tomcat/webapps ; \
+    chmod 777 /usr/local/tomcat/conf ; \
+    chmod 755 /usr/local/tomcat/bin /usr/local/tomcat/lib ; \
+    chmod 755 /usr/local/tomcat/bin/* ; \
+    chmod 644 /usr/local/tomcat/lib/* /usr/local/tomcat/conf/* ; \
+    chmod 777 /usr/local/tomcat/logs /usr/local/tomcat/work
+
+USER ${TOMCAT_UID}
+
 COPY --from=webbuilder /artifacts/builder.app /usr/local/tomcat/webapps
