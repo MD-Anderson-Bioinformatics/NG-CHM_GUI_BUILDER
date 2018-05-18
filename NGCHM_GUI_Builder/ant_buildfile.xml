@@ -51,6 +51,7 @@
             <lib dir="${build.jars.dir}"/>
             <fileset dir="${source.web.content.dir}/">
                 <include name="*.html"/>
+                <include name="SampleMatrix.txt"/>
                 <include name="javascript/*.js"/>
                 <include name="javascript/lib/*.js"/>
                 <include name="images/*.*"/>
