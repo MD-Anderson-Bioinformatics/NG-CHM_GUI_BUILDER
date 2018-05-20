@@ -22,21 +22,35 @@ NgChmGui.FORMAT.loadData =  function() {
 }
 
 /**********************************************************************************
+ * FUNCTION - clusteringComplete: This function gets called when the ordering has
+ * been changed and sent to the server to perform clustering.
+ **********************************************************************************/
+NgChmGui.FORMAT.applyComplete = function() {
+	NgChmGui.FORMAT.validateEntries(false);
+	NgChmGui.UTIL.loadHeatMapView();
+}
+
+/**********************************************************************************
  * FUNCTION - the validate function is called on page load, page exit, and when
  * user operations are performed.  It creates conditional messages in the message
  * area including errors and warnings.  It also returns false if errors are detected.  
  **********************************************************************************/
-
 NgChmGui.FORMAT.validateEntries = function(leavingPage) {
 	var valid = true;
 	var pageText = "";
 	
+	//Generate ERROR messages
+	pageText = pageText + NgChmGui.FORMAT.validateMatrixBreaks();
+	pageText = pageText + NgChmGui.FORMAT.validateGapPrefs();
+	valid = pageText === "" ? true : false;
+
 	//Generate error messages
 	if (leavingPage) {
-
+		//Do nothing for Format Screen
 	} 
 	
 	//Generate warning messages
+	//No Format Screen warnings
 	
 	//Add in page instruction text
     pageText = pageText + "Several tools are provided here to manipulate the appearance of your heatmap.  The Matrix Colors tool enables you to make changes to colors and threshold values that assign a color to each cell in the heatmap body.  Other advanced presentation settings include adding gaps in the heat map to seperate specific sections, adding top level labels to show the position of a few key items in the summary heat map, choosing where to show dendorgrams and how big to make them, selecting label truncation lengths, and identifying the data type of labels to enable link-out capabilities." ;
@@ -46,13 +60,61 @@ NgChmGui.FORMAT.validateEntries = function(leavingPage) {
 	return valid;
 }
 
+NgChmGui.FORMAT.validateMatrixBreaks = function() {
+	var errorMsgs = "";
+	var colorMap = NgChmGui.FORMAT.getColorMapFromConfig();
+	var thresholds = colorMap.getThresholds();
+	for (var i=0;i<thresholds.length;i++) {
+		if (isNaN(thresholds[i])) {
+			errorMsgs = errorMsgs + NgChmGui.UTIL.errorPrefix + "COLOR THRESHOLDS CONTAIN NON-NUMERIC ENTRY(S)." + NgChmGui.UTIL.nextLine;
+			break;
+		}
+	}
+	return errorMsgs;
+}
+
+
+
 /**********************************************************************************
- * FUNCTION - clusteringComplete: This function gets called when the ordering has
- * been changed and sent to the server to perform clustering.
+ * FUNCTION - validateGapPrefs & validateGapPrefsByType: These functions perform
+ * validations on user entries to the Gap Preferences Panel
  **********************************************************************************/
-NgChmGui.FORMAT.applyComplete = function(){
-	NgChmGui.FORMAT.validateEntries(false);
-	NgChmGui.UTIL.loadHeatMapView();
+NgChmGui.FORMAT.validateGapPrefs = function() {
+	var errorMsgs = NgChmGui.FORMAT.validateGapPrefsByType(NgChmGui.mapProperties.row_configuration, "ROW");
+	errorMsgs = errorMsgs + NgChmGui.FORMAT.validateGapPrefsByType(NgChmGui.mapProperties.col_configuration, "COLUMN");
+	return errorMsgs;
+}
+NgChmGui.FORMAT.validateGapPrefsByType = function(config, type) {
+	var errorMsgs = "";
+	var configCuts = config.cut_locations;
+	var dupCut = false;
+	var nanCut = false;
+	if (typeof configCuts !== 'undefined') {
+		for (var i=0;i<configCuts.length;i++) {
+			var cutVal = configCuts[i];
+			if (isNaN(cutVal)) {
+				nanCut = true;
+			}
+			for (var j=0;j<configCuts.length;j++) {
+				if ((i !== j) && (configCuts[j] === cutVal)) {
+					dupCut = true;
+				}
+			}
+		}
+		if (nanCut) {
+			errorMsgs = errorMsgs + NgChmGui.UTIL.errorPrefix + type + " GAP VALUES CONTAIN NON-NUMERIC ENTRY(S)." + NgChmGui.UTIL.nextLine;
+		}
+		if (dupCut) {
+			errorMsgs = errorMsgs + NgChmGui.UTIL.errorPrefix + type + " GAP DUPLICATE VALUES FOUND." + NgChmGui.UTIL.nextLine;
+		}
+	}
+	if ((isNaN(config.cut_width)) || (config.cut_width.indexOf(".") > -1)) {
+		errorMsgs = errorMsgs + NgChmGui.UTIL.errorPrefix + type + " GAP LENGTH CONTAINS NON-INTEGER ENTRY." + NgChmGui.UTIL.nextLine;
+	}
+	if ((isNaN(config.tree_cuts)) || (config.tree_cuts.indexOf(".") > -1)) {
+		errorMsgs = errorMsgs + NgChmGui.UTIL.errorPrefix + type + " TREE CUTS CONTAINS NON-INTEGER ENTRY." + NgChmGui.UTIL.nextLine;
+	}
+	return errorMsgs;
 }
 
 /**********************************************************************************
@@ -211,14 +273,14 @@ NgChmGui.FORMAT.setupTopItemsPrefs = function() {
 	NgChmGui.UTIL.setTableRow(prefContents,["ROW LABEL TOP ITEMS"], 2);
 	NgChmGui.UTIL.addBlankRow(prefContents);
 	var topRowItemData = rowConfig.top_items.toString();
-	var topRowItems = "<textarea name='rowTopItems' id='rowTopItems' style='font-family: sans-serif;font-size: 90%;' rows='5', cols='50' onchange='NgChmGui.UTIL.setBuildProps();'>"+topRowItemData+"</textarea>";
+	var topRowItems = "<textarea name='rowTopItems' id='rowTopItems' style='font-family: sans-serif;font-size: 90%; resize: none;' ' rows='5', cols='50' onchange='NgChmGui.UTIL.setBuildProps();'>"+topRowItemData+"</textarea>";
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Rows Items:"]);
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;"+topRowItems],2);
 	NgChmGui.UTIL.addBlankRow(prefContents,4);
 	NgChmGui.UTIL.setTableRow(prefContents,["COLUMN LABEL TOP ITEMS"], 2);
 	NgChmGui.UTIL.addBlankRow(prefContents);
 	var topColItemData = colConfig.top_items.toString();
-	var topColItems = "<textarea name='colTopItems' id='colTopItems' style='font-family: sans-serif;font-size: 90%;' rows='5', cols='50' onchange='NgChmGui.UTIL.setBuildProps();'>"+topColItemData+"</textarea>"; 
+	var topColItems = "<textarea name='colTopItems' id='colTopItems' style='font-family: sans-serif;font-size: 90%;resize: none;' rows='5', cols='50' onchange='NgChmGui.UTIL.setBuildProps();'>"+topColItemData+"</textarea>"; 
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Column Items:"]);
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;"+topColItems],2);
 	topItemsPrefs.appendChild(prefContents);
@@ -244,14 +306,14 @@ NgChmGui.FORMAT.setupLabelTypePrefs = function() {
 	NgChmGui.UTIL.setTableRow(prefContents,["ROW LABEL TYPES"], 2);
 	NgChmGui.UTIL.addBlankRow(prefContents);
 	var rowTypeData = rowConfig.data_type.toString();  //CHANGE ME
-	var rowTypeItems = "<textarea name='rowLabelTypes' id='rowLabelTypes' style='font-family: sans-serif;font-size: 90%;' rows='5', cols='50' onchange='NgChmGui.UTIL.setBuildProps();'>"+rowTypeData+"</textarea>";
+	var rowTypeItems = "<textarea name='rowLabelTypes' id='rowLabelTypes' style='font-family: sans-serif;font-size: 90%; resize: none;' rows='5', cols='50' onchange='NgChmGui.UTIL.setBuildProps();'>"+rowTypeData+"</textarea>";
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Label Types:"]);
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;"+rowTypeItems],2);
 	NgChmGui.UTIL.addBlankRow(prefContents,4);
 	NgChmGui.UTIL.setTableRow(prefContents,["COLUMN LABEL TYPES"], 2);
 	NgChmGui.UTIL.addBlankRow(prefContents);
 	var colTypeData = colConfig.data_type.toString(); //CHANGE ME
-	var colTypeItems = "<textarea name='colLabelTypes' id='colLabelTypes' style='font-family: sans-serif;font-size: 90%;' rows='5', cols='50' onchange='NgChmGui.UTIL.setBuildProps();'>"+colTypeData+"</textarea>"; 
+	var colTypeItems = "<textarea name='colLabelTypes' id='colLabelTypes' style='font-family: sans-serif;font-size: 90%; resize: none;' rows='5', cols='50' onchange='NgChmGui.UTIL.setBuildProps();'>"+colTypeData+"</textarea>"; 
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Label Types:"]);
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;"+colTypeItems],2);
 	labelTypePrefs.appendChild(prefContents);
@@ -297,7 +359,7 @@ NgChmGui.FORMAT.setGapTable = function (prefContents, config, type) {
 	if (typeof config.cut_locations !== 'undefined') {
 		gapLocationsData = config.cut_locations.toString();
 	}
-	var gapLocations = "<textarea name='"+type+"GapLocations' id='"+type+"GapLocations' rows='2', cols='40' onchange='NgChmGui.UTIL.setBuildProps();'>"+gapLocationsData+"</textarea>";
+	var gapLocations = "<textarea name='"+type+"GapLocations' id='"+type+"GapLocations' rows='2', cols='40' style='resize: none' onchange='NgChmGui.UTIL.setBuildProps();'>"+gapLocationsData+"</textarea>";
 	var gapLocationsDiv = NgChmGui.UTIL.getDivElement(type+"ByLocations");
 	var byLocationContents = document.createElement("TABLE");
 	NgChmGui.UTIL.setTableRow(byLocationContents,["&nbsp;Enter comma-separated "+typeDisp+" numbers: "]);
@@ -323,7 +385,7 @@ NgChmGui.FORMAT.setGapTable = function (prefContents, config, type) {
 	} else {
 		NgChmGui.UTIL.setTableRow(prefContents,[gapLocationsDiv.outerHTML],2);
 	}
-	var cutWidth = "<input name='"+type+"CutWidth' id='"+type+"CutWidth' value='"+config.cut_width+"' maxlength='3' size='2' onchange='NgChmGui.UTIL.setBuildProps();'>&emsp;";
+	var cutWidth = "<input name='"+type+"CutWidth' id='"+type+"CutWidth' value='"+config.cut_width+"' maxlength='2' size='2' onchange='NgChmGui.UTIL.setBuildProps();'>&emsp;";
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;&nbsp;Gap Length: ", cutWidth]);
 	if (type === "row") {
 		NgChmGui.UTIL.addBlankRow(prefContents, 4);
@@ -763,11 +825,8 @@ NgChmGui.FORMAT.applySettings = function(typ) {
 	NgChmGui.FORMAT.getFormatTopItemsFromScreen();
 	NgChmGui.FORMAT.getFormatLabelTypesFromScreen();
 	NgChmGui.FORMAT.getMapGapsFromScreen();
-/*	if (typ === 1) {
-		NgChmGui.UTIL.setHeatmapProperties(NgChmGui.FORMAT.loadFormatView);
-	} else {
-		NgChmGui.UTIL.setHeatmapProperties(NgChmGui.FORMAT.gotoViewScreen);
-	} */
+	
+	return NgChmGui.FORMAT.validateEntries(false);
 }
 
 /**********************************************************************************

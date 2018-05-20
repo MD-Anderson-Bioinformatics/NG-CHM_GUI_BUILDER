@@ -116,6 +116,7 @@ NgChmGui.CLUSTER.applyClusterPrefs = function() {
 	NgChmGui.mapProperties.col_configuration.order_method = document.getElementById('ColOrder').value
 	NgChmGui.mapProperties.col_configuration.distance_metric = document.getElementById('ColDistance').value
 	NgChmGui.mapProperties.col_configuration.agglomeration_method = document.getElementById('ColAgglomeration').value
+	return true;
 }
 
 /* Validate and go to next screen if everything is good */

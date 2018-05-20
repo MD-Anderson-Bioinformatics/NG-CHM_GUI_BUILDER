@@ -30,29 +30,29 @@
 	           		<img id="mdaLogo" src="images/mdabcblogo262x108.png" alt=""/>
 	           </a>
 	       	</div>
-	 		<div id="fileLookup">   
-		        <form method="POST" enctype="multipart/form-data" id="matrix_frm" onsubmit="return false;">
-			        	<div class="image-upload" id="image-upload">
-						    <label for="file-input">
-						        <img src="images/buttonMatrixOpen.png"/>
-						    </label>
-		    				<input id="file-input" type="file" name="matrix" id="matrix"/>
-						</div>
-			        	<table cellpadding="0">
-			        		<tr class="chmTR">
-			        			<td><b>&nbsp;&nbsp;Try Sample Matrix:&nbsp;&nbsp;</b></td>
-								<td><img id='sampleMatrix_btn' align="bottom" src='images/buttonSampleOpen.png' alt='Download the heat map to PDF file' onclick='NgChmGui.matrixFile.sendMatrix(true);' /></td>
-							</tr>
-			        	</table>
-	    				<span id="fileNameText" style="font-weight: bold;padding-left: 10px;"></span>
-		        </form>
-		    </div>
 		    <div id="pageTitle">NG-CHM BUILDER: Select Matrix</div>
 	    </div>   
       	<div id="container" class="display_container" style="position: relative;">
 		    <div id="matrixSelection" class="data_entry_container" style="width: 25%">
 			    <br>
-		 		<div id='map_info'>
+		 		<div id="fileLookup">   
+			        <form method="POST" enctype="multipart/form-data" id="matrix_frm" onsubmit="return false;">
+				        	<div class="image-upload" id="image-upload">
+							    <label for="file-input">
+							        <img src="images/buttonMatrixOpen.png"/>
+							    </label>
+			    				<input id="file-input" type="file" name="matrix" id="matrix"/>
+							</div>
+				        	<table cellpadding="0">
+				        		<tr class="chmTR">
+				        			<td><b>&nbsp;&nbsp;Try Sample Matrix:&nbsp;&nbsp;</b></td>
+									<td><img id='sampleMatrix_btn' align="bottom" src='images/buttonSampleOpen.png' alt='Download the heat map to PDF file' onclick='NgChmGui.matrixFile.sendMatrix(true);' /></td>
+								</tr>
+				        	</table>
+		    <!--  			<span id="fileNameText" style="font-weight: bold;padding-left: 10px;"></span> -->	
+			        </form>
+			    </div>
+		 		<div id='map_info' style="border-top: 4px double #0843c1;">
 			 		<div id='map_name' class="inputText">
 		     			<div id="mapName" style="font-size: 14px; color: #0843c1; width: 90%"><b>Heat Map Name:</b>&nbsp;&nbsp;<textarea name="mapNameValue" id="mapNameValue" rows="1" cols="40" style="resize: none" maxlength="40" onchange='NgChmGui.FILE.changeNameDesc()'></textarea></div><br>
 		     			<div id="mapDesc" style="font-size: 14px; color: #0843c1;"><b>Heat Map Desc:</b>&nbsp;&nbsp;<textarea name="mapDescValue" id="mapDescValue" rows="4" cols="40" style="resize: none" onchange='NgChmGui.FILE.changeNameDesc()'></textarea></div>

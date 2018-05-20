@@ -30,7 +30,7 @@
 	  		</div>
 	    </div>   
        	<div id="DisplayContainer" class="display_container" style="position: relative;">
-	 		<div id="covarAdd" style="position: relative;display: none;">   
+	 		<div id="covarAdd" style="position: relative;display: none;width: 25%;">   
 		        <form method="POST" enctype="multipart/form-data" id="covar_add" onsubmit="return false;">
 	 	        	<div class="sec-header">Add Covariate Bar:</div>
 		        	<table id="covarLookupTbl">
@@ -38,10 +38,10 @@
 		        		<tr class='chmTR'>
 		        			<td>
 					        	<div class="image-upload" id="image-upload">
-								    <label for="file-input">
+								    <label for="covar">
 								        <img src="images/selectFileButton.png"/>
 								    </label>
-				    				<input id="file-input" type="file" name="covar" id="covar"/>
+				    				<input type="file" name="covar" id="covar"/>
 								</div>
 							</td>
 						</tr>
@@ -79,7 +79,7 @@
 					</table>
 		        </form>
 		    </div>
-	 		<div id="covarRemoval" style="position: relative;display: none;">   
+	 		<div id="covarRemoval" style="position: relative;display: none;width: 25%;"  >   
 		        <form method="POST" enctype="multipart/form-data" id="covar_remove" onsubmit="return false;">
 	 	        	<div id='covarRemoveLabel' class="sec-header">Remove Covariate Bar:</div>
 		        	<input name='remCovName' id='remCovName' type='hidden'>
@@ -102,7 +102,7 @@
 				</div>
 
 				<br/>
-				<img id='apply_btn' src='images/applyButton.png' alt='Cluster the Data' style="vertical-align: bottom;" onclick='NgChmGui.UTIL.applySettings(NgChmGui.COV.applySettings, NgChmGui.UTIL.loadHeatMapView);' />
+				<img id='apply_btn' src='images/applyButton.png' alt='Update Covariates' style="vertical-align: bottom;" onclick='alert("IN IT"); NgChmGui.UTIL.applySettings(NgChmGui.COV.applySettings, NgChmGui.UTIL.loadHeatMapView);' />
 		        <div id="covarPrevButton"  class="prev_btn">  
 		        	<img id='covarPrev_btn' src='images/prevButton.png' alt='Go to previous step' onclick='NgChmGui.UTIL.gotoTransformScreen();' />		
 		        </div>   
@@ -113,7 +113,7 @@
 	        <div id="heatMapView" class="layout_display_container" style="width: 60%;">
 	        	<div id=screenNotesDisplay></div>
 	        	<br>
-				<div id='NGCHMEmbed' style="background-color: white; height: 85%; margin-left: 10em; margin-top: 1.75em; padding: 5px"></div>
+				<div id='NGCHMEmbed' style="background-color: white; height: 85%; margin-left: 10em; margin-top: .2em; padding: 5px"></div>
 				<script src='javascript/ngchmWidget-min.js'></script>
  				 <script> NgChmGui.UTIL.editWidgetForBuilder();</script>   
 			</div>

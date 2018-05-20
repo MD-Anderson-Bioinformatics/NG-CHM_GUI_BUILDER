@@ -167,8 +167,11 @@ NgChmGui.UTIL.setHeatmapProperties = function(nextFunction) {
  **********************************************************************************/
 NgChmGui.UTIL.applySettings = function(applyFunction, nextFunction) {
 	if (NgChmGui.UTIL.buildProps() === true) {
-		applyFunction();
-		NgChmGui.UTIL.setHeatmapProperties(nextFunction);
+		if (applyFunction()) {
+			NgChmGui.UTIL.setHeatmapProperties(nextFunction);
+		} else {
+			return;
+		};
 	} else {
 		nextFunction();
 	}
@@ -241,15 +244,19 @@ NgChmGui.UTIL.loadHeatMapView = function(hideDetail) {
  * description OR text indicating that the user's session has expired
  **********************************************************************************/
 NgChmGui.UTIL.loadHeaderData =  function() {
-	if ((NgChmGui.mapProperties.no_file === 1) || (NgChmGui.mapProperties.no_session === 1)) {
-		document.getElementById("ngchmName").innerHTML = "<b>Your Session Has Expired</b>";
-		setTimeout(function(){NgChmGui.UTIL.gotoMatrixScreen(); }, 2000);
-		return false;
+	if (NgChmGui.mapProperties !== null) {
+		if ((NgChmGui.mapProperties.no_file === 1) || (NgChmGui.mapProperties.no_session === 1)) {
+			document.getElementById("ngchmName").innerHTML = "<b>Your Session Has Expired</b>";
+			setTimeout(function(){NgChmGui.UTIL.gotoMatrixScreen(); }, 2000);
+			return false;
+		} else {
+			document.getElementById("ngchmName").innerHTML = "<b>Map Name:</b>&nbsp;&nbsp;"+NgChmGui.mapProperties.chm_name;
+			return true;
+		}
 	} else {
-		document.getElementById("ngchmName").innerHTML = "<b>Map Name:</b>&nbsp;&nbsp;"+NgChmGui.mapProperties.chm_name;
-//		document.getElementById("mapDesc").innerHTML = "<b>Heat Map Desc:</b>&nbsp;&nbsp;"+NgChmGui.mapProperties.chm_description;
 		return true;
 	}
+
 }
 
 /**********************************************************************************
@@ -590,7 +597,22 @@ NgChmGui.UTIL.newlines = function(text) {
     return n;
 }
 
-
+NgChmGui.UTIL.isAlphaNumeric = function(str) {
+	  var code, i, len;
+	
+	  for (i = 0, len = str.length; i < len; i++) {
+	    code = str.charCodeAt(i);
+	    if (!(code > 47 && code < 58) && // allow numeric (0-9)
+		    !(code === 32) && // allow spaces
+	    	!(code === 45) && // allow hyphen
+	    	!(code === 95) && // allow underscore
+	        !(code > 64 && code < 91) && // allow upper alpha (A-Z)
+	        !(code > 96 && code < 123)) { // allow lower alpha (a-z)
+	      return false;
+	    }
+	  }
+	  return true;
+};
 
 
 

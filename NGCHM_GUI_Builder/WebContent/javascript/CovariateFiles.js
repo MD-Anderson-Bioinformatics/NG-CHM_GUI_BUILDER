@@ -31,17 +31,37 @@ NgChmGui.COV.loadData =  function() {
 NgChmGui.COV.validateEntries = function(leavingPage) {
 	var valid = true;
 	var pageText = "";
+	var classes = NgChmGui.mapProperties.classification_files;
+	
+	for (var i=0; i< classes.length; i++) {
+		var classItem = classes[i];
+		if ((classItem.height.indexOf(".") > 0) || (classItem.height < 1) || isNaN(classItem.height)) {
+			pageText = pageText + NgChmGui.UTIL.errorPrefix + "COVARIATE <font color='red'>" + classItem.name.toUpperCase() + "</font> HEIGHT ENTRY MUST BE AN INTEGER BETWEEN 1 AND 99." + NgChmGui.UTIL.nextLine;
+			valid = false;
+		}
+		if (classItem.bar_type !== 'color_plot') {
+			if (isNaN(classItem.low_bound)) {
+				pageText = pageText + NgChmGui.UTIL.errorPrefix + "COVARIATE <font color='red'>" + classItem.name.toUpperCase() + "</font> LOWER BOUND ENTRY MUST BE NUMERIC." + NgChmGui.UTIL.nextLine;
+				valid = false;
+			}
+			if (isNaN(classItem.high_bound)) {
+				pageText = pageText + NgChmGui.UTIL.errorPrefix + "COVARIATE <font color='red'>" + classItem.name.toUpperCase() + "</font> UPPER BOUND ENTRY MUST BE NUMERIC." + NgChmGui.UTIL.nextLine;
+				valid = false;
+			}
+		}
+	}
 	
 	//Generate error messages
 	if (leavingPage) {
-
+		//Do nothing special on leaving page
 	} 
 	
 	//Generate warning messages
+	//No current warning messages for covariates
 	
 	//Add in page instruction text
 	// Different message if we have 1 or more covariate already.
-	if (NgChmGui.mapProperties.classification_files.length > 0) {
+	if (classes.length > 0) {
 	   pageText = pageText + "This page can be used to modify the appearance of covariate bars.  Select the covarate bar you wish to customize from the dropdown and you may then change color settings, size, and indicate whether it should be displayed by default. For continuous covariate bars, you can also choose an alternate presentation option of bar or scatter plot. " ;
 	} else {
 	   pageText = pageText + "Covariate bars are extra descriptive information that can be added above columns or to the left of rows on a heatmap. Covariates fall into two types: 1. discrete categorical information like smoker/non-smoker and 2. continuous numerical information like age.  Covariate files are tab delimited files with two values on each row 1. a lable that matches the matrix row or column labels and 2. a value.  Use the add button to append a covariate bar or just hit next if you don't want them." ;
@@ -63,11 +83,12 @@ NgChmGui.COV.setupClassPrefs = function(classes) {
 	var classBars = classes;
 	var classPrefsDiv = NgChmGui.UTIL.getDivElement("classPrefsDiv");
 	var prefContents = document.createElement("TABLE");
-	NgChmGui.UTIL.addBlankRow(prefContents)
 	var classSelectStr = "<select name='classPref_list' id='classPref_list' onchange='NgChmGui.COV.showClassSelection();'></select>"
-	var addButton = "<img id='apply_btn' src='images/addButton.png' alt='Add Covariate' style='vertical-align: bottom;' onclick='NgChmGui.COV.openCovarUpload()' />";
-	var removeButton = "<img id='apply_btn' src='images/removeButton.png' alt='Remove Covariate' style='vertical-align: bottom;' onclick='NgChmGui.COV.openCovarRemoval()' />";
-	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;Covariates: ", classSelectStr, addButton, removeButton]);
+	var addButton = "<img id='add_covar_btn' src='images/addButton.png' alt='Add Covariate' style='vertical-align: bottom;' onclick='NgChmGui.COV.openCovarUpload()' />";
+	var removeButton = "<img id='remove_covar_btn' src='images/removeButton.png' alt='Remove Covariate' style='vertical-align: bottom;display: none' onclick='NgChmGui.COV.openCovarRemoval()' />";
+	NgChmGui.UTIL.setTableRow(prefContents,["Covariates: ", classSelectStr]);
+	NgChmGui.UTIL.addBlankRow(prefContents)
+	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;",addButton +"&nbsp;"+ removeButton]);
 	NgChmGui.UTIL.addBlankRow(prefContents, 2);
 	classPrefsDiv.appendChild(prefContents);
 	prefsPanelDiv.appendChild(classPrefsDiv);
@@ -78,9 +99,11 @@ NgChmGui.COV.setupClassPrefs = function(classes) {
 			classPrefsDiv.appendChild(classContentsDiv);
 			classContentsDiv.style.display='none';
 		}
+		document.getElementById("remove_covar_btn").style.display = '';
 	} else {
 		var noClassesDiv = NgChmGui.COV.getEmptyClassesPanel();
 		classPrefsDiv.appendChild(noClassesDiv);
+		document.getElementById("remove_covar_btn").style.display = 'none';
 	}
 	return classPrefsDiv; 
 }
@@ -92,7 +115,7 @@ NgChmGui.COV.setupClassPrefs = function(classes) {
  **********************************************************************************/
 NgChmGui.COV.getEmptyClassesPanel = function () {
 	var classSelect = document.getElementById("classPref_list");
-	classSelect.options[classSelect.options.length] = new Option('NONE', 'classPref_NONE');
+	classSelect.options[classSelect.options.length] = new Option('', 'classPref_NONE');
 	var noClassesDiv = NgChmGui.UTIL.getDivElement('classPref_NONE');
 	noClassesDiv.className = 'preferencesSubPanel';
 	var noClassesTbl = document.createElement('TABLE'); 
@@ -257,6 +280,7 @@ NgChmGui.COV.applySettings = function() {
 			classItem.color_map.missing = document.getElementById('missing_colorPrefCp_'+classKey).value
 		}
 	}
+	return NgChmGui.COV.validateEntries(false);
 }
 
 /**********************************************************************************
@@ -297,7 +321,7 @@ NgChmGui.COV.readyUpload = function() {
 	while(textSpan.firstChild) {
 		textSpan.removeChild( textSpan.firstChild );
 	}
-	var filePath = document.getElementById('file-input').value;
+	var filePath = document.getElementById('covar').value;
 	var fileNameTxt = filePath.substring(12,filePath.length);
 	textSpan.appendChild(document.createTextNode(fileNameTxt));
 	//If Name field not populated by user, use filename (less suffix)
@@ -395,6 +419,7 @@ NgChmGui.COV.hideCovarUpload = function() {
 	document.getElementById("colorType").value = 'discrete';
 	document.getElementById("covarSelection").style.display = '';
 	document.getElementById("covarAdd").style.display = 'none';
+	document.getElementById("covar").value = "";
 }
 
 /**********************************************************************************

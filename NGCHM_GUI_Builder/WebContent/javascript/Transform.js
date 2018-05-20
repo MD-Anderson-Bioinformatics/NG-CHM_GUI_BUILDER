@@ -9,7 +9,9 @@ NgChmGui.TRANS.matrixInfo = null; /* Will get loaded with statistics about the m
  * is opened for the first time.  
  **********************************************************************************/
 NgChmGui.TRANS.loadData =  function() {
-
+	if (NgChmGui.UTIL.loadHeaderData()) {
+		NgChmGui.TRANS.getWorkingMatrix();
+	}
 }
 
 /**********************************************************************************

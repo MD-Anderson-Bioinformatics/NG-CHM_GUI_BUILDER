@@ -283,11 +283,11 @@ NgChmGui.FILE.MatrixFile = function() {
 	 * and the newly uploaded file display process will be halted.
 	 **********************************************************************************/
 	function displayFileName(isSample) {
-    	var textSpan = document.getElementById('fileNameText');
+/*    	var textSpan = document.getElementById('fileNameText');
     	while( textSpan.firstChild) {
     		textSpan.removeChild( textSpan.firstChild );
-    	}
-    	var fileNameTxt = "Sample Matrix";
+    	}  */
+    	var fileNameTxt = "Sample Matrix";  
 		if (isSample !== true) {
 			var filePath = document.getElementById('file-input').value;
 			if ((filePath === null) || (filePath === '')) {
@@ -296,10 +296,20 @@ NgChmGui.FILE.MatrixFile = function() {
 				fileNameTxt = "  "+filePath.substring(12,filePath.length);
 			}
 		} 
-    	textSpan.appendChild(document.createTextNode(fileNameTxt));
+//    	textSpan.appendChild(document.createTextNode(fileNameTxt));
     	return true;
 	}
 	
+	function fileCancel(isSample) {
+		if (isSample !== true) {
+			var filePath = document.getElementById('file-input').value;
+			if ((filePath === null) || (filePath === '')) {
+				return true;
+			}
+		} 
+    	return false;
+	}
+
 	/**********************************************************************************
 	 * FUNCTION - getJsonData: This function create a JSON data object of all the 
 	 * user entries in the Matrix screen to be passed to the ProcessMatrix servlet.
@@ -661,7 +671,7 @@ NgChmGui.FILE.MatrixFile = function() {
  * additional validation is done.
  **********************************************************************************/
 NgChmGui.FILE.validateEntries = function(leavingPage) {
-	NgChmGui.FILE.pageText1 = "NG-CHM heat maps require a tab delimited text file with a matrix of data.  The file must have row and column headers with labels that identify the content of the rows / columns and numeric values in the rest of the matrix.  Use the Open Matrix File button to load your matrix.   If you don't have a matrix and want to try the application use the Sapmple Matrix open button.";
+	NgChmGui.FILE.pageText1 = "NG-CHM heat maps require a tab delimited text file with a matrix of data.  The file must have row and column headers with labels that identify the content of the rows / columns and numeric values in the rest of the matrix.  Use the Open Matrix File button to load your matrix.   If you don't have a matrix and want to try the application use the Sample Matrix open button.";
 	NgChmGui.FILE.pageText2 = "The builder needs to know where the row lables, column labels, matrix data, and covariate data (if included) are located in the uploaded file.  The labels should be red and data should be green.  If not select from the following controls and click on the grid to indicate the location of labels, covariate bars, and the location at which the matrix data begins in the imported file.";
 
 	var valid = true;
@@ -669,14 +679,21 @@ NgChmGui.FILE.validateEntries = function(leavingPage) {
 	
 	if (leavingPage) {
 		//Generate error messages
-		if (document.getElementById('mapNameValue').value.trim() === "") {
-			pageText = pageText + NgChmGui.UTIL.errorPrefix + "MISSING HEAT MAP NAME ENTRY." + NgChmGui.UTIL.nextLine;
+		var mapName = document.getElementById('mapNameValue').value.trim();
+		if (mapName === "") {
+			pageText = pageText + NgChmGui.UTIL.errorPrefix + "HEAT MAP NAME ENTRY MISSING." + NgChmGui.UTIL.nextLine;
 			valid = false
 		}
-		if (document.getElementById('mapDescValue').value.trim() === "") {
-			pageText = pageText + NgChmGui.UTIL.errorPrefix + "MISSING HEAT MAP DESCRIPTION ENTRY." + NgChmGui.UTIL.nextLine;
+		if (!NgChmGui.UTIL.isAlphaNumeric(mapName)) {
+			pageText = pageText + NgChmGui.UTIL.errorPrefix + "HEAT MAP NAME CANNOT CONTAIN NON-ALPHANUMERIC CHARACTERS." + NgChmGui.UTIL.nextLine;
 			valid = false
 		}
+		var mapDesc = document.getElementById('mapDescValue').value.trim();
+		if (mapDesc === "") {
+			pageText = pageText + NgChmGui.UTIL.errorPrefix + "HEAT MAP DESCRIPTION ENTRY MISSING." + NgChmGui.UTIL.nextLine;
+			valid = false
+		}
+		
 		if (document.getElementById('matrixNameValue').value.trim() === "") {
 			pageText = pageText + NgChmGui.UTIL.errorPrefix + "MISSING MATRIX NAME ENTRY." + NgChmGui.UTIL.nextLine;
 			valid = false
