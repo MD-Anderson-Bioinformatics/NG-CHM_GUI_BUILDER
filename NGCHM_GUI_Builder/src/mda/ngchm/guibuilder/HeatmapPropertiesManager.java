@@ -38,9 +38,13 @@ public class HeatmapPropertiesManager {
 	public class BuilderConfig {
 		public String buildProps = "N";
 		public String buildCluster = "N";
+		public String buildErrors = "";
+		public String longRowLabel = "";
+		public String longColLabel = "";
+		public ArrayList<String> buildWarnings = new ArrayList<String>();
 		public MatrixGridConfig matrix_grid_config;
-		public BuilderConfig (MatrixGridConfig gridConfig) {
-			this.matrix_grid_config = gridConfig;
+		public BuilderConfig (MatrixGridConfig gridConfig,String rowLabel, String colLabel) {
+			this.matrix_grid_config = gridConfig; this.longRowLabel = rowLabel; this.longColLabel = colLabel;
 		}
 	}
 	
@@ -77,7 +81,7 @@ public class HeatmapPropertiesManager {
 		public String label_display_abbreviation;
 		public ArrayList<String> top_items = new ArrayList<String>();
 		public ArrayList<String> data_type = new ArrayList<String>();
-		public int[] cut_locations = null;
+		public int[] cut_locations = new int[0];
 		public String cut_width;
 		public String tree_cuts;
 		public Order (String order_method) {
@@ -86,9 +90,9 @@ public class HeatmapPropertiesManager {
 			this.dendro_height = "10";
 			this.label_display_length = "20";
 			this.label_display_abbreviation = "END";
-			this.cut_width = "10";
+			this.cut_width = "5";
 			this.tree_cuts = "0";
-			this.data_type.add("");
+			this.data_type.add("none");
 		}
 		public Order (String order_method, String distance_metric, String agglomeration_method, String order_file,	String dendro_file, String dendro_show, String dendro_height) {
 			this.order_method = order_method; this .distance_metric = distance_metric; this.agglomeration_method = agglomeration_method;

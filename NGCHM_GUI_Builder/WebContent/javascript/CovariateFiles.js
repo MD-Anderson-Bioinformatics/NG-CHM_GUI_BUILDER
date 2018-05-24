@@ -32,7 +32,15 @@ NgChmGui.COV.validateEntries = function(leavingPage) {
 	var valid = true;
 	var pageText = "";
 	var classes = NgChmGui.mapProperties.classification_files;
+
+	//Generate build error messages
+	var buildErrors = NgChmGui.mapProperties.builder_config.buildErrors;
+	if (buildErrors !== "") {
+		pageText = pageText + "<b><font color='red'>" + buildErrors + "</font></b> BUILD ERROR MUST BE RESOLVED TO CONTINUE." + NgChmGui.UTIL.nextLine;
+		valid = false;
+	}
 	
+	//generate screen data entry errors
 	for (var i=0; i< classes.length; i++) {
 		var classItem = classes[i];
 		if ((classItem.height.indexOf(".") > 0) || (classItem.height < 1) || isNaN(classItem.height)) {
@@ -51,13 +59,18 @@ NgChmGui.COV.validateEntries = function(leavingPage) {
 		}
 	}
 	
-	//Generate error messages
+	//page exit processing
 	if (leavingPage) {
-		//Do nothing special on leaving page
+		//Do nothing for this page
 	} 
 	
-	//Generate warning messages
-	//No current warning messages for covariates
+	//generate build warning messages
+	var buildWarnings = NgChmGui.mapProperties.builder_config.buildWarnings;     
+	if (buildWarnings.length > 0) {  
+		for (var i=0; i< buildWarnings.length; i++) {
+			pageText = pageText + NgChmGui.UTIL.warningPrefix + buildWarnings[i] + NgChmGui.UTIL.nextLine;
+		}
+	}
 	
 	//Add in page instruction text
 	// Different message if we have 1 or more covariate already.
@@ -256,6 +269,9 @@ NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
  * panels to the mapProperties object in advance of saving the properties.
  **********************************************************************************/
 NgChmGui.COV.applySettings = function() {
+    //reset builder errors
+	NgChmGui.mapProperties.builder_config.buildErrors = "";
+	NgChmGui.mapProperties.builder_config.buildWarnings = [];
 	var classBars = NgChmGui.mapProperties.classification_files;
 	for (var key in classBars) {
 		var classItem = classBars[key];

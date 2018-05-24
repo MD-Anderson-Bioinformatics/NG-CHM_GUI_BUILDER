@@ -19,7 +19,6 @@ import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 
 import mda.ngchm.datagenerator.HeatmapDataGenerator;
-import mda.ngchm.guibuilder.HeatmapPropertiesManager.ColorMap;
 
 /**
  * Servlet implementation class to build a heatmap using the HeatmapDataGenerator
@@ -66,21 +65,36 @@ public class HeatmapBuild extends HttpServlet {
 			String propsPath = workingDir + "/heatmapProperties.json";
 
 	        File propFile = new File(propsPath);
-	        //Check for pre-existence of properties file.  If exists, load from properties manager
-	        if (propFile.exists()) {
-			    //Call HeatmapDataGenerator to generate final heat map .ngchm file
-			    String genArgs[] = new String[] {propsPath, "-NGCHM"};
-				String errMsg = HeatmapDataGenerator.processHeatMap(genArgs);
-	        }
+	        String errMsg = null;
 	        mgr.load();
 	        HeatmapPropertiesManager.Heatmap map = mgr.getMap();
+	        //Check for pre-existence of properties file.  If exists, load from properties manager
+	        if (propFile.exists()) {
+	        	//Initialize errors and warnings before calling HMDG
+	        	map.builder_config.buildErrors = "";
+	        	map.builder_config.buildWarnings = new ArrayList<String>();
+			    //Call HeatmapDataGenerator to generate final heat map .ngchm file
+			    String genArgs[] = new String[] {propsPath, "-NGCHM"};
+				errMsg = HeatmapDataGenerator.processHeatMap(genArgs);
+	        }
 	        
 	        //If the map has not been built before, save the auto-generated break points to the properties.
 	        if (map.matrix_files.get(0).color_map == null) {
 	        	HeatmapPropertiesManager.ColorMap theMap = setDefaultMatrixColors(workingDir, map);
 	        	map.matrix_files.get(0).color_map = theMap;
-	        	mgr.save();
-	        }	
+	        }
+    		mgr.save();
+	        if (errMsg != "") {
+		        if (errMsg.contains("BUILD ERROR")) {
+				    map.builder_config.buildErrors = errMsg;
+		        } else {
+					String toks[] = errMsg.split("\n");
+					for (int i=0;i<toks.length;i++) {
+						map.builder_config.buildWarnings.add(toks[i]);
+					}
+		        }
+        		mgr.save();
+	        }
 	        
 			System.out.println("END Build Heatmap: " + new Date()); 
 	    } catch (Exception e) {

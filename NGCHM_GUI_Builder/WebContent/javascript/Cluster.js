@@ -44,12 +44,25 @@ NgChmGui.CLUSTER.validateEntries = function(leavingPage) {
 	var valid = true;
 	var pageText = "";
 	
-	//Generate error messages
-	if (leavingPage) {
+	//Generate build error messages
+	var buildErrors = NgChmGui.mapProperties.builder_config.buildErrors;
+	if (buildErrors !== "") {
+		pageText = pageText + "<b><font color='red'>" + buildErrors + "</font></b> BUILD ERROR MUST BE RESOLVED TO CONTINUE." + NgChmGui.UTIL.nextLine;
+		valid = false;
+	}
 
+	//Page exit processing
+	if (leavingPage) {
+		//Do nothing for this page
 	} 
 	
 	//Generate warning messages
+	var buildWarnings = NgChmGui.mapProperties.builder_config.buildWarnings;     
+	if (buildWarnings.length > 0) {  
+		for (var i=0; i< buildWarnings.length; i++) {
+			pageText = pageText + NgChmGui.UTIL.warningPrefix + buildWarnings[i] + NgChmGui.UTIL.nextLine;
+		}
+	}
 	
 	//Add in page instruction text
 	// if we already have class bars

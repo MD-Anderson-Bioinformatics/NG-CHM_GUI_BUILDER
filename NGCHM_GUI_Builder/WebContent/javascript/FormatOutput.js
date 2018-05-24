@@ -27,7 +27,7 @@ NgChmGui.FORMAT.loadData =  function() {
  **********************************************************************************/
 NgChmGui.FORMAT.applyComplete = function() {
 	NgChmGui.FORMAT.validateEntries(false);
-	NgChmGui.UTIL.loadHeatMapView();
+	NgChmGui.FORMAT.loadFormatView();
 }
 
 /**********************************************************************************
@@ -39,7 +39,14 @@ NgChmGui.FORMAT.validateEntries = function(leavingPage) {
 	var valid = true;
 	var pageText = "";
 	
-	//Generate ERROR messages
+	//Generate build error messages
+	var buildErrors = NgChmGui.mapProperties.builder_config.buildErrors;
+	if (buildErrors !== "") {
+		pageText = pageText + "<b><font color='red'>" + buildErrors + "</font></b> BUILD ERROR MUST BE RESOLVED TO CONTINUE." + NgChmGui.UTIL.nextLine;
+		valid = false;
+	}
+	
+	//Generate data entry error messages
 	pageText = pageText + NgChmGui.FORMAT.validateMatrixBreaks();
 	pageText = pageText + NgChmGui.FORMAT.validateGapPrefs();
 	valid = pageText === "" ? true : false;
@@ -49,8 +56,14 @@ NgChmGui.FORMAT.validateEntries = function(leavingPage) {
 		//Do nothing for Format Screen
 	} 
 	
-	//Generate warning messages
-	//No Format Screen warnings
+	//Generate build warning messages
+	var buildWarnings = NgChmGui.mapProperties.builder_config.buildWarnings;     
+	if (buildWarnings.length > 0) {  
+		for (var i=0; i< buildWarnings.length; i++) {
+			pageText = pageText + NgChmGui.UTIL.warningPrefix + buildWarnings[i] + NgChmGui.UTIL.nextLine;
+		}
+	}
+	
 	
 	//Add in page instruction text
     pageText = pageText + "Several tools are provided here to manipulate the appearance of your heatmap.  The Matrix Colors tool enables you to make changes to colors and threshold values that assign a color to each cell in the heatmap body.  Other advanced presentation settings include adding gaps in the heat map to seperate specific sections, adding top level labels to show the position of a few key items in the summary heat map, choosing where to show dendorgrams and how big to make them, selecting label truncation lengths, and identifying the data type of labels to enable link-out capabilities." ;
@@ -126,7 +139,7 @@ NgChmGui.FORMAT.setupFormatTasks = function(classes) {
 	var formatPrefsDiv = NgChmGui.UTIL.getDivElement("formatPrefsDiv");
 	var prefContents = document.createElement("TABLE");
 	NgChmGui.UTIL.addBlankRow(prefContents)
-	var formatTaskStr = "<select name='formatTask_list' id='formatTask_list' onchange='NgChmGui.FORMAT.showFormatSelection();'><option value='matrix_colors'>Matrix Colors/Breaks</option><option value='format_display'>Heat Map Display</option><option value='map_gaps'>Heat Map Gaps</option><option value='top_items'>Top Label Items</option><option value='link_outs'>Label Types</option></select>"
+	var formatTaskStr = "<select name='formatTask_list' id='formatTask_list' onchange='NgChmGui.FORMAT.showFormatSelection();'><option value='matrix_colors'>Matrix Colors/Breaks</option><option value='format_display'>Heat Map Display</option><option value='map_gaps'>Heat Map Gaps</option><option value='label_config'>Label Configuration</option></select>"
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;Format Tasks: ", formatTaskStr]);
 	NgChmGui.UTIL.addBlankRow(prefContents, 2);
 	formatPrefsDiv.appendChild(prefContents);
@@ -137,10 +150,8 @@ NgChmGui.FORMAT.setupFormatTasks = function(classes) {
 	formatPrefsDiv.appendChild(formatDisplayPrefsDiv);
 	var gapPrefsDiv = NgChmGui.FORMAT.setupGapPrefs();
 	formatPrefsDiv.appendChild(gapPrefsDiv);
-	var topItemsPrefsDiv = NgChmGui.FORMAT.setupTopItemsPrefs()
-	formatPrefsDiv.appendChild(topItemsPrefsDiv);
-	var labelTypePrefsDiv = NgChmGui.FORMAT.setupLabelTypePrefs()
-	formatPrefsDiv.appendChild(labelTypePrefsDiv);
+	var labelConfigPrefsDiv = NgChmGui.FORMAT.setupLabelConfigPrefs()
+	formatPrefsDiv.appendChild(labelConfigPrefsDiv);
 	return formatPrefsDiv; 
 }
 
@@ -165,6 +176,16 @@ NgChmGui.FORMAT.setFormatTaskOptions = function() {
 	document.getElementById('rowLabelAbbrevPref').value = rowConfig.label_display_abbreviation;
 	document.getElementById('colLabelAbbrevPref').value = colConfig.label_display_abbreviation;
 	document.getElementById('gridShowPref').value = matrixConfig.grid_show;
+	if (document.getElementById('rowGapMethod_list') !== null) {
+		document.getElementById('rowGapMethod_list').value = rowConfig.tree_cuts !== "0" ? "rowByTreeCuts" : "rowByLocations";
+		NgChmGui.FORMAT.showRowGapMethodSelection();
+	}
+	if (document.getElementById('colGapMethod_list') !== null) {
+		document.getElementById('colGapMethod_list').value = colConfig.tree_cuts !== "0" ? "colByTreeCuts" : "colByLocations";
+		NgChmGui.FORMAT.showColGapMethodSelection();
+	}
+  	document.getElementById("rowLabelType").value = rowConfig.data_type;
+  	document.getElementById("colLabelType").value = colConfig.data_type;
 }
 
 
@@ -258,36 +279,43 @@ NgChmGui.FORMAT.formatDisplayPrefs = function() {
 }
 
 /**********************************************************************************
- * FUNCTION - setupGapPrefs: This function sets up the DIV panel for displaying/setting
- * heat map top item preferences.
+ * FUNCTION - setupLabelConfigPrefs: This function sets up the DIV panel for displaying/setting
+ * heat map label configuration preferences.
  **********************************************************************************/
-NgChmGui.FORMAT.setupTopItemsPrefs = function() {
-	var topItemsPrefs = NgChmGui.UTIL.getDivElement("top_items");
+NgChmGui.FORMAT.setupLabelConfigPrefs = function() {
+	var labelTypePrefs = NgChmGui.UTIL.getDivElement("label_config");
 	var prefContents = document.createElement("TABLE");
 	var colorMap = NgChmGui.mapProperties.matrix_files[0].color_map;
 	var rowConfig = NgChmGui.mapProperties.row_configuration;
 	var colConfig = NgChmGui.mapProperties.col_configuration;
+	var rowLabelTypePref = "<select name='rowLabelType' id='rowLabelType' onchange='NgChmGui.UTIL.setBuildProps();'>";
+	var colLabelTypePref = "<select name='colLabelType' id='colLabelType' onchange='NgChmGui.UTIL.setBuildProps();'>";
+	var labelTypeOptions = "<option value='none'></option><option value='bio.gene.hugo'>bio.gene.hugo</option><option value='bio.gene.entrezid'>bio.gene.entrezid</option><option value='bio.mirna'>bio.mirna</option><option value='bio.pubmed'>bio.pubmed</option><option value='bio.tcga.barcode.sample'>bio.tcga.barcode.sample</option></select>";
 	NgChmGui.UTIL.addBlankRow(prefContents);
-	NgChmGui.UTIL.setTableRow(prefContents,["<b>List comma separated labels to highlight items on the Map</b>"]);
+	NgChmGui.UTIL.setTableRow(prefContents,["ROW LABEL CONFIGURATION"], 2);
 	NgChmGui.UTIL.addBlankRow(prefContents);
-	NgChmGui.UTIL.setTableRow(prefContents,["ROW LABEL TOP ITEMS"], 2);
+	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Label Types:  "+rowLabelTypePref+labelTypeOptions], 2);  
 	NgChmGui.UTIL.addBlankRow(prefContents);
 	var topRowItemData = rowConfig.top_items.toString();
 	var topRowItems = "<textarea name='rowTopItems' id='rowTopItems' style='font-family: sans-serif;font-size: 90%; resize: none;' ' rows='5', cols='50' onchange='NgChmGui.UTIL.setBuildProps();'>"+topRowItemData+"</textarea>";
-	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Rows Items:"]);
+	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Top Label Items:"]);
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;"+topRowItems],2);
+	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;<b>Enter comma-separated labels to highlight on map</b>"], 2);
 	NgChmGui.UTIL.addBlankRow(prefContents,4);
-	NgChmGui.UTIL.setTableRow(prefContents,["COLUMN LABEL TOP ITEMS"], 2);
+	NgChmGui.UTIL.setTableRow(prefContents,["COLUMN LABEL CONFIGURATION"], 2);
+	NgChmGui.UTIL.addBlankRow(prefContents);
+	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Label Types:  "+colLabelTypePref+labelTypeOptions], 2);  
 	NgChmGui.UTIL.addBlankRow(prefContents);
 	var topColItemData = colConfig.top_items.toString();
 	var topColItems = "<textarea name='colTopItems' id='colTopItems' style='font-family: sans-serif;font-size: 90%;resize: none;' rows='5', cols='50' onchange='NgChmGui.UTIL.setBuildProps();'>"+topColItemData+"</textarea>"; 
-	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Column Items:"]);
+	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Top Label Items:"]);
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;"+topColItems],2);
-	topItemsPrefs.appendChild(prefContents);
-	topItemsPrefs.className = 'preferencesSubPanel';
-	topItemsPrefs.style.display='none';
+	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;<b>Enter comma-separated labels to highlight on map</b>"], 2);
+	labelTypePrefs.appendChild(prefContents);
+	labelTypePrefs.className = 'preferencesSubPanel';
+	labelTypePrefs.style.display='none';
 
-	return topItemsPrefs;
+	return labelTypePrefs;
 }
 
 /**********************************************************************************
@@ -300,6 +328,8 @@ NgChmGui.FORMAT.setupLabelTypePrefs = function() {
 	var colorMap = NgChmGui.mapProperties.matrix_files[0].color_map;
 	var rowConfig = NgChmGui.mapProperties.row_configuration;
 	var colConfig = NgChmGui.mapProperties.col_configuration;
+
+	
 	NgChmGui.UTIL.addBlankRow(prefContents);
 	NgChmGui.UTIL.setTableRow(prefContents,["<b>List comma-separated row/column label types to enable map link outs.</b>"]);
 	NgChmGui.UTIL.addBlankRow(prefContents);
@@ -356,7 +386,7 @@ NgChmGui.FORMAT.setGapTable = function (prefContents, config, type) {
 	NgChmGui.UTIL.setTableRow(prefContents,[typeDisp.toUpperCase()+" GAP OPTIONS"], 2);
 	NgChmGui.UTIL.addBlankRow(prefContents);
 	var gapLocationsData = "";
-	if (typeof config.cut_locations !== 'undefined') {
+	if (config.cut_locations.length > 0) {
 		gapLocationsData = config.cut_locations.toString();
 	}
 	var gapLocations = "<textarea name='"+type+"GapLocations' id='"+type+"GapLocations' rows='2', cols='40' style='resize: none' onchange='NgChmGui.UTIL.setBuildProps();'>"+gapLocationsData+"</textarea>";
@@ -562,11 +592,14 @@ NgChmGui.FORMAT.getFormatDisplayFromScreen = function() {
 }
 
 /**********************************************************************************
-* FUNCTION - getFormatTopItemsFromScreen: This function loads the heatmapProperties
+* FUNCTION - getFormatLabelConfigFromScreen: This function loads the heatmapProperties
 * config from the values set on the Top Items panel.
 **********************************************************************************/
-NgChmGui.FORMAT.getFormatTopItemsFromScreen = function() {
+NgChmGui.FORMAT.getFormatLabelConfigFromScreen = function() {
 	var rowConfig = NgChmGui.mapProperties.row_configuration;
+  	var rowlabelType = document.getElementById("rowLabelType").value;
+	rowConfig.data_type = [];
+	rowConfig.data_type.push(rowlabelType);
   	var rowTopItems = document.getElementById("rowTopItems").value.split(/[;, \r\n]+/);
 	rowConfig.top_items = [];
 	for (var i=0;i<rowTopItems.length;i++) {
@@ -575,30 +608,14 @@ NgChmGui.FORMAT.getFormatTopItemsFromScreen = function() {
 		}
 	}
 	var colConfig = NgChmGui.mapProperties.col_configuration;
-  	var colTopItems = document.getElementById("colTopItems").value.split(/[;, \r\n]+/);
+  	var collabelType = document.getElementById("colLabelType").value;
+  	colConfig.data_type = [];
+  	colConfig.data_type.push(collabelType);
+ 	var colTopItems = document.getElementById("colTopItems").value.split(/[;, \r\n]+/);
 	colConfig.top_items = [];
 	for (var i=0;i<colTopItems.length;i++) {
 		if (colTopItems[i]!==""){
 			colConfig.top_items.push(colTopItems[i]);
-		}
-	}
-}
-
-NgChmGui.FORMAT.getFormatLabelTypesFromScreen = function() {
-	var rowConfig = NgChmGui.mapProperties.row_configuration;
-  	var rowlabelItems = document.getElementById("rowLabelTypes").value.split(/[;, \r\n]+/);
-	rowConfig.data_type = [];
-	for (var i=0;i<rowlabelItems.length;i++) {
-		if (rowlabelItems[i]!==""){
-			rowConfig.data_type.push(rowlabelItems[i]);
-		}
-	}
-	var colConfig = NgChmGui.mapProperties.col_configuration;
-  	var colLabelItems = document.getElementById("colLabelTypes").value.split(/[;, \r\n]+/);
-	colConfig.data_type = [];
-	for (var i=0;i<colLabelItems.length;i++) {
-		if (colLabelItems[i]!==""){
-			colConfig.data_type.push(colLabelItems[i]);
 		}
 	}
 }
@@ -822,9 +839,8 @@ NgChmGui.FORMAT.setBreaksToPreset = function(preset, missingColor) {
 NgChmGui.FORMAT.applySettings = function(typ) {
 	NgChmGui.FORMAT.getColorMapFromScreen();
 	NgChmGui.FORMAT.getFormatDisplayFromScreen();
-	NgChmGui.FORMAT.getFormatTopItemsFromScreen();
-	NgChmGui.FORMAT.getFormatLabelTypesFromScreen();
 	NgChmGui.FORMAT.getMapGapsFromScreen();
+	NgChmGui.FORMAT.getFormatLabelConfigFromScreen();
 	
 	return NgChmGui.FORMAT.validateEntries(false);
 }
@@ -841,10 +857,19 @@ NgChmGui.FORMAT.loadFormatView = function() {
 	document.getElementById('summary_box_canvas').style.display = '';
 	//Show examples of how row and column labels are length-limited and abbreviated
 	var labelPrefDispDIV = document.getElementById('labelPrefExample');
-	var exampleLabel = 'TCGA-DK-11R-A13Y-07';
-	var rowText = "<b>Row Display Example: </b>&nbsp;&nbsp;" + NgChmGui.UTIL.getLabelText(exampleLabel,"ROW");
-	var colText = "<b>Col Display Example: </b>&nbsp;&nbsp;" + NgChmGui.UTIL.getLabelText(exampleLabel,"COL");
+	var rowText = "<b>Row Abbreviation: </b>&nbsp;&nbsp;" + NgChmGui.UTIL.getLabelText(NgChmGui.mapProperties.builder_config.longRowLabel,"ROW");
+	var colText = "<b>Col Abbreviation: </b>&nbsp;&nbsp;" + NgChmGui.UTIL.getLabelText(NgChmGui.mapProperties.builder_config.longColLabel,"COL");
 	labelPrefDispDIV.innerHTML = rowText+"<BR>"+colText;
+}
+
+/**********************************************************************************
+ * FUNCTION - gotoHeatMapScreen: This function Validates and go to next screen 
+ * if no errors are found.
+ **********************************************************************************/
+NgChmGui.FORMAT.gotoHeatMapScreen = function() {
+	if (NgChmGui.FORMAT.validateEntries(true)){
+		NgChmGui.UTIL.gotoHeatMapScreen()
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -962,9 +987,3 @@ NgChmGui.FORMAT.getTempCM = function(firstLoad){
 	return tempCM;
 }
 
-/* Validate and go to next screen if everything is good */
-NgChmGui.FORMAT.gotoHeatMapScreen = function() {
-	if (NgChmGui.FORMAT.validateEntries(true)){
-		NgChmGui.UTIL.gotoHeatMapScreen()
-	}
-}
