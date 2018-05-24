@@ -161,6 +161,33 @@ NgChmGui.UTIL.setHeatmapProperties = function(nextFunction) {
 }
 
 /**********************************************************************************
+ * FUNCTION - getHeatmapProperties: The purpose of this function to retrieve 
+ * heatmapProperties for a given screen (it is called from multiple places) and 
+ * then call that screen's "load" function.
+ **********************************************************************************/
+NgChmGui.UTIL.cleanSession = function(loadFunction) {
+	var req = new XMLHttpRequest();
+	req.open("GET", "CleanSession", true);
+	req.onreadystatechange = function () {
+		if (NgChmGui.UTIL.debug) {console.log('state change');}
+		if (req.readyState == req.DONE) {
+			if (NgChmGui.UTIL.debug) {console.log('done');}
+	        if (req.status != 200) {
+				if (NgChmGui.UTIL.debug) {console.log('not 200');}
+	            console.log('Failed to clean up session '  + req.status);
+	        } else {
+	        	//Got corner of matrix data.
+				if (NgChmGui.UTIL.debug) {console.log('200');}
+	        	if (typeof loadFunction !== 'undefined') {
+		        	loadFunction();
+	        	}
+		    }
+		}
+	};
+	req.send();
+}
+
+/**********************************************************************************
  * FUNCTION - applySettings: The purpose of this function to apply any changes to 
  * the heat map properties to the heat map on the server.  It is a generic function
  * that is called from any screens that edit heatmapProperties data
@@ -333,7 +360,7 @@ NgChmGui.UTIL.setMessageBoxText = function(text, rows) {
 	var msgBox = document.getElementById('message');
 	var msgBoxTxt = document.getElementById('messageTxt');
 	var textBoxHeight = (rows * 9) + 95;
-	msgBoxTxt.style.width = '320px';
+	msgBoxTxt.style.width = '490px';
 	msgBox.style.height = textBoxHeight+ 'px';
 	msgBoxTxt.innerHTML = text;
 }
@@ -353,19 +380,7 @@ NgChmGui.UTIL.messageBoxCancel = function() {
 
 NgChmGui.UTIL.messageBoxConfigure = function() {
 	var msgBox = document.getElementById('message');
-	msgBox.innerHTML = "<div class='messageHdr' id='messageHdr'></div><table><tbody><tr class='chmTR'><td><div id='messageTxt' style='display: inherit;font-size: 12px; background-color: rgb(230, 240, 255);'></div><table><tbody><tr><td align='left'><img id='messageBtnImg_1' align='top' style='display: inherit;'></td><td align='left'><img id='messageBtnImg_2' align='top' style='display: inherit;'></td><td align='right'><img id='messageBtnImg_3' align='top' style='display: inherit;'></td><td align='right'><img id='messageBtnImg_4' align='top' style='display: inherit;'></td></tr></tbody></table></td></tr></tbody></table>";
-}
-
-/**********************************************************************************
- * FUNCTION - matrixValidationError: The purpose of this function display a message
- * box when the user has not entered all required data on the Matrix screen.
- **********************************************************************************/
-NgChmGui.UTIL.matrixValidationError = function(msgText, rows) {
-	NgChmGui.UTIL.initMessageBox();
-	NgChmGui.UTIL.setMessageBoxHeader("Matrix Selection Error(s)");
-	NgChmGui.UTIL.setMessageBoxText(msgText, rows);
-	NgChmGui.UTIL.setMessageBoxButton(3, "images/closeButton.png", "", "NgChmGui.UTIL.messageBoxCancel");
-	document.getElementById('message').style.display = '';
+	msgBox.innerHTML = "<div class='messageHdr' id='messageHdr'></div><table style='width: 490px'><tbody><tr class='chmTR'><td><div id='messageTxt' width='490px' style='display: inherit;font-size: 12px; background-color: rgb(230, 240, 255);'></div><table><tbody><tr><td align='left'><img id='messageBtnImg_1' align='top' style='display: inherit;'></td><td align='left'><img id='messageBtnImg_2' align='top' style='display: inherit;'></td><td align='right'><img id='messageBtnImg_3' align='top' style='display: inherit;'></td><td align='right'><img id='messageBtnImg_4' align='top' style='display: inherit;'></td></tr></tbody></table></td></tr></tbody></table>";
 }
 
 /**********************************************************************************
@@ -392,14 +407,11 @@ NgChmGui.UTIL.heatmapBuildError = function() {
 	document.getElementById('message').style.display = '';
 }
 
-/**********************************************************************************
- * FUNCTION - duplicateCovarError: The purpose of this function display a message
- * box when the user attempts to add a duplicate covariate bar on the same axis.
- **********************************************************************************/
-NgChmGui.UTIL.duplicateCovarError = function(axis,name) {
+NgChmGui.UTIL.newHeatMapNotice = function() {
 	NgChmGui.UTIL.initMessageBox();
-	NgChmGui.UTIL.setMessageBoxHeader("Duplicate Covariate Entry Warning");
-	NgChmGui.UTIL.setMessageBoxText("<br>A "+axis+" covariate already exists with the name:  "+name+"<br><br>Please select a different name if you still wish to add this bar.<br><br>", 4);
+	NgChmGui.UTIL.setMessageBoxHeader("Build New Heat Map");
+	NgChmGui.UTIL.setMessageBoxText("<br>If you choose to continue, the current map will be deleted and you will no longer have access to it in the NG-CHM Builder.<br><br>You may want to download the current map as an NG-CHM File or PDF first.<br><br>", 6);
+	NgChmGui.UTIL.setMessageBoxButton(1, "images/continueButton.png", "Start all new Heat Map Build", "NgChmGui.MAP.newMapConfirm");
 	NgChmGui.UTIL.setMessageBoxButton(3, "images/closeButton.png", "", "NgChmGui.UTIL.messageBoxCancel");
 	document.getElementById('message').style.display = '';
 }

@@ -10,6 +10,7 @@
 			NgChmGui.mapProperties = null;
 		 	window.onload = function() {
 				NgChmGui.UTIL.getHeatmapProperties(NgChmGui.MAP.loadData);
+				NgChmGui.UTIL.messageBoxConfigure();
 		 	}
 	 	</script>
     </head>
@@ -39,9 +40,14 @@
         		<div class="image-container">
 	 				<a class="downloadViewer_btn" id="nonpressed" href="ngChmApp.html" download><img src="images/ngChmViewerButton.png"/></a>
 				</div>
+ 				<br><br>
+         		<div class="image-container">
+	 				<img id='newHeatMap_btn' src='images/ngChmNewMapButton.png' alt='Start a new heat map build' onclick='NgChmGui.MAP.newMapRequest();' />
+				</div>
  		    </div>			
-	        <div id="covarPrevButton"  class="prev_btn">  
-	        	<img id='covarPrev_btn' src='images/prevButton.png' alt='Go to previous step' onclick='NgChmGui.UTIL.gotoFormatScreen();' />		
+	        <div id="prevButton"  class="prev_btn">  
+	        	<img id='covarPrev_btn' src='images/prevButton.png' alt='Go to previous step' onclick='NgChmGui.UTIL.gotoFormatScreen();' />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;		
+				<img id='returnToMatrix_btn' src='images/ngChmReturnButton.png' alt='Start a new heat map build' onclick='NgChmGui.UTIL.gotoMatrixScreen();' style='left: 80px;'/>
 	        </div>   
 	        <div id="heatMapView" class="layout_display_container" style="width: 75%;">
 	        	<div id="screenNotesDisplay"></div>

@@ -28,7 +28,7 @@ NgChmGui.COV.loadData =  function() {
  * area including errors and warnings.  It also returns false if errors are detected.  
  **********************************************************************************/
 
-NgChmGui.COV.validateEntries = function(leavingPage) {
+NgChmGui.COV.validateEntries = function(leavingPage, passedError) {
 	var valid = true;
 	var pageText = "";
 	var classes = NgChmGui.mapProperties.classification_files;
@@ -37,6 +37,11 @@ NgChmGui.COV.validateEntries = function(leavingPage) {
 	var buildErrors = NgChmGui.mapProperties.builder_config.buildErrors;
 	if (buildErrors !== "") {
 		pageText = pageText + "<b><font color='red'>" + buildErrors + "</font></b> BUILD ERROR MUST BE RESOLVED TO CONTINUE." + NgChmGui.UTIL.nextLine;
+		valid = false;
+	}
+	
+	if (typeof passedError != 'undefined') {
+		pageText = pageText + NgChmGui.UTIL.errorPrefix + passedError;
 		valid = false;
 	}
 	
@@ -362,7 +367,7 @@ NgChmGui.COV.addCovariateBar = function(nextFunction) {
 	var key = axisValue+"_"+covNameValue;
 	document.getElementById(key);
 	if (document.getElementById(key) !== null) {
-		NgChmGui.UTIL.duplicateCovarError(axisValue,covNameValue);
+		NgChmGui.COV.validateEntries(false, "A "+axisValue+" covariate already exists with the name:  "+covNameValue+". Please select a different name if you still wish to add this bar.");
 		return;
 	}
 	//Proceed
