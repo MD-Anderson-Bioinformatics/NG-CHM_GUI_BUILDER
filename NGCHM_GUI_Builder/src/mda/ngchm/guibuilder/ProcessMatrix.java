@@ -154,7 +154,7 @@ public class ProcessMatrix extends HttpServlet {
 		BufferedReader reader = new BufferedReader(new FileReader(originalFile));
 		BufferedWriter writer = new BufferedWriter(new FileWriter(workingFile));
 		String[] longLabels = new String[2];
-		String longColLabel = "";
+		String longRowLabel = "";
 		try {
 			int rowNum = 0;
 			String line = reader.readLine();
@@ -164,7 +164,7 @@ public class ProcessMatrix extends HttpServlet {
 				} else {
 					String toks[] = line.split("\t");
 					if (rowNum == matrixConfig.rowLabelRow) {
-						longLabels[0] = getLongestRowLabel(matrixConfig, toks);
+						longLabels[1] = getLongestColLabel(matrixConfig, toks);
 						boolean offset = false;
 						if ((toks.length + 1) == endPoint) {
 							offset = true;
@@ -172,8 +172,8 @@ public class ProcessMatrix extends HttpServlet {
 						writeOutMatrixRow(matrixConfig, writer, toks, offset);
 						writer.write("\n");
 					} else if (rowNum >= matrixConfig.dataStartRow) {
-						if (toks[matrixConfig.colLabelCol].length() > longColLabel.length()) {
-							longColLabel = toks[matrixConfig.colLabelCol];
+						if (toks[matrixConfig.colLabelCol].length() > longRowLabel.length()) {
+							longRowLabel = toks[matrixConfig.colLabelCol];
 						}
 						writeOutMatrixRow(matrixConfig, writer, toks, false); 
 						writer.write("\n");
@@ -182,7 +182,7 @@ public class ProcessMatrix extends HttpServlet {
 				rowNum++;
 				line = reader.readLine();
 			}
-			longLabels[1] = longColLabel;
+			longLabels[0] = longRowLabel;
 		} catch (Exception e) {
 			// do something here
 		} finally {
@@ -194,7 +194,7 @@ public class ProcessMatrix extends HttpServlet {
 		return longLabels;
 	}
 	
-	private String getLongestRowLabel(HeatmapPropertiesManager.MatrixGridConfig matrixConfig, String toks[]) throws Exception {
+	private String getLongestColLabel(HeatmapPropertiesManager.MatrixGridConfig matrixConfig, String toks[]) throws Exception {
 		String longLabel = "";
 		int endPoint = toks.length;
 		int startPoint = matrixConfig.dataStartCol;
