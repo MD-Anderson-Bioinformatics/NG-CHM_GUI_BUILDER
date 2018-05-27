@@ -559,8 +559,8 @@ NgChmGui.FORMAT.getColorMapFromScreen = function() {
 		thresholds[j] = document.getElementById(threshId+"_breakPref").value;
 		colors[j] = document.getElementById(colorId+"_colorPref").value;
 	} 
-	colorMap.missing = document.getElementById("missing_colorPref").value;
-	NgChmGui.FORMAT.getColorMapFromConfig(colorMap);
+	colorMap.setMissingColor(document.getElementById("missing_colorPref").value);
+	NgChmGui.FORMAT.setColorMapToConfig(colorMap);
 }
 	
 /**********************************************************************************
