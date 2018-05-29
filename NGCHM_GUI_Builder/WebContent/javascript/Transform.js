@@ -12,6 +12,24 @@ NgChmGui.TRANS.loadData =  function() {
 	if (NgChmGui.UTIL.loadHeaderData()) {
 		NgChmGui.TRANS.getWorkingMatrix();
 	}
+	var transformConfig = NgChmGui.mapProperties.builder_config.transform_config;
+	var log = document.getElementById("change_select");
+	if (transformConfig && transformConfig.logText.length > 0){
+		for (var i = 0; i < transformConfig.logText.length; i++){
+			var updateDiv = document.createElement("option");
+			updateDiv.classList.add("change_option");
+			var logText = transformConfig.logText[i];
+			var formid = transformConfig.formId[i];
+			var uri = transformConfig.Uri[i];
+			updateDiv.innerHTML = logText + "<br>";
+			updateDiv.attributes.logText = logText;
+			updateDiv.attributes.formID = formid;
+			updateDiv.attributes.URI = uri;
+			updateDiv.value = i;
+			log.appendChild(updateDiv);
+		}
+	}
+		
 }
 
 /**********************************************************************************
@@ -300,6 +318,7 @@ NgChmGui.TRANS.correctMatrixData =  function() {
 				if (NgChmGui.UTIL.debug) {console.log('200');}
 	        	result = req.response;
 	        	NgChmGui.TRANS.updateLog(document.getElementById("missing_frm"));
+	        	NgChmGui.TRANS.processTransforms();
 	        	NgChmGui.TRANS.getWorkingMatrix();
 		    }
 		}
@@ -325,6 +344,7 @@ NgChmGui.TRANS.filterMatrixData =  function() {
 				if (NgChmGui.UTIL.debug) {console.log('200');}
 	        	result = req.response;
 	        	NgChmGui.TRANS.updateLog(document.getElementById("filter_frm") );
+	        	NgChmGui.TRANS.processTransforms();
 	        	NgChmGui.TRANS.getWorkingMatrix();
 		    }
 		}
@@ -350,6 +370,7 @@ NgChmGui.TRANS.transformMatrixData =  function() {
 				if (NgChmGui.UTIL.debug) {console.log('200');}
 	        	result = req.response;
 	        	NgChmGui.TRANS.updateLog(document.getElementById("trans_frm"));
+	        	NgChmGui.TRANS.processTransforms();
 	        	NgChmGui.TRANS.getWorkingMatrix();
 		    }
 		}
@@ -375,6 +396,7 @@ NgChmGui.TRANS.resetMatrix =  function() {
 				if (NgChmGui.UTIL.debug) {console.log('200');}
 	        	result = req.response;
 	        	NgChmGui.TRANS.updateLog();
+	        	NgChmGui.TRANS.processTransforms();
 	        	NgChmGui.TRANS.getWorkingMatrix();
 		    }
 		}
@@ -384,9 +406,14 @@ NgChmGui.TRANS.resetMatrix =  function() {
 }
 
 NgChmGui.TRANS.updateLog =  function(form){//formData) {
-	var log = document.getElementById("change_log");
-	var updateText = "";
-	if (form){
+	var options = document.getElementById("change_select");
+	if (form){ // This logic is called when an actual transform is taking place
+		var updateDiv = document.createElement("option");
+		updateDiv.classList.add("change_option");
+		var updateText = "";
+		updateDiv.attributes.formID = form.id == "trans_frm" ? "Transform" : form.id == "missing_frm" ? "Correct" : form.id == "filter_frm" ? "Filter" : "";
+		updateDiv.attributes.URI = NgChmGui.UTIL.toURIString(form);
+		updateDiv.value = document.getElementsByClassName("change_option").length;
 		var urlString = "";
 		var elements = form.querySelectorAll( "input, select, textarea");
 		for( var i = 0; i < elements.length; ++i) {
@@ -406,7 +433,6 @@ NgChmGui.TRANS.updateLog =  function(form){//formData) {
 							if (nameEls[j].checked){
 								parseVal = nameEls[j].value;
 							}
-//							parseVal = nameEls[j].value;
 						} else {
 							parseVal = nameEls[j].value;
 						}
@@ -417,11 +443,84 @@ NgChmGui.TRANS.updateLog =  function(form){//formData) {
 				updateText += text;
 			}
 		}
-	} else {
-		updateText += "Reset the Matrix";
+		updateDiv.attributes.logText = text;
+		updateDiv.innerHTML = updateText + "<br>";
+		options.appendChild(updateDiv);
+	} else { // this logic is triggered when the Reset is called
+		var cds = log.getElementsByClassName("change_option");
+		while (cds.length > 0 ){
+			cds[0].remove();
+		}
 	}
-	log.innerHTML += updateText + "<br>";
 	
+}
+
+NgChmGui.TRANS.revertToState =  function() {
+//	console.log(this.attributes);
+//	var el = this;
+	var els = document.getElementsByClassName("change_option");
+	var value = document.getElementById("change_select").value;
+	
+	var req = new XMLHttpRequest();
+	var formData = NgChmGui.UTIL.toURIString( );
+	req.open("POST", "ResetMatrix", true);
+	req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	req.onreadystatechange = function () {
+		if (NgChmGui.UTIL.debug) {console.log('state change');}
+		if (req.readyState == req.DONE) {
+			if (NgChmGui.UTIL.debug) {console.log('done');}
+	        if (req.status != 200) {
+	        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
+	            console.log('Failed to filter matrix '  + req.status);
+	        } else {
+				if (NgChmGui.UTIL.debug) {console.log('200');}
+				NgChmGui.UTIL.hideLoading();
+	        	result = req.response;
+        		nextFunc(0,value);
+	        	var delIndex = parseInt(value)+1;
+	        	while (els[delIndex]){
+	        		els[delIndex].remove();
+	        	}
+	        	NgChmGui.TRANS.processTransforms();
+	        	NgChmGui.TRANS.getWorkingMatrix();
+		    }
+		}
+	};
+	req.send(formData);
+	NgChmGui.UTIL.showLoading();
+//	
+	function nextFunc(index, stop) {
+		if (index <= stop){
+			var changeOptions = document.getElementsByClassName("change_option");
+			var req = new XMLHttpRequest();
+			var formType = changeOptions[index].attributes.formID;
+			var formData = changeOptions[index].attributes.URI;
+			console.log("formType: " + formType + " formData: " + formData);
+			req.open("POST", formType+"Matrix", true);
+			req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			req.onreadystatechange = function () {
+				if (NgChmGui.UTIL.debug) {console.log('state change');}
+				if (req.readyState == req.DONE) {
+					NgChmGui.UTIL.hideLoading();
+					if (NgChmGui.UTIL.debug) {console.log('done');}
+			        if (req.status != 200) {
+			        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
+			            console.log('Failed to filter matrix '  + req.status);
+			        } else {
+						if (NgChmGui.UTIL.debug) {console.log('200');}
+			        	result = req.response;
+			        	console.log("finished nextFunc and index = " + index)
+			        	index++;
+			        	nextFunc(index,stop);
+//			        	NgChmGui.TRANS.updateLog(document.getElementById("trans_frm"));
+			        	NgChmGui.TRANS.getWorkingMatrix();
+				    }
+				}
+			};
+			req.send(formData);
+			NgChmGui.UTIL.showLoading();
+		}
+	}
 }
 
 //Function called when Next button is pressed.  
@@ -430,8 +529,43 @@ NgChmGui.TRANS.done =  function() {
 	if (!NgChmGui.TRANS.validateEntries(true))
 		return;
 	
-	//We need to build the heatmap for the next page.
-	NgChmGui.UTIL.buildHeatMap(NgChmGui.TRANS.update)
+	NgChmGui.TRANS.processTransforms();
+	NgChmGui.UTIL.buildHeatMap(NgChmGui.TRANS.update);
+
+}
+
+NgChmGui.TRANS.processTransforms = function(){
+	var cds = document.getElementsByClassName("change_option");
+	var formIDs = [];
+	var URIs = [];
+	var logTexts = [];
+	for (var i = 0; i < cds.length; i++){
+		var cd = cds[i];
+		formIDs.push(cd.attributes.formID);
+		URIs.push(cd.attributes.URI);
+		logTexts.push(cd.attributes.logText);
+	}
+	var json = JSON.stringify({logText: logTexts, formId: formIDs, Uri: URIs});
+	
+	var req = new XMLHttpRequest();
+	req.open("POST", "ProcessTransforms", true);
+	req.setRequestHeader("Content-Type", "application/json");
+	req.onreadystatechange = function () {
+		if (NgChmGui.UTIL.debug) {console.log('state change');}
+		if (req.readyState == req.DONE) {
+			if (NgChmGui.UTIL.debug) {console.log('done');}
+	        if (req.status != 200) {
+				if (NgChmGui.UTIL.debug) {console.log('not 200');}
+	            console.log('Failed to process matrix '  + req.status);
+//			            NgChmGui.UTIL.matrixLoadingError();
+	        } else {
+				if (NgChmGui.UTIL.debug) {console.log('200');}
+
+//				NgChmGui.UTIL.buildHeatMap(NgChmGui.TRANS.update);
+		    }
+		}
+	};
+	req.send(json);
 }
 
 //After heatmpap builds, fetch the properties to get

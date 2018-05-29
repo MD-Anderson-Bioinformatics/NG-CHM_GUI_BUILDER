@@ -43,6 +43,7 @@ public class HeatmapPropertiesManager {
 		public String longColLabel = "";
 		public ArrayList<String> buildWarnings = new ArrayList<String>();
 		public MatrixGridConfig matrix_grid_config;
+		public TransformConfig transform_config;
 		public BuilderConfig (MatrixGridConfig gridConfig,String rowLabel, String colLabel) {
 			this.matrix_grid_config = gridConfig; this.longRowLabel = rowLabel; this.longColLabel = colLabel;
 		}
@@ -66,6 +67,15 @@ public class HeatmapPropertiesManager {
 			this.firstDataRow = fdRow; this.firstDataCol = fdCol; this.dataStartRow = dsRow; this.dataStartCol = dsCol; 
 			this.rowLabelRow = rowLabel; this.colLabelCol = colLabel; this.rowCovs = rowCovs; this.rowCovTypes = rowCovTypes; 
 			this.colCovs = colCovs; this.colCovTypes = colCovTypes;
+		}
+	}
+	
+	public class TransformConfig {
+		public ArrayList<String> logText;
+		public ArrayList<String> Uri;
+		public ArrayList<String> formId;
+		public TransformConfig (ArrayList<String> logText, ArrayList<String> Uri, ArrayList<String> formId) {
+			this.logText = logText; this.Uri = Uri; this.formId = formId;
 		}
 	}
 	
