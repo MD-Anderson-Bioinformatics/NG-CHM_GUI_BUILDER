@@ -73,6 +73,13 @@ NgChmGui.TRANS.validateEntries = function(leavingPage) {
 		pageText = pageText + NgChmGui.UTIL.warningPrefix + "Your matrix has negative values.  A log transform would result in invalid values - use a different transform to remove negative values prior to log transforms." + NgChmGui.UTIL.nextLine;
 	}	
 	
+	if (NgChmGui.TRANS.matrixInfo.numRows < 1) {
+		pageText = pageText + NgChmGui.UTIL.errorPrefix + "Your matrix has no rows." + NgChmGui.UTIL.nextLine;
+	}	
+	if (NgChmGui.TRANS.matrixInfo.numCols < 1) {
+		pageText = pageText + NgChmGui.UTIL.errorPrefix + "Your matrix has no columns." + NgChmGui.UTIL.nextLine;
+	}	
+	
 	//Add in page instruction text
 	pageText = pageText + "This page provides summary statistics of your matrix data including the distribution of values and row/column standard deviations.  Filters and transforms can be used to manipulate the matrix to produce better heat maps.  For example, a Z-norm transform could be used to normalize rows with values that differ in magnitude and a standard deviation filter could be used to remove rows with values that do not differ much across the columns." ;
 	NgChmGui.UTIL.setScreenNotes(pageText);
