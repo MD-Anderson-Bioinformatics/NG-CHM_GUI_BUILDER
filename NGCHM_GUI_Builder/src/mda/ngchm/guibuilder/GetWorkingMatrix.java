@@ -208,6 +208,15 @@ public class GetWorkingMatrix extends HttpServlet {
 				//Second pass of the matrix is needed to bin distribution of data
 				//and the row standard deviations.
 				
+				// correct any instance of infinity to +/-max value
+				double maxRound = counts.maxVal;
+				double minRound = counts.minVal;
+				if (counts.maxVal == Double.POSITIVE_INFINITY) {
+					maxRound = Double.MAX_VALUE;
+				}
+				if (counts.minVal == Double.NEGATIVE_INFINITY) {
+					minRound = -Double.MAX_VALUE;
+				}
 				//Data Distribution Histogram Bins
 				double binSize = (counts.maxVal - counts.minVal) / 10;
 				for (int i = 0; i < 10; i++){
