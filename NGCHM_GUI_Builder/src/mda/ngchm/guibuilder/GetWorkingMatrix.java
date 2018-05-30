@@ -154,12 +154,12 @@ public class GetWorkingMatrix extends HttpServlet {
 				counts.numMissing = 0;
 				counts.minVal = 0;
 				counts.maxVal = 0;
-				counts.bins = new double[0];
-				counts.bin_count = new int[0];
-				counts.row_dev_bins = new double[0];
-				counts.row_dev_count = new int[0];
-				counts.col_dev_bins = new double[0];
-				counts.col_dev_count = new int[0];
+				counts.bins = new double[10];
+				counts.bin_count = new int[10];
+				counts.row_dev_bins = new double[10];
+				counts.row_dev_count = new int[10];
+				counts.col_dev_bins = new double[10];
+				counts.col_dev_count = new int[10];
 			} else {
 				//Array for mean of each row and each column.
 				ArrayList<Double> rowMean = new ArrayList<Double>();
@@ -307,10 +307,10 @@ public class GetWorkingMatrix extends HttpServlet {
 			counts.maxVal = 0;
 			counts.bins = new double[0];
 			counts.bin_count = new int[0];
-			counts.row_dev_bins = new double[0];
-			counts.row_dev_count = new int[0];
-			counts.col_dev_bins = new double[0];
-			counts.col_dev_count = new int[0];
+			counts.row_dev_bins = new double[10];
+			counts.row_dev_count = new int[10];
+			counts.col_dev_bins = new double[10];
+			counts.col_dev_count = new int[10];
 		}
 
 		
