@@ -12,24 +12,7 @@ NgChmGui.TRANS.loadData =  function() {
 	if (NgChmGui.UTIL.loadHeaderData()) {
 		NgChmGui.TRANS.getWorkingMatrix();
 	}
-	var transformConfig = NgChmGui.mapProperties.builder_config.transform_config;
-	var log = document.getElementById("change_select");
-	if (transformConfig && transformConfig.logText.length > 0){
-		for (var i = 0; i < transformConfig.logText.length; i++){
-			var updateDiv = document.createElement("option");
-			updateDiv.classList.add("change_option");
-			var logText = transformConfig.logText[i];
-			var formid = transformConfig.formId[i];
-			var uri = transformConfig.Uri[i];
-			updateDiv.innerHTML = logText + "<br>";
-			updateDiv.attributes.logText = logText;
-			updateDiv.attributes.formID = formid;
-			updateDiv.attributes.URI = uri;
-			updateDiv.value = i;
-			log.appendChild(updateDiv);
-		}
-	}
-		
+	NgChmGui.TRANS.populateLog();
 }
 
 /**********************************************************************************
@@ -410,6 +393,26 @@ NgChmGui.TRANS.resetMatrix =  function() {
 	};
 	req.send(formData);
 	NgChmGui.UTIL.showLoading();
+}
+
+NgChmGui.TRANS.populateLog = function(){
+	var transformConfig = NgChmGui.mapProperties.builder_config.transform_config;
+	var log = document.getElementById("change_select");
+	if (transformConfig && transformConfig.logText.length > 0){
+		for (var i = 0; i < transformConfig.logText.length; i++){
+			var updateDiv = document.createElement("option");
+			updateDiv.classList.add("change_option");
+			var logText = transformConfig.logText[i];
+			var formid = transformConfig.formId[i];
+			var uri = transformConfig.Uri[i];
+			updateDiv.innerHTML = logText + "<br>";
+			updateDiv.attributes.logText = logText;
+			updateDiv.attributes.formID = formid;
+			updateDiv.attributes.URI = uri;
+			updateDiv.value = i;
+			log.appendChild(updateDiv);
+		}
+	}
 }
 
 NgChmGui.TRANS.updateLog =  function(form){//formData) {
