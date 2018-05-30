@@ -218,9 +218,9 @@ public class GetWorkingMatrix extends HttpServlet {
 					minRound = -Double.MAX_VALUE;
 				}
 				//Data Distribution Histogram Bins
-				double binSize = (counts.maxVal - counts.minVal) / 10;
+				double binSize = (maxRound - minRound) / 10;
 				for (int i = 0; i < 10; i++){
-					counts.bins[i] = counts.minVal + (i+1)*binSize;
+					counts.bins[i] = minRound + (i+1)*binSize;
 				}
 				
 				//Array for standard deviation of each row.
