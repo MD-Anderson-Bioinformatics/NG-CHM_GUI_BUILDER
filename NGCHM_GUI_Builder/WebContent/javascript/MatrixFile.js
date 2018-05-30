@@ -1,7 +1,6 @@
 //Define Namespace for NgChmGui MatrixFile
 NgChmGui.createNS('NgChmGui.FILE');
 
-
 /**********************************************************************************
  * FUNCTION - Matrix: This function creates a matrix file object for displaying the
  * user selected matrix on the Matrix screen.
@@ -76,6 +75,7 @@ NgChmGui.FILE.changeNameDesc = function() {
 		NgChmGui.matrixFile.setChangedState(true);
 	}
 }
+
 /**********************************************************************************
  * FUNCTION - removeCovarDataEntry: This function will remove a covariate file
  * color type preference panel from the data entry (left) panel on the Matrix
@@ -102,12 +102,20 @@ NgChmGui.FILE.MatrixFile = function() {
 	var rowCovs = [];
 	var colCovs = [];
 	var firstDataPos = [0,0];
+	var errMessages = "";
+	var warnMessages = "";
 	
+	/**********************************************************************************
+	 * FUNCTION - setChangedState: This function sets the "changed state" for the 
+	 * MatrixFile object and is called from outside the object.
+	 **********************************************************************************/
 	this.setChangedState = function(state) {
 		hasChanged = state;
 	}
 	
-	/* Indicate whether a data file has been loaded. */
+	/**********************************************************************************
+	 * FUNCTION - isLoaded: This function indicates whether a data file has been loaded.
+	 **********************************************************************************/
 	this.isLoaded = function() {
 		if (dataTable.length > 0)
 			return true;
@@ -162,41 +170,6 @@ NgChmGui.FILE.MatrixFile = function() {
 		req.send(formData);
 	}
 	
-	this.sendSampleMatrix = function() {
-		var req = new XMLHttpRequest();
-		req.open("GET", "UploadMatrix", true);
-		req.onreadystatechange = function () {
-			if (NgChmGui.UTIL.debug) {console.log('state change');}
-			if (req.readyState == req.DONE) {
-				NgChmGui.UTIL.hideLoading();
-				if (NgChmGui.UTIL.debug) {console.log('done');}
-		        if (req.status != 200) {
-		    		if (NgChmGui.UTIL.debug) {console.log('not 200');}
-		            console.log('Failed to upload matrix '  + req.status);
-		        } else {
-		    		if (NgChmGui.UTIL.debug) {console.log('200');}
-		        	//Display file name to right of file open button
-		        	if (displayFileName(true)) {
-			        	//Remove any previous dtat from matrix display box
-			        	clearDisplayBox();
-			        	//Got corner of matrix data.
-			    		resetGridToDefaults();
-			        	topMatrixString = JSON.parse(req.response);
-			        	var matrixBox = document.getElementById('matrix');
-			        	var matrixDisplayBox = document.getElementById('matrixDisplay');
-			        	matrixBox.style.display = '';
-			        	matrixDisplayBox.style.display = '';
-			        	document.getElementById('matrixNextButton').style.display = ''
-			        	dataTable = Object.keys(topMatrixString).map(function(k) { return topMatrixString[k] });
-			        	loadDataFromFile();
-		        	}
-			    }
-			}
-		};
-		NgChmGui.UTIL.showLoading();
-		req.send();
-	}
-	
 	/**********************************************************************************
 	 * FUNCTION - processMatrix: This function executes when a user presses the next
 	 * button on the Matrix screen.  It processes the matrix to create a working matrix
@@ -234,6 +207,30 @@ NgChmGui.FILE.MatrixFile = function() {
 	}
 	
 	/**********************************************************************************
+	 * FUNCTION - getErrMessages: This function returns any error messages set on 
+	 * the MatrixFile object to the external matrix validate function.
+	 **********************************************************************************/
+	this.getErrMessages = function() {
+		return errMessages;
+	}
+
+	/**********************************************************************************
+	 * FUNCTION - getWarnMessages: This function returns any warning messages set on 
+	 * the MatrixFile object to the external matrix validate function.
+	 **********************************************************************************/
+	this.getWarnMessages = function() {
+		return warnMessages;
+	}
+	
+	/**********************************************************************************
+	 * FUNCTION - setChangedState: This function sets the "changed state" for the 
+	 * MatrixFile object and is called from outside the object.
+	 **********************************************************************************/
+	this.setWarnMessages = function(msg) {
+		setWarnMessages = msg;
+	}
+	
+	/**********************************************************************************
 	 * FUNCTION - resetGridToDefaults: This function resets all user grid selections
 	 * to their default values.  It is run whenever a new matrix file is opened.
 	 **********************************************************************************/
@@ -259,7 +256,6 @@ NgChmGui.FILE.MatrixFile = function() {
 		return hasChanged;
 	}
 
-	
 	/**********************************************************************************
 	 * FUNCTION - clearDisplayBox: This function clears all contents of the handsontable
 	 * object.
@@ -283,10 +279,6 @@ NgChmGui.FILE.MatrixFile = function() {
 	 * and the newly uploaded file display process will be halted.
 	 **********************************************************************************/
 	function displayFileName(isSample) {
-/*    	var textSpan = document.getElementById('fileNameText');
-    	while( textSpan.firstChild) {
-    		textSpan.removeChild( textSpan.firstChild );
-    	}  */
     	var fileNameTxt = "Sample Matrix";  
 		if (isSample !== true) {
 			var filePath = document.getElementById('file-input').value;
@@ -296,7 +288,6 @@ NgChmGui.FILE.MatrixFile = function() {
 				fileNameTxt = "  "+filePath.substring(12,filePath.length);
 			}
 		} 
-//    	textSpan.appendChild(document.createTextNode(fileNameTxt));
     	return true;
 	}
 	
@@ -380,16 +371,8 @@ NgChmGui.FILE.MatrixFile = function() {
 				var changeType = 'lab';
 				if (rowLabelRadio.checked) {
 					rowLabelRow = row;
-					var rowPos = colCovs.indexOf(row);
-					if (rowPos >= 0) {
-						colCovs.splice(rowPos, 1);
-					}
 				} else if (colLabelRadio.checked) {
 					colLabelCol = col;
-					var colPos = rowCovs.indexOf(col);
-					if (colPos >= 0) {
-						rowCovs.splice(colPos, 1);
-					}
 				} else if (rowCovRadio.checked) {
 					changeType = 'cov';
 					var colPos = rowCovs.indexOf(col);
@@ -418,7 +401,7 @@ NgChmGui.FILE.MatrixFile = function() {
 					}
 				} else if (dataStartRadio.checked) {
 					changeType = 'ds';
-					dataStartPos = [row,col]
+					dataStartPos = [row,col];
 				}   
 				clearAllSelections(hot);
 				setAllSelections(hot,changeType);
@@ -434,28 +417,10 @@ NgChmGui.FILE.MatrixFile = function() {
 		return hot;
 	}
 
-	function selectDataStartSelection(hot,row,col) {
-	    for(var i = row; i < hot.countRows(); i++){
-		    for(var j = col; j < hot.countCols(); j++){
-	        	hot.setCellMeta(i, j, 'className', 'green');
-			}
-	    }
-	}
-	  
-	function clearCovArray(array,value) {
-		var removalItems = [];
-		for (var i=0;i<array.length;i++) {
-			var currItem = array[i];
-			if (currItem >= value) {
-				removalItems.push(i);
-			}
-		}
-		for (var j=removalItems.length;j>0;j--) {
-			var ridMe = removalItems[j-1];
-			array.splice(ridMe);
-		}
-	}
-	  
+	/**********************************************************************************
+	 * FUNCTION - applyCovSelections: This function draws the cells for all covariate
+	 * bars in yellow.
+	 **********************************************************************************/
 	function applyCovSelections(hot) {
 	    var selColor = 'yellow';
 		for (var i=0;i<colCovs.length;i++) {
@@ -476,6 +441,10 @@ NgChmGui.FILE.MatrixFile = function() {
 		}
 	}
 	  
+	/**********************************************************************************
+	 * FUNCTION - applyDataStartSelection: This function draws the cells for all data cells
+	 * in green.
+	 **********************************************************************************/
 	function applyDataStartSelection(hot) {
 	    var dsRow = dataStartPos[0];
 	    var dsCol = dataStartPos[1];
@@ -486,6 +455,10 @@ NgChmGui.FILE.MatrixFile = function() {
 	    }
 	}
 	  
+	/**********************************************************************************
+	 * FUNCTION - applyLabelSelections: This function draws the cells for all label
+	 * rows and columns in red.
+	 **********************************************************************************/
 	function applyLabelSelections(hot) {
 	    var selColor = 'red';
         for(var j = 0; j < hot.countCols(); j++){
@@ -500,6 +473,10 @@ NgChmGui.FILE.MatrixFile = function() {
         }
 	}
 	  
+	/**********************************************************************************
+	 * FUNCTION - setFirstDataPos: This function calculates and sets the position of the
+	 * first data element in the matrix (label or covariate bar top left position).  
+	 **********************************************************************************/
 	function setFirstDataPos(hot) {
 		  var firstRowCov = 100;
 		  var firstColCov = 100;
@@ -525,7 +502,13 @@ NgChmGui.FILE.MatrixFile = function() {
 		  firstDataPos[1] = firstRowCov;
 	}
 	  
+	/**********************************************************************************
+	 * FUNCTION - adjustDataStart: This function calculates and sets the position of the
+	 * first data element (i.e. non-covariate or label) in the matrix.  This will be used 
+	 * to pull data from the matrix when it is processed on the back end.
+	 **********************************************************************************/
 	function adjustDataStart(hot) {
+		  var changeFound = false;
 		  var lastRowCov = 0;
 		  var lastColCov = 0;
 		  for (var i=0;i<colCovs.length;i++) {
@@ -548,25 +531,89 @@ NgChmGui.FILE.MatrixFile = function() {
 		  }
 		  if (dataStartPos[0] <= lastColCov) {
 			  dataStartPos[0] = lastColCov+1;
+			  changeFound = true;
 		  }
 		  if (dataStartPos[1] <= lastRowCov) {
 			  dataStartPos[1] = lastRowCov+1;
+			  changeFound = true;
 		  }
+		  return changeFound;
 	}
 	  
+	/**********************************************************************************
+	 * FUNCTION - setAllSelections: This function fires at screen load and whenever
+	 * a user clicks on the matrix.  It performs validations on the state of the matrix
+	 * after the click and then redraws the matrix on the screen.
+	 **********************************************************************************/
 	function setAllSelections(hot,change) {
-		  if (change === 'ds') {
-			  clearCovArray(colCovs,dataStartPos[0]);
-			  clearCovArray(rowCovs,dataStartPos[1]);
-		  } else {
-			  adjustDataStart(hot);
-		  }
-		  setFirstDataPos(hot);
-		  applyCovSelections(hot);
-		  applyDataStartSelection(hot);
-		  applyLabelSelections(hot) 
+		//initialize errors prior to validation
+		errMessages = "";
+		warnMessages = "";
+		validateHotSelections(hot);
+		setFirstDataPos(hot);
+		applyCovSelections(hot);
+		applyDataStartSelection(hot);
+		applyLabelSelections(hot) 
+	}
+	
+	/**********************************************************************************
+	 * FUNCTION - validateHotSelections: This function validates user selections (by 
+	 * click) on the matrix handsontable object.
+	 **********************************************************************************/
+	function validateHotSelections(hot) {
+		if (rowLabelRow < 0) {
+			errMessages = errMessages + NgChmGui.UTIL.errorPrefix + "A Label Row must be selected to continue.<br>";
+		}
+		if (colLabelCol < 0) {
+			errMessages = errMessages + NgChmGui.UTIL.errorPrefix + "A Label Column must be selected to continue.<br>";
+		}
+		if (errMessages === "") {
+			if (dsCheckCovEntries(rowCovs, colLabelCol, colCovs.length+rowCovs.length, "rowColorType")) {
+				  warnMessages = warnMessages + NgChmGui.UTIL.warningPrefix + "Row Covariate(s) removed as a result of this selection.<br>";
+			}
+			if (dsCheckCovEntries(colCovs, rowLabelRow, colCovs.length+rowCovs.length, "colColorType")) {
+				warnMessages = warnMessages + NgChmGui.UTIL.warningPrefix + "Column Covariate(s) removed as a result of this selection.<br>";
+			}
+			if (adjustDataStart(hot)) {
+				warnMessages = warnMessages + NgChmGui.UTIL.warningPrefix + "Data Start Position adjusted to:  Row - " + (dataStartPos[0]+1) + " Column - " + (dataStartPos[1]+1) + "<br>";
+			}
+		}
+		//call validate routine to draw error and warning messages to screen
+		NgChmGui.FILE.validateEntries(false);
 	}
 	  
+	/**********************************************************************************
+	 * FUNCTION - dsCheckCovEntries: This function evaluates the position of covariate
+	 * bars and removes them if they are obscured by a row/col label selection.
+	 **********************************************************************************/
+	function dsCheckCovEntries(rcCovs, rElem, covCtr, listId) {
+		var covRemoved = false;
+		var remCov = [];
+		for (var i=0;i<rcCovs.length;i++) {
+			var rCov = rcCovs[i];
+			if (rCov >= rElem) {
+				NgChmGui.FILE.removeCovarDataEntry(listId, rCov, covCtr);
+				remCov.push(rCov);
+				covCtr--;
+			}
+		}
+		if (remCov.length > 0) {
+			covRemoved = true;
+			for (var i=0;i<remCov.length;i++) {
+				for (var j=0;j<rcCovs.length;j++) {
+					if (rcCovs[j] === remCov[i]) {
+						rcCovs.splice(j, 1)
+					}
+				}
+			}
+		}
+		return covRemoved;
+	}
+	
+	/**********************************************************************************
+	 * FUNCTION - clearAllSelections: This function clears any selections from the 
+	 * handsontable prior to a redraw of the table on the screen.
+	 **********************************************************************************/
 	function clearAllSelections(hot) {
 		    for(var i = 0; i < hot.countRows(); i++){
 			    for(var j = 0; j < hot.countCols(); j++){
@@ -673,9 +720,14 @@ NgChmGui.FILE.MatrixFile = function() {
 NgChmGui.FILE.validateEntries = function(leavingPage) {
 	NgChmGui.FILE.pageText1 = "NG-CHM heat maps require a tab delimited text file with a matrix of data.  The file must have row and column headers with labels that identify the content of the rows / columns and numeric values in the rest of the matrix.  Use the Open Matrix File button to load your matrix.   If you don't have a matrix and want to try the application use the Sample Matrix open button.";
 	NgChmGui.FILE.pageText2 = "The builder needs to know where the row lables, column labels, matrix data, and covariate data (if included) are located in the uploaded file.  The labels should be red and data should be green.  If not select from the following controls and click on the grid to indicate the location of labels, covariate bars, and the location at which the matrix data begins in the imported file.";
-
-	var valid = true;
 	var pageText = "";
+	var valid = true;
+	
+	//Add matrix selection error messages
+	if ((NgChmGui.matrixFile.getErrMessages() !== "")) {
+		pageText = pageText + NgChmGui.matrixFile.errMessages;
+		valid = false;
+	}
 	
 	if (leavingPage) {
 		//Generate error messages
@@ -693,6 +745,10 @@ NgChmGui.FILE.validateEntries = function(leavingPage) {
 			pageText = pageText + NgChmGui.UTIL.errorPrefix + "HEAT MAP DESCRIPTION ENTRY MISSING." + NgChmGui.UTIL.nextLine;
 			valid = false
 		}
+		if (!NgChmGui.UTIL.isAlphaNumeric(mapDesc)) {
+			pageText = pageText + NgChmGui.UTIL.errorPrefix + "HEAT MAP DESCRIPTION CANNOT CONTAIN NON-ALPHANUMERIC CHARACTERS." + NgChmGui.UTIL.nextLine;
+			valid = false
+		}
 		
 		if (document.getElementById('matrixNameValue').value.trim() === "") {
 			pageText = pageText + NgChmGui.UTIL.errorPrefix + "MISSING MATRIX NAME ENTRY." + NgChmGui.UTIL.nextLine;
@@ -701,6 +757,7 @@ NgChmGui.FILE.validateEntries = function(leavingPage) {
 	}
 	
 	//Generate warning messages (if any)
+	pageText = pageText + NgChmGui.matrixFile.getWarnMessages();
 	
 	//Add in page instruction text
 	if (NgChmGui.matrixFile.isLoaded()){
