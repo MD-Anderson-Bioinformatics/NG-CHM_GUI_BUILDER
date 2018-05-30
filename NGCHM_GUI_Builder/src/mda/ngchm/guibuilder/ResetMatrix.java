@@ -36,7 +36,7 @@ public class ResetMatrix extends HttpServlet {
 	    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
 	        workingDir = workingDir + "/" + mySession.getId();
 		    String matrixFile = workingDir  + "/workingMatrix.txt";
-		    String originalFile = workingDir + "/originalMatrix.txt";
+		    String originalFile = workingDir + "/workingMatrix.txt.sav";
 		    Util.backupWorking(matrixFile);
 //		    String tmpWorking = Util.copyWorkingToTemp(matrixFile);
 		    BufferedReader rdr = new BufferedReader(new FileReader(originalFile));
