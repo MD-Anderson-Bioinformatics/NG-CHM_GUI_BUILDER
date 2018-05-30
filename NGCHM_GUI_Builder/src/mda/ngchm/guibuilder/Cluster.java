@@ -33,8 +33,8 @@ public class Cluster  {
 			    String rowOrder = workingDir  + "/rowOrder.txt";  
 			    String rowDendro = workingDir  + "/rowDendro.txt";  
 			    String rowOrderMethod = map.row_configuration.order_method;
-			    performOrdering(engine, matrixFile, rowOrderMethod, "row", map.row_configuration.distance_metric, map.row_configuration.agglomeration_method, rowOrder, rowDendro);  //Get from props
 			    if (rowOrderMethod.equals("Hierarchical")) {   
+				    performOrdering(engine, matrixFile, rowOrderMethod, "row", map.row_configuration.distance_metric, map.row_configuration.agglomeration_method, rowOrder, rowDendro);  //Get from props
 			    	map.row_configuration.order_file = rowOrder;  
 			    	map.row_configuration.dendro_file = rowDendro; 
 			    	if (map.row_configuration.dendro_show.equals("NA"))	{	 	    	
@@ -42,6 +42,8 @@ public class Cluster  {
 		    			map.row_configuration.dendro_height = "100";  
 			    	}
 			    } else {
+			    	map.row_configuration.order_file = null;  
+			    	map.row_configuration.dendro_file = null;  
 			    	map.row_configuration.dendro_show = "NA";  
 			    	map.row_configuration.dendro_height = "10";
 			    }
@@ -50,8 +52,8 @@ public class Cluster  {
 			    String colOrder = workingDir  + "/colOrder.txt";  
 			    String colDendro = workingDir  + "/colDendro.txt";  
 				String colOrderMethod = map.col_configuration.order_method;
-				performOrdering(engine, matrixFile, colOrderMethod, "column", map.col_configuration.distance_metric, map.col_configuration.agglomeration_method, colOrder, colDendro);  //Get from props
 			    if (colOrderMethod.equals("Hierarchical")) {   
+					performOrdering(engine, matrixFile, colOrderMethod, "column", map.col_configuration.distance_metric, map.col_configuration.agglomeration_method, colOrder, colDendro);  //Get from props
 			    	map.col_configuration.order_file = colOrder;  
 			    	map.col_configuration.dendro_file = colDendro; 
 			    	if (map.col_configuration.dendro_show.equals("NA"))	{	 	    	
@@ -59,6 +61,8 @@ public class Cluster  {
 		    			map.col_configuration.dendro_height = "100";  
 			    	}
 			    } else {
+			    	map.col_configuration.order_file = null;  
+			    	map.col_configuration.dendro_file = null;  
 			    	map.col_configuration.dendro_show = "NA";  
 			    	map.col_configuration.dendro_height = "10";
 			    }
