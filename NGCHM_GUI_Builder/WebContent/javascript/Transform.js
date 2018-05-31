@@ -539,12 +539,14 @@ NgChmGui.TRANS.done =  function() {
 	if (!NgChmGui.TRANS.validateEntries(true))
 		return;
 	
-	NgChmGui.TRANS.processTransforms();
-	NgChmGui.UTIL.buildHeatMap(NgChmGui.TRANS.update);
+	var callbackFunc = function(){
+		NgChmGui.UTIL.buildHeatMap(NgChmGui.TRANS.update); 
+	}
+	NgChmGui.TRANS.processTransforms(callbackFunc);
 
 }
 
-NgChmGui.TRANS.processTransforms = function(){
+NgChmGui.TRANS.processTransforms = function(callback){
 	var cds = document.getElementsByClassName("change_option");
 	var formIDs = [];
 	var URIs = [];
@@ -570,8 +572,9 @@ NgChmGui.TRANS.processTransforms = function(){
 //			            NgChmGui.UTIL.matrixLoadingError();
 	        } else {
 				if (NgChmGui.UTIL.debug) {console.log('200');}
-
-//				NgChmGui.UTIL.buildHeatMap(NgChmGui.TRANS.update);
+				if (callback){
+					callback();
+				}
 		    }
 		}
 	};
