@@ -65,7 +65,7 @@ public class Util {
 	  try  {  
 	    @SuppressWarnings("unused")
 		double d = Double.parseDouble(str);
-	    if (Double.isNaN(d))
+	    if (Double.isNaN(d) || d == Double.NEGATIVE_INFINITY || d == Double.POSITIVE_INFINITY)
 	       	return false;
 	  }   catch(Exception e)  { 
 	    return false;  
