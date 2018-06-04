@@ -29,6 +29,16 @@ NgChmGui.TRANS.validateEntries = function(leavingPage) {
 			pageText = pageText + NgChmGui.UTIL.errorPrefix + "INVALID VALUES MUST BE CORRECTED." + NgChmGui.UTIL.nextLine;
 			valid = false;
 		}	
+		if (NgChmGui.TRANS.matrixInfo.numRows < 1) {
+			pageText = pageText + NgChmGui.UTIL.errorPrefix + "MATRIX HAS NO ROWS." + NgChmGui.UTIL.nextLine;
+			valid = false;
+		}
+		if(NgChmGui.TRANS.matrixInfo.numCols < 1) {
+			pageText = pageText + NgChmGui.UTIL.errorPrefix + "MATRIX HAS NO COLUMNS." + NgChmGui.UTIL.nextLine;
+			valid = false;
+		}	
+		
+		
 		if (NgChmGui.TRANS.matrixInfo.numRows > 4000) {
 			pageText = pageText + NgChmGui.UTIL.errorPrefix + "MATRIX HAS TOO MANY ROWS (>4000) FOR BUILDER. USE FILTER TO REMOVE ROWS." + NgChmGui.UTIL.nextLine;
 			valid = false;
@@ -37,11 +47,14 @@ NgChmGui.TRANS.validateEntries = function(leavingPage) {
 			pageText = pageText + NgChmGui.UTIL.errorPrefix + "MATRIX HAS TOO MANY COLUMNS (>4000) FOR BUILDER. USE FILTER TO REMOVE COLUMNS." + NgChmGui.UTIL.nextLine;
 			valid = false;
 		}	
+		if (NgChmGui.TRANS.matrixInfo.numRows < 1) {
+			pageText = pageText + NgChmGui.UTIL.errorPrefix + "Your matrix has no rows." + NgChmGui.UTIL.nextLine;
+		}	
+		if (NgChmGui.TRANS.matrixInfo.numCols < 1) {
+			pageText = pageText + NgChmGui.UTIL.errorPrefix + "Your matrix has no columns." + NgChmGui.UTIL.nextLine;
+		}
 	} else {
 		//Generate warning messages
-		if (NgChmGui.TRANS.matrixInfo.numInvalid > 0) {
-			pageText = pageText + NgChmGui.UTIL.warningPrefix + "Your data contains invalid (non-numeric) cell values.  Use the Missing/Invalid transforms to replace invalid values." + NgChmGui.UTIL.nextLine;
-		}	
 
 		if (NgChmGui.TRANS.matrixInfo.numRows > 1000) {
 			pageText = pageText + NgChmGui.UTIL.warningPrefix + "Your matrix has a large number of rows consider using the Filter Data transform to remove non-informative rows" + NgChmGui.UTIL.nextLine;
@@ -56,12 +69,7 @@ NgChmGui.TRANS.validateEntries = function(leavingPage) {
 		pageText = pageText + NgChmGui.UTIL.warningPrefix + "Your matrix has negative values.  A log transform would result in invalid values - use a different transform to remove negative values prior to log transforms." + NgChmGui.UTIL.nextLine;
 	}	
 	
-	if (NgChmGui.TRANS.matrixInfo.numRows < 1) {
-		pageText = pageText + NgChmGui.UTIL.errorPrefix + "Your matrix has no rows." + NgChmGui.UTIL.nextLine;
-	}	
-	if (NgChmGui.TRANS.matrixInfo.numCols < 1) {
-		pageText = pageText + NgChmGui.UTIL.errorPrefix + "Your matrix has no columns." + NgChmGui.UTIL.nextLine;
-	}	
+		
 	
 	//Add in page instruction text
 	pageText = pageText + "This page provides summary statistics of your matrix data including the distribution of values and row/column standard deviations.  Filters and transforms can be used to manipulate the matrix to produce better heat maps.  For example, a Z-norm transform could be used to normalize rows with values that differ in magnitude and a standard deviation filter could be used to remove rows with values that do not differ much across the columns." ;
