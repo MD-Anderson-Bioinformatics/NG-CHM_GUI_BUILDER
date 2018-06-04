@@ -193,8 +193,11 @@ public class GetWorkingMatrix extends HttpServlet {
 						}
 					}
 					
-					if (numRowValues > 0)
+					if (numRowValues > 0) {
 						rowMean.add(rowSum/numRowValues);
+					} else {
+						rowMean.add(null);
+					}
 					line = rdr.readLine();
 				}	
 				rdr.close();
