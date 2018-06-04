@@ -47,12 +47,6 @@ NgChmGui.TRANS.validateEntries = function(leavingPage) {
 			pageText = pageText + NgChmGui.UTIL.errorPrefix + "MATRIX HAS TOO MANY COLUMNS (>4000) FOR BUILDER. USE FILTER TO REMOVE COLUMNS." + NgChmGui.UTIL.nextLine;
 			valid = false;
 		}	
-		if (NgChmGui.TRANS.matrixInfo.numRows < 1) {
-			pageText = pageText + NgChmGui.UTIL.errorPrefix + "Your matrix has no rows." + NgChmGui.UTIL.nextLine;
-		}	
-		if (NgChmGui.TRANS.matrixInfo.numCols < 1) {
-			pageText = pageText + NgChmGui.UTIL.errorPrefix + "Your matrix has no columns." + NgChmGui.UTIL.nextLine;
-		}
 	} else {
 		//Generate warning messages
 
