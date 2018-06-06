@@ -147,22 +147,21 @@ NgChmGui.FILE.MatrixFile = function() {
 		            console.log('Failed to upload matrix '  + req.status);
 		        } else {
 		    		if (NgChmGui.UTIL.debug) {console.log('200');}
-		        	//Display file name to right of file open button
-		        	if (displayFileName(isSample)) {
-			        	//Remove any previous dtat from matrix display box
-			        	clearDisplayBox();
-			        	//Got corner of matrix data.
-			    		resetGridToDefaults();
-			        	topMatrixString = JSON.parse(req.response);
-			        	var matrixBox = document.getElementById('matrix');
-			        	var matrixDisplayBox = document.getElementById('matrixDisplay');
-			        	matrixBox.style.display = '';
-			        	matrixDisplayBox.style.display = '';
-			        	document.getElementById('matrixNextButton').style.display = ''
-			        	dataTable = Object.keys(topMatrixString).map(function(k) { return topMatrixString[k] });
-			        	loadDataFromFile();
-			        	NgChmGui.FILE.validateEntries(false);
-		        	}
+		        	//Remove any previous dtat from matrix display box
+		        	clearDisplayBox();
+		        	//Got corner of matrix data.
+		    		resetGridToDefaults();
+		        	topMatrixString = JSON.parse(req.response);
+		        	var matrixBox = document.getElementById('matrix');
+		        	var matrixDisplayBox = document.getElementById('matrixDisplay');
+		        	matrixBox.style.display = '';
+		        	matrixDisplayBox.style.display = '';
+		        	document.getElementById('matrixNextButton').style.display = ''
+		        	dataTable = Object.keys(topMatrixString).map(function(k) { return topMatrixString[k] });
+		        	loadDataFromFile();
+		        	NgChmGui.FILE.validateEntries(false);
+		    		document.getElementById("mapNameValue").value = "";
+		    		document.getElementById("mapDescValue").value = "";
 			    }
 			}
 		};
@@ -250,6 +249,10 @@ NgChmGui.FILE.MatrixFile = function() {
 			var elem = colorDropdowns[i]
 			elem.remove();
 		}
+		var covarTitleBlock = document.getElementById("covarPrefsTitle");
+		if (NgChmGui.UTIL.elemExist(covarTitleBlock)) {
+			covarTitleBlock.remove(); 
+		}
 	}
 	
 	function getChangeState() {
@@ -272,35 +275,6 @@ NgChmGui.FILE.MatrixFile = function() {
     	}
 	}
 	
-	/**********************************************************************************
-	 * FUNCTION - displayFileName: This function displays the file name selected next
-	 * to the "Open Matrix File" button.  This function is also used to determine if the 
-	 * user "canceled" the file open process.  The returned boolean will be evaluated
-	 * and the newly uploaded file display process will be halted.
-	 **********************************************************************************/
-	function displayFileName(isSample) {
-    	var fileNameTxt = "Sample Matrix";  
-		if (isSample !== true) {
-			var filePath = document.getElementById('file-input').value;
-			if ((filePath === null) || (filePath === '')) {
-				return false;
-			} else {
-				fileNameTxt = "  "+filePath.substring(12,filePath.length);
-			}
-		} 
-    	return true;
-	}
-	
-	function fileCancel(isSample) {
-		if (isSample !== true) {
-			var filePath = document.getElementById('file-input').value;
-			if ((filePath === null) || (filePath === '')) {
-				return true;
-			}
-		} 
-    	return false;
-	}
-
 	/**********************************************************************************
 	 * FUNCTION - getJsonData: This function create a JSON data object of all the 
 	 * user entries in the Matrix screen to be passed to the ProcessMatrix servlet.
@@ -377,27 +351,31 @@ NgChmGui.FILE.MatrixFile = function() {
 					changeType = 'cov';
 					var colPos = rowCovs.indexOf(col);
 					if (col == colLabelCol) {
-						colLabelCol = -1;
-					}
-					if (colPos < 0) {
-						rowCovs.push(col);
-						NgChmGui.FILE.addCovarDataEntry("rowColorType", col, hot.getDataAtCell(rowLabelRow,col),covCtr); 
+						errMessages = errMessages + NgChmGui.UTIL.errorPrefix + "The Label column cannot be overlaid with a covariate bar.<br>"
+						warnMessages = warnMessages + NgChmGui.UTIL.warningPrefix + "Row Covariate was not selected. <br>";	
 					} else {
-						rowCovs.splice(colPos, 1);
-						NgChmGui.FILE.removeCovarDataEntry("rowColorType", col, covCtr);
+						if (colPos < 0) {
+							rowCovs.push(col);
+							NgChmGui.FILE.addCovarDataEntry("rowColorType", col, hot.getDataAtCell(rowLabelRow,col),covCtr); 
+						} else {
+							rowCovs.splice(colPos, 1);
+							NgChmGui.FILE.removeCovarDataEntry("rowColorType", col, covCtr);
+						}
 					}
 				} else if (colCovRadio.checked) {
 					changeType = 'cov';
 					var rowPos = colCovs.indexOf(row);
 					if (row == rowLabelRow) {
-						rowLabelRow = -1;
-					}
-					if (rowPos < 0) {
-						colCovs.push(row);
-						NgChmGui.FILE.addCovarDataEntry("colColorType", row, hot.getDataAtCell(row,colLabelCol),covCtr); 
+						errMessages = errMessages + NgChmGui.UTIL.errorPrefix + "The Label column cannot be overlaid with a covariate bar.<br>"
+						warnMessages = warnMessages + NgChmGui.UTIL.warningPrefix + "Column Covariate was not selected. <br>";	
 					} else {
-						colCovs.splice(rowPos, 1);
-						NgChmGui.FILE.removeCovarDataEntry("colColorType", row, covCtr); 
+						if (rowPos < 0) {
+							colCovs.push(row);
+							NgChmGui.FILE.addCovarDataEntry("colColorType", row, hot.getDataAtCell(row,colLabelCol),covCtr); 
+						} else {
+							colCovs.splice(rowPos, 1);
+							NgChmGui.FILE.removeCovarDataEntry("colColorType", row, covCtr); 
+						}
 					}
 				} else if (dataStartRadio.checked) {
 					changeType = 'ds';
@@ -547,12 +525,10 @@ NgChmGui.FILE.MatrixFile = function() {
 	 **********************************************************************************/
 	function setAllSelections(hot,change) {
 		//initialize errors prior to validation
-		errMessages = "";
-		warnMessages = "";
 		validateHotSelections(hot);
 		setFirstDataPos(hot);
-		applyCovSelections(hot);
 		applyDataStartSelection(hot);
+		applyCovSelections(hot);
 		applyLabelSelections(hot) 
 	}
 	
@@ -561,25 +537,20 @@ NgChmGui.FILE.MatrixFile = function() {
 	 * click) on the matrix handsontable object.
 	 **********************************************************************************/
 	function validateHotSelections(hot) {
-		if (rowLabelRow < 0) {
-			errMessages = errMessages + NgChmGui.UTIL.errorPrefix + "A Label Row must be selected to continue.<br>";
+		if (dsCheckCovEntries(rowCovs, colLabelCol, colCovs.length+rowCovs.length, "rowColorType")) {
+			  warnMessages = warnMessages + NgChmGui.UTIL.warningPrefix + "Row Covariate(s) removed as a result of this selection.<br>";
 		}
-		if (colLabelCol < 0) {
-			errMessages = errMessages + NgChmGui.UTIL.errorPrefix + "A Label Column must be selected to continue.<br>";
-		}
-		if (errMessages === "") {
-			if (dsCheckCovEntries(rowCovs, colLabelCol, colCovs.length+rowCovs.length, "rowColorType")) {
-				  warnMessages = warnMessages + NgChmGui.UTIL.warningPrefix + "Row Covariate(s) removed as a result of this selection.<br>";
-			}
-			if (dsCheckCovEntries(colCovs, rowLabelRow, colCovs.length+rowCovs.length, "colColorType")) {
-				warnMessages = warnMessages + NgChmGui.UTIL.warningPrefix + "Column Covariate(s) removed as a result of this selection.<br>";
-			}
-			if (adjustDataStart(hot)) {
-				warnMessages = warnMessages + NgChmGui.UTIL.warningPrefix + "Data Start Position adjusted to:  Row - " + (dataStartPos[0]+1) + " Column - " + (dataStartPos[1]+1) + "<br>";
-			}
+		if (dsCheckCovEntries(colCovs, rowLabelRow, colCovs.length+rowCovs.length, "colColorType")) {
+			warnMessages = warnMessages + NgChmGui.UTIL.warningPrefix + "Column Covariate(s) removed as a result of this selection.<br>";
+		} 
+		if (adjustDataStart(hot)) {
+			warnMessages = warnMessages + NgChmGui.UTIL.warningPrefix + "Data Start Position cannot overlay labels and covariates.  Value adjusted to:  Row: " + (dataStartPos[0]+1) + " Column: " + (dataStartPos[1]+1) + "<br>";
 		}
 		//call validate routine to draw error and warning messages to screen
 		NgChmGui.FILE.validateEntries(false);
+		//initialize errors after to validation
+		errMessages = "";
+		warnMessages = "";
 	}
 	  
 	/**********************************************************************************
@@ -591,7 +562,7 @@ NgChmGui.FILE.MatrixFile = function() {
 		var remCov = [];
 		for (var i=0;i<rcCovs.length;i++) {
 			var rCov = rcCovs[i];
-			if (rCov >= rElem) {
+			if (rCov == rElem) {
 				NgChmGui.FILE.removeCovarDataEntry(listId, rCov, covCtr);
 				remCov.push(rCov);
 				covCtr--;
@@ -685,8 +656,6 @@ NgChmGui.FILE.MatrixFile = function() {
 		    		if (NgChmGui.UTIL.debug) {console.log('not 200');}
 		            console.log('Failed to upload matrix '  + req.status);
 		        } else {
-		        	//Display file name to right of file open button
-		        	displayFileName();
 		        	//Remove any previous dtat from matrix display box
 		        	clearDisplayBox();
 		        	//Got corner of matrix data.
@@ -725,7 +694,7 @@ NgChmGui.FILE.validateEntries = function(leavingPage) {
 	
 	//Add matrix selection error messages
 	if ((NgChmGui.matrixFile.getErrMessages() !== "")) {
-		pageText = pageText + NgChmGui.matrixFile.errMessages;
+		pageText = pageText + NgChmGui.matrixFile.getErrMessages();
 		valid = false;
 	}
 	

@@ -36,6 +36,14 @@ public class HeatmapBuild extends HttpServlet {
 			//Get heat map construction directory from session
 	    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
 	        workingDir = workingDir + "/" + mySession.getId();
+
+	        HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
+	        mgr.load();
+	        HeatmapPropertiesManager.Heatmap map = mgr.getMap();
+	        if (map.matrix_files.get(0).color_map != null) {
+	        	map.matrix_files.get(0).color_map = null;
+		        mgr.save();
+	        }
 	    	buildHeatMap(workingDir);
 	    } catch (Exception e) {
 	        writer.println("Error executing HeatmapDataGenerator to build Heat Map.");
