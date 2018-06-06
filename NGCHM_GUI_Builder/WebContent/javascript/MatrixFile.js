@@ -400,12 +400,12 @@ NgChmGui.FILE.MatrixFile = function() {
 	 * bars in yellow.
 	 **********************************************************************************/
 	function applyCovSelections(hot) {
-	    var selColor = 'yellow';
+	    var selStyle = 'covar';
 		for (var i=0;i<colCovs.length;i++) {
 			var row = colCovs[i];
 	        for(var j = 0; j < hot.countCols(); j++){
 	        	if (j >= firstDataPos[1]) {
-	        		hot.setCellMeta(row, j, 'className', selColor);
+	        		hot.setCellMeta(row, j, 'className', selStyle);
 	        	}
 	        }
 		}
@@ -413,7 +413,7 @@ NgChmGui.FILE.MatrixFile = function() {
 			var col = rowCovs[i];
 	        for(var j = 0; j < hot.countRows(); j++){
 	        	if (j >= firstDataPos[0]) {
-	        		hot.setCellMeta(j, col, 'className', selColor);
+	        		hot.setCellMeta(j, col, 'className', selStyle);
 	        	}
 	        }
 		}
@@ -428,25 +428,25 @@ NgChmGui.FILE.MatrixFile = function() {
 	    var dsCol = dataStartPos[1];
 	    for(var i = dsRow; i < hot.countRows(); i++){
 		    for(var j = dsCol; j < hot.countCols(); j++){
-	          hot.setCellMeta(i, j, 'className', 'green');
+	          hot.setCellMeta(i, j, 'className', 'data');
 		    }
 	    }
 	}
 	  
 	/**********************************************************************************
 	 * FUNCTION - applyLabelSelections: This function draws the cells for all label
-	 * rows and columns in red.
+	 * rows and columns in blue.
 	 **********************************************************************************/
 	function applyLabelSelections(hot) {
-	    var selColor = 'red';
+	    var selStyle = 'label';
         for(var j = 0; j < hot.countCols(); j++){
         	if (j >= firstDataPos[1]) {
-    			hot.setCellMeta(rowLabelRow, j, 'className', selColor);
+    			hot.setCellMeta(rowLabelRow, j, 'className', selStyle);
         	}
         }
         for(var j = 0; j < hot.countRows(); j++){
         	if (j >= firstDataPos[0]) {
-    			hot.setCellMeta(j, colLabelCol, 'className', selColor);
+    			hot.setCellMeta(j, colLabelCol, 'className', selStyle);
         	}
         }
 	}
@@ -688,7 +688,7 @@ NgChmGui.FILE.MatrixFile = function() {
  **********************************************************************************/
 NgChmGui.FILE.validateEntries = function(leavingPage) {
 	NgChmGui.FILE.pageText1 = "NG-CHM heat maps require a tab delimited text file with a matrix of data.  The file must have row and column headers with labels that identify the content of the rows / columns and numeric values in the rest of the matrix.  Use the Open Matrix File button to load your matrix.   If you don't have a matrix and want to try the application use the Sample Matrix open button.";
-	NgChmGui.FILE.pageText2 = "The builder needs to know where the row lables, column labels, matrix data, and covariate data (if included) are located in the uploaded file.  The labels should be red and data should be green.  If not select from the following controls and click on the grid to indicate the location of labels, covariate bars, and the location at which the matrix data begins in the imported file.";
+	NgChmGui.FILE.pageText2 = "The builder needs to know where the row lables, column labels, matrix data, and covariate data (if included) are located in the uploaded file.  The labels should be blue and data should be green.  If not select from the following controls and click on the grid to indicate the location of labels, covariate bars, and the location at which the matrix data begins in the imported file.";
 	var pageText = "";
 	var valid = true;
 	

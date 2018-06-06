@@ -59,9 +59,9 @@ NgChmGui.TRANS.validateEntries = function(leavingPage) {
 		}	
 	}
 	
-	if (NgChmGui.TRANS.matrixInfo.minValue < 0) {
-		pageText = pageText + NgChmGui.UTIL.warningPrefix + "Your matrix has negative values.  A log transform would result in invalid values - use a different transform to remove negative values prior to log transforms." + NgChmGui.UTIL.nextLine;
-	}	
+	//if (NgChmGui.TRANS.matrixInfo.minValue < 0) {
+	//	pageText = pageText + NgChmGui.UTIL.warningPrefix + "Your matrix has negative values.  A log transform would result in invalid values - use a different transform to remove negative values prior to log transforms." + NgChmGui.UTIL.nextLine;
+	//}	
 	
 		
 	
@@ -205,16 +205,16 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 			        return cellProperties;
 			      }
 		    });
-		    //This statement fills the table view with colors (red for labels/green for data)
+		    //This statement fills the table view with colors (blue for labels/green for data)
     	    for(var i = 0; i < hot.countRows(); i++){
     		    for(var j = 0; j < hot.countCols(); j++){
     		    	if (i === 0) {
-    		    		hot.setCellMeta(i, j, 'className', 'red');
+    		    		hot.setCellMeta(i, j, 'className', 'label');
     		    	} else {
     		    		if (j === 0) {
-    		    			hot.setCellMeta(i, j, 'className', 'red');
+    		    			hot.setCellMeta(i, j, 'className', 'label');
     		    		} else {
-    		    			hot.setCellMeta(i, j, 'className', 'green');
+    		    			hot.setCellMeta(i, j, 'className', 'data');
     		    		}
     		    	}
     			}

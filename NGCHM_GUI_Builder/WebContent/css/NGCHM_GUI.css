@@ -133,15 +133,15 @@ div.serviceHeaderLogo img
     border: 1px solid green;
 }
 
-.handsontable .yellow {
-  background: yellow;
+.handsontable .covar {
+  background: #F0E68C;
 }
 
-.handsontable .red {
-  background: red;
+.handsontable .label {
+  background:   #00BFFF;
 }
 
-.handsontable .green {
+.handsontable .data {
   background:  	#90EE90;
 }
 
