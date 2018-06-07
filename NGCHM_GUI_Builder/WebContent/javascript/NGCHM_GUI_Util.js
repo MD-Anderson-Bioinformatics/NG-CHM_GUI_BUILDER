@@ -52,8 +52,8 @@ NgChmGui.createNS('NgChmGui.UTIL');
 NgChmGui.UTIL.maxValues = 2147483647;
 NgChmGui.UTIL.minValues = -2147483647;
 NgChmGui.UTIL.debug = false;
-NgChmGui.UTIL.errorPrefix = "<b><font color='red'>ERROR: </font></b>&nbsp;&nbsp;";
-NgChmGui.UTIL.warningPrefix = "<b><font color='orange'>Warning: </font></b>&nbsp;&nbsp;";
+NgChmGui.UTIL.errorPrefix = "<b class='error_message'>ERROR: </b>&nbsp;&nbsp;";
+NgChmGui.UTIL.warningPrefix = "<b class='warning_message'>Warning: </b>&nbsp;&nbsp;";
 NgChmGui.UTIL.nextLine = "<br>";
 
 /**********************************************************************************

@@ -188,6 +188,26 @@ div.serviceHeaderLogo img
     width: 150px;
 }
 
+.warning_message{
+	color: orange;
+}
+
+.error_message{
+	color: red;
+	animation: blink 0.5s ease;
+}
+
+@keyframes blink {
+    0% {
+        color: white; 
+        rgba(255,0,0,1);
+    }
+    100% {
+    	color:red
+        rgba(255,0,0,1)
+    }
+}
+
 #message {
     margin: 5px !important;
     top: 5%;
