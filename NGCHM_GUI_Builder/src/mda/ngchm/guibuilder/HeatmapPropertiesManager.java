@@ -18,6 +18,7 @@ public class HeatmapPropertiesManager {
 		public Order col_configuration;
 		public Order row_configuration;
 		public String output_location;
+		public String summary_width = "40";
 		public BuilderConfig builder_config;
 	}
 	
@@ -31,7 +32,7 @@ public class HeatmapPropertiesManager {
 		public ColorMap color_map;
 		public MatrixFile (String name, String path, String summary_method, ColorMap cmap) {
 			this.name = name; this.path = path; this.summary_method = summary_method; this.color_map = cmap;
-			this.grid_show = "Y"; this.grid_color = "#FFFFFF"; this.selection_color = "#00FF38";
+			this.grid_show = "N"; this.grid_color = "#FFFFFF"; this.selection_color = "#00FF38";
 		}
 	}
 	
