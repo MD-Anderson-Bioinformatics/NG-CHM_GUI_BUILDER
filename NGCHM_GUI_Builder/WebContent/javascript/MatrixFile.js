@@ -404,7 +404,7 @@ NgChmGui.FILE.MatrixFile = function() {
 		for (var i=0;i<colCovs.length;i++) {
 			var row = colCovs[i];
 	        for(var j = 0; j < hot.countCols(); j++){
-	        	if (j >= firstDataPos[1]) {
+	        	if (j >= rowLabelRow) {
 	        		hot.setCellMeta(row, j, 'className', selStyle);
 	        	}
 	        }
@@ -412,7 +412,7 @@ NgChmGui.FILE.MatrixFile = function() {
 		for (var i=0;i<rowCovs.length;i++) {
 			var col = rowCovs[i];
 	        for(var j = 0; j < hot.countRows(); j++){
-	        	if (j >= firstDataPos[0]) {
+	        	if (j >= colLabelCol) {
 	        		hot.setCellMeta(j, col, 'className', selStyle);
 	        	}
 	        }
@@ -440,12 +440,12 @@ NgChmGui.FILE.MatrixFile = function() {
 	function applyLabelSelections(hot) {
 	    var selStyle = 'label';
         for(var j = 0; j < hot.countCols(); j++){
-        	if (j >= firstDataPos[1]) {
+        	if (j >= colLabelCol) {
     			hot.setCellMeta(rowLabelRow, j, 'className', selStyle);
         	}
         }
         for(var j = 0; j < hot.countRows(); j++){
-        	if (j >= firstDataPos[0]) {
+        	if (j >= rowLabelRow) {
     			hot.setCellMeta(j, colLabelCol, 'className', selStyle);
         	}
         }
@@ -528,8 +528,8 @@ NgChmGui.FILE.MatrixFile = function() {
 		validateHotSelections(hot);
 		setFirstDataPos(hot);
 		applyDataStartSelection(hot);
-		applyCovSelections(hot);
 		applyLabelSelections(hot) 
+		applyCovSelections(hot);
 	}
 	
 	/**********************************************************************************
