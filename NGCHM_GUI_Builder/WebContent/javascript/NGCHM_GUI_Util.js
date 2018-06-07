@@ -316,7 +316,8 @@ NgChmGui.UTIL.setBuildCluster =  function(type) {
  * to determine if an update is necessary.
  **********************************************************************************/
 NgChmGui.UTIL.buildProps =  function() {
-	if (NgChmGui.mapProperties.builder_config.buildProps === "Y") {
+	var buildPropsInd = NgChmGui.mapProperties.builder_config.buildProps;
+	if ((typeof buildPropsInd === 'undefined') || (buildPropsInd === "Y")) {
 		return true;
 	} else {
 		return false;

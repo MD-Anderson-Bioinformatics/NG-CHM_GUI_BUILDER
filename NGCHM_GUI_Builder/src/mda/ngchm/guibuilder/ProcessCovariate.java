@@ -27,7 +27,7 @@ public class ProcessCovariate {
 	public HeatmapPropertiesManager.Classification constructDefaultCovariate(HeatmapPropertiesManager mgr, String covName, String covFilePath, String covPos, String colorType) throws Exception {
 	    String covariateFile = covFilePath;
 		BufferedReader reader = new BufferedReader(new FileReader(covariateFile));
-		HeatmapPropertiesManager.Classification covar = mgr.new Classification(covName, covFilePath, covPos, "Y", "20", "color_plot", "#000000", "#FFFFFF", "0", "99", null);
+		HeatmapPropertiesManager.Classification covar = mgr.new Classification(covName, covFilePath, covPos, "Y", "15", "color_plot", "#000000", "#FFFFFF", "0", "99", null);
 		try {
 			String line = reader.readLine();
 			ArrayList<String> covBreaks = new ArrayList<String>();
