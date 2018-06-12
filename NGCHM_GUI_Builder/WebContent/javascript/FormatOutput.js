@@ -512,12 +512,12 @@ NgChmGui.FORMAT.getBreaksFromColorMap = function() {
 	NgChmGui.UTIL.setTableRow(breakpts, ["Blue Red", redWhiteBlue]);
 	NgChmGui.UTIL.setTableRow(breakpts, ["Rainbow", rainbow]);
 	NgChmGui.UTIL.setTableRow(breakpts, ["Green Red", redBlackGreen]);
-	//TO BE ADDED FOR COLOR PREVIEW PANEL
-/*	NgChmGui.UTIL.setTableRow(breakpts, ["&nbsp;Color Histogram:", "<button type='button' onclick='NgChmGui.FORMAT.loadColorPreviewDiv()'>Update</button>"]);
+	NgChmGui.UTIL.addBlankRow(breakpts)
+	NgChmGui.UTIL.setTableRow(breakpts, ["&nbsp;Color Histogram:", "<button type='button' onclick='NgChmGui.FORMAT.loadColorPreviewDiv()'>Update</button>"]);
 	var previewDiv = "<div id='previewWrapper' style='display:flex; height: 100px; width: 110px;position:relative;' ></div>";//NgChm.UHM.loadColorPreviewDiv(mapName,true);
 	NgChmGui.UTIL.setTableRow(breakpts, [previewDiv]);
-	setTimeout(function(){NgChmGui.FORMAT.loadColorPreviewDiv(true)},100);
-*/
+//	setTimeout(function(){NgChmGui.FORMAT.loadColorPreviewDiv(true)},100);
+
 	return breakpts;
 }
 
@@ -544,6 +544,115 @@ NgChmGui.FORMAT.setColorMapToConfig = function(colorMap) {
 	colorConfig.type = colorMap.getType();
 	return;
 }
+
+/**********************************************************************************
+ * FUNCTION - loadColorPreviewDiv: This function will update the color distribution
+ * preview div to the current color palette in the gear panel
+ **********************************************************************************/
+NgChmGui.FORMAT.loadColorPreviewDiv = function(){
+	var colorMap = NgChmGui.FORMAT.getTempCM();
+	var gradient = "linear-gradient(to right"
+	var numBreaks = colorMap.thresholds.length;
+	var highBP = parseFloat(colorMap.thresholds[numBreaks-1]);
+	var lowBP = parseFloat(colorMap.thresholds[0]);
+	var diff = highBP-lowBP;
+	for (var i=0;i<numBreaks;i++){
+		var bp = colorMap.thresholds[i];
+		var col = colorMap.colors[i];
+		var pct = Math.round((bp-lowBP)/diff*100);
+		gradient += "," + col + " " + pct + "%";
+	}
+	gradient += ")";
+	var wrapper = document.getElementById("previewWrapper");
+	var bins = new Array(10+1).join('0').split('').map(parseFloat); // make array of 0's to start the counters
+	var breaks = new Array(9+1).join('0').split('').map(parseFloat);
+	for (var i=0; i <breaks.length;i++){
+		breaks[i]+=lowBP+diff/(breaks.length-1)*i; // array of the breakpoints shown in the preview div
+	}
+	var numCol = NgChm.heatMap.getNumColumns(NgChm.MMGR.SUMMARY_LEVEL);
+	var numRow = NgChm.heatMap.getNumRows(NgChm.MMGR.SUMMARY_LEVEL)
+	var count = 0;
+	var nan=0;
+	for (var i=0; i<numCol;i++){
+		for(var j=0;j<numRow;j++){
+			count++;
+			var val = NgChm.heatMap.getValue(NgChm.MMGR.SUMMARY_LEVEL,j,i);
+			if (isNaN(val) || val>=NgChm.SUM.maxValues){ // is it Missing value?
+				nan++;
+			} else if (val <= NgChm.SUM.minValues){ // is it a cut location?
+				continue;
+			}
+			if (val <= lowBP){
+				bins[0]++;
+				continue;
+			} else if (highBP < val){
+				bins[bins.length-1]++;
+				continue;
+			}
+			for (var k=0;k<breaks.length;k++){
+				if (breaks[k]<=val && val < breaks[k+1]){
+					bins[k+1]++;
+					break;
+				}
+			}
+		}
+	}
+	var total = 0;
+	var binMax = nan;
+	for (var i=0;i<bins.length;i++){
+		if (bins[i]>binMax)
+			binMax=bins[i];
+		total+=bins[i];
+	}
+	var svg = "<svg id='previewSVG"+mapName+"' width='110' height='100' style='position:absolute;left:10px;top:20px;'>"
+	for (var i=0;i<bins.length;i++){
+		var rect = "<rect x='" +i*10+ "' y='" +(1-bins[i]/binMax)*100+ "' width='10' height='" +bins[i]/binMax*100+ "' style='fill:rgb(0,0,0);fill-opacity:0;stroke-width:1;stroke:rgb(0,0,0)'> "/*<title>"+bins[i]+"</title>*/+ "</rect>";
+		svg+=rect;
+	}
+	var missingRect = "<rect x='100' y='" +(1-nan/binMax)*100+ "' width='10' height='" +nan/binMax*100+ "' style='fill:rgb(255,255,255);fill-opacity:1;stroke-width:1;stroke:rgb(0,0,0)'> "/* <title>"+nan+"</title>*/+"</rect>";
+	svg+= missingRect;
+	svg+="</svg>";
+	var binNums = "";//"<p class='previewLegend' style='position:absolute;left:0;top:100;font-size:10;'>0</p><p class='previewLegend' style='position:absolute;left:0;top:0;font-size:10;'>"+binMax+"</p>"
+	var boundNums = "<p class='previewLegend' style='position:absolute;left:10;top:110;font-size:10;'>"+lowBP.toFixed(2)+"</p><p class='previewLegend' style='position:absolute;left:90;top:110;font-size:10;'>"+highBP.toFixed(2)+"</p>"
+	
+	var preview = "<div id='previewMainColor"+"' style='height: 100px; width:100px;background:"+gradient+";position:absolute; left: 10px; top: 20px;'></div>"
+		+"<div id='previewMissingColor"+"'style='height: 100px; width:10px;background:"+colorMap.missing+";position:absolute;left:110px;top:20px;'></div>"
+		+svg+binNums+boundNums;
+	var wrapper = document.getElementById("previewWrapper")
+	wrapper.innerHTML= preview;
+}
+
+/**********************************************************************************
+ * FUNCTION - getTempCM: This function  will create a dummy color map object to be 
+ * used by loadColorPreviewDiv. If the gear menu has just been opened (firstLoad), the
+ * saved values from the color map manager will be used. Otherwise, it will read the 
+ * values stored in the input boxes, as these values may differ from the ones stored
+ * in the color map manager.
+ **********************************************************************************/
+NgChmGui.FORMAT.getTempCM = function(firstLoad){
+	var tempCM = {"colors":[],"missing":"","thresholds":[],"type":"linear"};
+	if (firstLoad){
+		var colorMap = NgChmGui.FORMAT.getColorMapFromConfig();
+		tempCM.thresholds = colorMap.getThresholds();
+		tempCM.colors = colorMap.getColors();
+		tempCM.missing = colorMap.getMissingColor();
+	} else {
+		var i=0;
+		var bp = document.getElementById("breakPt"+[i]+"_breakPref");
+		var color = document.getElementById("color"+[i]+"_colorPref");
+		while(bp && color){
+			tempCM.colors.push(color.value);
+			tempCM.thresholds.push(bp.value);
+			i++;
+			bp = document.getElementById("breakPt"+[i]+"_breakPref");
+			color = document.getElementById("color"+[i]+"_colorPref");
+		}
+		var missing = document.getElementById("missing_colorPref");
+		tempCM.missing = missing.value;
+	}
+	return tempCM;
+}
+
 
 /**********************************************************************************
  * FUNCTION - getColorMapFromScreen: This function resets the values in the color
@@ -872,118 +981,5 @@ NgChmGui.FORMAT.gotoHeatMapScreen = function() {
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-//CODE BELOW THIS LINE NOT CURRENTLY USED EXAMPLE FUNCTIONS TO RETRIEVE BINS FOR COLOR PREVIEW DIV
-///////////////////////////////////////////////////////////////////////////////////////////////////
 
-NgChmGui.FORMAT.bins = null;  //TO BE USED LATER ON COLOR PREVIEW
-
-/**********************************************************************************
- * FUNCTION - loadColorPreviewDiv: This function will update the color distribution
- * preview div to the current color palette in the gear panel
- **********************************************************************************/
-NgChmGui.FORMAT.loadColorPreviewDiv = function(firstLoad){
-	var numRow = NgChmGui.mapProperties.builder_config.matrix_grid_config.dataRows;
-	var numCol = NgChmGui.mapProperties.builder_config.matrix_grid_config.dataCols;
-	var cm = NgChmGui.FORMAT.getTempCM(firstLoad);
-	var gradient = "linear-gradient(to right";
-	var numBreaks = cm.thresholds.length;
-	var highBP = parseFloat(cm.thresholds[numBreaks-1]);
-	var lowBP = parseFloat(cm.thresholds[0]);
-	var diff = highBP-lowBP;
-	for (var i=0;i<numBreaks;i++){
-		var bp = cm.thresholds[i];
-		var col = cm.colors[i];
-		var pct = Math.round((bp-lowBP)/diff*100);
-		gradient += "," + col + " " + pct + "%";
-	}
-	gradient += ")";
-	var wrapper = document.getElementById("previewWrapper");
-
-	
-	/* GET BINS HERE FROM SERVLET */
-	
-	
-	var bins = NgChmGui.FORMAT.bins;
-	var total = 0;
-	var binMax = NgChmGui.FORMAT.numMissing;
-	for (var i=0;i<bins.length;i++){
-		if (bins[i]>binMax)
-			binMax=bins[i];
-		total+=bins[i];
-	}
-
-	var svg = "<svg id='previewSVG' width='110' height='100' style='position:absolute;left:10px;top:20px;'>"
-	for (var i=0;i<bins.length;i++){
-		var rect = "<rect x='" +i*10+ "' y='" +(1-bins[i]/binMax)*100+ "' width='10' height='" +bins[i]/binMax*100+ "' style='fill:rgb(0,0,0);fill-opacity:0;stroke-width:1;stroke:rgb(0,0,0)'> "/*<title>"+bins[i]+"</title>*/+ "</rect>";
-		svg+=rect;
-	}
-	var missingRect = "<rect x='100' y='" +(1-nan/binMax)*100+ "' width='10' height='" +nan/binMax*100+ "' style='fill:rgb(255,255,255);fill-opacity:1;stroke-width:1;stroke:rgb(0,0,0)'> "/* <title>"+nan+"</title>*/+"</rect>";
-	svg+= missingRect;
-	svg+="</svg>";
-	var binNums = "";//"<p class='previewLegend' style='position:absolute;left:0;top:100;font-size:10;'>0</p><p class='previewLegend' style='position:absolute;left:0;top:0;font-size:10;'>"+binMax+"</p>"
-	var boundNums = "<p class='previewLegend' style='position:absolute;left:10;top:110;font-size:10;'>"+lowBP.toFixed(2)+"</p><p class='previewLegend' style='position:absolute;left:90;top:110;font-size:10;'>"+highBP.toFixed(2)+"</p>"
-	
-	var preview = "<div id='previewMainColor' style='height: 100px; width:100px;background:"+gradient+";position:absolute; left: 10px; top: 20px;'></div>"
-		+"<div id='previewMissingColor'style='height: 100px; width:10px;background:"+cm.missing+";position:absolute;left:110px;top:20px;'></div>"
-		+svg+binNums+boundNums;
-	wrapper.innerHTML= preview;
-}
-
-//NOT CURRENTLY USED EXAMPLE FUNCTION TO RETRIEVE BINS FOR COLOR PREVIEW DIV
-NgChmGui.FORMAT.getDataBins = function() {
-	var req = new XMLHttpRequest();
-	req.open("GET", "GetWorkingMatrix", true);
-	req.onreadystatechange = function () {
-		if (NgChmGui.UTIL.debug) {console.log('state change');}
-		if (req.readyState == req.DONE) {
-			if (NgChmGui.UTIL.debug) {console.log('done');}
-	        if (req.status != 200) {
-	        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
-	            console.log('Failed to get working matrix '  + req.status);
-	        } else {
-				if (NgChmGui.UTIL.debug) {console.log('200');}
-	        	matrixInfo = JSON.parse(req.response);
-	        	NgChmGui.FORMAT.bins = new Array();
-	        	for (var j=0;j<matrixInfo.histoCounts.length;j++) {
-        			NgChmGui.FORMAT.bins.push(matrixInfo.histoCounts[j]);
-	        	}
-	        	NgChmGui.FORMAT.bins.push(matrixInfo.numMissing);
-		    }
-		}
-	};
-	req.send();
-}
-
-//NOT CURRENTLY USED EXAMPLE FUNCTION TO RETRIEVE BINS FOR COLOR PREVIEW DIV
-/**********************************************************************************
- * FUNCTION - getTempCM: This function  will create a dummy color map object to be 
- * used by loadColorPreviewDiv. If the gear menu has just been opened (firstLoad), the
- * saved values from the color map manager will be used. Otherwise, it will read the 
- * values stored in the input boxes, as these values may differ from the ones stored
- * in the color map manager.
- **********************************************************************************/
-NgChmGui.FORMAT.getTempCM = function(firstLoad){
-	var tempCM = {"colors":[],"missing":"","thresholds":[],"type":"linear"};
-	if (firstLoad){
-		var colorMap = NgChmGui.FORMAT.getColorMapFromConfig();
-		tempCM.thresholds = colorMap.getThresholds();
-		tempCM.colors = colorMap.getColors();
-		tempCM.missing = colorMap.getMissingColor();
-	} else {
-		var i=0;
-		var bp = document.getElementById("breakPt"+[i]+"_breakPref");
-		var color = document.getElementById("color"+[i]+"_colorPref");
-		while(bp && color){
-			tempCM.colors.push(color.value);
-			tempCM.thresholds.push(bp.value);
-			i++;
-			bp = document.getElementById("breakPt"+[i]+"_breakPref");
-			color = document.getElementById("color"+[i]+"_colorPref");
-		}
-		var missing = document.getElementById("missing_colorPref");
-		tempCM.missing = missing.value;
-	}
-	return tempCM;
-}
 
