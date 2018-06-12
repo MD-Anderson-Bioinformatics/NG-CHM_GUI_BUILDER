@@ -392,7 +392,7 @@ NgChmGui.UTIL.matrixLoadingError = function() {
 	NgChmGui.UTIL.initMessageBox();
 	NgChmGui.UTIL.setMessageBoxHeader("Matrix Loading Error");
 	NgChmGui.UTIL.setMessageBoxText("<br>Unable to load selected matrix.  Please try again.<br><br>", 2);
-	NgChmGui.UTIL.setMessageBoxButton(3, "images/closeButton.png", "", "NgChmGui.UTIL.messageBoxCancel");
+	NgChmGui.UTIL.setMessageBoxButton(3, "images/cancelButton.png", "", "NgChmGui.UTIL.messageBoxCancel");
 	document.getElementById('message').style.display = '';
 }
 
@@ -404,7 +404,7 @@ NgChmGui.UTIL.heatmapBuildError = function() {
 	NgChmGui.UTIL.initMessageBox();
 	NgChmGui.UTIL.setMessageBoxHeader("Heatmap Build Error");
 	NgChmGui.UTIL.setMessageBoxText("<br>Unable to load changes to heat map.  Please try again.<br><br>", 2);
-	NgChmGui.UTIL.setMessageBoxButton(3, "images/closeButton.png", "", "NgChmGui.UTIL.messageBoxCancel");
+	NgChmGui.UTIL.setMessageBoxButton(3, "images/cancelButton.png", "", "NgChmGui.UTIL.messageBoxCancel");
 	document.getElementById('message').style.display = '';
 }
 
@@ -413,7 +413,7 @@ NgChmGui.UTIL.newHeatMapNotice = function() {
 	NgChmGui.UTIL.setMessageBoxHeader("Build New Heat Map");
 	NgChmGui.UTIL.setMessageBoxText("<br>If you choose to continue, the current map will be deleted and you will no longer have access to it in the NG-CHM Builder.<br><br>You may want to download the current map as an NG-CHM File or PDF first.<br><br>", 6);
 	NgChmGui.UTIL.setMessageBoxButton(1, "images/continueButton.png", "Start all new Heat Map Build", "NgChmGui.MAP.newMapConfirm");
-	NgChmGui.UTIL.setMessageBoxButton(3, "images/closeButton.png", "", "NgChmGui.UTIL.messageBoxCancel");
+	NgChmGui.UTIL.setMessageBoxButton(3, "images/cancelButton.png", "", "NgChmGui.UTIL.messageBoxCancel");
 	document.getElementById('message').style.display = '';
 }
 

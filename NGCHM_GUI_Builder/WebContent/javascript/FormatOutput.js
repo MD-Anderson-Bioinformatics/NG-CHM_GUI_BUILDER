@@ -105,7 +105,7 @@ NgChmGui.FORMAT.validateGapPrefsByType = function(config, type) {
 	if (typeof configCuts !== 'undefined') {
 		for (var i=0;i<configCuts.length;i++) {
 			var cutVal = configCuts[i];
-			if (isNaN(cutVal)) {
+			if ((isNaN(cutVal)) || (cutVal < 0)) {
 				nanCut = true;
 			}
 			for (var j=0;j<configCuts.length;j++) {
@@ -115,17 +115,17 @@ NgChmGui.FORMAT.validateGapPrefsByType = function(config, type) {
 			}
 		}
 		if (nanCut) {
-			errorMsgs = errorMsgs + NgChmGui.UTIL.errorPrefix + type + " GAP VALUES CONTAIN NON-NUMERIC ENTRY(S)." + NgChmGui.UTIL.nextLine;
+			errorMsgs = errorMsgs + NgChmGui.UTIL.errorPrefix + type + " GAP VALUES CONTAIN NON-NUMERIC OR NEGATIVE NUMERIC ENTRY(S)." + NgChmGui.UTIL.nextLine;
 		}
 		if (dupCut) {
 			errorMsgs = errorMsgs + NgChmGui.UTIL.errorPrefix + type + " GAP DUPLICATE VALUES FOUND." + NgChmGui.UTIL.nextLine;
 		}
 	}
-	if ((isNaN(config.cut_width)) || (config.cut_width.indexOf(".") > -1)) {
-		errorMsgs = errorMsgs + NgChmGui.UTIL.errorPrefix + type + " GAP LENGTH CONTAINS NON-INTEGER ENTRY." + NgChmGui.UTIL.nextLine;
+	if ((isNaN(config.cut_width)) || (config.cut_width.indexOf(".") > -1) || (config.cut_width < 0)) {
+		errorMsgs = errorMsgs + NgChmGui.UTIL.errorPrefix + type + " GAP LENGTH CONTAINS NON-INTEGER OR NEGATIVE NUMERIC ENTRY." + NgChmGui.UTIL.nextLine;
 	}
-	if ((isNaN(config.tree_cuts)) || (config.tree_cuts.indexOf(".") > -1)) {
-		errorMsgs = errorMsgs + NgChmGui.UTIL.errorPrefix + type + " TREE CUTS CONTAINS NON-INTEGER ENTRY." + NgChmGui.UTIL.nextLine;
+	if ((isNaN(config.tree_cuts)) || (config.tree_cuts.indexOf(".") > -1)  || (config.tree_cuts < 0)) {
+		errorMsgs = errorMsgs + NgChmGui.UTIL.errorPrefix + type + " TREE CUTS CONTAINS NON-INTEGER OR NEGATIVE NUMERIC ENTRY." + NgChmGui.UTIL.nextLine;
 	}
 	return errorMsgs;
 }

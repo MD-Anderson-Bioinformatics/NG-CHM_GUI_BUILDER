@@ -524,7 +524,6 @@ NgChmGui.FILE.MatrixFile = function() {
 	 * after the click and then redraws the matrix on the screen.
 	 **********************************************************************************/
 	function setAllSelections(hot,change) {
-		//initialize errors prior to validation
 		validateHotSelections(hot);
 		setFirstDataPos(hot);
 		applyDataStartSelection(hot);
