@@ -74,6 +74,9 @@ NgChmGui.UTIL.toURIString = function(form) {
 					if (elements[i+1].type == "number" || elements[i+1].type == "text"){
 						var nname = elements[i+1].name;
 						var nvalue = elements[i+1].value;
+						if (nvalue == "" || !NgChm.UTIL.isNumeric(nvalue)){
+							return false;
+						}
 						urlString = urlString + (urlString=="" ? "" : "&") + encodeURIComponent(nname) + '=' + encodeURIComponent(nvalue);
 					}
 				}
@@ -630,3 +633,6 @@ NgChmGui.UTIL.isAlphaNumeric = function(str) {
 
 
 
+NgChmGui.UTIL.isNumeric = function(n) {
+	  return !isNaN(parseFloat(n)) && isFinite(n);
+	}
