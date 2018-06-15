@@ -193,6 +193,7 @@ div.serviceHeaderLogo img
 }
 
 .error_message{
+	margin: 0px;
 	color: red;
 	animation: blink 0.5s ease;
 }
