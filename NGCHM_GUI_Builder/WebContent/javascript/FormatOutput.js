@@ -573,8 +573,8 @@ NgChmGui.FORMAT.loadColorPreviewDiv = function(){
 	var numRow = NgChm.heatMap.getNumRows(NgChm.MMGR.SUMMARY_LEVEL)
 	var count = 0;
 	var nan=0;
-	for (var i=0; i<numCol;i++){
-		for(var j=0;j<numRow;j++){
+	for (var i=1; i<numCol+1;i++){
+		for(var j=1;j<numRow+1;j++){ // data points start at 1, not 0
 			count++;
 			var val = NgChm.heatMap.getValue(NgChm.MMGR.SUMMARY_LEVEL,j,i);
 			if (isNaN(val) || val>=NgChm.SUM.maxValues){ // is it Missing value?
