@@ -23,6 +23,8 @@ NgChmGui.FILE.loadData = function() {
 		document.getElementById("mapNameValue").value = NgChmGui.mapProperties.chm_name;
 		document.getElementById("mapDescValue").value = NgChmGui.mapProperties.chm_description;
 	}
+	var chmFileItem = document.getElementById('image-upload');
+	chmFileItem.addEventListener('change', NgChmGui.matrixFile.sendMatrix, false);
 	NgChmGui.FILE.validateEntries(false);
 }
 
@@ -35,20 +37,30 @@ NgChmGui.FILE.loadData = function() {
 NgChmGui.FILE.addCovarDataEntry = function(item, id, name, itemCtr) {
 	var prefsPanelDiv = document.getElementById("matrixCovsPanel");
 	if (itemCtr === 0) {
-	   	var covarTitle = NgChmGui.UTIL.getDivElement("covarPrefsTitle");
-	   	covarTitle.className = 'sec-header';
-	   	covarTitle.innerHTML = "Enter Color Type for Covariates"
-   		covarTitle.style.display = '';
-		prefsPanelDiv.appendChild(covarTitle);
+		NgChmGui.FILE.addCovarPrefsTitle();
 	}
    	var covarDiv = NgChmGui.UTIL.getDivElement(item+"Div_"+id);
    	covarDiv.className = 'pref-header';
-	var colorTypeOptionsSelect = "<select name='"+item+"Pref_"+id+"' id='"+item+"Pref_"+id+"' onchange='NgChmGui.FILE.colorTypeChange();';>" 
-	var colorTypeOptions = "<option value='discrete'>Discrete</option><option value='continuous'>Continuous</option></select>";
+	var colorTypeOptionsSelect = "<select name='"+name+"' id='"+item+"Pref_"+id+"' class='cov_color_pref' onchange='NgChmGui.FILE.colorTypeChange();';>" 
+	var colorTypeOptions = "<option value='none'></option><option value='discrete'>Discrete</option><option value='continuous'>Continuous</option></select>";
 	colorTypeOptionsSelect = colorTypeOptionsSelect+colorTypeOptions;
 	covarDiv.innerHTML = "&nbsp;&nbsp;"+name+":&nbsp;&nbsp;"+colorTypeOptionsSelect;
 	prefsPanelDiv.appendChild(covarDiv);
 	covarDiv.style.display = '';
+}
+
+/**********************************************************************************
+ * FUNCTION - addCovarPrefsTitle: This function adds a header above the covariate
+ * color type preferences in the data entry panel.  It is called when covariates
+ * are selected from the matrix AND when the matrix is reloaded from properties.
+ **********************************************************************************/
+NgChmGui.FILE.addCovarPrefsTitle = function() {
+	var prefsPanelDiv = document.getElementById("matrixCovsPanel");
+   	var covarTitle = NgChmGui.UTIL.getDivElement("covarPrefsTitle");
+   	covarTitle.className = 'sec-header';
+   	covarTitle.innerHTML = "<br>Enter Color Type for Covariates"
+	covarTitle.style.display = '';
+	prefsPanelDiv.appendChild(covarTitle);
 }
 
 /**********************************************************************************
@@ -140,7 +152,6 @@ NgChmGui.FILE.MatrixFile = function() {
 		req.onreadystatechange = function () {
 			if (NgChmGui.UTIL.debug) {console.log('state change');}
 			if (req.readyState == req.DONE) {
-				NgChmGui.UTIL.hideLoading();
 				if (NgChmGui.UTIL.debug) {console.log('done');}
 		        if (req.status != 200) {
 		    		if (NgChmGui.UTIL.debug) {console.log('not 200');}
@@ -162,6 +173,7 @@ NgChmGui.FILE.MatrixFile = function() {
 		        	NgChmGui.FILE.validateEntries(false);
 		    		document.getElementById("mapNameValue").value = "";
 		    		document.getElementById("mapDescValue").value = "";
+					NgChmGui.UTIL.hideLoading();
 			    }
 			}
 		};
@@ -606,6 +618,9 @@ NgChmGui.FILE.MatrixFile = function() {
 		colCovs = gridConfig.colCovs;
 		firstDataPos = [gridConfig.firstDataRow, gridConfig.firstDataCol];
 		loadDataFromFile();
+		if ((colCovs.length+rowCovs.length) > 0) {
+			NgChmGui.FILE.addCovarPrefsTitle();
+		}
 		if (colCovs.length > 0) {
 			for (var i =0;i<colCovs.length;i++) {
 				var heading = dataTable[(colCovs[i])] [colLabelCol];
@@ -649,7 +664,6 @@ NgChmGui.FILE.MatrixFile = function() {
 		req.onreadystatechange = function () {
 			if (NgChmGui.UTIL.debug) {console.log('state change');}
 			if (req.readyState == req.DONE) {
-				NgChmGui.UTIL.hideLoading();
 				if (NgChmGui.UTIL.debug) {console.log('done');}
 		        if (req.status != 200) {
 		    		if (NgChmGui.UTIL.debug) {console.log('not 200');}
@@ -670,6 +684,7 @@ NgChmGui.FILE.MatrixFile = function() {
 			        	dataTable = Object.keys(topMatrixString).map(function(k) { return topMatrixString[k] });
 			        	reloadGridFromConfig();
 			        	NgChmGui.FILE.validateEntries(false);
+						NgChmGui.UTIL.hideLoading();
 		    		}
 			    }
 			}
@@ -722,6 +737,17 @@ NgChmGui.FILE.validateEntries = function(leavingPage) {
 			pageText = pageText + NgChmGui.UTIL.errorPrefix + "MISSING MATRIX NAME ENTRY." + NgChmGui.UTIL.nextLine;
 			valid = false
 		}
+		
+		//validate covariate color pref selections
+		var covColorTypes = document.getElementsByClassName("cov_color_pref");
+		for (var i=0;i<covColorTypes.length;i++) {
+			var type = covColorTypes[i];
+			if (type.value === 'none') {
+				pageText = pageText + NgChmGui.UTIL.errorPrefix + "MISSING COLOR TYPE ENTRY FOR COVARIATE: " + type.name + NgChmGui.UTIL.nextLine;
+				valid = false
+			}
+		}
+
 	}
 	
 	//Generate warning messages (if any)

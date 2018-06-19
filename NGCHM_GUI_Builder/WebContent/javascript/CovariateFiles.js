@@ -247,7 +247,7 @@ NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
 	var highBoundInput = "<input name='high_bound_"+key+"' id='high_bound_"+key+"' value='"+classItem.high_bound+"' maxlength='10' size='5' onchange='NgChmGui.UTIL.setBuildProps();' >&emsp;";
 	NgChmGui.UTIL.addBlankRow(prefContentsBp);
 	NgChmGui.UTIL.setTableRow(prefContentsBp, ["&nbsp;&nbsp;Lower Bound:", lowBoundInput]);
-	NgChmGui.UTIL.setTableRow(prefContentsBp, ["&nbsp;&nbsp;Lower Bound:", highBoundInput]);
+	NgChmGui.UTIL.setTableRow(prefContentsBp, ["&nbsp;&nbsp;Upper Bound:", highBoundInput]);
 	NgChmGui.UTIL.addBlankRow(prefContentsBp);
 	var bgColorInput = "<input class='spectrumColor' type='color' name='bgColorPref_"+key+"' id='bgColorPref_"+key+"' value='"+classItem.bg_color+"' onchange='NgChmGui.UTIL.setBuildProps();' >"; 
 	var fgColorInput = "<input class='spectrumColor' type='color' name='fgColorPref_"+key+"' id='fgColorPref_"+key+"' value='"+classItem.fg_color+"' onchange='NgChmGui.UTIL.setBuildProps();' >"; 
@@ -366,10 +366,19 @@ NgChmGui.COV.addCovariateBar = function(nextFunction) {
 	//Validate Covar name and axis
 	var covNameValue = document.getElementById('covName').value;
 	var axisValue = document.getElementById('axisType').value;
+	var typeValue = document.getElementById('colorType').value;
 	var key = axisValue+"_"+covNameValue;
 	document.getElementById(key);
 	if (document.getElementById(key) !== null) {
-		NgChmGui.COV.validateEntries(false, "A "+axisValue+" covariate already exists with the name:  "+covNameValue+". Please select a different name if you still wish to add this bar.");
+		NgChmGui.COV.validateEntries(false, "A "+axisValue+" covariate already exists with the name:  "+covNameValue+". Please select a different name if you still wish to add this bar.<br>");
+		return;
+	}
+	if (axisValue === 'none') {
+		NgChmGui.COV.validateEntries(false, "Missing Axis Type entry for new covariate: "+covNameValue+". Please select an axis type (row/column).<br>");
+		return;
+	}
+	if (typeValue === 'none') {
+		NgChmGui.COV.validateEntries(false, "Missing Color Type entry for new covariate: "+covNameValue+". Please select a color type (discrete/continuous).<br>");
 		return;
 	}
 	//Proceed
@@ -378,7 +387,6 @@ NgChmGui.COV.addCovariateBar = function(nextFunction) {
 	req.onreadystatechange = function () {
 		if (NgChmGui.UTIL.debug) {console.log('state change');}
 		if (req.readyState == req.DONE) {
-			NgChmGui.UTIL.hideLoading();
 			if (NgChmGui.UTIL.debug) {console.log('done');}
 	        if (req.status != 200) {
 	    		if (NgChmGui.UTIL.debug) {console.log('not 200');}
@@ -395,7 +403,7 @@ NgChmGui.COV.addCovariateBar = function(nextFunction) {
 }
 
 /**********************************************************************************
- * FUNCTION - hideCovarUpload: This function closes the add covariate upload panel,
+ * FUNCTION - loadNewCovariateBar: This function closes the add covariate upload panel,
  * reloads the screen, and displays the newly added covariate's data entry panel.  
  **********************************************************************************/
 NgChmGui.COV.loadNewCovariateBar = function() {
@@ -410,7 +418,7 @@ NgChmGui.COV.loadNewCovariateBar = function() {
 	var key =  NgChmGui.COV.getClassKey(lastClass);
 	NgChmGui.COV.loadData();
 	NgChmGui.COV.selectClassDropdown(key);
-	NgChmGui.COV.showClassSelection();	        
+	NgChmGui.COV.showClassSelection();	
 }
 
 /**********************************************************************************
@@ -438,11 +446,12 @@ NgChmGui.COV.hideCovarUpload = function() {
 	}
 	document.getElementById('covName').value = '';
 	textSpan.appendChild(document.createTextNode(""));
-	document.getElementById("axisType").value = 'column';
-	document.getElementById("colorType").value = 'discrete';
+	document.getElementById("axisType").value = 'none';
+	document.getElementById("colorType").value = 'none';
 	document.getElementById("covarSelection").style.display = '';
 	document.getElementById("covarAdd").style.display = 'none';
 	document.getElementById("covar").value = "";
+	NgChmGui.COV.validateEntries(false);
 }
 
 /**********************************************************************************
@@ -485,7 +494,6 @@ NgChmGui.COV.removeCovariateBar = function(nextFunction) {
 	req.onreadystatechange = function () {
 		if (NgChmGui.UTIL.debug) {console.log('state change');}
 		if (req.readyState == req.DONE) {
-			NgChmGui.UTIL.hideLoading();
 			if (NgChmGui.UTIL.debug) {console.log('done');}
 	        if (req.status != 200) {
 	    		if (NgChmGui.UTIL.debug) {console.log('not 200');}
@@ -506,13 +514,18 @@ NgChmGui.COV.removeCovariateBar = function(nextFunction) {
  * covariate bar for display. 
  **********************************************************************************/
 NgChmGui.COV.removeCovariateBarFromScreen = function() {
+	//remove any labels
+	var classLabels = document.getElementsByClassName("classLabel");
+	while (classLabels.length > 0) {
+		classLabels[0].parentNode.removeChild(classLabels[0]);
+	}
 	NgChmGui.COV.hideCovarRemoval();
 	var oldClassPanel = document.getElementById("classPrefsDiv");
 	if (oldClassPanel !== null) {
 		oldClassPanel.remove();
 	}
 	NgChmGui.COV.loadData();
-	NgChmGui.COV.showClassSelection(0);	       
+	NgChmGui.COV.showClassSelection(0);	
 }
 
 /**********************************************************************************

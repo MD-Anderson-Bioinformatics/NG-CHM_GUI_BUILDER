@@ -162,11 +162,11 @@ public class ProcessMatrix extends HttpServlet {
 				if (rowNum < matrixConfig.firstDataRow) {
 					//ignore
 				} else {
-					String toks[] = line.split("\t");
+					String toks[] = line.split("\t",-1);
 					if (rowNum == matrixConfig.rowLabelRow) {
 						longLabels[1] = getLongestColLabel(matrixConfig, toks);
 						boolean offset = false;
-						if ((toks.length + 1) == endPoint) {
+						if (((toks.length + 1) == endPoint) || (toks[(toks.length-1)].equals(""))) {
 							offset = true;
 						}
 						writeOutMatrixRow(matrixConfig, writer, toks, offset);
@@ -211,6 +211,7 @@ public class ProcessMatrix extends HttpServlet {
 		int startPoint = matrixConfig.dataStartCol;
 		if (offset) {
 			startPoint = startPoint - 1;
+			endPoint = endPoint - 1;
 			writer.write(" " + "\t");
 		} else {
 			writer.write(toks[matrixConfig.colLabelCol] + "\t"); 
@@ -226,8 +227,8 @@ public class ProcessMatrix extends HttpServlet {
 	/*******************************************************************
 	 * METHOD: getEndOfMatrix
 	 *
-	 * This method breezes thru the matrix to the first data row and gets
-	 * the length of that row.  This value is used when evaluating the 
+	 * This method breezes thru the matrix to the first 10 data rows and gets
+	 * the maximum length of the longest row.  This value is used when evaluating the 
 	 * column headers row for offsets of the header values.
 	 ******************************************************************/
 	private int getEndOfMatrix(String workingDir, HeatmapPropertiesManager.MatrixGridConfig matrixConfig) throws Exception {
@@ -241,7 +242,7 @@ public class ProcessMatrix extends HttpServlet {
 				if (rowNum < matrixConfig.dataStartRow) {
 					//ignore
 				} else if (rowNum == matrixConfig.dataStartRow) {
-					String toks[] = line.split("\t");
+					String toks[] = line.split("\t",-1);
 					endPoint = toks.length;
 					break;
 				}
@@ -280,12 +281,12 @@ public class ProcessMatrix extends HttpServlet {
 					//ignore
 				} else {
 					if (rowNum == matrixConfig.rowLabelRow) {
-						labelToks = line.split("\t");
+						labelToks = line.split("\t",-1);
 						if (!labelToks[matrixConfig.colLabelCol].trim().equals("")) {
 							labelOffset++;
 						}
 					} else if (rowNum == covCol) {
-						covToks = line.split("\t");
+						covToks = line.split("\t",-1);
 						covName = covToks[matrixConfig.colLabelCol];
 					}
 					if ((labelToks != null) && (covToks != null)) {
@@ -329,7 +330,7 @@ public class ProcessMatrix extends HttpServlet {
 				if (rowNum < matrixConfig.firstDataRow) {
 					//ignore
 				} else if (rowNum == matrixConfig.rowLabelRow) {
-					String toks[] = line.split("\t");
+					String toks[] = line.split("\t",-1);
 					int labelPos = covRow;  
 					int labelOffset = matrixConfig.colLabelCol;  
 					if (!toks[labelOffset].trim().equals("")) {
@@ -337,7 +338,7 @@ public class ProcessMatrix extends HttpServlet {
 					}
 					covName = toks[labelPos];
 				} else if (rowNum >= matrixConfig.dataStartRow) {
-					String toks[] = line.split("\t");
+					String toks[] = line.split("\t",-1);
 					String covLabel = toks[matrixConfig.colLabelCol];
 					String covValue = toks[covRow];
 					writer.write(covLabel+"\t"+covValue+"\n");

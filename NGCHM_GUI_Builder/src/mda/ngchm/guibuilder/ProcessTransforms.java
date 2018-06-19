@@ -133,7 +133,7 @@ public class ProcessTransforms extends HttpServlet {
 				if (rowNum < matrixConfig.firstDataRow) {
 					//ignore
 				} else {
-					String toks[] = line.split("\t");
+					String toks[] = line.split("\t",-1);
 					if (rowNum == matrixConfig.rowLabelRow) {
 						boolean offset = false;
 						if ((toks.length + 1) == endPoint) {
@@ -195,7 +195,7 @@ public class ProcessTransforms extends HttpServlet {
 				if (rowNum < matrixConfig.dataStartRow) {
 					//ignore
 				} else if (rowNum == matrixConfig.dataStartRow) {
-					String toks[] = line.split("\t");
+					String toks[] = line.split("\t",-1);
 					endPoint = toks.length;
 					break;
 				}
@@ -234,12 +234,12 @@ public class ProcessTransforms extends HttpServlet {
 					//ignore
 				} else {
 					if (rowNum == matrixConfig.rowLabelRow) {
-						labelToks = line.split("\t");
+						labelToks = line.split("\t",-1);
 						if (!labelToks[matrixConfig.colLabelCol].trim().equals("")) {
 							labelOffset++;
 						}
 					} else if (rowNum == covCol) {
-						covToks = line.split("\t");
+						covToks = line.split("\t",-1);
 						covName = covToks[matrixConfig.colLabelCol];
 					}
 					if ((labelToks != null) && (covToks != null)) {
@@ -283,7 +283,7 @@ public class ProcessTransforms extends HttpServlet {
 				if (rowNum < matrixConfig.firstDataRow) {
 					//ignore
 				} else if (rowNum == matrixConfig.rowLabelRow) {
-					String toks[] = line.split("\t");
+					String toks[] = line.split("\t",-1);
 					int labelPos = covRow;  
 					int labelOffset = matrixConfig.colLabelCol;  
 					if (!toks[labelOffset].trim().equals("")) {
@@ -291,7 +291,7 @@ public class ProcessTransforms extends HttpServlet {
 					}
 					covName = toks[labelPos];
 				} else if (rowNum >= matrixConfig.dataStartRow) {
-					String toks[] = line.split("\t");
+					String toks[] = line.split("\t",-1);
 					String covLabel = toks[matrixConfig.colLabelCol];
 					String covValue = toks[covRow];
 					writer.write(covLabel+"\t"+covValue+"\n");

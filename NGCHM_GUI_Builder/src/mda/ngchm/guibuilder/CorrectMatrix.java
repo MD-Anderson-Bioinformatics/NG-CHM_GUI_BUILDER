@@ -74,7 +74,7 @@ public class CorrectMatrix extends HttpServlet {
 			String replacement = replaceMethod.equals("zero") ? "0" : "N/A";
 			
 			while (line != null ){
-				String toks[] = line.split("\t");
+				String toks[] = line.split("\t",-1);
 				out.write(toks[0]);
 				for (int i = 1; i < toks.length; i++) {
 					if (Util.isNumeric(toks[i])) {
@@ -95,7 +95,7 @@ public class CorrectMatrix extends HttpServlet {
 			line = rdr.readLine();
 			
 			while (line != null ){
-				String toks[] = line.split("\t");
+				String toks[] = line.split("\t",-1);
 				out.write(toks[0]);
 				float mean = getRowMean(toks);
 				
@@ -119,7 +119,7 @@ public class CorrectMatrix extends HttpServlet {
 			float[] means = getColMeans(tmpWorking);
 			
 			while (line != null ){
-				String toks[] = line.split("\t");
+				String toks[] = line.split("\t",-1);
 				out.write(toks[0]);
 				for (int i = 1; i < toks.length; i++) {
 					if (Util.isNumeric(toks[i])) {
@@ -154,7 +154,7 @@ public class CorrectMatrix extends HttpServlet {
 			line = rdr.readLine();
 			
 			while (line != null ){
-				String toks[] = line.split("\t");
+				String toks[] = line.split("\t",-1);
 				out.write(toks[0]);
 				for (int i = 1; i < toks.length; i++) {
 					if (Util.isMissing(toks[i])) {
@@ -172,7 +172,7 @@ public class CorrectMatrix extends HttpServlet {
 			line = rdr.readLine();
 			
 			while (line != null ){
-				String toks[] = line.split("\t");
+				String toks[] = line.split("\t",-1);
 				out.write(toks[0]);
 				float mean = getRowMean(toks);
 				
@@ -193,7 +193,7 @@ public class CorrectMatrix extends HttpServlet {
 			float[] means = getColMeans(tmpWorking);
 			
 			while (line != null ){
-				String toks[] = line.split("\t");
+				String toks[] = line.split("\t",-1);
 				out.write(toks[0]);
 				for (int i = 1; i < toks.length; i++) {
 					if (Util.isMissing(toks[i])) {
@@ -211,7 +211,7 @@ public class CorrectMatrix extends HttpServlet {
 			line = rdr.readLine();
 			
 			while (line != null ){
-				String toks[] = line.split("\t");
+				String toks[] = line.split("\t",-1);
 				out.write(toks[0]);
 				float min = getRowMin(toks);
 				
@@ -232,7 +232,7 @@ public class CorrectMatrix extends HttpServlet {
 			float[] mins = getColMins(tmpWorking);
 			
 			while (line != null ){
-				String toks[] = line.split("\t");
+				String toks[] = line.split("\t",-1);
 				out.write(toks[0]);
 				for (int i = 1; i < toks.length; i++) {
 					if (Util.isMissing(toks[i])) {
@@ -269,12 +269,12 @@ public class CorrectMatrix extends HttpServlet {
 		BufferedReader mrdr = new BufferedReader(new FileReader(tmpWorking));
 		String mline = mrdr.readLine(); // skip headers
 		mline = mrdr.readLine();
-		int lineLength = mline.split("\t").length;
+		int lineLength = mline.split("\t",-1).length;
 		
 		float[] means = new float[lineLength];
 		int[] counts = new int[lineLength];
 		while (mline != null ){
-			String toks[] = mline.split("\t");
+			String toks[] = mline.split("\t",-1);
 			for (int i = 1; i < toks.length; i++) {
 				if (Util.isNumeric(toks[i])) {
 					means[i] += Float.parseFloat(toks[i]);
@@ -305,14 +305,14 @@ public class CorrectMatrix extends HttpServlet {
 		BufferedReader mrdr = new BufferedReader(new FileReader(tmpWorking));
 		String mline = mrdr.readLine(); // skip headers
 		mline = mrdr.readLine();
-		int lineLength = mline.split("\t").length;
+		int lineLength = mline.split("\t",-1).length;
 		
 		float[] mins = new float[lineLength];
 		for (int i = 1; i < mins.length; i++) {
 			mins[i] = Float.MAX_VALUE;
 		}
 		while (mline != null ){
-			String toks[] = mline.split("\t");
+			String toks[] = mline.split("\t",-1);
 			for (int i = 1; i < toks.length; i++) {
 				if (Util.isNumeric(toks[i]) && Float.parseFloat(toks[i]) < mins[i]) {
 					mins[i] = Float.parseFloat(toks[i]);

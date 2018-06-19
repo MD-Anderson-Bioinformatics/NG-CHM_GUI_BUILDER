@@ -74,7 +74,7 @@ NgChmGui.UTIL.toURIString = function(form) {
 					if (elements[i+1].type == "number" || elements[i+1].type == "text"){
 						var nname = elements[i+1].name;
 						var nvalue = elements[i+1].value;
-						if (nvalue == "" || !NgChm.UTIL.isNumeric(nvalue)){
+						if (nvalue == "" || !NgChmGui.UTIL.isNumeric(nvalue)){
 							return false;
 						}
 						urlString = urlString + (urlString=="" ? "" : "&") + encodeURIComponent(nname) + '=' + encodeURIComponent(nvalue);
@@ -144,7 +144,6 @@ NgChmGui.UTIL.setHeatmapProperties = function(nextFunction) {
 	req.onreadystatechange = function () {
 		if (NgChmGui.UTIL.debug) {console.log('state change');}
 		if (req.readyState == req.DONE) {
-			NgChmGui.UTIL.hideLoading();
 			if (NgChmGui.UTIL.debug) {console.log('done');}
 	        if (req.status != 200) {
 	        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
@@ -153,9 +152,11 @@ NgChmGui.UTIL.setHeatmapProperties = function(nextFunction) {
 	        } else {
 				if (NgChmGui.UTIL.debug) {console.log('200');}
 	        	NgChmGui.mapProperties = JSON.parse(req.response);
-				if (typeof nextFunction !== 'undefined') {
-					nextFunction();
-				}
+	        	if (NgChmGui.UTIL.validSession()) {
+					if (typeof nextFunction !== 'undefined') {
+						nextFunction();
+					}
+	        	}
 			}
 		};
 	}
@@ -229,10 +230,8 @@ NgChmGui.UTIL.buildHeatMap = function(nextFunction) {
 	        		nextFunction();
 	        	}
 		    }
-	        NgChmGui.UTIL.showLoading();
 		}
 	};
-	NgChmGui.UTIL.showLoading();
 	req.send();
 }
 
@@ -250,7 +249,6 @@ NgChmGui.UTIL.loadHeatMapView = function(hideDetail) {
 	req.onreadystatechange = function () {
 		if (NgChmGui.UTIL.debug) {console.log('state change');}
 		if (req.readyState == req.DONE) {
-			NgChmGui.UTIL.hideLoading();
 			if (NgChmGui.UTIL.debug) {console.log('done');}
 	        if (req.status != 200) {
 	        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
@@ -260,11 +258,10 @@ NgChmGui.UTIL.loadHeatMapView = function(hideDetail) {
 				if (NgChmGui.UTIL.debug) {console.log('200');}
 	        	result = req.response;
 	        	pieces = result.trim().split("|");
-	        	NgChm.UTIL.embedCHM(pieces[1], pieces[0], hideDetail);
+	        	NgChm.UTIL.embedCHM(pieces[1], pieces[0], hideDetail); NgChmGui.UTIL.hideLoading();
 		    }
 		}
 	};
-	NgChmGui.UTIL.showLoading();
 	req.send();
 }
 
@@ -275,18 +272,30 @@ NgChmGui.UTIL.loadHeatMapView = function(hideDetail) {
  **********************************************************************************/
 NgChmGui.UTIL.loadHeaderData =  function() {
 	if (NgChmGui.mapProperties !== null) {
-		if ((NgChmGui.mapProperties.no_file === 1) || (NgChmGui.mapProperties.no_session === 1)) {
-			document.getElementById("ngchmName").innerHTML = "<b>Your Session Has Expired</b>";
-			setTimeout(function(){NgChmGui.UTIL.gotoMatrixScreen(); }, 2000);
-			return false;
-		} else {
+		if (NgChmGui.UTIL.validSession()) {
 			document.getElementById("ngchmName").innerHTML = "<b>Map Name:</b>&nbsp;&nbsp;"+NgChmGui.mapProperties.chm_name;
 			return true;
+		} else {
+			return false;
 		}
 	} else {
 		return true;
 	}
+    return true;
+}
 
+NgChmGui.UTIL.validSession =  function() {
+	if ((NgChmGui.mapProperties.no_file === 1) || (NgChmGui.mapProperties.no_session === 1)) {
+		var nameField = document.getElementById("ngchmName");
+		if (nameField !== null) {
+			document.getElementById("ngchmName").innerHTML = "<b>Your Session Has Expired</b>";
+			setTimeout(function(){NgChmGui.UTIL.gotoMatrixScreen(); }, 2000);
+		}
+		NgChmGui.UTIL.hideLoading();
+		return false;
+	} else {
+		return true;
+	}
 }
 
 /**********************************************************************************
@@ -523,20 +532,23 @@ NgChmGui.UTIL.getLabelText = function(text,type) {
 }
 
 NgChmGui.UTIL.showLoading = function() { 
-	var loadingDiv = document.createElement("div");
-	loadingDiv.id = "loadOverlay";
-	var spinner = document.createElement("div");
-	spinner.classList.add("loader");
-	loadingDiv.appendChild(spinner);
-	document.body.appendChild(loadingDiv);
-	
+	var loadingDiv = document.getElementById("loadOverlay");
+	if (loadingDiv === null) {
+		loadingDiv = document.createElement("div");
+		loadingDiv.id = "loadOverlay";
+		var spinner = document.createElement("div");
+		spinner.classList.add("loader");
+		loadingDiv.appendChild(spinner);
+		document.body.appendChild(loadingDiv);
+	}
 }
 
 NgChmGui.UTIL.hideLoading = function() { 
 	var loadingDiv = document.getElementById("loadOverlay");
-	loadingDiv.parentElement.removeChild(loadingDiv);
+	if (loadingDiv !== null) {
+		loadingDiv.parentElement.removeChild(loadingDiv);
+	}
 }
-
 
 /**********************************************************************************
  * FUNCTION - goto...Screen: These function navigate to the specified screen.  
@@ -630,9 +642,6 @@ NgChmGui.UTIL.isAlphaNumeric = function(str) {
 	  return true;
 };
 
-
-
-
 NgChmGui.UTIL.isNumeric = function(n) {
-	  return !isNaN(parseFloat(n)) && isFinite(n);
-	}
+	return !isNaN(parseFloat(n)) && isFinite(n);
+}

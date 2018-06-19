@@ -106,7 +106,6 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 	req.onreadystatechange = function () {
 		if (NgChmGui.UTIL.debug) {console.log('state change');}
 		if (req.readyState == req.DONE) {
-			NgChmGui.UTIL.hideLoading();
 			if (NgChmGui.UTIL.debug) {console.log('done');}
 	        if (req.status != 200) {
 	        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
@@ -176,11 +175,11 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 //	        	histoCounts.unshift(NgChmGui.TRANS.matrixInfo.numMissing);
 	        	colSDGraph.update(histoCounts);//[NgChmGui.TRANS.matrixInfo.numMissing,NgChmGui.TRANS.matrixInfo.histoCounts]);
 	        	NgChmGui.TRANS.validateEntries(false);
+	        	NgChmGui.UTIL.hideLoading();
 		    }
 		}
 	};
 	req.send();
-	NgChmGui.UTIL.showLoading();
 	
 	function loadDataFromFile() {
 
@@ -305,7 +304,6 @@ NgChmGui.TRANS.correctMatrixData =  function() {
 		req.onreadystatechange = function () {
 			if (NgChmGui.UTIL.debug) {console.log('state change');}
 			if (req.readyState == req.DONE) {
-				NgChmGui.UTIL.hideLoading();
 				if (NgChmGui.UTIL.debug) {console.log('done');}
 		        if (req.status != 200) {
 		        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
@@ -335,7 +333,6 @@ NgChmGui.TRANS.filterMatrixData =  function() {
 		req.onreadystatechange = function () {
 			if (NgChmGui.UTIL.debug) {console.log('state change');}
 			if (req.readyState == req.DONE) {
-				NgChmGui.UTIL.hideLoading();
 				if (NgChmGui.UTIL.debug) {console.log('done');}
 		        if (req.status != 200) {
 		        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
@@ -365,7 +362,6 @@ NgChmGui.TRANS.transformMatrixData =  function() {
 		req.onreadystatechange = function () {
 			if (NgChmGui.UTIL.debug) {console.log('state change');}
 			if (req.readyState == req.DONE) {
-				NgChmGui.UTIL.hideLoading();
 				if (NgChmGui.UTIL.debug) {console.log('done');}
 		        if (req.status != 200) {
 		        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
@@ -394,7 +390,6 @@ NgChmGui.TRANS.resetMatrix =  function() {
 	req.onreadystatechange = function () {
 		if (NgChmGui.UTIL.debug) {console.log('state change');}
 		if (req.readyState == req.DONE) {
-			NgChmGui.UTIL.hideLoading();
 			if (NgChmGui.UTIL.debug) {console.log('done');}
 	        if (req.status != 200) {
 	        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
@@ -501,7 +496,6 @@ NgChmGui.TRANS.revertToState =  function() {
 	            console.log('Failed to filter matrix '  + req.status);
 	        } else {
 				if (NgChmGui.UTIL.debug) {console.log('200');}
-				NgChmGui.UTIL.hideLoading();
 	        	result = req.response;
         		nextFunc(0,value);
 	        	var delIndex = parseInt(value)+1;
@@ -528,7 +522,6 @@ NgChmGui.TRANS.revertToState =  function() {
 			req.onreadystatechange = function () {
 				if (NgChmGui.UTIL.debug) {console.log('state change');}
 				if (req.readyState == req.DONE) {
-					NgChmGui.UTIL.hideLoading();
 					if (NgChmGui.UTIL.debug) {console.log('done');}
 			        if (req.status != 200) {
 			        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
@@ -557,6 +550,7 @@ NgChmGui.TRANS.done =  function() {
 		return;
 	
 	var callbackFunc = function(){
+		NgChmGui.UTIL.showLoading();
 		NgChmGui.UTIL.buildHeatMap(NgChmGui.TRANS.update); 
 	}
 	NgChmGui.TRANS.processTransforms(callbackFunc);

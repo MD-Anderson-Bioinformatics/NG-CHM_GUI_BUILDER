@@ -4,4 +4,7 @@
   <welcome-file-list>
     <welcome-file>NGCHMBuilder_Matrix.html</welcome-file>
   </welcome-file-list>
- </web-app>
+  <listener>
+    <listener-class>mda.ngchm.guibuilder.SessionManager</listener-class>
+  </listener>
+</web-app>

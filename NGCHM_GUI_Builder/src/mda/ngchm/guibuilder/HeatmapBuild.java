@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -67,8 +68,6 @@ public class HeatmapBuild extends HttpServlet {
 	 ******************************************************************/
 	public void buildHeatMap(String workingDir) throws Exception {
 	    try {
-			System.out.println("START Build Heatmap: " + new Date()); 
-
 	        HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
 			String propsPath = workingDir + "/heatmapProperties.json";
 
@@ -86,7 +85,9 @@ public class HeatmapBuild extends HttpServlet {
 				errMsg = HeatmapDataGenerator.processHeatMap(genArgs);
 	        }
 	        
-	        //If the map has not been built before, save the auto-generated break points to the properties.
+		    TimeUnit.MILLISECONDS.sleep(2500);
+
+		    //If the map has not been built before, save the auto-generated break points to the properties.
 	        if (map.matrix_files.get(0).color_map == null) {
 	        	HeatmapPropertiesManager.ColorMap theMap = setDefaultMatrixColors(workingDir, map);
 	        	map.matrix_files.get(0).color_map = theMap;
@@ -103,8 +104,6 @@ public class HeatmapBuild extends HttpServlet {
 		        }
         		mgr.save();
 	        }
-	        
-			System.out.println("END Build Heatmap: " + new Date()); 
 	    } catch (Exception e) {
 	    	throw e;
 	    }			

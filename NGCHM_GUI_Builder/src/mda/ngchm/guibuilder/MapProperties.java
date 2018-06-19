@@ -3,7 +3,6 @@ package mda.ngchm.guibuilder;
 import java.io.BufferedReader;
 import java.io.File; 
 import java.io.IOException;
-import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -11,6 +10,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 
 import com.google.gson.Gson;
 
@@ -32,8 +33,6 @@ public class MapProperties extends HttpServlet {
 		response.setContentType("application/json;charset=UTF-8");
 		
 	    try {
-			System.out.println("START Getting Properties: " + new Date()); 
-			
 			//Get heat map construction directory from session
 	    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
 	        String propJSON = "{}";
@@ -54,8 +53,6 @@ public class MapProperties extends HttpServlet {
 	       	response.setContentType("application/json");
 	    	response.getWriter().write(propJSON.toString());
 	    	response.flushBuffer();
-			
-			System.out.println("END Getting Properties: " + new Date()); 
 	    } catch (Exception e) {
 	    	System.out.println("ERROR Getting Properties: "+ e.getMessage());
 	    } 		
@@ -73,37 +70,48 @@ public class MapProperties extends HttpServlet {
 		response.setContentType("application/json;charset=UTF-8");
 		
 	    try {
-			System.out.println("START Setting Properties: " + new Date()); 
-			
 			//Get heat map construction directory from session
 	    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
 	        workingDir = workingDir + "/" + mySession.getId();
-	        //Get config data from the request
-	        HeatmapPropertiesManager.Heatmap mapConfig = getConfigDataFromRequest(request);
-	        HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
-	        //Get properties and update them to the new config data
-        	mgr.setMap(mapConfig);
-	        //Mark properties as "clean" for update.
-	        mapConfig.builder_config.buildProps = "N";
-		    mgr.save();
-		    //Cluster, if necessary
-		    if (!mapConfig.builder_config.buildCluster.equals("N")) {
-		        //Re-build the heat map 
-			    Cluster clusterer = new Cluster();
-			    clusterer.clusterHeatMap(workingDir);
-		    }
-	        //Re-build the heat map 
-		    HeatmapBuild builder = new HeatmapBuild();
-		    builder.buildHeatMap(workingDir);
-
-		    //Return edited props
 		    String propJSON = "{}";
-        	propJSON = mgr.load();
-	       	response.setContentType("application/json");
-	    	response.getWriter().write(propJSON.toString());
+	        if (new File(workingDir).exists()) {
+		        HeatmapPropertiesManager.Heatmap mapConfig = getConfigDataFromRequest(request);
+		        HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
+		        //Get properties and update them to the new config data
+	        	mgr.setMap(mapConfig);
+		        //Mark properties as "clean" for update.
+		        mapConfig.builder_config.buildProps = "N";
+			    mgr.save();
+
+			    //Delete pre-existing heatmap prior to fresh build
+			    HeatmapPropertiesManager.Heatmap map = mgr.getMap();
+			    File mapDir = new File(workingDir+"/" + map.chm_name);
+			    if (mapDir.exists()) {
+			    	FileUtils.cleanDirectory(mapDir); 
+			    	FileUtils.deleteDirectory(mapDir);
+			    }
+			    
+			    //Cluster, if necessary
+			    if (!mapConfig.builder_config.buildCluster.equals("N")) {
+			        //Re-build the heat map 
+				    Cluster clusterer = new Cluster();
+				    clusterer.clusterHeatMap(workingDir);
+			    }
+		        //Re-build the heat map 
+			    HeatmapBuild builder = new HeatmapBuild();
+			    builder.buildHeatMap(workingDir);
+			    
+			    //Return edited props
+	        	propJSON = mgr.load();
+		       	response.setContentType("application/json");
+		    	response.getWriter().write(propJSON.toString());
+	        } else {
+	        	propJSON = "{\"no_session\": 1}";
+		       	response.setContentType("application/json");
+		    	response.getWriter().write(propJSON.toString());
+	        }
+	        //Get config data from the request
 	    	response.flushBuffer();
-		    
-			System.out.println("END Setting Properties: " + new Date()); 
 		} catch (Exception e) {
 	    	System.out.println("ERROR Setting Properties: "+ e.getMessage());
 	    } finally {
