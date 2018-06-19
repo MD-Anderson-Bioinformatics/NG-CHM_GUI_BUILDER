@@ -42,12 +42,12 @@
 						    <div id='col_distance' class='pref-header' style="display: none;">&nbsp;&nbsp;Distance:
 				            <select name="ColDistance" id="ColDistance"  onchange="NgChmGui.UTIL.setBuildCluster('C');">
 				  				<option value="euclidean">Euclidean</option>
-								<option value="binary">Binary</option>
+								<!-- <option value="binary">Binary</option> ** breaks dendrogram-->
 								<option value="manhattan">Manhattan</option>
 								<option value="maximum">Maximum</option>
 								<option value="canberra">Canberra</option>	    
 								<option value="minkowski">Minkowski</option>	    
-								<option value="correlation">Correlation</option>	    
+								<!-- <option value="correlation">Correlation</option> ** breaks dendrogram-->	    
 				 			</select>
 				 			</div>
 				 		</td></tr>
@@ -59,8 +59,8 @@
 								<option value="single">Single Linkage</option>
 								<option value="ward" selected="true">Ward</option>
 								<option value="mcquitty">Mcquitty</option>	    
-								<option value="median">Median</option>	    
-								<option value="centroid">Centroid</option>	
+								<!-- <option value="median">Median</option>	    ** these methods lead to broken clustering
+								<option value="centroid">Centroid</option>	 -->
 							</select><br/><br/>	    
 							</div>
 						</td></tr>
@@ -78,12 +78,12 @@
 						     <div id='row_distance' class='pref-header' style="display: none;">&nbsp;&nbsp;Distance:
 				             <select name="RowDistance" id="RowDistance" onchange="NgChmGui.UTIL.setBuildCluster('R');">
 				  				<option value="euclidean">Euclidean</option>
-								<option value="binary">Binary</option>
+								<!-- <option value="binary">Binary</option>  ** breaks dendrogram-->
 								<option value="manhattan">Manhattan</option>
 								<option value="maximum">Maximum</option>
 								<option value="canberra">Canberra</option>	    
 								<option value="minkowski">Minkowski</option>	    
-								<option value="correlation">Correlation</option>	    
+								<!-- <option value="correlation">Correlation</option>  ** breaks dendrogram-->	    
 				 			</select>
 				 			</div>
 						</td></tr>
@@ -95,8 +95,8 @@
 								<option value="single">Single Linkage</option>
 								<option value="ward" selected="true">Ward</option>
 								<option value="mcquitty">Mcquitty</option>	    
-								<option value="median">Median</option>	    
-								<option value="centroid">Centroid</option>	
+								<!-- <option value="median">Median</option>	    ** these methods lead to broken clustering
+								<option value="centroid">Centroid</option>	 -->
 							</select>	
 							</div>    
 						</td></tr>
