@@ -13,14 +13,8 @@
 		 	window.onload = function() {
 				NgChmGui.UTIL.getHeatmapProperties(NgChmGui.FILE.loadData); 
 		 		NgChmGui.UTIL.messageBoxConfigure();
-		 		var chmFileItem = document.getElementById('image-upload');
-		 		if (!NgChmGui.UTIL.elemExist(NgChmGui.matrixFile)) {
-		 			setTimeout(function(){ chmFileItem.addEventListener('change', NgChmGui.matrixFile.sendMatrix, false); }, 2000);
-		 		} else {
-					chmFileItem.addEventListener('change', NgChmGui.matrixFile.sendMatrix, false);
-		 		}
 		 	};	
-	 	</script>
+		 </script>
     </head>
     <body style="font-family: sans-serif; font-size: 100%;">
        <div id="screenNote" style="display: none">Define the incoming data matrix: Select from the following controls and click on the grid to edit the location of labels, covariate bars, and the location at which the matrix data begins in the imported file.</div>

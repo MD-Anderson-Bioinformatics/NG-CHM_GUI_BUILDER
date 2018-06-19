@@ -966,8 +966,8 @@ NgChmGui.FORMAT.loadFormatView = function() {
 	document.getElementById('summary_box_canvas').style.display = '';
 	//Show examples of how row and column labels are length-limited and abbreviated
 	var labelPrefDispDIV = document.getElementById('labelPrefExample');
-	var rowText = "<b>Row Abbreviation: </b>&nbsp;&nbsp;" + NgChmGui.UTIL.getLabelText(NgChmGui.mapProperties.builder_config.longRowLabel,"ROW");
-	var colText = "<b>Col Abbreviation: </b>&nbsp;&nbsp;" + NgChmGui.UTIL.getLabelText(NgChmGui.mapProperties.builder_config.longColLabel,"COL");
+	var rowText = "<b>Trimmed Row Label Display: </b>&nbsp;&nbsp;" + NgChmGui.UTIL.getLabelText(NgChmGui.mapProperties.builder_config.longRowLabel,"ROW");
+	var colText = "<b>Trimmed Col Label Display: </b>&nbsp;&nbsp;" + NgChmGui.UTIL.getLabelText(NgChmGui.mapProperties.builder_config.longColLabel,"COL");
 	labelPrefDispDIV.innerHTML = rowText+"<BR>"+colText;
 }
 

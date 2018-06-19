@@ -85,6 +85,12 @@ div.serviceHeaderLogo img
 	padding: 5px 0px 2px 10px
 }
 
+.cov_color_pref
+{
+    font-family: Arial;
+    font-size: 12px;
+}
+
 #pageTitle
 {
     font-family: Arial;

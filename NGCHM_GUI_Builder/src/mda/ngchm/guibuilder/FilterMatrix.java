@@ -81,7 +81,7 @@ public class FilterMatrix extends HttpServlet {
 				line = rdr.readLine();
 				double threshold = Double.parseDouble(request.getParameter("1range_max"));
 				while (line != null ){
-					String toks[] = line.split("\t");
+					String toks[] = line.split("\t",-1);
 					StringBuffer outLine = new StringBuffer();
 					outLine.append(toks[0]);
 					boolean skip = false;
@@ -106,7 +106,7 @@ public class FilterMatrix extends HttpServlet {
 				line = rdr.readLine();
 				double threshold = Double.parseDouble(request.getParameter("1range_min"));
 				while (line != null ){
-					String toks[] = line.split("\t");
+					String toks[] = line.split("\t",-1);
 					StringBuffer outLine = new StringBuffer();
 					outLine.append(toks[0]);
 					boolean skip = false;
@@ -131,7 +131,7 @@ public class FilterMatrix extends HttpServlet {
 				line = rdr.readLine();
 				double threshold = Double.parseDouble(request.getParameter("arange_max"));
 				while (line != null ){
-					String toks[] = line.split("\t");
+					String toks[] = line.split("\t",-1);
 					StringBuffer outLine = new StringBuffer();
 					outLine.append(toks[0]);
 					boolean skip = true;
@@ -155,7 +155,7 @@ public class FilterMatrix extends HttpServlet {
 				line = rdr.readLine();
 				double threshold = Double.parseDouble(request.getParameter("arange_min"));
 				while (line != null ){
-					String toks[] = line.split("\t");
+					String toks[] = line.split("\t",-1);
 					StringBuffer outLine = new StringBuffer();
 					outLine.append(toks[0]);
 					boolean skip = true;
@@ -179,7 +179,7 @@ public class FilterMatrix extends HttpServlet {
 				line = rdr.readLine();
 				double threshold = Double.parseDouble(request.getParameter("range_max"));
 				while (line != null ){
-					String toks[] = line.split("\t");
+					String toks[] = line.split("\t",-1);
 					StringBuffer outLine = new StringBuffer();
 					outLine.append(toks[0]);
 					boolean skip = true;
@@ -209,7 +209,7 @@ public class FilterMatrix extends HttpServlet {
 	    		}
 	    		String line = rdr.readLine();
 				while (line != null ){
-					String toks[] = line.split("\t");
+					String toks[] = line.split("\t",-1);
 					StringBuffer outLine = new StringBuffer();
 					outLine.append(toks[0]);
 					for (int i = 1; i < toks.length; i++) {
@@ -231,7 +231,7 @@ public class FilterMatrix extends HttpServlet {
 	    		}
 	    		String line = rdr.readLine();
 				while (line != null ){
-					String toks[] = line.split("\t");
+					String toks[] = line.split("\t",-1);
 					StringBuffer outLine = new StringBuffer();
 					outLine.append(toks[0]);
 					for (int i = 1; i < toks.length; i++) {
@@ -253,7 +253,7 @@ public class FilterMatrix extends HttpServlet {
 	    		}
 	    		String line = rdr.readLine();
 				while (line != null ){
-					String toks[] = line.split("\t");
+					String toks[] = line.split("\t",-1);
 					StringBuffer outLine = new StringBuffer();
 					outLine.append(toks[0]);
 					for (int i = 1; i < toks.length; i++) {
@@ -275,7 +275,7 @@ public class FilterMatrix extends HttpServlet {
 	    		}
 	    		String line = rdr.readLine();
 				while (line != null ){
-					String toks[] = line.split("\t");
+					String toks[] = line.split("\t",-1);
 					StringBuffer outLine = new StringBuffer();
 					outLine.append(toks[0]);
 					for (int i = 1; i < toks.length; i++) {
@@ -297,7 +297,7 @@ public class FilterMatrix extends HttpServlet {
 	    		}
 	    		String line = rdr.readLine();
 				while (line != null ){
-					String toks[] = line.split("\t");
+					String toks[] = line.split("\t",-1);
 					StringBuffer outLine = new StringBuffer();
 					outLine.append(toks[0]);
 					for (int i = 1; i < toks.length; i++) {
@@ -380,7 +380,7 @@ public class FilterMatrix extends HttpServlet {
 	    		
 	    		String line = rdr.readLine();
 				while (line != null ){
-					String toks[] = line.split("\t");
+					String toks[] = line.split("\t",-1);
 					StringBuffer outLine = new StringBuffer();
 					outLine.append(toks[0]);
 					for (int i = 1; i < toks.length; i++) {
@@ -413,7 +413,7 @@ public class FilterMatrix extends HttpServlet {
 	    		
 	    		String line = rdr.readLine();
 				while (line != null ){
-					String toks[] = line.split("\t");
+					String toks[] = line.split("\t",-1);
 					StringBuffer outLine = new StringBuffer();
 					outLine.append(toks[0]);
 					for (int i = 1; i < toks.length; i++) {
@@ -444,7 +444,7 @@ public class FilterMatrix extends HttpServlet {
 			String line = rdr.readLine(); //Just write the header
 			out.write(line + "\n");
 			line = rdr.readLine();
-			String headers[] = line.split("\t");
+			String headers[] = line.split("\t",-1);
 			int thresh = 0;
 			if (filterMethod.equals("pctgreater")){
 				double numKeepD = (headers.length-1) * Double.parseDouble(request.getParameter("std_pct_missing"))/100;
@@ -453,7 +453,7 @@ public class FilterMatrix extends HttpServlet {
 				thresh = Integer.parseInt(request.getParameter("std_num_missing"));
 			}
 			while (line != null ){
-				String toks[] = line.split("\t");
+				String toks[] = line.split("\t",-1);
 				StringBuffer outLine = new StringBuffer();
 				outLine.append(toks[0]);
 				int missingNo = 0;
@@ -472,7 +472,7 @@ public class FilterMatrix extends HttpServlet {
 	    	String line = rdr.readLine(); //Just write the header
 //			out.write(line + "\n");
 //			line = rdr.readLine();
-			String headers[] = line.split("\t");
+			String headers[] = line.split("\t",-1);
 			int thresh = 0;
 			if (filterMethod.equals("pctgreater")){
 				double numKeepD = (headers.length-1) * Double.parseDouble(request.getParameter("std_pct_missing"))/100;
@@ -487,7 +487,7 @@ public class FilterMatrix extends HttpServlet {
 				}
 			}
 			while (line != null ){
-				String toks[] = line.split("\t");
+				String toks[] = line.split("\t",-1);
 				StringBuffer outLine = new StringBuffer();
 				outLine.append(toks[0]);
 				for (int i = 1; i < toks.length; i++) {
@@ -509,14 +509,14 @@ public class FilterMatrix extends HttpServlet {
 		BufferedReader mrdr = new BufferedReader(new FileReader(tmpWorking));
 		String mline = mrdr.readLine(); // skip headers
 		mline = mrdr.readLine();
-		int lineLength = mline.split("\t").length;
+		int lineLength = mline.split("\t",-1).length;
 		
 		float[] mins = new float[lineLength];
 		for (int i = 1; i < mins.length; i++) {
 			mins[i] = Float.MAX_VALUE;
 		}
 		while (mline != null ){
-			String toks[] = mline.split("\t");
+			String toks[] = mline.split("\t",-1);
 			for (int i = 1; i < toks.length; i++) {
 				if (Util.isNumeric(toks[i]) && Float.parseFloat(toks[i]) < mins[i]) {
 					mins[i] = Float.parseFloat(toks[i]);
@@ -532,14 +532,14 @@ public class FilterMatrix extends HttpServlet {
 		BufferedReader mrdr = new BufferedReader(new FileReader(tmpWorking));
 		String mline = mrdr.readLine(); // skip headers
 		mline = mrdr.readLine();
-		int lineLength = mline.split("\t").length;
+		int lineLength = mline.split("\t",-1).length;
 		
 		float[] mins = new float[lineLength];
 		for (int i = 1; i < mins.length; i++) {
 			mins[i] = -Float.MAX_VALUE;
 		}
 		while (mline != null ){
-			String toks[] = mline.split("\t");
+			String toks[] = mline.split("\t",-1);
 			for (int i = 1; i < toks.length; i++) {
 				if (Util.isNumeric(toks[i]) && Float.parseFloat(toks[i]) > mins[i]) {
 					mins[i] = Float.parseFloat(toks[i]);
@@ -555,12 +555,12 @@ public class FilterMatrix extends HttpServlet {
 		BufferedReader mrdr = new BufferedReader(new FileReader(tmpWorking));
 		String mline = mrdr.readLine(); // skip headers
 		mline = mrdr.readLine();
-		int lineLength = mline.split("\t").length;
+		int lineLength = mline.split("\t",-1).length;
 		
 		double[] means = new double[lineLength];
 		int[] counts = new int[lineLength];
 		while (mline != null ){
-			String toks[] = mline.split("\t");
+			String toks[] = mline.split("\t",-1);
 			for (int i = 1; i < toks.length; i++) {
 				if (Util.isNumeric(toks[i])) {
 					means[i] += Double.parseDouble(toks[i]);
@@ -579,7 +579,7 @@ public class FilterMatrix extends HttpServlet {
 	
 	// Variance is standard deviation^2. Use Variances to save computing time
 	private static double getRowDeviation(String line) throws Exception{ 
-		String toks[] = line.split("\t");
+		String toks[] = line.split("\t",-1);
 		double tot = 0;
 		int count = 0;  // exclude the empty cells from the average
 		int total = 0;
@@ -607,14 +607,14 @@ public class FilterMatrix extends HttpServlet {
 		BufferedReader mrdr = new BufferedReader(new FileReader(tmpWorking));
 		String mline = mrdr.readLine(); // skip headers
 		mline = mrdr.readLine();
-		int lineLength = mline.split("\t").length;
+		int lineLength = mline.split("\t",-1).length;
 		
 		//get the means
 		double[] means = new double[lineLength];
 		int[] counts = new int[lineLength];
 		int total = 0;
 		while (mline != null ){
-			String toks[] = mline.split("\t");
+			String toks[] = mline.split("\t",-1);
 			for (int i = 1; i < toks.length; i++) {
 				if (Util.isNumeric(toks[i])) {
 					means[i] += Double.parseDouble(toks[i]);
@@ -636,7 +636,7 @@ public class FilterMatrix extends HttpServlet {
 		sline = srdr.readLine();
 		double[] deviations = new double[lineLength];
 		while (sline != null ){
-			String toks[] = sline.split("\t");
+			String toks[] = sline.split("\t",-1);
 			for (int i = 1; i < toks.length; i++) {
 				if (Util.isNumeric(toks[i])) {
 					double diff = Double.parseDouble(toks[i]) - means[i];
@@ -688,12 +688,12 @@ public class FilterMatrix extends HttpServlet {
 		BufferedReader mrdr = new BufferedReader(new FileReader(tmpWorking));
 		String mline = mrdr.readLine(); // skip headers
 		mline = mrdr.readLine();
-		int lineLength = mline.split("\t").length;
+		int lineLength = mline.split("\t",-1).length;
 		
 		//get the means
 		int[] missingNos = new int[lineLength];
 		while (mline != null ){
-			String toks[] = mline.split("\t");
+			String toks[] = mline.split("\t",-1);
 			for (int i = 1; i < toks.length; i++) {
 				if (Util.isMissing(toks[i])) {
 					missingNos[i] ++;

@@ -78,7 +78,7 @@ public class TransformMatrix extends HttpServlet {
 			line = rdr.readLine();
 			
 			while (line != null ){
-				String toks[] = line.split("\t");
+				String toks[] = line.split("\t",-1);
 				out.write(toks[0]);
 				for (int i = 1; i < toks.length; i++) {
 					if (Util.isNumeric(toks[i])) {
@@ -97,7 +97,7 @@ public class TransformMatrix extends HttpServlet {
 			line = rdr.readLine();
 			
 			while (line != null ){
-				String toks[] = line.split("\t");
+				String toks[] = line.split("\t",-1);
 				out.write(toks[0]);
 				for (int i = 1; i < toks.length; i++) {
 					if (Util.isNumeric(toks[i])) {
@@ -116,7 +116,7 @@ public class TransformMatrix extends HttpServlet {
 			line = rdr.readLine();
 			
 			while (line != null ){
-				String toks[] = line.split("\t");
+				String toks[] = line.split("\t",-1);
 				out.write(toks[0]);
 				for (int i = 1; i < toks.length; i++) {
 					if (Util.isNumeric(toks[i])) {
@@ -147,7 +147,7 @@ public class TransformMatrix extends HttpServlet {
 			line = rdr.readLine();
 			
 			while (line != null ){
-				String toks[] = line.split("\t");
+				String toks[] = line.split("\t",-1);
 				double mean = getRowMean(toks);
 				out.write(toks[0]);
 				for (int i = 1; i < toks.length; i++) {
@@ -168,7 +168,7 @@ public class TransformMatrix extends HttpServlet {
 			line = rdr.readLine();
 			
 			while (line != null ){
-				String toks[] = line.split("\t");
+				String toks[] = line.split("\t",-1);
 				out.write(toks[0]);
 				for (int i = 1; i < toks.length; i++) {
 					if (Util.isNumeric(toks[i])) {
@@ -202,7 +202,7 @@ public class TransformMatrix extends HttpServlet {
 			line = rdr.readLine();
 			
 			while (line != null ){
-				String toks[] = line.split("\t");
+				String toks[] = line.split("\t",-1);
 				double mean = getRowMean(toks);
 				double variance = getRowVariance(line);
 				double stdDev = Math.sqrt(variance);
@@ -226,7 +226,7 @@ public class TransformMatrix extends HttpServlet {
 			line = rdr.readLine();
 			
 			while (line != null ){
-				String toks[] = line.split("\t");
+				String toks[] = line.split("\t",-1);
 				out.write(toks[0]);
 				for (int i = 1; i < toks.length; i++) {
 					if (Util.isNumeric(toks[i])) {
@@ -262,7 +262,7 @@ public class TransformMatrix extends HttpServlet {
 			line = rdr.readLine();
 			
 			while (line != null ){
-				String toks[] = line.split("\t");
+				String toks[] = line.split("\t",-1);
 				out.write(toks[0]);
 				for (int i = 1; i < toks.length; i++) {
 					if (Util.isNumeric(toks[i])) {
@@ -282,7 +282,7 @@ public class TransformMatrix extends HttpServlet {
 			line = rdr.readLine();
 			
 			while (line != null ){
-				String toks[] = line.split("\t");
+				String toks[] = line.split("\t",-1);
 				out.write(toks[0]);
 				for (int i = 1; i < toks.length; i++) {
 					if (Util.isNumeric(toks[i])) {
@@ -302,7 +302,7 @@ public class TransformMatrix extends HttpServlet {
 			line = rdr.readLine();
 			
 			while (line != null ){
-				String toks[] = line.split("\t");
+				String toks[] = line.split("\t",-1);
 				out.write(toks[0]);
 				for (int i = 1; i < toks.length; i++) {
 					if (Util.isNumeric(toks[i])) {
@@ -322,7 +322,7 @@ public class TransformMatrix extends HttpServlet {
 			line = rdr.readLine();
 			
 			while (line != null ){
-				String toks[] = line.split("\t");
+				String toks[] = line.split("\t",-1);
 				out.write(toks[0]);
 				for (int i = 1; i < toks.length; i++) {
 					if (Util.isNumeric(toks[i])) {
@@ -359,12 +359,12 @@ public class TransformMatrix extends HttpServlet {
 		BufferedReader mrdr = new BufferedReader(new FileReader(tmpWorking));
 		String mline = mrdr.readLine(); // skip headers
 		mline = mrdr.readLine();
-		int lineLength = mline.split("\t").length;
+		int lineLength = mline.split("\t",-1).length;
 		
 		double[] means = new double[lineLength];
 		int[] counts = new int[lineLength];
 		while (mline != null ){
-			String toks[] = mline.split("\t");
+			String toks[] = mline.split("\t",-1);
 			for (int i = 1; i < toks.length; i++) {
 				if (Util.isNumeric(toks[i])) {
 					means[i] += Double.parseDouble(toks[i]);
@@ -395,14 +395,14 @@ public class TransformMatrix extends HttpServlet {
 		BufferedReader mrdr = new BufferedReader(new FileReader(tmpWorking));
 		String mline = mrdr.readLine(); // skip headers
 		mline = mrdr.readLine();
-		int lineLength = mline.split("\t").length;
+		int lineLength = mline.split("\t",-1).length;
 		
 		float[] mins = new float[lineLength];
 		for (int i = 1; i < mins.length; i++) {
 			mins[i] = Float.MAX_VALUE;
 		}
 		while (mline != null ){
-			String toks[] = mline.split("\t");
+			String toks[] = mline.split("\t",-1);
 			for (int i = 1; i < toks.length; i++) {
 				if (Util.isNumeric(toks[i]) && Float.parseFloat(toks[i]) < mins[i]) {
 					mins[i] = Float.parseFloat(toks[i]);
@@ -416,7 +416,7 @@ public class TransformMatrix extends HttpServlet {
 	
 	// Variance is standard deviation^2. Use Variances to save computing time
 		private static double getRowVariance(String line) throws Exception{ 
-			String toks[] = line.split("\t");
+			String toks[] = line.split("\t",-1);
 			double tot = 0;
 			int count = 0;  // exclude the empty cells from the average
 			for (int i = 1; i < toks.length; i++) {
@@ -441,13 +441,13 @@ public class TransformMatrix extends HttpServlet {
 		BufferedReader mrdr = new BufferedReader(new FileReader(tmpWorking));
 		String mline = mrdr.readLine(); // skip headers
 		mline = mrdr.readLine();
-		int lineLength = mline.split("\t").length;
+		int lineLength = mline.split("\t",-1).length;
 		
 		//get the means
 		float[] means = new float[lineLength];
 		int[] counts = new int[lineLength];
 		while (mline != null ){
-			String toks[] = mline.split("\t");
+			String toks[] = mline.split("\t",-1);
 			for (int i = 1; i < toks.length; i++) {
 //				counts[i]++;
 				if (Util.isNumeric(toks[i])) {
@@ -469,7 +469,7 @@ public class TransformMatrix extends HttpServlet {
 		sline = srdr.readLine();
 		double[] variances = new double[lineLength];
 		while (sline != null ){
-			String toks[] = sline.split("\t");
+			String toks[] = sline.split("\t",-1);
 			for (int i = 1; i < toks.length; i++) {
 				if (Util.isNumeric(toks[i])) {
 					double diff = Double.parseDouble(toks[i]) - means[i];
