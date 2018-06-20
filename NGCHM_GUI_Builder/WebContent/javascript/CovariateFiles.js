@@ -41,7 +41,7 @@ NgChmGui.COV.validateEntries = function(leavingPage, passedError) {
 	}
 	
 	if (typeof passedError != 'undefined') {
-		pageText = pageText + NgChmGui.UTIL.errorPrefix + passedError;
+		pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + passedError+"</p>";
 		valid = false;
 	}
 	
@@ -49,16 +49,16 @@ NgChmGui.COV.validateEntries = function(leavingPage, passedError) {
 	for (var i=0; i< classes.length; i++) {
 		var classItem = classes[i];
 		if ((classItem.height.indexOf(".") > 0) || (classItem.height < 1) || isNaN(classItem.height)) {
-			pageText = pageText + NgChmGui.UTIL.errorPrefix + "COVARIATE <font color='red'>" + classItem.name.toUpperCase() + "</font> HEIGHT ENTRY MUST BE AN INTEGER BETWEEN 1 AND 99." + NgChmGui.UTIL.nextLine;
+			pageText = pageText + "<p class='error_message'>"+ NgChmGui.UTIL.errorPrefix + "COVARIATE <font color='red'>" + classItem.name.toUpperCase() + "</font> HEIGHT ENTRY MUST BE AN INTEGER BETWEEN 1 AND 99.</p>" + NgChmGui.UTIL.nextLine;
 			valid = false;
 		}
 		if (classItem.bar_type !== 'color_plot') {
 			if (isNaN(classItem.low_bound)) {
-				pageText = pageText + NgChmGui.UTIL.errorPrefix + "COVARIATE <font color='red'>" + classItem.name.toUpperCase() + "</font> LOWER BOUND ENTRY MUST BE NUMERIC." + NgChmGui.UTIL.nextLine;
+				pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "COVARIATE <font color='red'>" + classItem.name.toUpperCase() + "</font> LOWER BOUND ENTRY MUST BE NUMERIC.</p>" + NgChmGui.UTIL.nextLine;
 				valid = false;
 			}
 			if (isNaN(classItem.high_bound)) {
-				pageText = pageText + NgChmGui.UTIL.errorPrefix + "COVARIATE <font color='red'>" + classItem.name.toUpperCase() + "</font> UPPER BOUND ENTRY MUST BE NUMERIC." + NgChmGui.UTIL.nextLine;
+				pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "COVARIATE <font color='red'>" + classItem.name.toUpperCase() + "</font> UPPER BOUND ENTRY MUST BE NUMERIC.</p>" + NgChmGui.UTIL.nextLine;
 				valid = false;
 			}
 		}

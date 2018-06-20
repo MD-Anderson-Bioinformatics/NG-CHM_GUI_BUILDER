@@ -363,8 +363,8 @@ NgChmGui.FILE.MatrixFile = function() {
 					changeType = 'cov';
 					var colPos = rowCovs.indexOf(col);
 					if (col == colLabelCol) {
-						errMessages = errMessages + NgChmGui.UTIL.errorPrefix + "The Label column cannot be overlaid with a covariate bar.<br>"
-						warnMessages = warnMessages + NgChmGui.UTIL.warningPrefix + "Row Covariate was not selected. <br>";	
+						errMessages = errMessages + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "The Label column cannot be overlaid with a covariate bar.</p><br>"
+						warnMessages = warnMessages + "<p class='error_message'>" + NgChmGui.UTIL.warningPrefix + "Row Covariate was not selected. </p><br>";	
 					} else {
 						if (colPos < 0) {
 							rowCovs.push(col);
@@ -378,8 +378,8 @@ NgChmGui.FILE.MatrixFile = function() {
 					changeType = 'cov';
 					var rowPos = colCovs.indexOf(row);
 					if (row == rowLabelRow) {
-						errMessages = errMessages + NgChmGui.UTIL.errorPrefix + "The Label column cannot be overlaid with a covariate bar.<br>"
-						warnMessages = warnMessages + NgChmGui.UTIL.warningPrefix + "Column Covariate was not selected. <br>";	
+						errMessages = errMessages + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "The Label column cannot be overlaid with a covariate bar.</p><br>"
+						warnMessages = warnMessages + "<p class='error_message'>" + NgChmGui.UTIL.warningPrefix + "Column Covariate was not selected. </p><br>";	
 					} else {
 						if (rowPos < 0) {
 							colCovs.push(row);
@@ -716,25 +716,25 @@ NgChmGui.FILE.validateEntries = function(leavingPage) {
 		//Generate error messages
 		var mapName = document.getElementById('mapNameValue').value.trim();
 		if (mapName === "") {
-			pageText = pageText + NgChmGui.UTIL.errorPrefix + "HEAT MAP NAME ENTRY MISSING." + NgChmGui.UTIL.nextLine;
+			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "HEAT MAP NAME ENTRY MISSING.</p>" + NgChmGui.UTIL.nextLine;
 			valid = false
 		}
 		if (!NgChmGui.UTIL.isAlphaNumeric(mapName)) {
-			pageText = pageText + NgChmGui.UTIL.errorPrefix + "HEAT MAP NAME CANNOT CONTAIN NON-ALPHANUMERIC CHARACTERS." + NgChmGui.UTIL.nextLine;
+			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "HEAT MAP NAME CANNOT CONTAIN NON-ALPHANUMERIC CHARACTERS.</p>" + NgChmGui.UTIL.nextLine;
 			valid = false
 		}
 		var mapDesc = document.getElementById('mapDescValue').value.trim();
 		if (mapDesc === "") {
-			pageText = pageText + NgChmGui.UTIL.errorPrefix + "HEAT MAP DESCRIPTION ENTRY MISSING." + NgChmGui.UTIL.nextLine;
+			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "HEAT MAP DESCRIPTION ENTRY MISSING.</p>" + NgChmGui.UTIL.nextLine;
 			valid = false
 		}
 		if (!NgChmGui.UTIL.isAlphaNumeric(mapDesc)) {
-			pageText = pageText + NgChmGui.UTIL.errorPrefix + "HEAT MAP DESCRIPTION CANNOT CONTAIN NON-ALPHANUMERIC CHARACTERS." + NgChmGui.UTIL.nextLine;
+			pageText = pageText  + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "HEAT MAP DESCRIPTION CANNOT CONTAIN NON-ALPHANUMERIC CHARACTERS.</p>" + NgChmGui.UTIL.nextLine;
 			valid = false
 		}
 		
 		if (document.getElementById('matrixNameValue').value.trim() === "") {
-			pageText = pageText + NgChmGui.UTIL.errorPrefix + "MISSING MATRIX NAME ENTRY." + NgChmGui.UTIL.nextLine;
+			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "MISSING MATRIX NAME ENTRY.</p>" + NgChmGui.UTIL.nextLine;
 			valid = false
 		}
 		
@@ -743,7 +743,7 @@ NgChmGui.FILE.validateEntries = function(leavingPage) {
 		for (var i=0;i<covColorTypes.length;i++) {
 			var type = covColorTypes[i];
 			if (type.value === 'none') {
-				pageText = pageText + NgChmGui.UTIL.errorPrefix + "MISSING COLOR TYPE ENTRY FOR COVARIATE: " + type.name + NgChmGui.UTIL.nextLine;
+				pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "MISSING COLOR TYPE ENTRY FOR COVARIATE: " + type.name + "</p>" +NgChmGui.UTIL.nextLine;
 				valid = false
 			}
 		}

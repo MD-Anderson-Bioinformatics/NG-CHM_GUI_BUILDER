@@ -79,7 +79,7 @@ NgChmGui.FORMAT.validateMatrixBreaks = function() {
 	var thresholds = colorMap.getThresholds();
 	for (var i=0;i<thresholds.length;i++) {
 		if (isNaN(thresholds[i])) {
-			errorMsgs = errorMsgs + NgChmGui.UTIL.errorPrefix + "COLOR THRESHOLDS CONTAIN NON-NUMERIC ENTRY(S)." + NgChmGui.UTIL.nextLine;
+			errorMsgs = errorMsgs + "<p class='error_message'>" +NgChmGui.UTIL.errorPrefix + "COLOR THRESHOLDS CONTAIN NON-NUMERIC ENTRY(S).</p>" + NgChmGui.UTIL.nextLine;
 			break;
 		}
 	}
@@ -115,17 +115,17 @@ NgChmGui.FORMAT.validateGapPrefsByType = function(config, type) {
 			}
 		}
 		if (nanCut) {
-			errorMsgs = errorMsgs + NgChmGui.UTIL.errorPrefix + type + " GAP VALUES CONTAIN NON-NUMERIC OR NEGATIVE NUMERIC ENTRY(S)." + NgChmGui.UTIL.nextLine;
+			errorMsgs = errorMsgs + "<p class='error_message'>"+ NgChmGui.UTIL.errorPrefix + type + " GAP VALUES CONTAIN NON-NUMERIC OR NEGATIVE NUMERIC ENTRY(S).</p>" + NgChmGui.UTIL.nextLine;
 		}
 		if (dupCut) {
-			errorMsgs = errorMsgs + NgChmGui.UTIL.errorPrefix + type + " GAP DUPLICATE VALUES FOUND." + NgChmGui.UTIL.nextLine;
+			errorMsgs = errorMsgs + "<p class='error_message'>"+ NgChmGui.UTIL.errorPrefix + type + " GAP DUPLICATE VALUES FOUND.</p>" + NgChmGui.UTIL.nextLine;
 		}
 	}
 	if ((isNaN(config.cut_width)) || (config.cut_width.indexOf(".") > -1) || (config.cut_width < 0)) {
-		errorMsgs = errorMsgs + NgChmGui.UTIL.errorPrefix + type + " GAP LENGTH CONTAINS NON-INTEGER OR NEGATIVE NUMERIC ENTRY." + NgChmGui.UTIL.nextLine;
+		errorMsgs = errorMsgs + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + type + " GAP LENGTH CONTAINS NON-INTEGER OR NEGATIVE NUMERIC ENTRY.</p>" + NgChmGui.UTIL.nextLine;
 	}
 	if ((isNaN(config.tree_cuts)) || (config.tree_cuts.indexOf(".") > -1)  || (config.tree_cuts < 0)) {
-		errorMsgs = errorMsgs + NgChmGui.UTIL.errorPrefix + type + " TREE CUTS CONTAINS NON-INTEGER OR NEGATIVE NUMERIC ENTRY." + NgChmGui.UTIL.nextLine;
+		errorMsgs = errorMsgs + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + type + " TREE CUTS CONTAINS NON-INTEGER OR NEGATIVE NUMERIC ENTRY.</p>" + NgChmGui.UTIL.nextLine;
 	}
 	return errorMsgs;
 }
@@ -514,7 +514,7 @@ NgChmGui.FORMAT.getBreaksFromColorMap = function() {
 	NgChmGui.UTIL.setTableRow(breakpts, ["Green Red", redBlackGreen]);
 	NgChmGui.UTIL.addBlankRow(breakpts)
 	NgChmGui.UTIL.setTableRow(breakpts, ["&nbsp;Color Histogram:", "<button type='button' onclick='NgChmGui.FORMAT.loadColorPreviewDiv()'>Update</button>"]);
-	var previewDiv = "<div id='previewWrapper' style='display:flex; height: 100px; width: 110px;position:relative;' ></div>";//NgChm.UHM.loadColorPreviewDiv(mapName,true);
+	var previewDiv = "<div id='previewWrapper' style='display:flex; height: 100px; width: 110px;position:relative;' ><canvas id='histo_canvas'></canvas></div>";//NgChm.UHM.loadColorPreviewDiv(mapName,true);
 	NgChmGui.UTIL.setTableRow(breakpts, [previewDiv]);
 //	setTimeout(function(){NgChmGui.FORMAT.loadColorPreviewDiv(true)},100);
 
@@ -604,22 +604,30 @@ NgChmGui.FORMAT.loadColorPreviewDiv = function(){
 			binMax=bins[i];
 		total+=bins[i];
 	}
-	var svg = "<svg id='previewSVG"+mapName+"' width='110' height='100' style='position:absolute;left:10px;top:20px;'>"
-	for (var i=0;i<bins.length;i++){
-		var rect = "<rect x='" +i*10+ "' y='" +(1-bins[i]/binMax)*100+ "' width='10' height='" +bins[i]/binMax*100+ "' style='fill:rgb(0,0,0);fill-opacity:0;stroke-width:1;stroke:rgb(0,0,0)'> "/*<title>"+bins[i]+"</title>*/+ "</rect>";
-		svg+=rect;
+	var cm = NgChmGui.FORMAT.getColorMapFromScreen();
+	var ctx = document.getElementById("histo_canvas").getContext("2d");
+	var graph = new BarGraph(ctx);
+	graph.margin = 2;
+	graph.width = 250;
+	graph.height = 150;
+//	var histoBins = NgChmGui.TRANS.matrixInfo.histoBins;
+	bins.unshift(nan);
+	var colors = new Array(bins.length);
+	for (var i = 0; i < breaks.length; i++){
+		colors[i+1] = cm.getRgbToHex(cm.getColor(breaks[i]));
 	}
-	var missingRect = "<rect x='100' y='" +(1-nan/binMax)*100+ "' width='10' height='" +nan/binMax*100+ "' style='fill:rgb(255,255,255);fill-opacity:1;stroke-width:1;stroke:rgb(0,0,0)'> "/* <title>"+nan+"</title>*/+"</rect>";
-	svg+= missingRect;
-	svg+="</svg>";
-	var binNums = "";//"<p class='previewLegend' style='position:absolute;left:0;top:100;font-size:10;'>0</p><p class='previewLegend' style='position:absolute;left:0;top:0;font-size:10;'>"+binMax+"</p>"
-	var boundNums = "<p class='previewLegend' style='position:absolute;left:10;top:110;font-size:10;'>"+lowBP.toFixed(2)+"</p><p class='previewLegend' style='position:absolute;left:90;top:110;font-size:10;'>"+highBP.toFixed(2)+"</p>"
+	colors[0] = cm.getMissingColor();
+	colors[colors.length-1] = colors[colors.length-2];
+//	colors.fill('blue',1,colors.length);
+	var breaksLabel = new Array(bins.length+1).join(' ').split('');
 	
-	var preview = "<div id='previewMainColor"+"' style='height: 100px; width:100px;background:"+gradient+";position:absolute; left: 10px; top: 20px;'></div>"
-		+"<div id='previewMissingColor"+"'style='height: 100px; width:10px;background:"+colorMap.missing+";position:absolute;left:110px;top:20px;'></div>"
-		+svg+binNums+boundNums;
-	var wrapper = document.getElementById("previewWrapper")
-	wrapper.innerHTML= preview;
+	breaksLabel[0] = "NA";
+	breaksLabel[1] = "<" + breaks[0].toFixed(2);
+	breaksLabel[Math.floor(breaksLabel.length/2)] = breaks[4].toFixed(2);
+	breaksLabel[breaksLabel.length - 1] = breaks[breaks.length-1].toFixed(2) + "<";
+	graph.colors = colors;
+	graph.xAxisLabelArr = breaksLabel;//["Missing Values", NgChmGui.TRANS.matrixInfo.histoBins];
+	graph.update(bins);//[NgChmGui.TRANS.matrixInfo.numMissing,NgChmGui.TRANS.matrixInfo.histoCounts]);
 }
 
 /**********************************************************************************
@@ -669,7 +677,8 @@ NgChmGui.FORMAT.getColorMapFromScreen = function() {
 		colors[j] = document.getElementById(colorId+"_colorPref").value;
 	} 
 	colorMap.setMissingColor(document.getElementById("missing_colorPref").value);
-	NgChmGui.FORMAT.setColorMapToConfig(colorMap);
+	return colorMap;
+//	NgChmGui.FORMAT.setColorMapToConfig(colorMap);
 }
 	
 /**********************************************************************************
@@ -946,7 +955,8 @@ NgChmGui.FORMAT.setBreaksToPreset = function(preset, missingColor) {
  * calls the next depending upon the typ parameter passed in.
  **********************************************************************************/
 NgChmGui.FORMAT.applySettings = function(typ) {
-	NgChmGui.FORMAT.getColorMapFromScreen();
+	var colorMap = NgChmGui.FORMAT.getColorMapFromScreen();
+	NgChmGui.FORMAT.setColorMapToConfig(colorMap);
 	NgChmGui.FORMAT.getFormatDisplayFromScreen();
 	NgChmGui.FORMAT.getMapGapsFromScreen();
 	NgChmGui.FORMAT.getFormatLabelConfigFromScreen();
