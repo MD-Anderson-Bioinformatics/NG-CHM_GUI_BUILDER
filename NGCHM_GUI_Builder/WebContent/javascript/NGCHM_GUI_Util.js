@@ -198,6 +198,8 @@ NgChmGui.UTIL.cleanSession = function(loadFunction) {
  **********************************************************************************/
 NgChmGui.UTIL.applySettings = function(applyFunction, nextFunction) {
 	if (NgChmGui.UTIL.buildProps() === true) {
+		//Reset builder warnings before calling a new build
+		NgChmGui.UTIL.clearBuildErrors();
 		if (applyFunction()) {
 			NgChmGui.UTIL.setHeatmapProperties(nextFunction);
 		} else {
@@ -206,6 +208,16 @@ NgChmGui.UTIL.applySettings = function(applyFunction, nextFunction) {
 	} else {
 		nextFunction();
 	}
+}
+
+/**********************************************************************************
+ * FUNCTION - clearBuildErrors: The purpose of this function to reset the config 
+ * values containing build warning and error messages.  These should display on 
+ * page load but should be cleared prior to a new apply.
+ **********************************************************************************/
+NgChmGui.UTIL.clearBuildErrors = function() {
+	NgChmGui.mapProperties.builder_config.buildErrors = "";
+	NgChmGui.mapProperties.builder_config.buildWarnings = [];
 }
 
 /**********************************************************************************
@@ -591,12 +603,10 @@ NgChmGui.UTIL.downloadViewer = function() {
 NgChmGui.UTIL.setScreenNotes = function(text) {
 	if (typeof text === 'undefined') {
 		text = " ";
+	} else {
+		var notes = document.getElementById("screenNotesDisplay");
+		notes.innerHTML = text;
 	}
-	var notes = document.getElementById("screenNotesDisplay");
-	var newLineCnt = NgChmGui.UTIL.newlines(text);
-	var noteHeight = newLineCnt * 18;
-	notes.innerHTML = text;
-	notes.style.height = noteHeight > 90 ? 90 + "px" : noteHeight + "px";
 }
 
 /**********************************************************************************

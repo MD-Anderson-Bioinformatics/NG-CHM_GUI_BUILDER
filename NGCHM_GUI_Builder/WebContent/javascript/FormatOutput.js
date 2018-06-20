@@ -64,7 +64,6 @@ NgChmGui.FORMAT.validateEntries = function(leavingPage) {
 		}
 	}
 	
-	
 	//Add in page instruction text
     pageText = pageText + "Several tools are provided here to manipulate the appearance of your heatmap.  The Matrix Colors tool enables you to make changes to colors and threshold values that assign a color to each cell in the heatmap body.  Other advanced presentation settings include adding gaps in the heat map to seperate specific sections, adding top level labels to show the position of a few key items in the summary heat map, choosing where to show dendorgrams and how big to make them, selecting label truncation lengths, and identifying the data type of labels to enable link-out capabilities." ;
 
@@ -121,10 +120,10 @@ NgChmGui.FORMAT.validateGapPrefsByType = function(config, type) {
 			errorMsgs = errorMsgs + "<p class='error_message'>"+ NgChmGui.UTIL.errorPrefix + type + " GAP DUPLICATE VALUES FOUND.</p>" + NgChmGui.UTIL.nextLine;
 		}
 	}
-	if ((isNaN(config.cut_width)) || (config.cut_width.indexOf(".") > -1) || (config.cut_width < 0)) {
+	if ((config.cut_width.trim() === "") || (isNaN(config.cut_width)) || (config.cut_width.indexOf(".") > -1) || (config.cut_width < 0)) {
 		errorMsgs = errorMsgs + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + type + " GAP LENGTH CONTAINS NON-INTEGER OR NEGATIVE NUMERIC ENTRY.</p>" + NgChmGui.UTIL.nextLine;
 	}
-	if ((isNaN(config.tree_cuts)) || (config.tree_cuts.indexOf(".") > -1)  || (config.tree_cuts < 0)) {
+	if ((config.tree_cuts.trim() === "") || (isNaN(config.tree_cuts)) || (config.tree_cuts.indexOf(".") > -1)  || (config.tree_cuts < 0)) {
 		errorMsgs = errorMsgs + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + type + " TREE CUTS CONTAINS NON-INTEGER OR NEGATIVE NUMERIC ENTRY.</p>" + NgChmGui.UTIL.nextLine;
 	}
 	return errorMsgs;
