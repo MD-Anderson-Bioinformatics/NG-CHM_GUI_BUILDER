@@ -60,7 +60,7 @@ public class GetWorkingMatrix extends HttpServlet {
 		    String matrixFile = workingDir  + "/workingMatrix.txt";
 	        
 		    NumberFormat nf = new DecimalFormat("#,###.00");
-	        String jsonMatrixCorner = Util.getTopOfMatrix(matrixFile, 20, 11);
+	        String jsonMatrixCorner = Util.getTopOfMatrix(matrixFile, 20, 20);
 		    MatrixCounts counts = getMatrixCounts(matrixFile);
 		    
 		    //convert data distribution bins for historgram to json
