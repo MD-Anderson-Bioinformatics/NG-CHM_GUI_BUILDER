@@ -33,7 +33,15 @@ public class HeatmapView extends HttpServlet {
 	        	mgr.load();
 	        }
 	        HeatmapPropertiesManager.Heatmap map = mgr.getMap();
-			writer.println("MapBuildDir/" + mySession.getId() + "/" + map.chm_name + "|" + map.chm_name + ".ngchm");
+	        
+	        //Double check just in case ngchm is not versioned.
+	        String heatmapDir = workingDir+"/"+map.chm_name;
+		    String ngchmFile = map.chm_name+map.builder_config.ngchmVersion +".ngchm";
+		    if (!new File(heatmapDir+"/"+ngchmFile).exists()) {
+		    	ngchmFile = map.chm_name+".ngchm";
+		    }
+	        
+			writer.println("MapBuildDir/" + mySession.getId() + "/" + map.chm_name + "|" + ngchmFile);
 		} catch (Exception e) {
 	        writer.println("Error producing heat map view.");
 	        writer.println("<br/> ERROR: " + e.getMessage());

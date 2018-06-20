@@ -42,6 +42,7 @@ public class HeatmapPropertiesManager {
 		public String buildErrors = "";
 		public String longRowLabel = "";
 		public String longColLabel = "";
+		public int ngchmVersion = 0;
 		public ArrayList<String> buildWarnings = new ArrayList<String>();
 		public MatrixGridConfig matrix_grid_config;
 		public TransformConfig transform_config;

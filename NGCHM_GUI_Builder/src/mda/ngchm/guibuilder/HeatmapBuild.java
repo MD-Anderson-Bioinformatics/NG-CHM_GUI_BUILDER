@@ -6,8 +6,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -85,8 +83,14 @@ public class HeatmapBuild extends HttpServlet {
 				errMsg = HeatmapDataGenerator.processHeatMap(genArgs);
 	        }
 	        
-		    TimeUnit.MILLISECONDS.sleep(2500);
-
+	        //Version and rename the .ngchm file (fixes intractable server/browser caching problem)
+	        map.builder_config.ngchmVersion++;
+		    File ngchmFile = new File(workingDir+"/"+ map.chm_name+"/"+ map.chm_name+".ngchm");
+		    if (ngchmFile.exists()) {
+			    File ngchmFileNew = new File(workingDir+"/"+ map.chm_name+"/"+ map.chm_name+map.builder_config.ngchmVersion+".ngchm");
+		    	ngchmFile.renameTo(ngchmFileNew);
+		    }
+	        
 		    //If the map has not been built before, save the auto-generated break points to the properties.
 	        if (map.matrix_files.get(0).color_map == null) {
 	        	HeatmapPropertiesManager.ColorMap theMap = setDefaultMatrixColors(workingDir, map);
