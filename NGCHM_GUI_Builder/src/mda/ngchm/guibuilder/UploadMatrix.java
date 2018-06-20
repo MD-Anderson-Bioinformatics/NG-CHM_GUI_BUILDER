@@ -104,7 +104,7 @@ public class UploadMatrix extends HttpServlet {
         while ((read = filecontent.read(bytes)) != -1) {
             out.write(bytes, 0, read);
         }
-        jsonMatrixCorner = Util.getTopOfMatrix(matrixFile, 30, 30);
+        jsonMatrixCorner = Util.getTopOfMatrix(matrixFile, 20, 20);
 	    writer.println(jsonMatrixCorner);
 	    out.close();
 	}

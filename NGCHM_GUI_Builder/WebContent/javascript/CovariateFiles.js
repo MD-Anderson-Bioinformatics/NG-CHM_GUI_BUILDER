@@ -82,7 +82,7 @@ NgChmGui.COV.validateEntries = function(leavingPage, passedError) {
 	if (classes.length > 0) {
 	   pageText = pageText + "This page can be used to modify the appearance of covariate bars.  Select the covarate bar you wish to customize from the dropdown and you may then change color settings, size, and indicate whether it should be displayed by default. For continuous covariate bars, you can also choose an alternate presentation option of bar or scatter plot. " ;
 	} else {
-	   pageText = pageText + "Covariate bars are extra descriptive information that can be added above columns or to the left of rows on a heatmap. Covariates fall into two types: 1. discrete categorical information like smoker/non-smoker and 2. continuous numerical information like age.  Covariate files are tab delimited files with two values on each row 1. a lable that matches the matrix row or column labels and 2. a value.  Use the add button to append a covariate bar or just hit next if you don't want them." ;
+	   pageText = pageText + "Covariate bars are extra descriptive information that can be added above columns or to the left of rows on a heatmap. Covariates fall into two types: 1. discrete categorical information like smoker/non-smoker and 2. continuous numerical information like age.  Covariate files are tab delimited files with two values on each row 1. a label that matches the matrix row or column labels and 2. a value.  Use the add button to insert covariate bars or just hit next if you don't want them." ;
 	}
 	NgChmGui.UTIL.setScreenNotes(pageText);
 	
