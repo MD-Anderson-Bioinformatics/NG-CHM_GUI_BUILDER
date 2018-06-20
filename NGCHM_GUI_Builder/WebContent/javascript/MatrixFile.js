@@ -364,7 +364,7 @@ NgChmGui.FILE.MatrixFile = function() {
 					var colPos = rowCovs.indexOf(col);
 					if (col == colLabelCol) {
 						errMessages = errMessages + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "The Label column cannot be overlaid with a covariate bar.</p><br>"
-						warnMessages = warnMessages + "<p class='error_message'>" + NgChmGui.UTIL.warningPrefix + "Row Covariate was not selected. </p><br>";	
+						warnMessages = warnMessages + NgChmGui.UTIL.warningPrefix + "Row Covariate was not selected. <br>";	
 					} else {
 						if (colPos < 0) {
 							rowCovs.push(col);
@@ -379,7 +379,7 @@ NgChmGui.FILE.MatrixFile = function() {
 					var rowPos = colCovs.indexOf(row);
 					if (row == rowLabelRow) {
 						errMessages = errMessages + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "The Label column cannot be overlaid with a covariate bar.</p><br>"
-						warnMessages = warnMessages + "<p class='error_message'>" + NgChmGui.UTIL.warningPrefix + "Column Covariate was not selected. </p><br>";	
+						warnMessages = warnMessages + NgChmGui.UTIL.warningPrefix + "Column Covariate was not selected. </p><br>";	
 					} else {
 						if (rowPos < 0) {
 							colCovs.push(row);
