@@ -128,8 +128,11 @@ function BarGraph(ctx) {
 			// Create gradient
 			gradient = ctx.createLinearGradient(0, 0, 0, graphAreaHeight);
 			gradient.addColorStop(1-ratio, that.colors[i % that.colors.length]);
-			gradient.addColorStop(1, "#ffffff");
-
+			if (that.gradient){
+				gradient.addColorStop(1, "#ffffff");
+			} else {
+				gradient.addColorStop(1, that.colors[i % that.colors.length]);
+			}
 			ctx.fillStyle = gradient;
 			// Fill rectangle with gradient
 			ctx.fillRect(that.margin + i * that.width / numOfBars + border,
@@ -176,6 +179,7 @@ function BarGraph(ctx) {
   this.yAxisLabelArr = [];
   this.animationInterval = 100;
   this.animationSteps = 10;
+  this.gradient = true;
 	
   // Update method sets the end bar array and starts the animation
 	this.update = function (newArr) {

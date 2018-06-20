@@ -610,7 +610,7 @@ NgChmGui.FORMAT.loadColorPreviewDiv = function(){
 	graph.margin = 2;
 	graph.width = 250;
 	graph.height = 150;
-//	var histoBins = NgChmGui.TRANS.matrixInfo.histoBins;
+	graph.gradient = false;
 	bins.unshift(nan);
 	var colors = new Array(bins.length);
 	for (var i = 0; i < breaks.length; i++){
