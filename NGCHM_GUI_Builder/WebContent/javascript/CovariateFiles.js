@@ -118,10 +118,12 @@ NgChmGui.COV.setupClassPrefs = function(classes) {
 			classContentsDiv.style.display='none';
 		}
 		document.getElementById("remove_covar_btn").style.display = '';
+		document.getElementById("classPref_list").style.display = '';
 	} else {
 		var noClassesDiv = NgChmGui.COV.getEmptyClassesPanel();
 		classPrefsDiv.appendChild(noClassesDiv);
 		document.getElementById("remove_covar_btn").style.display = 'none';
+		document.getElementById("classPref_list").style.display = 'none';
 	}
 	return classPrefsDiv; 
 }
