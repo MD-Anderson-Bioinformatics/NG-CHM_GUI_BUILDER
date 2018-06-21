@@ -720,7 +720,7 @@ NgChmGui.FILE.validateEntries = function(leavingPage) {
 			valid = false
 		}
 		if (!NgChmGui.UTIL.isAlphaNumeric(mapName)) {
-			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "HEAT MAP NAME CANNOT CONTAIN NON-ALPHANUMERIC CHARACTERS.</p>" + NgChmGui.UTIL.nextLine;
+			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "HEAT MAP NAME CANNOT CONTAIN NON-ALPHANUMERIC CHARACTERS. (Exceptions: space, hyphen, and underscore)</p>" + NgChmGui.UTIL.nextLine;
 			valid = false
 		}
 		var mapDesc = document.getElementById('mapDescValue').value.trim();
@@ -729,7 +729,7 @@ NgChmGui.FILE.validateEntries = function(leavingPage) {
 			valid = false
 		}
 		if (!NgChmGui.UTIL.isAlphaNumeric(mapDesc)) {
-			pageText = pageText  + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "HEAT MAP DESCRIPTION CANNOT CONTAIN NON-ALPHANUMERIC CHARACTERS.</p>" + NgChmGui.UTIL.nextLine;
+			pageText = pageText  + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "HEAT MAP DESCRIPTION CANNOT CONTAIN NON-ALPHANUMERIC CHARACTERS (Exceptions: space, hyphen, and underscore).</p>" + NgChmGui.UTIL.nextLine;
 			valid = false
 		}
 		

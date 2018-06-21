@@ -39,7 +39,7 @@ public class ProcessCovariate {
 				if (toks.length > 1) {
 					String cat = toks[1];
 					if (allNumeric) {
-						if (!isNumeric(cat)) {
+						if (!Util.isNumeric(cat)) {
 							allNumeric = false;
 						} else {
 							if (!NA_VALUES.contains(cat)) {
@@ -83,20 +83,6 @@ public class ProcessCovariate {
 			reader.close();
 		}
 		return covar;
-	}
-	
-	/*******************************************************************
-	 * METHOD: isNumeric
-	 *
-	 * This method checks that an input string contains a numeric value
-	 ******************************************************************/
-	public static boolean isNumeric(String str)
-	{
-		boolean isNbr = str.matches("-?\\d+(\\.\\d+)?");
-		if ((!isNbr) && (NA_VALUES.contains(str))) {
-			isNbr = true;
-		}
-		return isNbr;  
 	}
 	
 	/*******************************************************************
