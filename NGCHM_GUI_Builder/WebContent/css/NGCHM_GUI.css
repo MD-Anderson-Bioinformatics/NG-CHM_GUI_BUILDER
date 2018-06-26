@@ -85,6 +85,15 @@ div.serviceHeaderLogo img
 	padding: 5px 0px 2px 10px
 }
 
+.pref-wrapper{
+	position: relative;
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    overflow: auto;
+    margin: 0 0 -30px 0;
+}
+
 .cov_color_pref
 {
     font-family: Arial;
@@ -288,18 +297,30 @@ div.serviceHeaderLogo img
     margin: 7 0 0 2%;
 }
 
+.navigation_bar{
+    height: 35px;
+    width: 100%;
+    bottom: 5px;
+    border-top: 4px double #0843c1;
+    position: absolute;
+    overflow-x: hidden
+}
+
 .next_btn {
-     position: fixed;
-     bottom: 10px;
-     left:  210px;
-     padding: 0px 0px 5px 10px !important;
+     /* position: fixed; */
+     position: absolute;
+     /* bottom: 10px; */
+     /* left:  110px; */
+     right: 5px;
+     padding: 2px 0px 5px 10px !important;
 }
 
 .prev_btn {
-     position: fixed;
-     bottom: 10px;
+     /* position: fixed; */
+     position: absolute;
+     /* bottom: 10px; */
      left: 	0px;
-     padding: 0px 0px 5px 10px !important;
+     padding: 2px 0px 5px 0px !important;
 }
 
 #matrixCovsPanel {
@@ -315,16 +336,16 @@ div.serviceHeaderLogo img
 #preferencesPanel {
 	position: relative;
 	width: 100%;
-    min-height: 500px;
+    /* min-height: 500px; */
     max-height: 80%;
-	overflow: none;
+	overflow: auto;
 	left: 0;
 	z-index: 10000;
 }
 
 .preferencesSubPanel {
-	position: absolute;
-    height: 85%;
+	/* position: absolute;
+    height: 85%; */
     width: 100%;
     overflow: auto;
     overflow-x: hidden;
