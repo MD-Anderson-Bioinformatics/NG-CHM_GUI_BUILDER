@@ -302,8 +302,8 @@ NgChmGui.FILE.MatrixFile = function() {
 			var covPos = rowCovs[i];
 			rowCovTypes.push(document.getElementById("rowColorTypePref_"+covPos).value);
 		}
-		var someData =  {mapName: document.getElementById('mapNameValue').value,
-		                 mapDesc: document.getElementById('mapDescValue').value,
+		var someData =  {mapName: document.getElementById('mapNameValue').value.trim(),
+		                 mapDesc: document.getElementById('mapDescValue').value.trim(),
 		                 matrixName: document.getElementById('matrixNameValue').value,
 		                 firstDataRow: firstDataPos[0],
 		                 firstDataCol: firstDataPos[1],
@@ -337,8 +337,10 @@ NgChmGui.FILE.MatrixFile = function() {
 	    	var container = document.getElementById('matrixDisplay');
 		    var hot = new Handsontable(container, {
 				data: getData(),
+				stretchH: 'all',
 			    cells: function(row, col, prop) {
 			        var cellProperties = {};
+			        cellProperties.editor = false; 
 			        return cellProperties;
 			      }
 		    });
@@ -702,7 +704,7 @@ NgChmGui.FILE.MatrixFile = function() {
  **********************************************************************************/
 NgChmGui.FILE.validateEntries = function(leavingPage) {
 	NgChmGui.FILE.pageText1 = "NG-CHM heat maps require a tab delimited text file with a matrix of data.  The file must have row and column headers with labels that identify the content of the rows / columns and numeric values in the rest of the matrix.  Use the Open Matrix File button to load your matrix.   If you don't have a matrix and want to try the application use the Sample Matrix open button.";
-	NgChmGui.FILE.pageText2 = "The builder needs to know where the row lables, column labels, matrix data, and covariate data (if included) are located in the uploaded file.  The labels should be blue and data should be green.  If not select from the following controls and click on the grid to indicate the location of labels, covariate bars, and the location at which the matrix data begins in the imported file.";
+	NgChmGui.FILE.pageText2 = "The builder needs to know where the row labels, column labels, matrix data, and covariate data (if included) are located in the uploaded file.  The labels should be blue and data should be green.  If not select from the following controls and click on the grid to indicate the location of labels, covariate bars, and the location at which the matrix data begins in the imported file.";
 	var pageText = "";
 	var valid = true;
 	

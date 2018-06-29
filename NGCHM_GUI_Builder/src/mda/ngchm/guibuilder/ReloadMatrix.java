@@ -37,7 +37,7 @@ public class ReloadMatrix extends HttpServlet {
 	        	mgr.load();
 		        HeatmapPropertiesManager.Heatmap map = mgr.getMap();
 		        HeatmapPropertiesManager.MatrixFile matrixFile = map.matrix_files.get(0);
-		        String jsonMatrixCorner = Util.getTopOfMatrix(workingDir + "/" + fileName, 20, 20);
+		        String jsonMatrixCorner = Util.getTopOfMatrix(workingDir + "/" + fileName, 21, 20);
 		        writer.println(jsonMatrixCorner);
 	        } else {
 	        	 writer.println("no_data");

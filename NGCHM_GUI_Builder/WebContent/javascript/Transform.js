@@ -121,14 +121,11 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 	        	document.getElementById('minVal').innerHTML = NgChmGui.TRANS.matrixInfo.minValue;
 	        	topMatrixString = NgChmGui.TRANS.matrixInfo.matrixsample;
 	        	var matrixBox = document.getElementById('trans_data');
-	        	var matrixDisplayBox = document.getElementById('matrixDisplay');
+	        	var matrixDisplayBox = document.getElementById('transMatrixDisplay');
 	        	matrixBox.style.display = '';
 	        	matrixDisplayBox.style.display = '';
 	        	dataTable = Object.keys(topMatrixString).map(function(k) { return topMatrixString[k] });
 	        	loadDataFromFile();
-	        	//resize handsontable view box for tranform screen.
-	        	var dispBox = document.getElementById("matrixDisplay");
-	        	dispBox.style.height = '65%';
 	        	
 	        	var ctx = document.getElementById("histo_canvas").getContext("2d");
     
@@ -194,7 +191,7 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 				};
 		    })();
 
-	    	var container = document.getElementById('matrixDisplay');
+	    	var container = document.getElementById('transMatrixDisplay');
 	    	//clear out matrix from previous runs
 	    	while (container.hasChildNodes()) {
 	    		container.removeChild(container.lastChild);
@@ -202,8 +199,10 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 
 		    var hot = new Handsontable(container, {
 				data: getData(),
+				stretchH: 'all',
 			    cells: function(row, col, prop) {
 			        var cellProperties = {};
+			        cellProperties.editor = false; 
 			        return cellProperties;
 			      }
 		    });

@@ -132,11 +132,17 @@ div.serviceHeaderLogo img
 }
 
 #matrixDisplay {
-    height: 80%;
+    height: 75%;
     width: 100%;
     background-color: white;
-    overflow-y: auto;
-    overflow-x: auto;
+    overflow: hidden;
+}
+
+#transMatrixDisplay {
+    height: 55%;
+    width: 100%;
+    background-color: white;
+    overflow: hidden;
 }
 
 #example table {

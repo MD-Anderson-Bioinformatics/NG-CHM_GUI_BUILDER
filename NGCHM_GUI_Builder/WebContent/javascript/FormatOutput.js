@@ -512,7 +512,8 @@ NgChmGui.FORMAT.getBreaksFromColorMap = function() {
 	NgChmGui.UTIL.setTableRow(breakpts, ["Rainbow", rainbow]);
 	NgChmGui.UTIL.setTableRow(breakpts, ["Green Red", redBlackGreen]);
 	NgChmGui.UTIL.addBlankRow(breakpts)
-	NgChmGui.UTIL.setTableRow(breakpts, ["&nbsp;Color Histogram:", "<button type='button' onclick='NgChmGui.FORMAT.loadColorPreviewDiv()'>Update</button>"]);
+	var reloadButton = "<img id='reloadButton' src='images/button_reload.png' alt='Reload Preview' onclick='NgChmGui.FORMAT.loadColorPreviewDiv();' align='top'/>"
+	NgChmGui.UTIL.setTableRow(breakpts, ["&nbsp;Color Histogram:", reloadButton]);
 	var previewDiv = "<div id='previewWrapper' style='display:flex; height: 100px; width: 110px;position:relative;' ><canvas id='histo_canvas'></canvas></div>";//NgChm.UHM.loadColorPreviewDiv(mapName,true);
 	NgChmGui.UTIL.setTableRow(breakpts, [previewDiv]);
 //	setTimeout(function(){NgChmGui.FORMAT.loadColorPreviewDiv(true)},100);
