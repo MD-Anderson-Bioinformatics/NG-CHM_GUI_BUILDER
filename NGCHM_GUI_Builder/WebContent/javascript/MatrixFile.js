@@ -207,7 +207,7 @@ NgChmGui.FILE.MatrixFile = function() {
 				        } else {
 							if (NgChmGui.UTIL.debug) {console.log('200');}
 							NgChmGui.UTIL.gotoTransformScreen();
-					    }
+						}
 					}
 				};
 				req.send(matrixJson);
@@ -234,8 +234,7 @@ NgChmGui.FILE.MatrixFile = function() {
 	}
 	
 	/**********************************************************************************
-	 * FUNCTION - setChangedState: This function sets the "changed state" for the 
-	 * MatrixFile object and is called from outside the object.
+	 * FUNCTION - setWarnMessages: This function sets the warning messages.
 	 **********************************************************************************/
 	this.setWarnMessages = function(msg) {
 		setWarnMessages = msg;
@@ -538,6 +537,7 @@ NgChmGui.FILE.MatrixFile = function() {
 	 * after the click and then redraws the matrix on the screen.
 	 **********************************************************************************/
 	function setAllSelections(hot,change) {
+		NgChmGui.matrixFile.setChangedState(true);
 		validateHotSelections(hot);
 		setFirstDataPos(hot);
 		applyDataStartSelection(hot);

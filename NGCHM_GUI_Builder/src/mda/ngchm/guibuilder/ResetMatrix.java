@@ -31,25 +31,35 @@ public class ResetMatrix extends HttpServlet {
 		response.setContentType("application/json;charset=UTF-8");
 		
 	    final PrintWriter writer = response.getWriter();
+	    BufferedReader rdr = null;
+	    BufferedWriter out = null;
 
 	    try {
 	    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
 	        workingDir = workingDir + "/" + mySession.getId();
-		    String matrixFile = workingDir  + "/workingMatrix.txt";
-		    String originalFile = workingDir + "/workingMatrix.txt.sav";
-		    Util.backupWorking(matrixFile);
-//		    String tmpWorking = Util.copyWorkingToTemp(matrixFile);
-		    BufferedReader rdr = new BufferedReader(new FileReader(originalFile));
-		    BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
-		    String line = rdr.readLine(); //Just write the header
-			while (line != null ){
-				out.write(line + "\n");
-				line = rdr.readLine();
-			}	
-			rdr.close();
-			out.close();
-//			new File(tmpWorking).delete();
-		    //Return something?
+	        HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
+		    String propJSON = "{}";
+	        File propFile = new File(workingDir + "/heatmapProperties.json");
+	        if (propFile.exists()) {
+			    String matrixFile = workingDir  + "/workingMatrix.txt";
+			    String originalFile = workingDir + "/workingMatrix.txt.sav";
+			    Util.backupWorking(matrixFile);
+	//		    String tmpWorking = Util.copyWorkingToTemp(matrixFile);
+			    rdr = new BufferedReader(new FileReader(originalFile));
+			    out = new BufferedWriter(new FileWriter(matrixFile));
+			    String line = rdr.readLine(); //Just write the header
+				while (line != null ){
+					out.write(line + "\n");
+					line = rdr.readLine();
+				}	
+				rdr.close();
+				out.close();
+			    propJSON = mgr.load();
+	        } else {
+	        	propJSON = "{\"no_file\": 1}";
+	        }
+	    	response.getWriter().write(propJSON.toString());
+	    	response.flushBuffer();
 	    } catch (Exception e) {
 	        writer.println("Error correcting matrix.");
 	        writer.println("<br/> ERROR: " + e.getMessage());
@@ -57,6 +67,12 @@ public class ResetMatrix extends HttpServlet {
 	    } finally {
 	        if (writer != null) {
 	            writer.close();
+	        }
+	        if (rdr != null) {
+	        	rdr.close();
+	        }
+	        if (out != null) {
+	        	out.close();
 	        }
 	    }
 	}

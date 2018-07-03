@@ -14,8 +14,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.script.ScriptEngine;
-
 
 /**
  * Servlet implementation class CorrectMatrix
@@ -33,16 +31,22 @@ public class CorrectMatrix extends HttpServlet {
 	    try {
 	    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
 	        workingDir = workingDir + "/" + mySession.getId();
-		    String matrixFile = workingDir  + "/workingMatrix.txt";
-		    
-		    String correction = request.getParameter("Correction");
-		    
-		    if (correction.equals("ReplaceInvalid"))
-		    	replaceNonNumeric(matrixFile, request);
-		    else if (correction.equals("FillMissing"))
-		    	fillMissing(matrixFile, request);
-
-		    //Return something?
+	        HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
+		    String propJSON = "{}";
+	        File propFile = new File(workingDir + "/heatmapProperties.json");
+	        if (propFile.exists()) {
+			    String matrixFile = workingDir  + "/workingMatrix.txt";
+			    String correction = request.getParameter("Correction");
+			    if (correction.equals("ReplaceInvalid"))
+			    	replaceNonNumeric(matrixFile, request);
+			    else if (correction.equals("FillMissing"))
+			    	fillMissing(matrixFile, request);
+			    propJSON = mgr.load();
+	        } else {
+	        	propJSON = "{\"no_file\": 1}";
+	        }
+	    	response.getWriter().write(propJSON.toString());
+	    	response.flushBuffer();
 	    } catch (Exception e) {
 	        writer.println("Error correcting matrix.");
 	        writer.println("<br/> ERROR: " + e.getMessage());

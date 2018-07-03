@@ -352,7 +352,7 @@ NgChmGui.COV.readyUpload = function() {
 	//If Name field not populated by user, use filename (less suffix)
 	var covName = document.getElementById('covName');
 	if ((covName.value.trim() === '') || (covName.value === null)) {
-		var idxDot = fileNameTxt.indexOf('.') > 25 ? 25 : fileNameTxt.indexOf('.');
+		var idxDot = fileNameTxt.indexOf('.');
 		covName.value = fileNameTxt.substring(0,idxDot);
 	}
 	document.getElementById('covUpload_apply_btn').style.display = '';
@@ -395,9 +395,11 @@ NgChmGui.COV.addCovariateBar = function(nextFunction) {
 	            console.log('Failed to upload covariate '  + req.status);
 	        } else {
 	        	NgChmGui.mapProperties = JSON.parse(req.response);
-	        	nextFunction();
+	        	if (NgChmGui.UTIL.validSession()) {
+	        		nextFunction();
+	    	        NgChmGui.COV.validateEntries(false);
+	        	}
 	        }
-	        NgChmGui.COV.validateEntries(false);
 		}
 	};
 	NgChmGui.UTIL.showLoading();
@@ -490,24 +492,28 @@ NgChmGui.COV.hideCovarRemoval = function() {
  * calls the function that cleans up the Covariate screen.
  **********************************************************************************/
 NgChmGui.COV.removeCovariateBar = function(nextFunction) {
-	var req = new XMLHttpRequest();
-	var formData = new FormData( document.getElementById("covar_remove") );
-	req.open("POST", "RemoveCovariate", true);
-	req.onreadystatechange = function () {
-		if (NgChmGui.UTIL.debug) {console.log('state change');}
-		if (req.readyState == req.DONE) {
-			if (NgChmGui.UTIL.debug) {console.log('done');}
-	        if (req.status != 200) {
-	    		if (NgChmGui.UTIL.debug) {console.log('not 200');}
-	            console.log('Failed to remove covariate '  + req.status);
-	        } else {
-	        	NgChmGui.mapProperties = JSON.parse(req.response);
-	        	nextFunction();
-	        }
-		}
-	};
-	NgChmGui.UTIL.showLoading();
-	req.send(formData);
+	if (NgChmGui.UTIL.validSession()) {
+		var req = new XMLHttpRequest();
+		var formData = new FormData( document.getElementById("covar_remove") );
+		req.open("POST", "RemoveCovariate", true);
+		req.onreadystatechange = function () {
+			if (NgChmGui.UTIL.debug) {console.log('state change');}
+			if (req.readyState == req.DONE) {
+				if (NgChmGui.UTIL.debug) {console.log('done');}
+		        if (req.status != 200) {
+		    		if (NgChmGui.UTIL.debug) {console.log('not 200');}
+		            console.log('Failed to remove covariate '  + req.status);
+		        } else {
+		        	NgChmGui.mapProperties = JSON.parse(req.response);
+		        	if (NgChmGui.UTIL.validSession()) {
+			        	nextFunction();
+		        	}
+		        }
+			}
+		};
+		NgChmGui.UTIL.showLoading();
+		req.send(formData);
+	}
 }
 
 /**********************************************************************************
@@ -516,11 +522,6 @@ NgChmGui.COV.removeCovariateBar = function(nextFunction) {
  * covariate bar for display. 
  **********************************************************************************/
 NgChmGui.COV.removeCovariateBarFromScreen = function() {
-	//remove any labels
-	var classLabels = document.getElementsByClassName("classLabel");
-	while (classLabels.length > 0) {
-		classLabels[0].parentNode.removeChild(classLabels[0]);
-	}
 	NgChmGui.COV.hideCovarRemoval();
 	var oldClassPanel = document.getElementById("classPrefsDiv");
 	if (oldClassPanel !== null) {

@@ -44,41 +44,42 @@ public class UploadCovariate extends HttpServlet {
 	    	workingDir = workingDir + "/" + mySession.getId();
 
 	        HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
+		    String propJSON = "{}";
 	        File propFile = new File(workingDir + "/heatmapProperties.json");
 	        //Check for pre-existence of properties file.  If exists, load from properties manager
 	        if (propFile.exists()) {
 	        	mgr.load();
+		        HeatmapPropertiesManager.Heatmap map = mgr.getMap();
+	        	String covFileName = workingDir + "/covariate_"+ axisType+"_"+covName + ".txt";
+	        	File covFile = new File(covFileName);
+	        	if (covFile.exists()) {
+	        		covFile.delete();
+	        	}
+			    out = new FileOutputStream(new File(covFileName));
+		        filecontent = filePart.getInputStream();
+		        int read = 0;
+		        final byte[] bytes = new byte[1024];
+	
+		        while ((read = filecontent.read(bytes)) != -1) {
+		            out.write(bytes, 0, read);
+		        }
+		        out.close();
+	
+			    ProcessCovariate cov = new ProcessCovariate();
+	        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructDefaultCovariate(mgr, covName, covFileName, axisType, colorType);
+	        	map.classification_files.add(classJsonObj);	 
+		        //Mark properties as "clean" for update.
+	        	map.builder_config.buildProps = "N";
+			    mgr.save();
+		        
+		        //Re-build the heat map 
+			    HeatmapBuild builder = new HeatmapBuild();
+			    builder.buildHeatMap(workingDir);
+			    //Return edited props
+	        	propJSON = mgr.load();
+	        } else {
+	        	propJSON = "{\"no_file\": 1}";
 	        }
-	        HeatmapPropertiesManager.Heatmap map = mgr.getMap();
-        	String covFileName = workingDir + "/covariate_"+ axisType+"_"+covName + ".txt";
-        	File covFile = new File(covFileName);
-        	if (covFile.exists()) {
-        		covFile.delete();
-        	}
-		    out = new FileOutputStream(new File(covFileName));
-	        filecontent = filePart.getInputStream();
-	        int read = 0;
-	        final byte[] bytes = new byte[1024];
-
-	        while ((read = filecontent.read(bytes)) != -1) {
-	            out.write(bytes, 0, read);
-	        }
-	        out.close();
-
-		    ProcessCovariate cov = new ProcessCovariate();
-        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructDefaultCovariate(mgr, covName, covFileName, axisType, colorType);
-        	map.classification_files.add(classJsonObj);	 
-	        //Mark properties as "clean" for update.
-        	map.builder_config.buildProps = "N";
-		    mgr.save();
-	        
-	        //Re-build the heat map 
-		    HeatmapBuild builder = new HeatmapBuild();
-		    builder.buildHeatMap(workingDir);
-
-		    //Return edited props
-		    String propJSON = "{}";
-        	propJSON = mgr.load();
 	       	response.setContentType("application/json");
 	    	response.getWriter().write(propJSON.toString());
 	    	response.flushBuffer();

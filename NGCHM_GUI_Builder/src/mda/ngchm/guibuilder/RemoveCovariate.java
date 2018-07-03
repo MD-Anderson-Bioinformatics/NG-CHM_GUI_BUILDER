@@ -40,35 +40,37 @@ public class RemoveCovariate extends HttpServlet {
 	    	workingDir = workingDir + "/" + mySession.getId();
 
 	        HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
+		    String propJSON = "{}";
 	        File propFile = new File(workingDir + "/heatmapProperties.json");
 	        //Check for pre-existence of properties file.  If exists, load from properties manager
 	        if (propFile.exists()) {
 	        	mgr.load();
+		        HeatmapPropertiesManager.Heatmap map = mgr.getMap();
+	        	String covFileName = workingDir + "/covariate_"+ axisType+"_"+covName + ".txt";
+	        	File covFile = new File(covFileName);
+	        	if (covFile.exists()) {
+	        		covFile.delete();
+	        	}
+	        	int indexToRem = 0;
+	        	for (int i=0;i < map.classification_files.size(); i++) {
+	        		HeatmapPropertiesManager.Classification currClass = map.classification_files.get(i);
+	        		if (currClass.name.equals(covName) && (currClass.position.equals(axisType))) {
+	        			indexToRem = i;
+	        		}
+	        	}
+	        	map.classification_files.remove(indexToRem);
+		        //Mark properties as "clean" for update.
+	        	map.builder_config.buildProps = "N";
+	        	mgr.save();
+		        //Re-build the heat map 
+			    HeatmapBuild builder = new HeatmapBuild();
+			    builder.buildHeatMap(workingDir);
+	
+			    //Return edited props
+	        	propJSON = mgr.load();
+	        } else {
+	        	propJSON = "{\"no_file\": 1}";
 	        }
-	        HeatmapPropertiesManager.Heatmap map = mgr.getMap();
-        	String covFileName = workingDir + "/covariate_"+ axisType+"_"+covName + ".txt";
-        	File covFile = new File(covFileName);
-        	if (covFile.exists()) {
-        		covFile.delete();
-        	}
-        	int indexToRem = 0;
-        	for (int i=0;i < map.classification_files.size(); i++) {
-        		HeatmapPropertiesManager.Classification currClass = map.classification_files.get(i);
-        		if (currClass.name.equals(covName) && (currClass.position.equals(axisType))) {
-        			indexToRem = i;
-        		}
-        	}
-        	map.classification_files.remove(indexToRem);
-	        //Mark properties as "clean" for update.
-        	map.builder_config.buildProps = "N";
-        	mgr.save();
-	        //Re-build the heat map 
-		    HeatmapBuild builder = new HeatmapBuild();
-		    builder.buildHeatMap(workingDir);
-
-		    //Return edited props
-		    String propJSON = "{}";
-        	propJSON = mgr.load();
 	       	response.setContentType("application/json");
 	    	response.getWriter().write(propJSON.toString());
 	    	response.flushBuffer();

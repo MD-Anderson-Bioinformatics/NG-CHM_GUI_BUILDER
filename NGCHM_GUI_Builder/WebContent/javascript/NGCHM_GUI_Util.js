@@ -197,16 +197,18 @@ NgChmGui.UTIL.cleanSession = function(loadFunction) {
  * that is called from any screens that edit heatmapProperties data
  **********************************************************************************/
 NgChmGui.UTIL.applySettings = function(applyFunction, nextFunction) {
-	if (NgChmGui.UTIL.buildProps() === true) {
-		//Reset builder warnings before calling a new build
-		NgChmGui.UTIL.clearBuildErrors();
-		if (applyFunction()) {
-			NgChmGui.UTIL.setHeatmapProperties(nextFunction);
+	if (NgChmGui.UTIL.validSession()) {
+		if (NgChmGui.UTIL.buildProps() === true) {
+			//Reset builder warnings before calling a new build
+			NgChmGui.UTIL.clearBuildErrors();
+			if (applyFunction()) {
+				NgChmGui.UTIL.setHeatmapProperties(nextFunction);
+			} else {
+				return;
+			};
 		} else {
-			return;
-		};
-	} else {
-		nextFunction();
+			nextFunction();
+		}
 	}
 }
 
@@ -567,22 +569,22 @@ NgChmGui.UTIL.hideLoading = function() {
  * They are used to navigate to the next screen from a previous screen
  **********************************************************************************/
 NgChmGui.UTIL.gotoMatrixScreen = function() {
-	window.open("NGCHMBuilder_Matrix.html","_self");
+	window.open("Select_Matrix.html","_self");
 }
 NgChmGui.UTIL.gotoTransformScreen = function() {
-	window.open("NGCHMBuilder_Transform.html","_self");
+	window.open("Transform_Matrix.html","_self");
 }
 NgChmGui.UTIL.gotoCovariatesScreen = function() {
-	window.open("NGCHMBuilder_Covariates.html","_self");
+	window.open("Edit_Covariates.html","_self");
 }
 NgChmGui.UTIL.gotoClusterScreen = function() {
-	window.open("NGCHMBuilder_Cluster.html","_self");
+	window.open("Cluster_Matrix.html","_self");
 }
 NgChmGui.UTIL.gotoFormatScreen = function() {
-	window.open("NGCHMBuilder_Format.html","_self");
+	window.open("Format_Display.html","_self");
 }
 NgChmGui.UTIL.gotoHeatMapScreen = function() {
-	window.open("NGCHMBuilder_HeatMap.html","_self");
+	window.open("View_HeatMap.html","_self");
 }
 
 /**********************************************************************************

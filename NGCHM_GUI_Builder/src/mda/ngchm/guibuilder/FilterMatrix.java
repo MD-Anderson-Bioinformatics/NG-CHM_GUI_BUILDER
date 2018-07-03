@@ -34,20 +34,26 @@ public class FilterMatrix extends HttpServlet {
 
 	    try {
 	    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
-
 	    	workingDir = workingDir + "/" + mySession.getId();
-		    String matrixFile = workingDir  + "/workingMatrix.txt";
-		    
-		    String filter = request.getParameter("Filter");
-		    
-		    if (filter.equals("Range")){
-		    	filterRange(matrixFile, request);
-		    } else if (filter.equals("Variation")){
-		    	filterVariation(matrixFile, request);
-		    } else if (filter.equals("MissingData")){
-		    	filterMissing(matrixFile, request);
-		    }
-		    //Return something?
+	        HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
+		    String propJSON = "{}";
+	        File propFile = new File(workingDir + "/heatmapProperties.json");
+	        if (propFile.exists()) {
+			    String matrixFile = workingDir  + "/workingMatrix.txt";
+			    String filter = request.getParameter("Filter");
+			    if (filter.equals("Range")){
+			    	filterRange(matrixFile, request);
+			    } else if (filter.equals("Variation")){
+			    	filterVariation(matrixFile, request);
+			    } else if (filter.equals("MissingData")){
+			    	filterMissing(matrixFile, request);
+			    }
+			    propJSON = mgr.load();
+	        } else {
+	        	propJSON = "{\"no_file\": 1}";
+	        }
+	    	response.getWriter().write(propJSON.toString());
+	    	response.flushBuffer();
 	    } catch (Exception e) {
 	        writer.println("Error correcting matrix.");
 	        writer.println("<br/> ERROR: " + e.getMessage());
