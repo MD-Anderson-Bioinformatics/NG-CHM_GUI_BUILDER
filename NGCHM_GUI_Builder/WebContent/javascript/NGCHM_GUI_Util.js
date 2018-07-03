@@ -273,6 +273,9 @@ NgChmGui.UTIL.loadHeatMapView = function(hideDetail) {
 	        	result = req.response;
 	        	pieces = result.trim().split("|");
 	        	NgChm.UTIL.embedCHM(pieces[1], pieces[0], hideDetail); NgChmGui.UTIL.hideLoading();
+                if (document.getElementById("previewWrapper") !== null) {
+                         setTimeout(function(){NgChmGui.FORMAT.loadColorPreviewDiv();},1000);
+                }
 		    }
 		}
 	};
