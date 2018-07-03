@@ -660,3 +660,49 @@ NgChmGui.UTIL.isAlphaNumeric = function(str) {
 NgChmGui.UTIL.isNumeric = function(n) {
 	return !isNaN(parseFloat(n)) && isFinite(n);
 }
+
+/**********************************************************************************
+ * FUNCTION - setLabelTypeList: This function is DEPENDENT on the embeddedChm being
+ * fully loaded with a heatmap.  It queries the linkouts and custom.js for the 
+ * embedded map and makes a list of all DISTINCT label types (linkout.typeName).  It 
+ * contains special logic for processing TCGA linkouts differently from the rest.
+ **********************************************************************************/
+NgChmGui.UTIL.setLabelTypeList = function() {
+	var labelTypeList = [];
+	var pluginsList = NgChm.CUST.customPlugins;
+	for (var i=0;i<pluginsList.length;i++) {
+		var pluginLinkouts = pluginsList[i].linkouts;
+		if (typeof pluginLinkouts !== 'undefined') {
+			for (var j=0;j<pluginLinkouts.length;j++) {
+				var pluginLinkout = pluginLinkouts[j];
+				if (pluginLinkout.typeName === "search") {
+					var stopme = 1;
+				}
+				if (labelTypeList.indexOf(pluginLinkout.typeName) < 0) {
+					labelTypeList.push(pluginLinkout.typeName);
+				}
+			}
+		} else {
+			if (pluginsList[i].name === "TCGA") {
+				var tcgaBase = "bio.tcga.barcode.sample";
+				if (labelTypeList.indexOf(tcgaBase) < 0) {
+					labelTypeList.push(tcgaBase);
+				}				
+				if (typeof NgChm.CUST.subTypes[tcgaBase] !== 'undefined') {
+					for(var m=0;m<NgChm.CUST.subTypes[tcgaBase].length;m++) {
+						var subVal = NgChm.CUST.subTypes[tcgaBase][m];
+						if (labelTypeList.indexOf(subVal) < 0) {
+							labelTypeList.push(subVal);
+						}
+					}
+				}
+			} 
+		} 
+	}
+	labelTypeList.sort();
+	var typeOptionStr = "<option value='none'></option>";
+	for (var k=0;k<labelTypeList.length;k++) {
+		var labelItem = labelTypeList[k];
+		typeOptionStr = typeOptionStr + "<option value='"+labelItem+"'>"+labelItem+"</option>";
+	} 
+} 
