@@ -22,6 +22,7 @@ NgChmGui.FILE.loadData = function() {
 	if (NgChmGui.UTIL.elemExist(NgChmGui.mapProperties.chm_name)) {
 		document.getElementById("mapNameValue").value = NgChmGui.mapProperties.chm_name;
 		document.getElementById("mapDescValue").value = NgChmGui.mapProperties.chm_description;
+		NgChmGui.isSample = NgChmGui.mapProperties.builder_config.matrix_grid_config.isSample;
 	}
 	var chmFileItem = document.getElementById('image-upload');
 	chmFileItem.addEventListener('change', NgChmGui.matrixFile.sendMatrix, false);
@@ -37,7 +38,7 @@ NgChmGui.FILE.loadData = function() {
 NgChmGui.FILE.addCovarDataEntry = function(item, id, name, itemCtr) {
 	var prefsPanelDiv = document.getElementById("matrixCovsPanel");
 	if (itemCtr === 0) {
-		NgChmGui.FILE.addCovarPrefsTitle();
+		NgChmGui.FILE.showCovarPrefsTitle();
 	}
    	var covarDiv = NgChmGui.UTIL.getDivElement(item+"Div_"+id);
    	covarDiv.className = 'pref-header';
@@ -50,17 +51,15 @@ NgChmGui.FILE.addCovarDataEntry = function(item, id, name, itemCtr) {
 }
 
 /**********************************************************************************
- * FUNCTION - addCovarPrefsTitle: This function adds a header above the covariate
- * color type preferences in the data entry panel.  It is called when covariates
- * are selected from the matrix AND when the matrix is reloaded from properties.
+ * FUNCTION - show/hideCovarPrefsTitle: This function shows or hides the covar
+ * prefs title div on the matrix screen.
  **********************************************************************************/
-NgChmGui.FILE.addCovarPrefsTitle = function() {
-	var prefsPanelDiv = document.getElementById("matrixCovsPanel");
-   	var covarTitle = NgChmGui.UTIL.getDivElement("covarPrefsTitle");
-   	covarTitle.className = 'sec-header';
-   	covarTitle.innerHTML = "<br>Enter Color Type for Covariates"
-	covarTitle.style.display = '';
-	prefsPanelDiv.appendChild(covarTitle);
+NgChmGui.FILE.showCovarPrefsTitle = function() {
+	document.getElementById("covarPrefsTitle").style.display = '';
+}
+
+NgChmGui.FILE.hideCovarPrefsTitle = function() {
+		document.getElementById("covarPrefsTitle").style.display = 'none';
 }
 
 /**********************************************************************************
@@ -98,7 +97,7 @@ NgChmGui.FILE.removeCovarDataEntry = function(item, id, itemCtr) {
 	var itemDiv = document.getElementById(item+"Div_"+id); 
 	itemDiv.remove();
 	if (itemCtr === 1) {
-		document.getElementById("covarPrefsTitle").remove(); 
+		NgChmGui.FILE.hideCovarPrefsTitle();
 	}
 }
 
@@ -145,8 +144,10 @@ NgChmGui.FILE.MatrixFile = function() {
 		var req = new XMLHttpRequest();
 		var formData = new FormData( document.getElementById("matrix_frm") );
 		if (isSample === true) {
+			NgChmGui.isSample = 'Y';
 			req.open("GET", "UploadMatrix", true);
 		} else {
+			NgChmGui.isSample = 'N';
 			req.open("POST", "UploadMatrix", true);
 		}
 		req.onreadystatechange = function () {
@@ -260,10 +261,7 @@ NgChmGui.FILE.MatrixFile = function() {
 			var elem = colorDropdowns[i]
 			elem.remove();
 		}
-		var covarTitleBlock = document.getElementById("covarPrefsTitle");
-		if (NgChmGui.UTIL.elemExist(covarTitleBlock)) {
-			covarTitleBlock.remove(); 
-		}
+		NgChmGui.FILE.hideCovarPrefsTitle();
 	}
 	
 	function getChangeState() {
@@ -313,7 +311,8 @@ NgChmGui.FILE.MatrixFile = function() {
 		                 rowCovs: rowCovs,
 		                 colCovs: colCovs,
 				         rowCovTypes: rowCovTypes,
-				         colCovTypes: colCovTypes};
+				         colCovTypes: colCovTypes,
+				         isSample: NgChmGui.isSample};
 		return JSON.stringify(someData);
 	}
 
@@ -395,6 +394,7 @@ NgChmGui.FILE.MatrixFile = function() {
 					dataStartPos = [row,col];
 				}   
 				clearAllSelections(hot);
+				NgChmGui.matrixFile.setChangedState(true);
 				setAllSelections(hot,changeType);
 		        hot.render();
 		      },hot);
@@ -403,7 +403,7 @@ NgChmGui.FILE.MatrixFile = function() {
 			hot.loadData(getData());
 			
 	    });
-		setAllSelections(hot,'lab')
+		setAllSelections(hot,'lab');
         hot.render();
 		return hot;
 	}
@@ -537,7 +537,6 @@ NgChmGui.FILE.MatrixFile = function() {
 	 * after the click and then redraws the matrix on the screen.
 	 **********************************************************************************/
 	function setAllSelections(hot,change) {
-		NgChmGui.matrixFile.setChangedState(true);
 		validateHotSelections(hot);
 		setFirstDataPos(hot);
 		applyDataStartSelection(hot);
@@ -618,39 +617,94 @@ NgChmGui.FILE.MatrixFile = function() {
 		dataStartPos = [gridConfig.dataStartRow, gridConfig.dataStartCol];
 		rowCovs = gridConfig.rowCovs;
 		colCovs = gridConfig.colCovs;
+		rowCovTypes = gridConfig.rowCovTypes;
+		colCovTypes = gridConfig.colCovTypes;
 		firstDataPos = [gridConfig.firstDataRow, gridConfig.firstDataCol];
 		loadDataFromFile();
-		if ((colCovs.length+rowCovs.length) > 0) {
-			NgChmGui.FILE.addCovarPrefsTitle();
-		}
+		var remCov = [];
+		var covRemoved = false;
 		if (colCovs.length > 0) {
 			for (var i =0;i<colCovs.length;i++) {
 				var heading = dataTable[(colCovs[i])] [colLabelCol];
-				NgChmGui.FILE.addCovarDataEntry("colColorType", colCovs[i], heading, colCovs.length+rowCovs.length); 
-				var colorType = "discrete";
-				for (var j=0;j<NgChmGui.mapProperties.classification_files.length;j++) {
-					if ((heading === NgChmGui.mapProperties.classification_files[j].name) && (NgChmGui.mapProperties.classification_files[j].position = "column")) {
-						colorType = NgChmGui.mapProperties.classification_files[j].color_map.type;
-						break;
+				if (covFound(heading,"column")) {
+					NgChmGui.FILE.addCovarDataEntry("colColorType", colCovs[i], heading, colCovs.length+rowCovs.length); 
+					var colorType = "discrete";
+					for (var j=0;j<NgChmGui.mapProperties.classification_files.length;j++) {
+						if ((heading === NgChmGui.mapProperties.classification_files[j].name) && (NgChmGui.mapProperties.classification_files[j].position = "column")) {
+							colorType = NgChmGui.mapProperties.classification_files[j].color_map.type;
+							break;
+						}
+					}
+					document.getElementById("colColorTypePref_"+ colCovs[i]).value = colorType;
+				} else {
+					remCov.push(colCovs[i]);
+				}
+			}
+			if (remCov.length > 0) {
+				covRemoved = true;
+				for (var i=0;i<remCov.length;i++) {
+					for (var j=0;j<colCovs.length;j++) {
+						if (colCovs[j] === remCov[i]) {
+							colCovs.splice(j, 1)
+							colCovTypes.splice(j, 1)
+						}
 					}
 				}
-				document.getElementById("colColorTypePref_"+ colCovs[i]).value = colorType;
 			}
 		}
 		if (rowCovs.length > 0) {
 			for (var i =0;i<rowCovs.length;i++) {
 				var heading = dataTable[rowLabelRow] [(rowCovs[i])];
-				NgChmGui.FILE.addCovarDataEntry("rowColorType", rowCovs[i], heading, colCovs.length+rowCovs.length); 
-				var colorType = "discrete";
-				for (var j=0;j<NgChmGui.mapProperties.classification_files.length;j++) {
-					if ((heading === NgChmGui.mapProperties.classification_files[j].name) && (NgChmGui.mapProperties.classification_files[j].position = "row")) {
-						colorType = NgChmGui.mapProperties.classification_files[j].color_map.type;
-						break;
+				if (covFound(heading,"row")) {
+					NgChmGui.FILE.addCovarDataEntry("rowColorType", rowCovs[i], heading, colCovs.length+rowCovs.length); 
+					var colorType = "discrete";
+					for (var j=0;j<NgChmGui.mapProperties.classification_files.length;j++) {
+						if ((heading === NgChmGui.mapProperties.classification_files[j].name) && (NgChmGui.mapProperties.classification_files[j].position = "row")) {
+							colorType = NgChmGui.mapProperties.classification_files[j].color_map.type;
+							break;
+						}
+					}
+					document.getElementById("rowColorTypePref_"+ rowCovs[i]).value = colorType;
+				} else {
+					remCov.push(rowCovs[i]);
+				}
+			}
+			if (remCov.length > 0) {
+				covRemoved = true;
+				for (var i=0;i<remCov.length;i++) {
+					for (var j=0;j<rowCovs.length;j++) {
+						if (rowCovs[j] === remCov[i]) {
+							rowCovs.splice(j, 1)
+							rowCovTypes.splice(j, 1)
+						}
 					}
 				}
-				document.getElementById("rowColorTypePref_"+ rowCovs[i]).value = colorType;
 			}
 		}
+		if ((colCovs.length+rowCovs.length) > 0) {
+			NgChmGui.FILE.showCovarPrefsTitle();
+		} else {
+			NgChmGui.FILE.hideCovarPrefsTitle();
+		}
+		if (covRemoved) {
+			NgChmGui.UTIL.setHeatmapProperties();
+			NgChmGui.UTIL.hideLoading();
+		}
+	}
+	
+	function covFound(labelVal,axis) {
+		var found = false;
+		var covs = NgChmGui.mapProperties.classification_files; 
+		for (var j=0;j<covs.length;j++) {
+			var classBar = covs[j];
+			if (classBar.position === axis) {
+				if (classBar.name === labelVal) {
+					found = true;
+					break;
+				}
+			}
+		}
+		return found;
 	}
 	
 	/**********************************************************************************
@@ -686,6 +740,7 @@ NgChmGui.FILE.MatrixFile = function() {
 			        	dataTable = Object.keys(topMatrixString).map(function(k) { return topMatrixString[k] });
 			        	reloadGridFromConfig();
 			        	NgChmGui.FILE.validateEntries(false);
+			        	loadDataFromFile();
 						NgChmGui.UTIL.hideLoading();
 		    		}
 			    }

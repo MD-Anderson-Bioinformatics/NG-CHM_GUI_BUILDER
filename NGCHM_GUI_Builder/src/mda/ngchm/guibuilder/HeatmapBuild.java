@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.tomcat.util.http.fileupload.FileUtils;
+
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 
@@ -43,6 +45,11 @@ public class HeatmapBuild extends HttpServlet {
 	        	map.matrix_files.get(0).color_map = null;
 		        mgr.save();
 	        }
+		    File mapDir = new File(workingDir+"/" + map.chm_name);
+		    if (mapDir.exists()) {
+		    	FileUtils.cleanDirectory(mapDir); 
+		    	FileUtils.deleteDirectory(mapDir);
+		    }
 	    	buildHeatMap(workingDir);
 	    } catch (Exception e) {
 	        writer.println("Error executing HeatmapDataGenerator to build Heat Map.");

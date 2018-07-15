@@ -19,6 +19,7 @@
 		<link rel="stylesheet" href="css/NGCHM_GUI.css">
 		<script type="text/Javascript">
 			NgChmGui.mapProperties = null;
+			NgChmGui.isSample = 'N';
 		 	window.onload = function() {
 				NgChmGui.UTIL.getHeatmapProperties(NgChmGui.FILE.loadData); 
 		 		NgChmGui.UTIL.messageBoxConfigure();
@@ -48,7 +49,7 @@
 				        	<table cellpadding="0">
 				        		<tr class="chmTR">
 				        			<td><b>&nbsp;&nbsp;Try Sample Matrix:&nbsp;&nbsp;</b></td>
-									<td><img id='sampleMatrix_btn' align="bottom" src='images/buttonSampleOpen.png' alt='Download the heat map to PDF file' onclick='NgChmGui.matrixFile.sendMatrix(true);' /></td>
+									<td><img id='sampleMatrix_btn' align="bottom" src='images/buttonSampleOpen.png' alt='Select Sample Matrix' onclick='NgChmGui.matrixFile.sendMatrix(true);' /></td>
 								</tr>
 				        	</table>
 			        </form>
@@ -63,6 +64,7 @@
 		  		    </div>
 		  		</div>
 				<div id="matrixCovsPanel">
+					<div id="covarPrefsTitle" class="sec-header" style="display: none;"><br>Enter Color Type for Covariates</div>				
 				</div>
 				<div class ='navigation_bar'>
 			        <div id="matrixNextButton" class="next_btn" style="display: none;">

@@ -39,9 +39,50 @@
 	  		</div>
 	    </div>   
        	<div id="DisplayContainer" class="display_container" style="position: relative;">
+	 		<div id="covarAddSample" class="data_entry_container" style="position: relative;display: none;width: 25%;">   
+		        <form method="POST" enctype="multipart/form-data" id="covar_add_sample" onsubmit="return false;">
+		        	<input name='selFile' id='selFile' style='display: none'/>
+	 	        	<div id="addSampleCovarFile" class="sec-header">Add Sample Covariate Bar:</div>
+		        	<table id="covarSampleTbl">
+		        		<tr><td style='line-height:4px;' colspan=2>&nbsp;</td></tr>
+		        		<tr class='chmTR'>
+		        			<td>
+							    <div>
+							        <input type="radio" id="Age_Covar" name="sampleCovar" checked />
+							        <label for="Age_Covar">TCGA Sample Age Covariate</label>
+							    </div>
+							</td>
+						</tr>
+		        		<tr class='chmTR'>
+		        			<td>
+							    <div>
+							        <input type="radio" id="Smoker_Covar" name="sampleCovar" />
+							        <label for="Smoker_Covar">TCGA Sample Smoker Covariate</label>
+							    </div>
+							</td>
+						</tr>
+		        		<tr class='chmTR'>
+		        			<td>
+							    <div>
+							        <input type="radio" id="Type_Covar" name="sampleCovar" />
+							        <label for="Type_Covar">Gene Type Covariate</label>
+							    </div>
+							</td>
+						</tr>
+		        		<tr><td style='line-height:4px;' colspan=2>&nbsp;</td></tr>
+		        		<tr><td style='line-height:4px;' colspan=2>&nbsp;</td></tr>
+		        		<tr>
+		        			<td>
+								<img id='covSampUpload_cancel_btn' src='images/cancelButton.png' alt='Cluster the Data' style="vertical-align: bottom;" onclick="NgChmGui.COV.hideCovarUpload()" />
+								<img id='covSampUpload_apply_btn' src='images/uploadButton.png' alt='Cluster the Data' style="vertical-align: bottom;" onclick="NgChmGui.COV.addSampleCovariateBar(NgChmGui.COV.loadNewCovariateBar)" />
+							</td>
+						</tr>
+					</table>
+		        </form>
+		    </div>
 	 		<div id="covarAdd" class="data_entry_container" style="position: relative;display: none;width: 25%;">   
 		        <form method="POST" enctype="multipart/form-data" id="covar_add" onsubmit="return false;">
-	 	        	<div class="sec-header">Add Covariate Bar:</div>
+	 	        	<div id="addCovarFile" class="sec-header">Add Covariate Bar:</div>
 		        	<table id="covarLookupTbl">
 		        		<tr><td style='line-height:4px;' colspan=2>&nbsp;</td></tr>
 		        		<tr class='chmTR'>

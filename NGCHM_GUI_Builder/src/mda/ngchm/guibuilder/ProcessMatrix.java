@@ -60,50 +60,67 @@ public class ProcessMatrix extends HttpServlet {
 	        String[] longLabels = buildFilteredMatrix(workingDir, matrixConfig, matrixFile);
 	        
 	        File propFile = new File(workingDir + "/heatmapProperties.json");
+	        boolean mapChanged = true;
 	        //Check for pre-existence of properties file.  If exists, load from properties manager
 	        if (propFile.exists()) {
 	        	mgr.load();
 	        }
 	        
 	        HeatmapPropertiesManager.Heatmap map = mgr.getMap();
-	        map.builder_config = (mgr.new BuilderConfig(matrixConfig,longLabels[0], longLabels[1]));
-	        map.chm_name = matrixConfig.mapName.trim();
+	        if (map.builder_config != null) {
+		        mapChanged = mapChanged(map.builder_config.matrix_grid_config, matrixConfig);
+	        }
 		    map.chm_description = matrixConfig.mapDesc;
-		    //Remove any existing matrix files as we are putting a new one on the map
-		    map.matrix_files.removeAll(map.matrix_files);
-			map.matrix_files.add(mgr.new MatrixFile(matrixConfig.matrixName, matrixFile, "average", null));  
-
-			//Add "default" row/col order configurations in original order
-		    map.row_configuration = mgr.new Order("Original");
-		    map.col_configuration = mgr.new Order("Original");
-			
-		    //Remove any existing covariate files as we are putting a new one on the map
-		    map.classification_files.removeAll(map.classification_files);
-		    ProcessCovariate cov = new ProcessCovariate();
-	        //Construct and write out files for each row covariate bar contained in the matrix file
-		    int covCtr = 1;
-	        for (int i=0;i<matrixConfig.rowCovs.size();i++) {
-	        	int covCol = matrixConfig.rowCovs.get(i);
-	        	String covType = matrixConfig.rowCovTypes.get(i);
-	        	String covFileName = workingDir + "/covariate_"+ covCtr + ".txt";
-	        	String covName = buildFilteredRowCovariate(workingDir, matrixConfig, covFileName, covCol);
-	        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructDefaultCovariate(mgr, covName, covFileName, "row", covType);
-	        	map.classification_files.add(classJsonObj);	    
-	        	covCtr++;
+	        if (mapChanged) {
+		        map.chm_name = matrixConfig.mapName.trim();
+		        boolean rowCovarsChanged = true;
+		        boolean covarsChanged = true;
+		        if (map.builder_config != null) {
+		        	covarsChanged = covarsChanged(map.builder_config.matrix_grid_config, matrixConfig);
+		        }
+			    map.builder_config = (mgr.new BuilderConfig(matrixConfig,longLabels[0], longLabels[1]));
+			    //Remove any existing matrix files as we are putting a new one on the map
+			    map.matrix_files.removeAll(map.matrix_files);
+				map.matrix_files.add(mgr.new MatrixFile(matrixConfig.matrixName, matrixFile, "average", null));  
+	
+				//Add "default" row/col order configurations in original order
+				if (map.row_configuration == null) {
+					map.row_configuration = mgr.new Order("Original");
+				}
+				if (map.col_configuration == null) {
+					map.col_configuration = mgr.new Order("Original");
+				}
+				
+			    //Remove any existing covariate files as we are putting a new one on the map
+				if (covarsChanged) {
+					map.classification_files.removeAll(map.classification_files);
+				    ProcessCovariate cov = new ProcessCovariate();
+			        //Construct and write out files for each row covariate bar contained in the matrix file
+				    int covCtr = 1;
+			        for (int i=0;i<matrixConfig.rowCovs.size();i++) {
+			        	int covCol = matrixConfig.rowCovs.get(i);
+			        	String covType = matrixConfig.rowCovTypes.get(i);
+			        	String covFileName = workingDir + "/covariate_"+ covCtr + ".txt";
+			        	String covName = buildFilteredRowCovariate(workingDir, matrixConfig, covFileName, covCol);
+			        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructDefaultCovariate(mgr, covName, covFileName, "row", covType);
+			        	map.classification_files.add(classJsonObj);	    
+			        	covCtr++;
+			        }
+		
+					//Construct and write out files for each column covariate bar contained in the matrix file
+			        for (int i=0;i<matrixConfig.colCovs.size();i++) {
+			        	int covRow = matrixConfig.colCovs.get(i);
+			        	String covType = matrixConfig.colCovTypes.get(i);
+			        	String covFileName = workingDir + "/covariate_"+ covCtr + ".txt";
+				        String covName = buildFilteredColCovariate(workingDir, matrixConfig, covFileName, covRow);
+			        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructDefaultCovariate(mgr, covName, covFileName, "column", covType);
+			        	map.classification_files.add(classJsonObj);	        	 
+			        	covCtr++;
+			        }
+				}
+				map.output_location = workingDir  + "/" + matrixConfig.mapName;
 	        }
 
-			//Construct and write out files for each column covariate bar contained in the matrix file
-	        for (int i=0;i<matrixConfig.colCovs.size();i++) {
-	        	int covRow = matrixConfig.colCovs.get(i);
-	        	String covType = matrixConfig.colCovTypes.get(i);
-	        	String covFileName = workingDir + "/covariate_"+ covCtr + ".txt";
-		        String covName = buildFilteredColCovariate(workingDir, matrixConfig, covFileName, covRow);
-	        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructDefaultCovariate(mgr, covName, covFileName, "column", covType);
-	        	map.classification_files.add(classJsonObj);	        	 
-	        	covCtr++;
-	        }
-
-			map.output_location = workingDir  + "/" + matrixConfig.mapName;
 			mgr.save();
 
 			System.out.println("END Processing Matrix: " + new Date()); 
@@ -118,6 +135,74 @@ public class ProcessMatrix extends HttpServlet {
 		
 	}
 
+	private boolean mapChanged(HeatmapPropertiesManager.MatrixGridConfig configOld, HeatmapPropertiesManager.MatrixGridConfig configNew) throws Exception {
+		if (!configOld.mapName.equals(configNew.mapName)) {
+			return true;
+		}
+		if (configOld.colLabelCol != configNew.colLabelCol) {
+			return true;
+		}
+		if (configOld.rowLabelRow != configNew.rowLabelRow) {
+			return true;
+		}
+		if (configOld.dataStartRow != configNew.dataStartRow) {
+			return true;
+		}
+		if (configOld.dataStartCol != configNew.dataStartCol) {
+			return true;
+		}
+		if (!configOld.matrixName.equals(configNew.matrixName)) {
+			return true;
+		}
+		if (covarsChanged(configOld, configNew)) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	private boolean covarsChanged(HeatmapPropertiesManager.MatrixGridConfig configOld, HeatmapPropertiesManager.MatrixGridConfig configNew) throws Exception {
+		
+		if (configOld.rowCovs.size() != configNew.rowCovs.size()) {
+			return true;
+		} else {
+			for (int i=0;i<configOld.rowCovs.size();i++) {
+				if (configOld.rowCovs.get(i) != configNew.rowCovs.get(i)) {
+					return true;
+				}
+			}
+		}
+		if (configOld.rowCovTypes.size() != configNew.rowCovTypes.size()) {
+			return true;
+		} else {
+			for (int i=0;i<configOld.rowCovTypes.size();i++) {
+				if (!configOld.rowCovTypes.get(i).equals(configNew.rowCovTypes.get(i))) {
+					return true;
+				}
+			}
+		}
+		
+		if (configOld.colCovs.size() != configNew.colCovs.size()) {
+			return true;
+		} else {
+			for (int i=0;i<configOld.colCovs.size();i++) {
+				if (configOld.colCovs.get(i) != configNew.colCovs.get(i)) {
+					return true;
+				}
+			}
+		}
+		if (configOld.colCovTypes.size() != configNew.colCovTypes.size()) {
+			return true;
+		} else {
+			for (int i=0;i<configOld.colCovTypes.size();i++) {
+				if (!configOld.colCovTypes.get(i).equals(configNew.colCovTypes.get(i))) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
 
 	/*******************************************************************
 	 * METHOD: getMatrixConfigData

@@ -331,7 +331,11 @@ NgChmGui.COV.setClassPrefOptions = function(classes) {
  **********************************************************************************/
 NgChmGui.COV.openCovarUpload = function() {
 	 document.getElementById("covarSelection").style.display = 'none';
-	 document.getElementById("covarAdd").style.display = '';
+	 if (NgChmGui.mapProperties.builder_config.matrix_grid_config.isSample === 'Y') {
+		 document.getElementById("covarAddSample").style.display = '';
+	 } else {
+		 document.getElementById("covarAdd").style.display = '';
+	 }
 }
 
 /**********************************************************************************
@@ -407,6 +411,43 @@ NgChmGui.COV.addCovariateBar = function(nextFunction) {
 }
 
 /**********************************************************************************
+ * FUNCTION - addSampleCovariateBar: This function runs when the upload button is pressed
+ * for a map that was built using the sample matrix. It calls the UploadSampleCovariate servlet, 
+ * waits for the result, and then calls a  function to add a new covariate bar panel.  
+ **********************************************************************************/
+NgChmGui.COV.addSampleCovariateBar = function(nextFunction) {
+	var selFile = document.getElementById('selFile');
+	if (document.getElementById('Age_Covar').checked) {
+		selFile.value = "SampleAgeCovariate.txt";
+	} else if (document.getElementById('Smoker_Covar').checked) {
+		selFile.value = "SampleSmokerCovariate.txt";
+	} else {
+		selFile.value = "SampleTypeCovariate.txt";
+	}
+	var formData = new FormData(document.getElementById("covar_add_sample") );
+	var req = new XMLHttpRequest();
+	req.open("POST", "UploadSampleCovariate", true);
+	req.onreadystatechange = function () {
+		if (NgChmGui.UTIL.debug) {console.log('state change');}
+		if (req.readyState == req.DONE) {
+			if (NgChmGui.UTIL.debug) {console.log('done');}
+	        if (req.status != 200) {
+	    		if (NgChmGui.UTIL.debug) {console.log('not 200');}
+	            console.log('Failed to upload covariate '  + req.status);
+	        } else {
+	        	NgChmGui.mapProperties = JSON.parse(req.response);
+	        	if (NgChmGui.UTIL.validSession()) {
+	        		nextFunction();
+	    	        NgChmGui.COV.validateEntries(false);
+	        	}
+	        }
+		}
+	};
+	NgChmGui.UTIL.showLoading();
+	req.send(formData);
+}
+
+/**********************************************************************************
  * FUNCTION - loadNewCovariateBar: This function closes the add covariate upload panel,
  * reloads the screen, and displays the newly added covariate's data entry panel.  
  **********************************************************************************/
@@ -454,6 +495,7 @@ NgChmGui.COV.hideCovarUpload = function() {
 	document.getElementById("colorType").value = 'none';
 	document.getElementById("covarSelection").style.display = '';
 	document.getElementById("covarAdd").style.display = 'none';
+	document.getElementById("covarAddSample").style.display = 'none';
 	document.getElementById("covar").value = "";
 	NgChmGui.COV.validateEntries(false);
 }

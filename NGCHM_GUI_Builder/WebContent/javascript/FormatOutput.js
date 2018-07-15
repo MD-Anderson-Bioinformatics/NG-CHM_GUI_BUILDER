@@ -18,6 +18,8 @@ NgChmGui.FORMAT.loadData =  function() {
 		formatPrefsDiv.style.display = '';
 		prefsPanelDiv.style.display = '';
 		NgChmGui.FORMAT.validateEntries(false);
+		NgChmGui.FORMAT.setLabelTypeList(0);
+		NgChmGui.FORMAT.loadColorPreviewDiv(0);
 	}
 }
 
@@ -183,8 +185,6 @@ NgChmGui.FORMAT.setFormatTaskOptions = function() {
 		document.getElementById('colGapMethod_list').value = colConfig.tree_cuts !== "0" ? "colByTreeCuts" : "colByLocations";
 		NgChmGui.FORMAT.showColGapMethodSelection();
 	}
-  	document.getElementById("rowLabelType").value = rowConfig.data_type;
-  	document.getElementById("colLabelType").value = colConfig.data_type;
 }
 
 
@@ -287,9 +287,9 @@ NgChmGui.FORMAT.setupLabelConfigPrefs = function() {
 	var colorMap = NgChmGui.mapProperties.matrix_files[0].color_map;
 	var rowConfig = NgChmGui.mapProperties.row_configuration;
 	var colConfig = NgChmGui.mapProperties.col_configuration;
-	var rowLabelTypePref = "<select name='rowLabelType' id='rowLabelType' onchange='NgChmGui.UTIL.setBuildProps();'>";
-	var colLabelTypePref = "<select name='colLabelType' id='colLabelType' onchange='NgChmGui.UTIL.setBuildProps();'>";
-	var labelTypeOptions = "<option value='none'></option><option value='bio.cbioportal.sampleid'>bio.cbioportal.sampleid</option><option value='bio.gene.entrezid'>bio.gene.entrezid</option><option value='bio.gene.hugo'>bio.gene.hugo</option><option value='bio.geo.acc'>bio.geo.acc</option><option value='bio.go'>bio.go</option><option value='bio.mdacc.pathwayid'>bio.mdacc.pathwayid</option><option value='bio.mirna'>bio.mirna</option><option value='bio.pathway.msigdb.name'>bio.pathway.msigdb.name</option><option value='bio.protein.uniprotid'>bio.protein.uniprotid</option><option value='bio.pubmed'>bio.pubmed</option><option value='bio.tcga.barcode.sample'>bio.tcga.barcode.sample</option><option value='bio.tcga.barcode.sample.vial'>bio.tcga.barcode.sample.vial</option><option value='bio.tcga.barcode.sample.vial.portion'>bio.tcga.barcode.sample.vial.portion</option><option value='bio.tcga.barcode.sample.vial.portion.analyte'>bio.tcga.barcode.sample.vial.portion.analyte</option><option value='bio.tcga.barcode.sample.vial.portion.analyte.aliquot'>bio.tcga.barcode.sample.vial.portion.analyte.aliquot</option><option value='bio.transcript.ensembl'>bio.transcript.ensembl</option><option value='scholar'>scholar</option><option value='search'>search</option></select>";
+	var rowLabelTypePref = "<select name='rowLabelType' id='rowLabelType' style='font-size: 12px;' onchange='NgChmGui.UTIL.setBuildProps();'>";
+	var colLabelTypePref = "<select name='colLabelType' id='colLabelType' style='font-size: 12px;' onchange='NgChmGui.UTIL.setBuildProps();'>";
+	var labelTypeOptions = "<option value='none'></option></select>";
 	NgChmGui.UTIL.addBlankRow(prefContents);
 	NgChmGui.UTIL.setTableRow(prefContents,["ROW LABEL CONFIGURATION"], 2);
 	NgChmGui.UTIL.addBlankRow(prefContents);
@@ -512,11 +512,10 @@ NgChmGui.FORMAT.getBreaksFromColorMap = function() {
 	NgChmGui.UTIL.setTableRow(breakpts, ["Rainbow", rainbow]);
 	NgChmGui.UTIL.setTableRow(breakpts, ["Green Red", redBlackGreen]);
 	NgChmGui.UTIL.addBlankRow(breakpts)
-	var reloadButton = "<img id='reloadButton' src='images/button_reload.png' alt='Reload Preview' onclick='NgChmGui.FORMAT.loadColorPreviewDiv();' align='top'/>"
+	var reloadButton = "<img id='reloadButton' src='images/button_reload.png' alt='Reload Preview' onclick='NgChmGui.FORMAT.loadColorPreviewDiv(0);' align='top'/>"
 	NgChmGui.UTIL.setTableRow(breakpts, ["&nbsp;Color Histogram:", reloadButton]);
 	var previewDiv = "<div id='previewWrapper' style='display:flex; height: 100px; width: 110px;position:relative;' ><canvas id='histo_canvas'></canvas></div>";//NgChm.UHM.loadColorPreviewDiv(mapName,true);
 	NgChmGui.UTIL.setTableRow(breakpts, [previewDiv]);
-//	setTimeout(function(){NgChmGui.FORMAT.loadColorPreviewDiv(true)},100);
 
 	return breakpts;
 }
@@ -549,85 +548,93 @@ NgChmGui.FORMAT.setColorMapToConfig = function(colorMap) {
  * FUNCTION - loadColorPreviewDiv: This function will update the color distribution
  * preview div to the current color palette in the gear panel
  **********************************************************************************/
-NgChmGui.FORMAT.loadColorPreviewDiv = function(){
-	var colorMap = NgChmGui.FORMAT.getTempCM();
-	var gradient = "linear-gradient(to right"
-	var numBreaks = colorMap.thresholds.length;
-	var highBP = parseFloat(colorMap.thresholds[numBreaks-1]);
-	var lowBP = parseFloat(colorMap.thresholds[0]);
-	var diff = highBP-lowBP;
-	for (var i=0;i<numBreaks;i++){
-		var bp = colorMap.thresholds[i];
-		var col = colorMap.colors[i];
-		var pct = Math.round((bp-lowBP)/diff*100);
-		gradient += "," + col + " " + pct + "%";
+NgChmGui.FORMAT.loadColorPreviewDiv = function(ctr){
+	if (ctr > 5) {
+		return;
 	}
-	gradient += ")";
-	var wrapper = document.getElementById("previewWrapper");
-	var bins = new Array(10+1).join('0').split('').map(parseFloat); // make array of 0's to start the counters
-	var breaks = new Array(9+1).join('0').split('').map(parseFloat);
-	for (var i=0; i <breaks.length;i++){
-		breaks[i]+=lowBP+diff/(breaks.length-1)*i; // array of the breakpoints shown in the preview div
-	}
-	var numCol = NgChm.heatMap.getNumColumns(NgChm.MMGR.SUMMARY_LEVEL);
-	var numRow = NgChm.heatMap.getNumRows(NgChm.MMGR.SUMMARY_LEVEL)
-	var count = 0;
-	var nan=0;
-	for (var i=1; i<numCol+1;i++){
-		for(var j=1;j<numRow+1;j++){ // data points start at 1, not 0
-			count++;
-			var val = NgChm.heatMap.getValue(NgChm.MMGR.SUMMARY_LEVEL,j,i);
-			if (isNaN(val) || val>=NgChm.SUM.maxValues){ // is it Missing value?
-				nan++;
-			} else if (val <= NgChm.SUM.minValues){ // is it a cut location?
-				continue;
-			}
-			if (val <= lowBP){
-				bins[0]++;
-				continue;
-			} else if (highBP < val){
-				bins[bins.length-1]++;
-				continue;
-			}
-			for (var k=0;k<breaks.length;k++){
-				if (breaks[k]<=val && val < breaks[k+1]){
-					bins[k+1]++;
-					break;
+	if (NgChm.heatMap === null) {
+		ctr++;
+		setTimeout(function(){NgChmGui.FORMAT.loadColorPreviewDiv();},500)
+	} else {
+		var colorMap = NgChmGui.FORMAT.getTempCM();
+		var gradient = "linear-gradient(to right"
+		var numBreaks = colorMap.thresholds.length;
+		var highBP = parseFloat(colorMap.thresholds[numBreaks-1]);
+		var lowBP = parseFloat(colorMap.thresholds[0]);
+		var diff = highBP-lowBP;
+		for (var i=0;i<numBreaks;i++){
+			var bp = colorMap.thresholds[i];
+			var col = colorMap.colors[i];
+			var pct = Math.round((bp-lowBP)/diff*100);
+			gradient += "," + col + " " + pct + "%";
+		}
+		gradient += ")";
+		var wrapper = document.getElementById("previewWrapper");
+		var bins = new Array(10+1).join('0').split('').map(parseFloat); // make array of 0's to start the counters
+		var breaks = new Array(9+1).join('0').split('').map(parseFloat);
+		for (var i=0; i <breaks.length;i++){
+			breaks[i]+=lowBP+diff/(breaks.length-1)*i; // array of the breakpoints shown in the preview div
+		}
+		var numCol = NgChm.heatMap.getNumColumns(NgChm.MMGR.SUMMARY_LEVEL);
+		var numRow = NgChm.heatMap.getNumRows(NgChm.MMGR.SUMMARY_LEVEL)
+		var count = 0;
+		var nan=0;
+		for (var i=1; i<numCol+1;i++){
+			for(var j=1;j<numRow+1;j++){ // data points start at 1, not 0
+				count++;
+				var val = NgChm.heatMap.getValue(NgChm.MMGR.SUMMARY_LEVEL,j,i);
+				if (isNaN(val) || val>=NgChm.SUM.maxValues){ // is it Missing value?
+					nan++;
+				} else if (val <= NgChm.SUM.minValues){ // is it a cut location?
+					continue;
+				}
+				if (val <= lowBP){
+					bins[0]++;
+					continue;
+				} else if (highBP < val){
+					bins[bins.length-1]++;
+					continue;
+				}
+				for (var k=0;k<breaks.length;k++){
+					if (breaks[k]<=val && val < breaks[k+1]){
+						bins[k+1]++;
+						break;
+					}
 				}
 			}
 		}
+		var total = 0;
+		var binMax = nan;
+		for (var i=0;i<bins.length;i++){
+			if (bins[i]>binMax)
+				binMax=bins[i];
+			total+=bins[i];
+		}
+		var cm = NgChmGui.FORMAT.getColorMapFromScreen();
+		var ctx = document.getElementById("histo_canvas").getContext("2d");
+		var graph = new BarGraph(ctx);
+		graph.margin = 2;
+		graph.width = 250;
+		graph.height = 150;
+		graph.gradient = false;
+		bins.unshift(nan);
+		var colors = new Array(bins.length);
+		for (var i = 0; i < breaks.length; i++){
+			colors[i+1] = cm.getRgbToHex(cm.getColor(breaks[i]));
+		}
+		colors[0] = cm.getMissingColor();
+		colors[colors.length-1] = colors[colors.length-2];
+	//	colors.fill('blue',1,colors.length);
+		var breaksLabel = new Array(bins.length+1).join(' ').split('');
+		
+		breaksLabel[0] = "NA";
+		breaksLabel[1] = "<" + breaks[0].toFixed(2);
+		breaksLabel[Math.floor(breaksLabel.length/2)] = breaks[4].toFixed(2);
+		breaksLabel[breaksLabel.length - 1] = breaks[breaks.length-1].toFixed(2) + "<";
+		graph.colors = colors;
+		graph.xAxisLabelArr = breaksLabel;//["Missing Values", NgChmGui.TRANS.matrixInfo.histoBins];
+		graph.update(bins);//[NgChmGui.TRANS.matrixInfo.numMissing,NgChmGui.TRANS.matrixInfo.histoCounts]);
 	}
-	var total = 0;
-	var binMax = nan;
-	for (var i=0;i<bins.length;i++){
-		if (bins[i]>binMax)
-			binMax=bins[i];
-		total+=bins[i];
-	}
-	var cm = NgChmGui.FORMAT.getColorMapFromScreen();
-	var ctx = document.getElementById("histo_canvas").getContext("2d");
-	var graph = new BarGraph(ctx);
-	graph.margin = 2;
-	graph.width = 250;
-	graph.height = 150;
-	graph.gradient = false;
-	bins.unshift(nan);
-	var colors = new Array(bins.length);
-	for (var i = 0; i < breaks.length; i++){
-		colors[i+1] = cm.getRgbToHex(cm.getColor(breaks[i]));
-	}
-	colors[0] = cm.getMissingColor();
-	colors[colors.length-1] = colors[colors.length-2];
-//	colors.fill('blue',1,colors.length);
-	var breaksLabel = new Array(bins.length+1).join(' ').split('');
-	
-	breaksLabel[0] = "NA";
-	breaksLabel[1] = "<" + breaks[0].toFixed(2);
-	breaksLabel[Math.floor(breaksLabel.length/2)] = breaks[4].toFixed(2);
-	breaksLabel[breaksLabel.length - 1] = breaks[breaks.length-1].toFixed(2) + "<";
-	graph.colors = colors;
-	graph.xAxisLabelArr = breaksLabel;//["Missing Values", NgChmGui.TRANS.matrixInfo.histoBins];
-	graph.update(bins);//[NgChmGui.TRANS.matrixInfo.numMissing,NgChmGui.TRANS.matrixInfo.histoCounts]);
 }
 
 /**********************************************************************************
@@ -677,6 +684,9 @@ NgChmGui.FORMAT.getColorMapFromScreen = function() {
 		colors[j] = document.getElementById(colorId+"_colorPref").value;
 	} 
 	colorMap.setMissingColor(document.getElementById("missing_colorPref").value);
+	var colorScheme = {"missing": colorMap.getMissingColor(), "thresholds": colorMap.getThresholds(), "colors": colorMap.getColors(), "type": "continuous"};
+	var colorMap = new NgChmGui.CM.ColorMap(colorScheme);
+
 	return colorMap;
 //	NgChmGui.FORMAT.setColorMapToConfig(colorMap);
 }
@@ -991,5 +1001,64 @@ NgChmGui.FORMAT.gotoHeatMapScreen = function() {
 	}
 }
 
-
+/**********************************************************************************
+ * FUNCTION - setLabelTypeList: This function is DEPENDENT on the embeddedChm being
+ * fully loaded with a heatmap.  It queries the linkouts and custom.js for the 
+ * embedded map and makes a list of all DISTINCT label types (linkout.typeName).  It 
+ * contains special logic for processing TCGA linkouts differently from the rest.
+ **********************************************************************************/
+NgChmGui.FORMAT.setLabelTypeList = function(ctr) {
+	if (ctr > 5) {
+		return;
+	}
+	if (typeof NgChm.CUST.customPlugins === 'undefined') {
+		ctr++;
+		setTimeout(function(){NgChmGui.FORMAT.setLabelTypeList(ctr);},500);
+	} else {
+		var labelTypeList = [];
+		var pluginsList = NgChm.CUST.customPlugins;
+		for (var i=0;i<pluginsList.length;i++) {
+			var pluginLinkouts = pluginsList[i].linkouts;
+			if (typeof pluginLinkouts !== 'undefined') {
+				for (var j=0;j<pluginLinkouts.length;j++) {
+					var pluginLinkout = pluginLinkouts[j];
+					if (labelTypeList.indexOf(pluginLinkout.typeName) < 0) {
+						labelTypeList.push(pluginLinkout.typeName);
+					}
+				}
+			} else {
+				if (pluginsList[i].name === "TCGA") {
+					var tcgaBase = "bio.tcga.barcode.sample";
+					if (labelTypeList.indexOf(tcgaBase) < 0) {
+						labelTypeList.push(tcgaBase);
+					}				
+					if (typeof NgChm.CUST.subTypes[tcgaBase] !== 'undefined') {
+						for(var m=0;m<NgChm.CUST.subTypes[tcgaBase].length;m++) {
+							var subVal = NgChm.CUST.subTypes[tcgaBase][m];
+							if (labelTypeList.indexOf(subVal) < 0) {
+								labelTypeList.push(subVal);
+							}
+						}
+					}
+				} 
+			} 
+		}
+		labelTypeList.sort();
+		
+		var rowLabelSelect = document.getElementById('rowLabelType');
+		var colLabelSelect = document.getElementById('colLabelType');
+		
+		for (var k=0;k<labelTypeList.length;k++) {
+			var labelItem = labelTypeList[k];
+		    var option = document.createElement('option');
+		    option.setAttribute('value', labelItem);
+		    option.appendChild(document.createTextNode(labelItem));
+		    rowLabelSelect.appendChild(option);
+		    var option2 = option.cloneNode(true);
+		    colLabelSelect.appendChild(option2);
+		} 
+	  	document.getElementById("rowLabelType").value = NgChmGui.mapProperties.row_configuration.data_type;
+	  	document.getElementById("colLabelType").value = NgChmGui.mapProperties.col_configuration.data_type;
+	}
+} 
 
