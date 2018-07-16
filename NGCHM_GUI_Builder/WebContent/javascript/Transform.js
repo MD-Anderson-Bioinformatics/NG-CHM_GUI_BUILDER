@@ -109,7 +109,7 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 		if (req.readyState == req.DONE) {
 			if (NgChmGui.UTIL.debug) {console.log('done');}
 	        if (req.status != 200) {
-	        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
+	        	NgChmGui.UTIL.hideLoading();
 	            console.log('Failed to get working matrix '  + req.status);
 	        } else {
 				if (NgChmGui.UTIL.debug) {console.log('200');}
@@ -306,7 +306,7 @@ NgChmGui.TRANS.correctMatrixData =  function() {
 			if (req.readyState == req.DONE) {
 				if (NgChmGui.UTIL.debug) {console.log('done');}
 		        if (req.status != 200) {
-		        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
+		        	NgChmGui.UTIL.hideLoading();
 		            console.log('Failed to correct matrix '  + req.status);
 		        } else {
 					if (NgChmGui.UTIL.debug) {console.log('200');}
@@ -337,7 +337,7 @@ NgChmGui.TRANS.filterMatrixData =  function() {
 			if (req.readyState == req.DONE) {
 				if (NgChmGui.UTIL.debug) {console.log('done');}
 		        if (req.status != 200) {
-		        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
+		        	NgChmGui.UTIL.hideLoading();
 		            console.log('Failed to filter matrix '  + req.status);
 		        } else {
 					if (NgChmGui.UTIL.debug) {console.log('200');}
@@ -368,7 +368,7 @@ NgChmGui.TRANS.transformMatrixData =  function() {
 			if (req.readyState == req.DONE) {
 				if (NgChmGui.UTIL.debug) {console.log('done');}
 		        if (req.status != 200) {
-		        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
+		        	NgChmGui.UTIL.hideLoading();
 		            console.log('Failed to filter matrix '  + req.status);
 		        } else {
 					if (NgChmGui.UTIL.debug) {console.log('200');}
@@ -398,7 +398,7 @@ NgChmGui.TRANS.resetMatrix =  function() {
 		if (req.readyState == req.DONE) {
 			if (NgChmGui.UTIL.debug) {console.log('done');}
 	        if (req.status != 200) {
-	        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
+	        	NgChmGui.UTIL.hideLoading();
 	            console.log('Failed to filter matrix '  + req.status);
 	        } else {
 				if (NgChmGui.UTIL.debug) {console.log('200');}
@@ -500,7 +500,7 @@ NgChmGui.TRANS.revertToState =  function() {
 		if (req.readyState == req.DONE) {
 			if (NgChmGui.UTIL.debug) {console.log('done');}
 	        if (req.status != 200) {
-	        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
+	        	NgChmGui.UTIL.hideLoading();
 	            console.log('Failed to filter matrix '  + req.status);
 	        } else {
 				if (NgChmGui.UTIL.debug) {console.log('200');}
@@ -534,7 +534,7 @@ NgChmGui.TRANS.revertToState =  function() {
 				if (req.readyState == req.DONE) {
 					if (NgChmGui.UTIL.debug) {console.log('done');}
 			        if (req.status != 200) {
-			        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
+			        	NgChmGui.UTIL.hideLoading();
 			            console.log('Failed to filter matrix '  + req.status);
 			        } else {
 						if (NgChmGui.UTIL.debug) {console.log('200');}
@@ -588,9 +588,8 @@ NgChmGui.TRANS.processTransforms = function(callback){
 		if (req.readyState == req.DONE) {
 			if (NgChmGui.UTIL.debug) {console.log('done');}
 	        if (req.status != 200) {
-				if (NgChmGui.UTIL.debug) {console.log('not 200');}
+	        	NgChmGui.UTIL.hideLoading();
 	            console.log('Failed to process matrix '  + req.status);
-//			            NgChmGui.UTIL.matrixLoadingError();
 	        } else {
 				if (NgChmGui.UTIL.debug) {console.log('200');}
 				if (callback){

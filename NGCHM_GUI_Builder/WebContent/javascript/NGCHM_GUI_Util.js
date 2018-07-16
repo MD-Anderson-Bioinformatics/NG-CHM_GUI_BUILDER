@@ -117,7 +117,7 @@ NgChmGui.UTIL.getHeatmapProperties = function(loadFunction) {
 		if (req.readyState == req.DONE) {
 			if (NgChmGui.UTIL.debug) {console.log('done');}
 	        if (req.status != 200) {
-				if (NgChmGui.UTIL.debug) {console.log('not 200');}
+	        	NgChmGui.UTIL.hideLoading();
 	            console.log('Failed to upload matrix '  + req.status);
 	        } else {
 	        	//Got corner of matrix data.
@@ -146,9 +146,9 @@ NgChmGui.UTIL.setHeatmapProperties = function(nextFunction) {
 		if (req.readyState == req.DONE) {
 			if (NgChmGui.UTIL.debug) {console.log('done');}
 	        if (req.status != 200) {
-	        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
-	            console.log('Failed to process properties changes '  + req.status);
+	        	NgChmGui.UTIL.hideLoading();
 	            NgChmGui.UTIL.matrixLoadingError();
+	            console.log('Failed to process properties changes '  + req.status);
 	        } else {
 				if (NgChmGui.UTIL.debug) {console.log('200');}
 	        	NgChmGui.mapProperties = JSON.parse(req.response);
@@ -177,7 +177,7 @@ NgChmGui.UTIL.cleanSession = function(loadFunction) {
 		if (req.readyState == req.DONE) {
 			if (NgChmGui.UTIL.debug) {console.log('done');}
 	        if (req.status != 200) {
-				if (NgChmGui.UTIL.debug) {console.log('not 200');}
+	        	NgChmGui.UTIL.hideLoading();
 	            console.log('Failed to clean up session '  + req.status);
 	        } else {
 	        	//Got corner of matrix data.
@@ -235,7 +235,7 @@ NgChmGui.UTIL.buildHeatMap = function(nextFunction) {
 		if (req.readyState == req.DONE) {
 			if (NgChmGui.UTIL.debug) {console.log('done');}
 	        if (req.status != 200) {
-	        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
+	        	NgChmGui.UTIL.hideLoading();
 	            console.log('Failed to load heat map view to screen'  + req.status);
 	            NgChmGui.UTIL.heatmapBuildError();
 	        } else {
@@ -265,7 +265,7 @@ NgChmGui.UTIL.loadHeatMapView = function(hideDetail) {
 		if (req.readyState == req.DONE) {
 			if (NgChmGui.UTIL.debug) {console.log('done');}
 	        if (req.status != 200) {
-	        	if (NgChmGui.UTIL.debug) {console.log('not 200');}
+	        	NgChmGui.UTIL.hideLoading();
 	            console.log('Failed to load heat map view to screen'  + req.status);
 	            NgChmGui.UTIL.matrixLoadingError();
 	        } else {

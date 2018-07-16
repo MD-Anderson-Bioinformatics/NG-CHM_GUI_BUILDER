@@ -33,13 +33,15 @@ public class UploadSampleCovariate extends HttpServlet {
 	    String covName = "Age";
 	    String colorType = "continuous";
 	    String axisType = "column";
-	    if (selFile.equals("SampleSmokerCovariate.txt")) {
-	    	covName = "Smoker";
+	    if (selFile.equals("SampleGleasonCovariate.txt")) {
+	    	covName = "Gleason_Score";
 	    	colorType = "discrete";
-	    } else if (selFile.equals("SampleTypeCovariate.txt")) {
-	    	covName = "Type";
+	    } else if (selFile.equals("SamplePsaCovariate.txt")) {
+	    	covName = "PSA";
+	    	colorType = "continuous";
+	    } else if (selFile.equals("SampleRaceCovariate.txt")) {
+	    	covName = "Race";
 	    	colorType = "discrete";
-	    	axisType = "row";
 	    }
 	    OutputStream out = null;
 	    InputStream filecontent = null;

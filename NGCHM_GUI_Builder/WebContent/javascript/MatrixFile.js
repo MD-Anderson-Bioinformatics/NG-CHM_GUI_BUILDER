@@ -155,7 +155,7 @@ NgChmGui.FILE.MatrixFile = function() {
 			if (req.readyState == req.DONE) {
 				if (NgChmGui.UTIL.debug) {console.log('done');}
 		        if (req.status != 200) {
-		    		if (NgChmGui.UTIL.debug) {console.log('not 200');}
+		        	NgChmGui.UTIL.hideLoading();
 		            console.log('Failed to upload matrix '  + req.status);
 		        } else {
 		    		if (NgChmGui.UTIL.debug) {console.log('200');}
@@ -202,7 +202,7 @@ NgChmGui.FILE.MatrixFile = function() {
 					if (req.readyState == req.DONE) {
 						if (NgChmGui.UTIL.debug) {console.log('done');}
 				        if (req.status != 200) {
-							if (NgChmGui.UTIL.debug) {console.log('not 200');}
+				        	NgChmGui.UTIL.hideLoading();
 				            console.log('Failed to process matrix '  + req.status);
 				            NgChmGui.UTIL.matrixLoadingError();
 				        } else {
@@ -722,7 +722,7 @@ NgChmGui.FILE.MatrixFile = function() {
 			if (req.readyState == req.DONE) {
 				if (NgChmGui.UTIL.debug) {console.log('done');}
 		        if (req.status != 200) {
-		    		if (NgChmGui.UTIL.debug) {console.log('not 200');}
+		        	NgChmGui.UTIL.hideLoading();
 		            console.log('Failed to upload matrix '  + req.status);
 		        } else {
 		        	//Remove any previous dtat from matrix display box
