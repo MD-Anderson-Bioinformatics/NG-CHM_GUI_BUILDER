@@ -36,6 +36,8 @@ public class GetWorkingMatrix extends HttpServlet {
 		public int numCols = 0;
 		public int numInvalid = 0;
 		public int numMissing = 0;
+		public int emptyRows = 0;
+		public int emptyCols = 0;
 		public double minVal = Double.POSITIVE_INFINITY;
 		public double maxVal = Double.NEGATIVE_INFINITY;
 		public double[] bins = new double[10];
@@ -114,13 +116,15 @@ public class GetWorkingMatrix extends HttpServlet {
 		    						",\"minValue\": " + "\"" + counts.minVal + "\"" +
 		    						"," + jsonHisto.toString() + 
 		    						"," + rowStdJsonHisto.toString() +
-									"," + colStdJsonHisto.toString() + "}";
+									"," + colStdJsonHisto.toString() + 
+									",\"emptyCols\": " + "\"" + counts.emptyCols + "\""+
+									",\"emptyRows\": " + "\"" + counts.emptyRows + "\""+ "}";
 	        
 	        writer.println(jsonMatrixInfo);
 	    } catch (Exception e) {
 	        writer.println("Error getting working matrix.");
 	        writer.println("<br/> ERROR: " + e.getMessage());
-
+	        e.printStackTrace();
 	    } finally {
 	        if (out != null) {
 	            out.close();
@@ -153,6 +157,8 @@ public class GetWorkingMatrix extends HttpServlet {
 					counts.numRows = 0;
 					counts.numInvalid = 0;
 					counts.numMissing = 0;
+					counts.emptyRows = 0;
+					counts.emptyCols = 0;
 					counts.minVal = 0;
 					counts.maxVal = 0;
 					counts.bins = new double[10];
@@ -166,11 +172,14 @@ public class GetWorkingMatrix extends HttpServlet {
 					ArrayList<Double> rowMean = new ArrayList<Double>();
 					double colMean[] = new double[numCols];
 					int colCount[] = new int[numCols];
-					
+					//Array for storing column pos of each col with missing values in first row of matrix.
+				    ArrayList<Integer> missingCols = new ArrayList<Integer>();
+					int rowCtr = 1;
 					while (line != null ){
 						counts.numRows++;
 						double rowSum = 0;
 						int numRowValues = 0;
+						int missingPerRow = 0;
 						String toks[] = line.split("\t",-1);
 						if (counts.numRows == 1)
 							counts.numCols = toks.length - 1;
@@ -187,11 +196,26 @@ public class GetWorkingMatrix extends HttpServlet {
 								numRowValues++;
 								colMean[i] += dVal;
 								colCount[i] += 1;
+								//remove any column from missingCols array if a value is found in another row at that column
+								int iPos = missingCols.indexOf(i);
+								if (iPos > 0) {
+									missingCols.remove(iPos);
+								}
 							} else if (Util.isMissing(val)) {
 								counts.numMissing++;
+								missingPerRow++;
+								//record all columns with missing value in row 1.
+								//will be used to check if ALL cols have missing value.
+								if (rowCtr == 1) {
+									missingCols.add(i);
+								}
 							} else {
 								counts.numInvalid++;
 							}
+						}
+						//If missing values in row equals the row length, count as empty
+						if (missingPerRow == counts.numCols) {
+							counts.emptyRows++;
 						}
 						
 						if (numRowValues > 0) {
@@ -200,7 +224,10 @@ public class GetWorkingMatrix extends HttpServlet {
 							rowMean.add(null);
 						}
 						line = rdr.readLine();
+						rowCtr++;
 					}	
+					//If columns array has a value, count as emtpy
+					counts.emptyCols = missingCols.size();
 					rdr.close();
 					
 					//Calculate column means
@@ -307,6 +334,8 @@ public class GetWorkingMatrix extends HttpServlet {
 				counts.numRows = 0;
 				counts.numInvalid = 0;
 				counts.numMissing = 0;
+				counts.emptyRows = 0;
+				counts.emptyCols = 0;
 				counts.minVal = 0;
 				counts.maxVal = 0;
 				counts.bins = new double[0];

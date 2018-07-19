@@ -7,4 +7,7 @@
   <listener>
     <listener-class>mda.ngchm.guibuilder.SessionManager</listener-class>
   </listener>
+  <session-config>
+	<session-timeout>60</session-timeout> 
+  </session-config>
 </web-app>

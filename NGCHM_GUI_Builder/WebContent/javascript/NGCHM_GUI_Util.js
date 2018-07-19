@@ -147,7 +147,6 @@ NgChmGui.UTIL.setHeatmapProperties = function(nextFunction) {
 			if (NgChmGui.UTIL.debug) {console.log('done');}
 	        if (req.status != 200) {
 	        	NgChmGui.UTIL.hideLoading();
-	            NgChmGui.UTIL.matrixLoadingError();
 	            console.log('Failed to process properties changes '  + req.status);
 	        } else {
 				if (NgChmGui.UTIL.debug) {console.log('200');}
@@ -267,7 +266,6 @@ NgChmGui.UTIL.loadHeatMapView = function(hideDetail) {
 	        if (req.status != 200) {
 	        	NgChmGui.UTIL.hideLoading();
 	            console.log('Failed to load heat map view to screen'  + req.status);
-	            NgChmGui.UTIL.matrixLoadingError();
 	        } else {
 				if (NgChmGui.UTIL.debug) {console.log('200');}
 	        	result = req.response;

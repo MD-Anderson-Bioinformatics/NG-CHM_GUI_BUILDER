@@ -38,8 +38,14 @@ NgChmGui.TRANS.validateEntries = function(leavingPage, formatError) {
 			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "MATRIX HAS NO COLUMNS.</p>" + NgChmGui.UTIL.nextLine;
 			valid = false;
 		}	
-		
-		
+		if(NgChmGui.TRANS.matrixInfo.emptyRows > 0) {
+			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "MATRIX HAS " + NgChmGui.TRANS.matrixInfo.emptyRows + " EMPTY DATA ROW(S). ALL VALUES MISSING. USE FILTER TO REMOVE ROWS OR REPLACE MISSING.</p>" + NgChmGui.UTIL.nextLine;
+			valid = false;
+		}	
+		if(NgChmGui.TRANS.matrixInfo.emptyCols > 0) {
+			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "MATRIX HAS " + NgChmGui.TRANS.matrixInfo.emptyCols + " EMPTY DATA COLUMNS(S). ALL VALUES MISSING. USE FILTER TO REMOVE COLUMNS OR REPLACE MISSING.</p>" + NgChmGui.UTIL.nextLine;
+			valid = false;
+		}	
 		if (NgChmGui.TRANS.matrixInfo.numRows > 4000) {
 			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "MATRIX HAS TOO MANY ROWS (>4000) FOR BUILDER. USE FILTER TO REMOVE ROWS.</p>" + NgChmGui.UTIL.nextLine;
 			valid = false;

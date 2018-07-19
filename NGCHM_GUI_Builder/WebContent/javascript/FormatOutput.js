@@ -549,12 +549,12 @@ NgChmGui.FORMAT.setColorMapToConfig = function(colorMap) {
  * preview div to the current color palette in the gear panel
  **********************************************************************************/
 NgChmGui.FORMAT.loadColorPreviewDiv = function(ctr){
-	if (ctr > 5) {
+	if (ctr > 10) {
 		return;
 	}
 	if (NgChm.heatMap === null) {
 		ctr++;
-		setTimeout(function(){NgChmGui.FORMAT.loadColorPreviewDiv();},500)
+		setTimeout(function(){NgChmGui.FORMAT.loadColorPreviewDiv();},5000)
 	} else {
 		var colorMap = NgChmGui.FORMAT.getTempCM();
 		var gradient = "linear-gradient(to right"
@@ -1008,12 +1008,12 @@ NgChmGui.FORMAT.gotoHeatMapScreen = function() {
  * contains special logic for processing TCGA linkouts differently from the rest.
  **********************************************************************************/
 NgChmGui.FORMAT.setLabelTypeList = function(ctr) {
-	if (ctr > 5) {
+	if (ctr > 10) {
 		return;
 	}
 	if (typeof NgChm.CUST.customPlugins === 'undefined') {
 		ctr++;
-		setTimeout(function(){NgChmGui.FORMAT.setLabelTypeList(ctr);},500);
+		setTimeout(function(){NgChmGui.FORMAT.setLabelTypeList(ctr);},2000);
 	} else {
 		var labelTypeList = [];
 		var pluginsList = NgChm.CUST.customPlugins;

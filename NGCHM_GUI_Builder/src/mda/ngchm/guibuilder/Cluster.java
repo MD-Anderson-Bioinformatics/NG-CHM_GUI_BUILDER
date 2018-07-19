@@ -1,8 +1,5 @@
 package mda.ngchm.guibuilder;
 
-import java.io.IOException;
-
-import javax.servlet.ServletException;
 import javax.script.ScriptEngine;
 import org.renjin.script.RenjinScriptEngineFactory;
 
@@ -12,68 +9,63 @@ import org.renjin.script.RenjinScriptEngineFactory;
 public class Cluster  {
 	private static final ThreadLocal<ScriptEngine> ENGINE = new ThreadLocal<>();
 	
-	public void clusterHeatMap(String workingDir) throws ServletException, IOException {
+	public void clusterHeatMap(String workingDir) throws Exception {
 		// Obtain R script engine for this thread
 		ScriptEngine engine = getScriptEngine();
 
-	    try {
-	        //Retrieve heat map properties
-		    HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
-		    mgr.load();
-		    HeatmapPropertiesManager.Heatmap map = mgr.getMap();
-		    
-		    //Get first matrix file for clustering 
-		    String matrixFile = map.matrix_files.get(0).path;
-		    String clusterProp = map.builder_config.buildCluster;
-		    boolean clusterRows = (clusterProp.equals("R") || clusterProp.equals("B")) ? true : false;
-		    boolean clusterCols = (clusterProp.equals("C") || clusterProp.equals("B")) ? true : false;
-		    
-		    if (clusterRows) {
-			    //Create paths for clustering output files
-			    String rowOrder = workingDir  + "/rowOrder.txt";  
-			    String rowDendro = workingDir  + "/rowDendro.txt";  
-			    String rowOrderMethod = map.row_configuration.order_method;
-			    if (rowOrderMethod.equals("Hierarchical")) {   
-				    performOrdering(engine, matrixFile, rowOrderMethod, "row", map.row_configuration.distance_metric, map.row_configuration.agglomeration_method, rowOrder, rowDendro);  //Get from props
-			    	map.row_configuration.order_file = rowOrder;  
-			    	map.row_configuration.dendro_file = rowDendro; 
-			    	if (map.row_configuration.dendro_show.equals("NA"))	{	 	    	
-		    			map.row_configuration.dendro_show = "ALL";  
-		    			map.row_configuration.dendro_height = "100";  
-			    	}
-			    } else {
-			    	map.row_configuration.order_file = null;  
-			    	map.row_configuration.dendro_file = null;  
-			    	map.row_configuration.dendro_show = "NA";  
-			    	map.row_configuration.dendro_height = "10";
-			    }
+        //Retrieve heat map properties
+	    HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
+	    mgr.load();
+	    HeatmapPropertiesManager.Heatmap map = mgr.getMap();
+	    
+	    //Get first matrix file for clustering 
+	    String matrixFile = map.matrix_files.get(0).path;
+	    String clusterProp = map.builder_config.buildCluster;
+	    boolean clusterRows = (clusterProp.equals("R") || clusterProp.equals("B")) ? true : false;
+	    boolean clusterCols = (clusterProp.equals("C") || clusterProp.equals("B")) ? true : false;
+	    
+	    if (clusterRows) {
+		    //Create paths for clustering output files
+		    String rowOrder = workingDir  + "/rowOrder.txt";  
+		    String rowDendro = workingDir  + "/rowDendro.txt";  
+		    String rowOrderMethod = map.row_configuration.order_method;
+		    if (rowOrderMethod.equals("Hierarchical")) {   
+			    performOrdering(engine, matrixFile, rowOrderMethod, "row", map.row_configuration.distance_metric, map.row_configuration.agglomeration_method, rowOrder, rowDendro);  //Get from props
+		    	map.row_configuration.order_file = rowOrder;  
+		    	map.row_configuration.dendro_file = rowDendro; 
+		    	if (map.row_configuration.dendro_show.equals("NA"))	{	 	    	
+	    			map.row_configuration.dendro_show = "ALL";  
+	    			map.row_configuration.dendro_height = "100";  
+		    	}
+		    } else {
+		    	map.row_configuration.order_file = null;  
+		    	map.row_configuration.dendro_file = null;  
+		    	map.row_configuration.dendro_show = "NA";  
+		    	map.row_configuration.dendro_height = "10";
 		    }
-		    if (clusterCols) {
-			    String colOrder = workingDir  + "/colOrder.txt";  
-			    String colDendro = workingDir  + "/colDendro.txt";  
-				String colOrderMethod = map.col_configuration.order_method;
-			    if (colOrderMethod.equals("Hierarchical")) {   
-					performOrdering(engine, matrixFile, colOrderMethod, "column", map.col_configuration.distance_metric, map.col_configuration.agglomeration_method, colOrder, colDendro);  //Get from props
-			    	map.col_configuration.order_file = colOrder;  
-			    	map.col_configuration.dendro_file = colDendro; 
-			    	if (map.col_configuration.dendro_show.equals("NA"))	{	 	    	
-		    			map.col_configuration.dendro_show = "ALL";  
-		    			map.col_configuration.dendro_height = "100";  
-			    	}
-			    } else {
-			    	map.col_configuration.order_file = null;  
-			    	map.col_configuration.dendro_file = null;  
-			    	map.col_configuration.dendro_show = "NA";  
-			    	map.col_configuration.dendro_height = "10";
-			    }
+	    }
+	    if (clusterCols) {
+		    String colOrder = workingDir  + "/colOrder.txt";  
+		    String colDendro = workingDir  + "/colDendro.txt";  
+			String colOrderMethod = map.col_configuration.order_method;
+		    if (colOrderMethod.equals("Hierarchical")) {   
+				performOrdering(engine, matrixFile, colOrderMethod, "column", map.col_configuration.distance_metric, map.col_configuration.agglomeration_method, colOrder, colDendro);  //Get from props
+		    	map.col_configuration.order_file = colOrder;  
+		    	map.col_configuration.dendro_file = colDendro; 
+		    	if (map.col_configuration.dendro_show.equals("NA"))	{	 	    	
+	    			map.col_configuration.dendro_show = "ALL";  
+	    			map.col_configuration.dendro_height = "100";  
+		    	}
+		    } else {
+		    	map.col_configuration.order_file = null;  
+		    	map.col_configuration.dendro_file = null;  
+		    	map.col_configuration.dendro_show = "NA";  
+		    	map.col_configuration.dendro_height = "10";
 		    }
-		    map.builder_config.buildCluster = "N";
-		    //Save changes to heatmapProperties file
-		    mgr.save();
-
-	    } catch (Exception e) {
-	    	System.out.println("Error clustering matrix: "+ e.getMessage());
-	    } 
+	    }
+	    map.builder_config.buildCluster = "N";
+	    //Save changes to heatmapProperties file
+	    mgr.save();
 	}
 
 	private ScriptEngine getScriptEngine() {

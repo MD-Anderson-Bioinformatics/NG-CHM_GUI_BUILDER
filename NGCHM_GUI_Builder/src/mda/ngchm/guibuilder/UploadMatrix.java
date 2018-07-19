@@ -64,13 +64,11 @@ public class UploadMatrix extends HttpServlet {
 	    	if (filePart.getSize() > 0) {
 	    		uploadMatrixFile(request, writer, filecontent, out);
 	    	} else {
-		        writer.println("Error uploading matrix.");
-	    		writer.println("<br/> ERROR: selected matrix empty");
+		        writer.println("NOFILE");
 	    	}
 	    } catch (Exception e) {
 	        writer.println("Error uploading matrix.");
 	        writer.println("<br/> ERROR: " + e.getMessage());
-
 	    } finally {
 	        if (out != null) {
 	            out.close();

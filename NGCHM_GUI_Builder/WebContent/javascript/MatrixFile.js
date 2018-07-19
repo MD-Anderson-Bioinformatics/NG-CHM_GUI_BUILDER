@@ -159,21 +159,23 @@ NgChmGui.FILE.MatrixFile = function() {
 		            console.log('Failed to upload matrix '  + req.status);
 		        } else {
 		    		if (NgChmGui.UTIL.debug) {console.log('200');}
-		        	//Remove any previous dtat from matrix display box
-		        	clearDisplayBox();
-		        	//Got corner of matrix data.
-		    		resetGridToDefaults();
-		        	topMatrixString = JSON.parse(req.response);
-		        	var matrixBox = document.getElementById('matrix');
-		        	var matrixDisplayBox = document.getElementById('matrixDisplay');
-		        	matrixBox.style.display = '';
-		        	matrixDisplayBox.style.display = '';
-		        	document.getElementById('matrixNextButton').style.display = ''
-		        	dataTable = Object.keys(topMatrixString).map(function(k) { return topMatrixString[k] });
-		        	loadDataFromFile();
-		        	NgChmGui.FILE.validateEntries(false);
-		    		document.getElementById("mapNameValue").value = "";
-		    		document.getElementById("mapDescValue").value = "";
+		    		if (!req.response.startsWith("NOFILE")) {
+			        	//Remove any previous dtat from matrix display box
+			        	clearDisplayBox();
+			        	//Got corner of matrix data.
+			    		resetGridToDefaults();
+			        	topMatrixString = JSON.parse(req.response);
+			        	var matrixBox = document.getElementById('matrix');
+			        	var matrixDisplayBox = document.getElementById('matrixDisplay');
+			        	matrixBox.style.display = '';
+			        	matrixDisplayBox.style.display = '';
+			        	document.getElementById('matrixNextButton').style.display = ''
+			        	dataTable = Object.keys(topMatrixString).map(function(k) { return topMatrixString[k] });
+			        	loadDataFromFile();
+			        	NgChmGui.FILE.validateEntries(false);
+			    		document.getElementById("mapNameValue").value = "";
+			    		document.getElementById("mapDescValue").value = "";
+		    		}
 					NgChmGui.UTIL.hideLoading();
 			    }
 			}

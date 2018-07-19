@@ -3,6 +3,7 @@ package mda.ngchm.guibuilder;
 import java.io.BufferedReader;
 import java.io.File; 
 import java.io.IOException;
+import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -72,8 +73,14 @@ public class MapProperties extends HttpServlet {
 	    try {
 			//Get heat map construction directory from session
 	    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
-	        workingDir = workingDir + "/" + mySession.getId();
 		    String propJSON = "{}";
+	    	if (mySession == null) {
+	        	propJSON = "{\"no_session\": 1}";
+		       	response.setContentType("application/json");
+		    	response.getWriter().write(propJSON.toString());
+		    	return;
+	    	}
+	        workingDir = workingDir + "/" + mySession.getId();
 	        if (new File(workingDir).exists()) {
 		        HeatmapPropertiesManager.Heatmap mapConfig = getConfigDataFromRequest(request);
 		        HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
@@ -92,15 +99,26 @@ public class MapProperties extends HttpServlet {
 			    }
 			    
 			    //Cluster, if necessary
-			    if (!mapConfig.builder_config.buildCluster.equals("N")) {
-			        //Re-build the heat map 
-				    Cluster clusterer = new Cluster();
-				    clusterer.clusterHeatMap(workingDir);
+				System.out.println("START Clustering Matrix: " + new Date()); 
+			    boolean clusterSuccess = false;
+			    try {
+				    if (!mapConfig.builder_config.buildCluster.equals("N")) {
+				        //Re-build the heat map 
+					    Cluster clusterer = new Cluster();
+					    clusterer.clusterHeatMap(workingDir);
+				    }
+				    clusterSuccess = true;
+			    } catch (Exception e) {
+			    	map.builder_config.buildErrors = "ERROR occurred while clustering matrix. Try again.";
+				    mgr.save();
 			    }
-		        //Re-build the heat map 
-			    HeatmapBuild builder = new HeatmapBuild();
-			    builder.buildHeatMap(workingDir);
 			    
+			    if (clusterSuccess) {
+				    //Re-build the heat map 
+				    HeatmapBuild builder = new HeatmapBuild();
+				    builder.buildHeatMap(workingDir);
+			    }
+
 			    //Return edited props
 	        	propJSON = mgr.load();
 		       	response.setContentType("application/json");
@@ -113,6 +131,7 @@ public class MapProperties extends HttpServlet {
 	        //Get config data from the request
 	    	response.flushBuffer();
 		} catch (Exception e) {
+			response.setStatus(0);
 	    	System.out.println("ERROR Setting Properties: "+ e.getMessage());
 	    } finally {
 	    }		

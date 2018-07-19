@@ -106,7 +106,11 @@ public class HeatmapBuild extends HttpServlet {
     		mgr.save();
 	        if (errMsg != "") {
 		        if (errMsg.contains("BUILD ERROR")) {
-				    map.builder_config.buildErrors = errMsg;
+		        	if (errMsg.contains("Importing Heat Map Configuration")) {
+		        		map.builder_config.buildErrors = "BUILD ERROR: You session has expired during processing.  Please restart heat map.";
+		        	} else {
+					    map.builder_config.buildErrors = errMsg;
+		        	}
 		        } else {
 					String toks[] = errMsg.split("\n");
 					for (int i=0;i<toks.length;i++) {
