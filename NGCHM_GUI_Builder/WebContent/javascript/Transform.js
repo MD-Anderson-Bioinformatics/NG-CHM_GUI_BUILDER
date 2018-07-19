@@ -46,12 +46,12 @@ NgChmGui.TRANS.validateEntries = function(leavingPage, formatError) {
 			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "MATRIX HAS " + NgChmGui.TRANS.matrixInfo.emptyCols + " EMPTY DATA COLUMNS(S). ALL VALUES MISSING. USE FILTER TO REMOVE COLUMNS OR REPLACE MISSING.</p>" + NgChmGui.UTIL.nextLine;
 			valid = false;
 		}	
-		if (NgChmGui.TRANS.matrixInfo.numRows > 4000) {
-			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "MATRIX HAS TOO MANY ROWS (>4000) FOR BUILDER. USE FILTER TO REMOVE ROWS.</p>" + NgChmGui.UTIL.nextLine;
+		if (NgChmGui.TRANS.matrixInfo.numRows > 2000) {
+			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "MATRIX HAS TOO MANY ROWS (>2000) FOR THIS BUILDER. USE FILTER TO REMOVE ROWS.</p>" + NgChmGui.UTIL.nextLine;
 			valid = false;
 		}	
-		if (NgChmGui.TRANS.matrixInfo.numCols > 4000) {
-			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "MATRIX HAS TOO MANY COLUMNS (>4000) FOR BUILDER. USE FILTER TO REMOVE COLUMNS.</p>" + NgChmGui.UTIL.nextLine;
+		if (NgChmGui.TRANS.matrixInfo.numCols > 2000) {
+			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "MATRIX HAS TOO MANY COLUMNS (>2000) FOR THIS BUILDER. USE FILTER TO REMOVE COLUMNS.</p>" + NgChmGui.UTIL.nextLine;
 			valid = false;
 		}	
 	} else if (formatError){
