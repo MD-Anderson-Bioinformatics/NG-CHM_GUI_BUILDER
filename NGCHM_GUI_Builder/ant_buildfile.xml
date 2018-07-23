@@ -52,6 +52,12 @@
             <fileset dir="${source.web.content.dir}/">
                 <include name="*.html"/>
                 <include name="SampleMatrix.txt"/>
+                <include name="SampleAgeCovariate.txt"/>
+                <include name="SampleGleasonCovariate.txt"/>
+                <include name="SamplePsaCovariate.txt"/>
+                <include name="SampleRaceCovariate.txt"/>
+                <include name="SampleSmokerCovariate.txt"/>
+                <include name="SampleTypeCovariate.txt"/>
                 <include name="javascript/*.js"/>
                 <include name="javascript/lib/*.js"/>
                 <include name="images/*.*"/>
