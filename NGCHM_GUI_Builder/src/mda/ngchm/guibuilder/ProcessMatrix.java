@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Date;
 
 import javax.servlet.ServletException;
@@ -57,7 +58,9 @@ public class ProcessMatrix extends HttpServlet {
 	    	
 			//Construct and write out a working matrix file that has been filtered of covariate and whitespace rows/columns.
 		    String matrixFile = workingDir + "/workingMatrix.txt";
-	        String[] longLabels = buildFilteredMatrix(workingDir, matrixConfig, matrixFile);
+		    ArrayList<String> matrixErrors = new ArrayList<String>();
+	        String[] longLabels = buildFilteredMatrix(workingDir, matrixConfig, matrixFile,matrixErrors);
+        	String propJSON = "{\"return_code\": 0}";
 	        
 	        File propFile = new File(workingDir + "/heatmapProperties.json");
 	        boolean mapChanged = true;
@@ -70,10 +73,10 @@ public class ProcessMatrix extends HttpServlet {
 	        if (map.builder_config != null) {
 		        mapChanged = mapChanged(map.builder_config.matrix_grid_config, matrixConfig);
 	        }
+	        
 		    map.chm_description = matrixConfig.mapDesc;
 	        if (mapChanged) {
 		        map.chm_name = matrixConfig.mapName.trim();
-		        boolean rowCovarsChanged = true;
 		        boolean covarsChanged = true;
 		        if (map.builder_config != null) {
 		        	covarsChanged = covarsChanged(map.builder_config.matrix_grid_config, matrixConfig);
@@ -120,9 +123,13 @@ public class ProcessMatrix extends HttpServlet {
 				}
 				map.output_location = workingDir  + "/" + matrixConfig.mapName;
 	        }
-
+	        if (matrixErrors.size() > 0) {
+	        	propJSON = "{\"return_code\": \""+  matrixErrors.get(0) + "\"}";
+	        }
 			mgr.save();
-
+	       	response.setContentType("application/json");
+	    	response.getWriter().write(propJSON.toString());
+	    	response.flushBuffer();
 			System.out.println("END Processing Matrix: " + new Date()); 
 	    } catch (Exception e) {
 	        writer.println("Error creating initial heat map properties.");
@@ -233,7 +240,7 @@ public class ProcessMatrix extends HttpServlet {
 	 * file will contain only the matix data, exclusive of any covariate
 	 * bar and/or whitespace columns/rows in the original matrix.
 	 ******************************************************************/
-	private String[] buildFilteredMatrix(String workingDir, HeatmapPropertiesManager.MatrixGridConfig matrixConfig, String workingFile ) throws Exception {
+	private String[] buildFilteredMatrix(String workingDir, HeatmapPropertiesManager.MatrixGridConfig matrixConfig, String workingFile,ArrayList<String> matrixErrors) throws Exception {
 	    String originalFile = workingDir + "/originalMatrix.txt";
 	    int endPoint = getEndOfMatrix(workingDir, matrixConfig);
 		BufferedReader reader = new BufferedReader(new FileReader(originalFile));
@@ -243,26 +250,38 @@ public class ProcessMatrix extends HttpServlet {
 		try {
 			int rowNum = 0;
 			String line = reader.readLine();
+			int lengthValidator = 0;
 			while (line != null) {
 				if (rowNum < matrixConfig.firstDataRow) {
 					//ignore
 				} else {
 					String toks[] = line.split("\t",-1);
+					int startPoint = matrixConfig.dataStartCol;
 					if (rowNum == matrixConfig.rowLabelRow) {
+						int stopPoint = toks.length;
 						longLabels[1] = getLongestColLabel(matrixConfig, toks);
-						boolean offset = false;
+						lengthValidator = toks.length; 
 						if (((toks.length + 1) == endPoint) || (toks[(toks.length-1)].equals(""))) {
-							offset = true;
+							startPoint = startPoint - 1;
+							stopPoint = stopPoint - 1;
+							writer.write(" " + "\t");
 						}
-						writeOutMatrixRow(matrixConfig, writer, toks, offset);
+						writeOutMatrixRow(startPoint, stopPoint, matrixConfig.colLabelCol, writer, toks, matrixErrors, true); 
 						writer.write("\n");
 					} else if (rowNum >= matrixConfig.dataStartRow) {
+						if (toks.length != lengthValidator) {
+							matrixErrors.add("MATRIX INVALID: A Matrix data contains a data row that does not match the number of column labels. Please inspect matrix to ensure that all data rows are the same length.");
+							break;
+						}
 						if (toks[matrixConfig.colLabelCol].length() > longRowLabel.length()) {
 							longRowLabel = toks[matrixConfig.colLabelCol];
 						}
-						writeOutMatrixRow(matrixConfig, writer, toks, false); 
+						writeOutMatrixRow(startPoint, endPoint, matrixConfig.colLabelCol, writer, toks, matrixErrors, false); 
 						writer.write("\n");
 					}
+				}
+				if (matrixErrors.size() > 0) {
+					break;
 				}
 				rowNum++;
 				line = reader.readLine();
@@ -279,6 +298,12 @@ public class ProcessMatrix extends HttpServlet {
 		return longLabels;
 	}
 	
+	/*******************************************************************
+	 * METHOD: getLongestColLabel
+	 *
+	 * This method searches the column labels row and extracts the lenght
+	 * of the longest label in the row.
+	 ******************************************************************/
 	private String getLongestColLabel(HeatmapPropertiesManager.MatrixGridConfig matrixConfig, String toks[]) throws Exception {
 		String longLabel = "";
 		int endPoint = toks.length;
@@ -291,17 +316,25 @@ public class ProcessMatrix extends HttpServlet {
 		return longLabel;
 	}
    
-	private void writeOutMatrixRow(HeatmapPropertiesManager.MatrixGridConfig matrixConfig, BufferedWriter writer, String toks[], boolean offset) throws Exception {
-		int endPoint = toks.length;
-		int startPoint = matrixConfig.dataStartCol;
-		if (offset) {
-			startPoint = startPoint - 1;
-			endPoint = endPoint - 1;
-			writer.write(" " + "\t");
-		} else {
-			writer.write(toks[matrixConfig.colLabelCol] + "\t"); 
+	/*******************************************************************
+	 * METHOD: writeOutMatrixRow
+	 *
+	 * This method writes out an entire line from the incoming matrix
+	 * file to the workingMatrix.txt file.
+	 ******************************************************************/
+	private void writeOutMatrixRow(int startPoint, int endPoint, int labelCol, BufferedWriter writer, String toks[], ArrayList<String> matrixErrors, boolean isLabelRow) throws Exception {
+		if ((!isLabelRow) && (toks[labelCol].trim().equals(""))) {
+			matrixErrors.add("MATRIX INVALID: Matrix contains at least one blank Row Label. Please inspect matrix to ensure that all row labels are populated with data.");
+			return;
+		}
+		if (startPoint != labelCol) {
+			writer.write(toks[labelCol] + "\t"); 
 		}
 		for (int i = startPoint; i < endPoint; i++) {
+			if ((isLabelRow) && toks[i].trim().equals("")) {
+				matrixErrors.add("MATRIX INVALID: Matrix contains at least one blank Column Label. Please inspect matrix to ensure that all column labels are populated with data.");
+				break;
+			}
 			writer.write(toks[i]);
 			if (i < endPoint-1) {
 				writer.write("\t");

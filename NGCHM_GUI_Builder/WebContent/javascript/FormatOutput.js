@@ -554,7 +554,7 @@ NgChmGui.FORMAT.loadColorPreviewDiv = function(ctr){
 	}
 	if (NgChm.heatMap === null) {
 		ctr++;
-		setTimeout(function(){NgChmGui.FORMAT.loadColorPreviewDiv();},5000)
+		setTimeout(function(){NgChmGui.FORMAT.loadColorPreviewDiv();},3000)
 	} else {
 		var colorMap = NgChmGui.FORMAT.getTempCM();
 		var gradient = "linear-gradient(to right"

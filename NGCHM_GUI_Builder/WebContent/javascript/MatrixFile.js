@@ -208,8 +208,12 @@ NgChmGui.FILE.MatrixFile = function() {
 				            console.log('Failed to process matrix '  + req.status);
 				            NgChmGui.UTIL.matrixLoadingError();
 				        } else {
-							if (NgChmGui.UTIL.debug) {console.log('200');}
-							NgChmGui.UTIL.gotoTransformScreen();
+				        	var retVal = JSON.parse(req.response);
+				        	if (retVal.return_code !== 0) {
+				        		NgChmGui.FILE.invalidMatrix(retVal.return_code);
+				        	} else {
+								NgChmGui.UTIL.gotoTransformScreen();
+				        	}
 						}
 					}
 				};
@@ -755,13 +759,29 @@ NgChmGui.FILE.MatrixFile = function() {
 };
 
 /**********************************************************************************
+ * FUNCTION - invalidMatrix: This function resets the page text when matrix
+ * processing fails validation.
+ **********************************************************************************/
+NgChmGui.FILE.pageText1 = "NG-CHM heat maps require a tab delimited text file with a matrix of data.  The file must have row and column headers with labels that identify the content of the rows / columns and numeric values in the rest of the matrix.  Use the Open Matrix File button to load your matrix.   If you don't have a matrix and want to try the application use the Sample Matrix open button.";
+NgChmGui.FILE.pageText2 = "The builder needs to know where the row labels, column labels, matrix data, and covariate data (if included) are located in the uploaded file.  The labels should be blue and data should be green.  If not select from the following controls and click on the grid to indicate the location of labels, covariate bars, and the location at which the matrix data begins in the imported file.";
+
+NgChmGui.FILE.invalidMatrix = function(errMsg) {
+	var pageText = "";
+	pageText = pageText + "<b><font color='red'>" + errMsg + "</font></b>" + NgChmGui.UTIL.nextLine;
+	if (NgChmGui.matrixFile.isLoaded()){
+		pageText = pageText + NgChmGui.FILE.pageText2 + NgChmGui.UTIL.nextLine;
+	} else {
+		pageText = pageText + NgChmGui.FILE.pageText1 + NgChmGui.UTIL.nextLine;;
+	}
+	NgChmGui.UTIL.setScreenNotes(pageText);
+}
+
+/**********************************************************************************
  * FUNCTION - validateEntries: This function validates user entries and generates
  * user help messages in the main text area.  If user is trying to exit the screen
  * additional validation is done.
  **********************************************************************************/
 NgChmGui.FILE.validateEntries = function(leavingPage) {
-	NgChmGui.FILE.pageText1 = "NG-CHM heat maps require a tab delimited text file with a matrix of data.  The file must have row and column headers with labels that identify the content of the rows / columns and numeric values in the rest of the matrix.  Use the Open Matrix File button to load your matrix.   If you don't have a matrix and want to try the application use the Sample Matrix open button.";
-	NgChmGui.FILE.pageText2 = "The builder needs to know where the row labels, column labels, matrix data, and covariate data (if included) are located in the uploaded file.  The labels should be blue and data should be green.  If not select from the following controls and click on the grid to indicate the location of labels, covariate bars, and the location at which the matrix data begins in the imported file.";
 	var pageText = "";
 	var valid = true;
 	
