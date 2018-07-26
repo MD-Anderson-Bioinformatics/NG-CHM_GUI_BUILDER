@@ -795,25 +795,25 @@ NgChmGui.FILE.validateEntries = function(leavingPage) {
 		//Generate error messages
 		var mapName = document.getElementById('mapNameValue').value.trim();
 		if (mapName === "") {
-			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "HEAT MAP NAME ENTRY MISSING.</p>" + NgChmGui.UTIL.nextLine;
+			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Heat Map Name entry missing.</p>" + NgChmGui.UTIL.nextLine;
 			valid = false
 		}
 		if (!NgChmGui.UTIL.isAlphaNumeric(mapName)) {
-			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "HEAT MAP NAME CANNOT CONTAIN NON-ALPHANUMERIC CHARACTERS. (Exceptions: space, hyphen, and underscore)</p>" + NgChmGui.UTIL.nextLine;
+			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Heat Map Name cannot contain non-alphanumeric charcaters (Exceptions: space, hyphen, and underscore)</p>" + NgChmGui.UTIL.nextLine;
 			valid = false
 		}
 		var mapDesc = document.getElementById('mapDescValue').value.trim();
 		if (mapDesc === "") {
-			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "HEAT MAP DESCRIPTION ENTRY MISSING.</p>" + NgChmGui.UTIL.nextLine;
+			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Heat Map Description entry missing.</p>" + NgChmGui.UTIL.nextLine;
 			valid = false
 		}
 		if (!NgChmGui.UTIL.isAlphaNumeric(mapDesc)) {
-			pageText = pageText  + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "HEAT MAP DESCRIPTION CANNOT CONTAIN NON-ALPHANUMERIC CHARACTERS (Exceptions: space, hyphen, and underscore).</p>" + NgChmGui.UTIL.nextLine;
+			pageText = pageText  + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Heat Map Description cannot contain non-alphanumeric charcaters (Exceptions: space, hyphen, and underscore).</p>" + NgChmGui.UTIL.nextLine;
 			valid = false
 		}
 		
 		if (document.getElementById('matrixNameValue').value.trim() === "") {
-			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "MISSING MATRIX NAME ENTRY.</p>" + NgChmGui.UTIL.nextLine;
+			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Missing Matrix Name entry.</p>" + NgChmGui.UTIL.nextLine;
 			valid = false
 		}
 		
@@ -822,7 +822,7 @@ NgChmGui.FILE.validateEntries = function(leavingPage) {
 		for (var i=0;i<covColorTypes.length;i++) {
 			var type = covColorTypes[i];
 			if (type.value === 'none') {
-				pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "MISSING COLOR TYPE ENTRY FOR COVARIATE: " + type.name + "</p>" +NgChmGui.UTIL.nextLine;
+				pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Missing Color Type entry for Covariate: " + type.name + "</p>" +NgChmGui.UTIL.nextLine;
 				valid = false
 			}
 		}

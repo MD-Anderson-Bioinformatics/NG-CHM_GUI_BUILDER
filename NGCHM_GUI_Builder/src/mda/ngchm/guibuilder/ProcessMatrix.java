@@ -262,6 +262,9 @@ public class ProcessMatrix extends HttpServlet {
 						longLabels[1] = getLongestColLabel(matrixConfig, toks);
 						lengthValidator = toks.length; 
 						if (((toks.length + 1) == endPoint) || (toks[(toks.length-1)].equals(""))) {
+							if ((toks.length + 1) == endPoint) {
+								lengthValidator++;
+							}
 							startPoint = startPoint - 1;
 							stopPoint = stopPoint - 1;
 							writer.write(" " + "\t");

@@ -44,13 +44,14 @@ NgChmGui.FORMAT.validateEntries = function(leavingPage) {
 	//Generate build error messages
 	var buildErrors = NgChmGui.mapProperties.builder_config.buildErrors;
 	if (buildErrors !== "") {
-		pageText = pageText + "<b><font color='red'>" + buildErrors + "</font></b> BUILD ERROR MUST BE RESOLVED TO CONTINUE." + NgChmGui.UTIL.nextLine;
+		pageText = pageText + "<b><font color='red'>" + buildErrors + "</font></b> Build error must be resolved to continue." + NgChmGui.UTIL.nextLine;
 		valid = false;
 	}
 	
 	//Generate data entry error messages
 	pageText = pageText + NgChmGui.FORMAT.validateMatrixBreaks();
 	pageText = pageText + NgChmGui.FORMAT.validateGapPrefs();
+	pageText = pageText + NgChmGui.FORMAT.validateAttributes();
 	valid = pageText === "" ? true : false;
 
 	//Generate error messages
@@ -80,14 +81,32 @@ NgChmGui.FORMAT.validateMatrixBreaks = function() {
 	var thresholds = colorMap.getThresholds();
 	for (var i=0;i<thresholds.length;i++) {
 		if (isNaN(thresholds[i])) {
-			errorMsgs = errorMsgs + "<p class='error_message'>" +NgChmGui.UTIL.errorPrefix + "COLOR THRESHOLDS CONTAIN NON-NUMERIC ENTRY(S).</p>" + NgChmGui.UTIL.nextLine;
+			errorMsgs = errorMsgs + "<p class='error_message'>" +NgChmGui.UTIL.errorPrefix + "Color Thresholds contain non-numeric entry(s).</p>" + NgChmGui.UTIL.nextLine;
 			break;
 		}
 	}
 	return errorMsgs;
 }
 
-
+/**********************************************************************************
+ * FUNCTION - validateAttributes: This function performs validation on user 
+ * heat map attribute entries.
+ **********************************************************************************/
+NgChmGui.FORMAT.validateAttributes = function() {
+	var errorMsgs = "";
+	var attrValue = document.getElementById("mapAttributes").value;
+	if (attrValue !== "") {
+	  	var attributeItems = attrValue.split(/[;, \r\n]+/);
+		for (var i=0;i<attributeItems.length;i++) {
+			var attrElems = attributeItems[i].split(":");
+			if (attrElems.length !== 2) {
+				errorMsgs = errorMsgs + "<p class='error_message'>" +NgChmGui.UTIL.errorPrefix + "Bad Attribute value entered. Attributes must be entered as value pairs separated by a colon (:).</p>" + NgChmGui.UTIL.nextLine;
+				break;
+			}
+		}
+	}
+	return errorMsgs;
+}
 
 /**********************************************************************************
  * FUNCTION - validateGapPrefs & validateGapPrefsByType: These functions perform
@@ -116,17 +135,17 @@ NgChmGui.FORMAT.validateGapPrefsByType = function(config, type) {
 			}
 		}
 		if (nanCut) {
-			errorMsgs = errorMsgs + "<p class='error_message'>"+ NgChmGui.UTIL.errorPrefix + type + " GAP VALUES CONTAIN NON-NUMERIC OR NEGATIVE NUMERIC ENTRY(S).</p>" + NgChmGui.UTIL.nextLine;
+			errorMsgs = errorMsgs + "<p class='error_message'>"+ NgChmGui.UTIL.errorPrefix + type + " Gap values contain non-numeric or negative numeric entry(s).</p>" + NgChmGui.UTIL.nextLine;
 		}
 		if (dupCut) {
-			errorMsgs = errorMsgs + "<p class='error_message'>"+ NgChmGui.UTIL.errorPrefix + type + " GAP DUPLICATE VALUES FOUND.</p>" + NgChmGui.UTIL.nextLine;
+			errorMsgs = errorMsgs + "<p class='error_message'>"+ NgChmGui.UTIL.errorPrefix + type + " Duplicate Gap values found.</p>" + NgChmGui.UTIL.nextLine;
 		}
 	}
 	if ((config.cut_width.trim() === "") || (isNaN(config.cut_width)) || (config.cut_width.indexOf(".") > -1) || (config.cut_width < 0)) {
-		errorMsgs = errorMsgs + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + type + " GAP LENGTH CONTAINS NON-INTEGER OR NEGATIVE NUMERIC ENTRY.</p>" + NgChmGui.UTIL.nextLine;
+		errorMsgs = errorMsgs + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + type + " Gap Length contains a non-integer or negative numeric entry.</p>" + NgChmGui.UTIL.nextLine;
 	}
 	if ((config.tree_cuts.trim() === "") || (isNaN(config.tree_cuts)) || (config.tree_cuts.indexOf(".") > -1)  || (config.tree_cuts < 0)) {
-		errorMsgs = errorMsgs + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + type + " TREE CUTS CONTAINS NON-INTEGER OR NEGATIVE NUMERIC ENTRY.</p>" + NgChmGui.UTIL.nextLine;
+		errorMsgs = errorMsgs + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + type + " Tree Cuts contains a non-integer or negative numeric entry.</p>" + NgChmGui.UTIL.nextLine;
 	}
 	return errorMsgs;
 }
@@ -140,7 +159,7 @@ NgChmGui.FORMAT.setupFormatTasks = function(classes) {
 	var formatPrefsDiv = NgChmGui.UTIL.getDivElement("formatPrefsDiv");
 	var prefContents = document.createElement("TABLE");
 	NgChmGui.UTIL.addBlankRow(prefContents)
-	var formatTaskStr = "<select name='formatTask_list' id='formatTask_list' onchange='NgChmGui.FORMAT.showFormatSelection();'><option value='matrix_colors'>Matrix Colors/Breaks</option><option value='format_display'>Heat Map Display</option><option value='map_gaps'>Heat Map Gaps</option><option value='label_config'>Label Configuration</option></select>"
+	var formatTaskStr = "<select name='formatTask_list' id='formatTask_list' onchange='NgChmGui.FORMAT.showFormatSelection();'><option value='matrix_colors'>Matrix Colors/Breaks</option><option value='format_display'>Heat Map Display</option><option value='map_gaps'>Heat Map Gaps</option><option value='label_config'>Labels and Attributes</option></select>"
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;Format Tasks: ", formatTaskStr]);
 	NgChmGui.UTIL.addBlankRow(prefContents, 2);
 	formatPrefsDiv.appendChild(prefContents);
@@ -231,9 +250,11 @@ NgChmGui.FORMAT.formatDisplayPrefs = function() {
 	NgChmGui.UTIL.addBlankRow(prefContents);
 	var showGrid = "<select name='gridShowPref' id='gridShowPref' onchange='NgChmGui.UTIL.setBuildProps();'><option value='Y'>YES</option><option value='N'>NO</option></select>";
 	var colorGrid = "<input class='spectrumColor' type='color' name='gridColorPref' id='gridColorPref' onchange='NgChmGui.UTIL.setBuildProps();' value='"+matrixConfig.grid_color+"'>"; 
+	var colorGaps = "<input class='spectrumColor' type='color' name='gapsColorPref' id='gapsColorPref' onchange='NgChmGui.UTIL.setBuildProps();' value='"+matrixConfig.cuts_color+"'>"; 
 	var colorSelect = "<input class='spectrumColor' type='color' name='selectionColorPref' id='selectionColorPref'  onchange='NgChmGui.UTIL.setBuildProps();' value='"+matrixConfig.selection_color+"'>"; 
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Selection Color:",colorSelect]);
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Grid Color:",colorGrid]);
+	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Gaps Color:",colorGaps]);
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Show Grid:",showGrid]);
 	NgChmGui.UTIL.addBlankRow(prefContents);
 	NgChmGui.UTIL.setTableRow(prefContents,["ROW DISPLAY OPTIONS"], 2);
@@ -296,20 +317,38 @@ NgChmGui.FORMAT.setupLabelConfigPrefs = function() {
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Label Types:  "+rowLabelTypePref+labelTypeOptions], 2);  
 	NgChmGui.UTIL.addBlankRow(prefContents);
 	var topRowItemData = rowConfig.top_items.toString();
-	var topRowItems = "<textarea name='rowTopItems' id='rowTopItems' style='font-family: sans-serif;font-size: 90%; resize: none;' ' rows='5', cols='50' onchange='NgChmGui.UTIL.setBuildProps();'>"+topRowItemData+"</textarea>";
+	var topRowItems = "<textarea name='rowTopItems' id='rowTopItems' style='font-family: sans-serif;font-size: 90%; resize: none;' ' rows='3', cols='50' onchange='NgChmGui.UTIL.setBuildProps();'>"+topRowItemData+"</textarea>";
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Top Label Items:"]);
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;"+topRowItems],2);
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;<b>Enter comma-separated labels to highlight on map</b>"], 2);
-	NgChmGui.UTIL.addBlankRow(prefContents,4);
+	NgChmGui.UTIL.addBlankRow(prefContents,2);
 	NgChmGui.UTIL.setTableRow(prefContents,["COLUMN LABEL CONFIGURATION"], 2);
 	NgChmGui.UTIL.addBlankRow(prefContents);
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Label Types:  "+colLabelTypePref+labelTypeOptions], 2);  
 	NgChmGui.UTIL.addBlankRow(prefContents);
 	var topColItemData = colConfig.top_items.toString();
-	var topColItems = "<textarea name='colTopItems' id='colTopItems' style='font-family: sans-serif;font-size: 90%;resize: none;' rows='5', cols='50' onchange='NgChmGui.UTIL.setBuildProps();'>"+topColItemData+"</textarea>"; 
+	var topColItems = "<textarea name='colTopItems' id='colTopItems' style='font-family: sans-serif;font-size: 90%;resize: none;' rows='3', cols='50' onchange='NgChmGui.UTIL.setBuildProps();'>"+topColItemData+"</textarea>"; 
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Top Label Items:"]);
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;"+topColItems],2);
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;<b>Enter comma-separated labels to highlight on map</b>"], 2);
+	NgChmGui.UTIL.addBlankRow(prefContents,2);
+	NgChmGui.UTIL.setTableRow(prefContents,["HEAT MAP ATTRIBUTES"], 2);
+	var attributesData = "";
+	if (NgChmGui.mapProperties.chm_attributes.length > 0) {
+		for (var i=0;i<NgChmGui.mapProperties.chm_attributes.length;i++) {
+			var attributePair = NgChmGui.mapProperties.chm_attributes[i];
+			for (var key in attributePair){ 
+				attributesData += key + ":" + attributePair[key];
+				if (i<NgChmGui.mapProperties.chm_attributes.length-1) {
+					attributesData += ","; 
+				}
+			}
+		}
+	}
+	var mapAttributes = "<textarea name='mapAttributes' id='mapAttributes' rows='2', cols='40' style='font-family: sans-serif;font-size: 90%;resize: none' onchange='NgChmGui.UTIL.setBuildProps();'>"+attributesData+"</textarea>";
+	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;Enter a colon-separated key/value pair (key:value)."]);
+	NgChmGui.UTIL.setTableRow(prefContents,[mapAttributes]);
+	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;Multiple attributes entries may be separated with a comma: "]);
 	labelTypePrefs.appendChild(prefContents);
 	labelTypePrefs.className = 'preferencesSubPanel';
 	labelTypePrefs.style.display='none';
@@ -334,14 +373,14 @@ NgChmGui.FORMAT.setupLabelTypePrefs = function() {
 	NgChmGui.UTIL.addBlankRow(prefContents);
 	NgChmGui.UTIL.setTableRow(prefContents,["ROW LABEL TYPES"], 2);
 	NgChmGui.UTIL.addBlankRow(prefContents);
-	var rowTypeData = rowConfig.data_type.toString();  //CHANGE ME
+	var rowTypeData = rowConfig.data_type.toString();
 	var rowTypeItems = "<textarea name='rowLabelTypes' id='rowLabelTypes' style='font-family: sans-serif;font-size: 90%; resize: none;' rows='5', cols='50' onchange='NgChmGui.UTIL.setBuildProps();'>"+rowTypeData+"</textarea>";
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Label Types:"]);
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;"+rowTypeItems],2);
 	NgChmGui.UTIL.addBlankRow(prefContents,4);
 	NgChmGui.UTIL.setTableRow(prefContents,["COLUMN LABEL TYPES"], 2);
 	NgChmGui.UTIL.addBlankRow(prefContents);
-	var colTypeData = colConfig.data_type.toString(); //CHANGE ME
+	var colTypeData = colConfig.data_type.toString();
 	var colTypeItems = "<textarea name='colLabelTypes' id='colLabelTypes' style='font-family: sans-serif;font-size: 90%; resize: none;' rows='5', cols='50' onchange='NgChmGui.UTIL.setBuildProps();'>"+colTypeData+"</textarea>"; 
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Label Types:"]);
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;"+colTypeItems],2);
@@ -700,6 +739,7 @@ NgChmGui.FORMAT.getFormatDisplayFromScreen = function() {
 	var matrixConfig = NgChmGui.mapProperties.matrix_files[0];
 	matrixConfig.grid_show = document.getElementById('gridShowPref').value;
 	matrixConfig.grid_color = document.getElementById('gridColorPref').value;
+	matrixConfig.cuts_color = document.getElementById('gapsColorPref').value;
 	matrixConfig.selection_color = document.getElementById('selectionColorPref').value;
 	//Get->set row config preferences
 	var rowConfig = NgChmGui.mapProperties.row_configuration;
@@ -724,6 +764,15 @@ NgChmGui.FORMAT.getFormatDisplayFromScreen = function() {
 * config from the values set on the Top Items panel.
 **********************************************************************************/
 NgChmGui.FORMAT.getFormatLabelConfigFromScreen = function() {
+	var attrConfig = [];
+  	var attributeItems = document.getElementById("mapAttributes").value.split(/[;, \r\n]+/);
+	for (var i=0;i<attributeItems.length;i++) {
+		var attrelems = attributeItems[i].split(":");
+		var attrObj = {};
+		attrObj[attrelems[0]] = attrelems[1];
+		attrConfig.push(attrObj);
+	}
+	NgChmGui.mapProperties.chm_attributes = attrConfig;
 	var rowConfig = NgChmGui.mapProperties.row_configuration;
   	var rowlabelType = document.getElementById("rowLabelType").value;
 	rowConfig.data_type = [];

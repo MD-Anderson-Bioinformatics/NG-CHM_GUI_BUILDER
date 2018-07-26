@@ -36,7 +36,7 @@ NgChmGui.COV.validateEntries = function(leavingPage, passedError) {
 	//Generate build error messages
 	var buildErrors = NgChmGui.mapProperties.builder_config.buildErrors;
 	if (buildErrors !== "") {
-		pageText = pageText + "<b><font color='red'>" + buildErrors + "</font></b> BUILD ERROR MUST BE RESOLVED TO CONTINUE." + NgChmGui.UTIL.nextLine;
+		pageText = pageText + "<b><font color='red'>" + buildErrors + "</font></b> Build error must be resolved to continue." + NgChmGui.UTIL.nextLine;
 		valid = false;
 	}
 	
@@ -49,16 +49,16 @@ NgChmGui.COV.validateEntries = function(leavingPage, passedError) {
 	for (var i=0; i< classes.length; i++) {
 		var classItem = classes[i];
 		if ((classItem.height.indexOf(".") > 0) || (classItem.height < 1) || isNaN(classItem.height)) {
-			pageText = pageText + "<p class='error_message'>"+ NgChmGui.UTIL.errorPrefix + "COVARIATE <font color='red'>" + classItem.name.toUpperCase() + "</font> HEIGHT ENTRY MUST BE AN INTEGER BETWEEN 1 AND 99.</p>" + NgChmGui.UTIL.nextLine;
+			pageText = pageText + "<p class='error_message'>"+ NgChmGui.UTIL.errorPrefix + "Covariate <font color='red'>" + classItem.name.toUpperCase() + "</font> Height entry must be an integer between 1 and 99.</p>" + NgChmGui.UTIL.nextLine;
 			valid = false;
 		}
 		if (classItem.bar_type !== 'color_plot') {
 			if (isNaN(classItem.low_bound)) {
-				pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "COVARIATE <font color='red'>" + classItem.name.toUpperCase() + "</font> LOWER BOUND ENTRY MUST BE NUMERIC.</p>" + NgChmGui.UTIL.nextLine;
+				pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Covariate <font color='red'>" + classItem.name.toUpperCase() + "</font> Lower Bound entry must be numeric.</p>" + NgChmGui.UTIL.nextLine;
 				valid = false;
 			}
 			if (isNaN(classItem.high_bound)) {
-				pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "COVARIATE <font color='red'>" + classItem.name.toUpperCase() + "</font> UPPER BOUND ENTRY MUST BE NUMERIC.</p>" + NgChmGui.UTIL.nextLine;
+				pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Covariate <font color='red'>" + classItem.name.toUpperCase() + "</font> Upper Bound entry must be numeric.</p>" + NgChmGui.UTIL.nextLine;
 				valid = false;
 			}
 		}

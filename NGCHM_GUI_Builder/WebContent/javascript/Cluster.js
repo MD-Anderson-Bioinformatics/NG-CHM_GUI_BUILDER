@@ -47,7 +47,7 @@ NgChmGui.CLUSTER.validateEntries = function(leavingPage) {
 	//Generate build error messages
 	var buildErrors = NgChmGui.mapProperties.builder_config.buildErrors;
 	if (buildErrors !== "") {
-		pageText = pageText + "<b><font color='red'>" + buildErrors + "</font></b> BUILD ERROR MUST BE RESOLVED TO CONTINUE." + NgChmGui.UTIL.nextLine;
+		pageText = pageText + "<b><font color='red'>" + buildErrors + "</font></b> Build error must be resolved to continue." + NgChmGui.UTIL.nextLine;
 		valid = false;
 	}
 

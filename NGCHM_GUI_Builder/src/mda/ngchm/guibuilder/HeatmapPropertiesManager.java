@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Map;
 
 import com.google.gson.Gson;
 
@@ -13,7 +14,7 @@ public class HeatmapPropertiesManager {
 		public String chm_name;
 		public String chm_description;
 		public ArrayList<MatrixFile> matrix_files = new ArrayList<MatrixFile>();
-		public ArrayList<Attrib> chm_attributes = new ArrayList<Attrib>();
+		public ArrayList<Map> chm_attributes = new ArrayList<Map>();
 		public ArrayList<Classification> classification_files = new ArrayList<Classification>();
 		public Order col_configuration;
 		public Order row_configuration;
@@ -29,10 +30,11 @@ public class HeatmapPropertiesManager {
 		public String grid_color;
 		public String grid_show;
 		public String selection_color;
+		public String cuts_color;
 		public ColorMap color_map;
 		public MatrixFile (String name, String path, String summary_method, ColorMap cmap) {
 			this.name = name; this.path = path; this.summary_method = summary_method; this.color_map = cmap;
-			this.grid_show = "N"; this.grid_color = "#FFFFFF"; this.selection_color = "#00FF38";
+			this.grid_show = "N"; this.grid_color = "#FFFFFF"; this.cuts_color = "#FFFFFF"; this.selection_color = "#00FF38";
 		}
 	}
 	
@@ -113,10 +115,6 @@ public class HeatmapPropertiesManager {
 		}
 	}
 	
-	public class Attrib {
-		
-	}
-	 
 	public class ColorMap {
 		public String type;
 		public ArrayList<String> colors = new ArrayList<String>();

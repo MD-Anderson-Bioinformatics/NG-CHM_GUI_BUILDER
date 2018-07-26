@@ -24,34 +24,42 @@ NgChmGui.TRANS.validateEntries = function(leavingPage, formatError) {
 	var valid = true;
 	var pageText = "";
 	
+	var numRows = NgChmGui.TRANS.matrixInfo.numRows;
+	var numCols = NgChmGui.TRANS.matrixInfo.numCols;
+	if ((numRows > 3500) || (numCols > 3500)) {
+		if (numRows > 3500) {
+			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Matrix has too many Rows (>3500) for this builder. Use Filters to remove some Rows.</p>" + NgChmGui.UTIL.nextLine;
+			valid = false;
+		} 
+		if (numCols > 3500) {
+			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Matrix has too many Columns (>3500) for this builder. Use Filters to remove some Columns.</p>" + NgChmGui.UTIL.nextLine;
+			valid = false;
+		}
+	} else if ((numRows + numCols) > 4000) {
+		pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Matrix with " + numRows + " rows and " + numCols + " columns exceeds the maximum number of rows and cols for this builder.  Use Filters to remove rows or columns so that their sum does not exceed 4000.</p>" + NgChmGui.UTIL.nextLine;
+		valid = false;
+	}
+	
 	//Generate error messages
 	if (leavingPage) {
 		if (NgChmGui.TRANS.matrixInfo.numInvalid > 0) {
-			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "INVALID VALUES MUST BE CORRECTED.</p>" + NgChmGui.UTIL.nextLine;
+			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "All Invalid values must be corrected.</p>" + NgChmGui.UTIL.nextLine;
 			valid = false;
 		}	
 		if (NgChmGui.TRANS.matrixInfo.numRows < 1) {
-			pageText = pageText + "<p class='error_message'>"+ NgChmGui.UTIL.errorPrefix + "MATRIX HAS NO ROWS.</p>" + NgChmGui.UTIL.nextLine;
+			pageText = pageText + "<p class='error_message'>"+ NgChmGui.UTIL.errorPrefix + "Matrix has no Rows.</p>" + NgChmGui.UTIL.nextLine;
 			valid = false;
 		}
 		if(NgChmGui.TRANS.matrixInfo.numCols < 1) {
-			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "MATRIX HAS NO COLUMNS.</p>" + NgChmGui.UTIL.nextLine;
+			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Matrix has no Columns.</p>" + NgChmGui.UTIL.nextLine;
 			valid = false;
 		}	
 		if(NgChmGui.TRANS.matrixInfo.emptyRows > 0) {
-			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "MATRIX HAS " + NgChmGui.TRANS.matrixInfo.emptyRows + " EMPTY DATA ROW(S). ALL VALUES MISSING. USE FILTER TO REMOVE ROWS OR REPLACE MISSING.</p>" + NgChmGui.UTIL.nextLine;
+			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Matrix contains " + NgChmGui.TRANS.matrixInfo.emptyRows + " entirely empty data Row(s)x. All values missing. Use Filter to remove rows or replace missing values.</p>" + NgChmGui.UTIL.nextLine;
 			valid = false;
 		}	
 		if(NgChmGui.TRANS.matrixInfo.emptyCols > 0) {
-			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "MATRIX HAS " + NgChmGui.TRANS.matrixInfo.emptyCols + " EMPTY DATA COLUMNS(S). ALL VALUES MISSING. USE FILTER TO REMOVE COLUMNS OR REPLACE MISSING.</p>" + NgChmGui.UTIL.nextLine;
-			valid = false;
-		}	
-		if (NgChmGui.TRANS.matrixInfo.numRows > 2000) {
-			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "MATRIX HAS TOO MANY ROWS (>2000) FOR THIS BUILDER. USE FILTER TO REMOVE ROWS.</p>" + NgChmGui.UTIL.nextLine;
-			valid = false;
-		}	
-		if (NgChmGui.TRANS.matrixInfo.numCols > 2000) {
-			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "MATRIX HAS TOO MANY COLUMNS (>2000) FOR THIS BUILDER. USE FILTER TO REMOVE COLUMNS.</p>" + NgChmGui.UTIL.nextLine;
+			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Matrix contains " + NgChmGui.TRANS.matrixInfo.emptyCols + " entirely empty data Column(s). All values missing. Use Filter to remove Columns or replace missing values.</p>" + NgChmGui.UTIL.nextLine;
 			valid = false;
 		}	
 	} else if (formatError){
@@ -59,14 +67,15 @@ NgChmGui.TRANS.validateEntries = function(leavingPage, formatError) {
 		valid = false;
 	} else {
 		//Generate warning messages
-
-		if (NgChmGui.TRANS.matrixInfo.numRows > 1000) {
-			pageText = pageText + NgChmGui.UTIL.warningPrefix + "Your matrix has a large number of rows consider using the Filter Data transform to remove non-informative rows" + NgChmGui.UTIL.nextLine;
-		}	
-
-		if (NgChmGui.TRANS.matrixInfo.numCols > 1000) {
-			pageText = pageText + NgChmGui.UTIL.warningPrefix + "Your matrix has a large number of columns consider using the Filter Data transform to remove non-informative rows" + NgChmGui.UTIL.nextLine;
-		}	
+		if (valid) {
+			if (NgChmGui.TRANS.matrixInfo.numRows > 1000) {
+				pageText = pageText + NgChmGui.UTIL.warningPrefix + "Your matrix has a large number of rows consider using the Filter Data transform to remove non-informative rows" + NgChmGui.UTIL.nextLine;
+			}	
+	
+			if (NgChmGui.TRANS.matrixInfo.numCols > 1000) {
+				pageText = pageText + NgChmGui.UTIL.warningPrefix + "Your matrix has a large number of columns consider using the Filter Data transform to remove non-informative rows" + NgChmGui.UTIL.nextLine;
+			}	
+		}
 	}
 	
 	//if (NgChmGui.TRANS.matrixInfo.minValue < 0) {
