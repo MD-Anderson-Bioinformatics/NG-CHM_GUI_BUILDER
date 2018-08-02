@@ -68,10 +68,11 @@ public class HeatmapPropertiesManager {
 		public ArrayList<Integer> colCovs = new ArrayList<Integer>();
 		public ArrayList<String> colCovTypes = new ArrayList<String>();
 		public String isSample;
-		public MatrixGridConfig (int fdRow, int fdCol, int dsRow, int dsCol, int rowLabel, int colLabel, ArrayList<Integer> rowCovs, ArrayList<String> rowCovTypes, ArrayList<Integer> colCovs,  ArrayList<String> colCovTypes, String isSample) {
+		public String matrixFileName;
+		public MatrixGridConfig (int fdRow, int fdCol, int dsRow, int dsCol, int rowLabel, int colLabel, ArrayList<Integer> rowCovs, ArrayList<String> rowCovTypes, ArrayList<Integer> colCovs,  ArrayList<String> colCovTypes, String isSample, String matrixFileName) {
 			this.firstDataRow = fdRow; this.firstDataCol = fdCol; this.dataStartRow = dsRow; this.dataStartCol = dsCol; 
 			this.rowLabelRow = rowLabel; this.colLabelCol = colLabel; this.rowCovs = rowCovs; this.rowCovTypes = rowCovTypes; 
-			this.colCovs = colCovs; this.colCovTypes = colCovTypes; this.isSample = isSample;
+			this.colCovs = colCovs; this.colCovTypes = colCovTypes; this.isSample = isSample; this.matrixFileName = matrixFileName;
 		}
 	}
 	

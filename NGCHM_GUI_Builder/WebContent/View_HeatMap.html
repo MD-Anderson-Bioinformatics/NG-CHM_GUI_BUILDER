@@ -53,6 +53,8 @@
          		<div class="image-container">
 	 				<img id='newHeatMap_btn' src='images/ngChmNewMapButton.png' alt='Start a new heat map build' onclick='NgChmGui.MAP.newMapRequest();' />
 				</div>
+ 				<br><br>
+ 				<br><br>
 				<div class ='navigation_bar'>
 			        <div id="prevButton"  class="prev_btn">  
 			        	<img id='covarPrev_btn' src='images/prevButton.png' alt='Go to previous step' onclick='NgChmGui.UTIL.gotoFormatScreen();' />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;		
@@ -61,8 +63,19 @@
 		        </div>
  		    </div>			
 	        <div id="heatMapView" class="layout_display_container" style="width: 75%;">
-	        	<div id="screenNotesDisplay"></div>
-	        	<br>
+ 			<div class="screenNotesContainer">
+	        		<div class="screenNotesleft">
+	        			<div id="screenNotesDisplay"></div>
+	        		</div>
+				    <div class="screenNotesRight">
+				   		<div id='expandMap' class="image-container" style="right: 0px">
+							<img id='expandMap_btn' src='images/buttonExpandMap.png' alt='Enlarge Heat Map to Full Screen' onclick='NgChmGui.MAP.expandMap();' />
+						</div>
+					</div>
+				</div>   
+	      		<div id='collapseMap' class="image-container" style="display: none">
+					<img id='collapseMap_btn' src='images/buttonCollapseMap.png' alt='Return Heat Map to Original Size' onclick='NgChmGui.MAP.collapseMap();' />
+				</div>
 				<div id='NGCHMEmbed' style="background-color: white; height: 78%; margin-bottom: 0.25em; padding: 5px"></div>
 				<script src='javascript/ngchmWidget-min.js'></script>
 			</div>

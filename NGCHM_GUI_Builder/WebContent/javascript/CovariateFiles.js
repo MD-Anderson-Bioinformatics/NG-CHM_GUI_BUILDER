@@ -417,36 +417,57 @@ NgChmGui.COV.addCovariateBar = function(nextFunction) {
  **********************************************************************************/
 NgChmGui.COV.addSampleCovariateBar = function(nextFunction) {
 	var selFile = document.getElementById('selFile');
+	var selItem;
 	if (document.getElementById('Age_Covar').checked) {
 		selFile.value = "SampleAgeCovariate.txt";
+		selItem = "column_Age";
 	} else if (document.getElementById('Gleason_Covar').checked) {
 		selFile.value = "SampleGleasonCovariate.txt";
+		selItem = "column_Gleason_Score";
 	} else if (document.getElementById('Psa_Covar').checked) {
 		selFile.value = "SamplePsaCovariate.txt";
+		selItem = "column_PSA";
 	} else {
 		selFile.value = "SampleRaceCovariate.txt";
+		selItem = "column_Race";
 	}
-	var formData = new FormData(document.getElementById("covar_add_sample") );
-	var req = new XMLHttpRequest();
-	req.open("POST", "UploadSampleCovariate", true);
-	req.onreadystatechange = function () {
-		if (NgChmGui.UTIL.debug) {console.log('state change');}
-		if (req.readyState == req.DONE) {
-			if (NgChmGui.UTIL.debug) {console.log('done');}
-	        if (req.status != 200) {
-	    		NgChmGui.UTIL.hideLoading();
-	            console.log('Failed to upload covariate '  + req.status);
-	        } else {
-	        	NgChmGui.mapProperties = JSON.parse(req.response);
-	        	if (NgChmGui.UTIL.validSession()) {
-	        		nextFunction();
-	    	        NgChmGui.COV.validateEntries(false);
-	        	}
-	        }
-		}
-	};
-	NgChmGui.UTIL.showLoading();
-	req.send(formData);
+	//Check to see if sample covariate has already been loaded
+	var continueAdd = true;
+	var options= document.getElementById('classPref_list').options;
+	for (var i = 0;i < options.length; i++) {
+	    if (options[i].value=== selItem) {
+	        continueAdd = false;
+	        break;
+	    }
+	}
+	//If already loaded, skip upload process entirely BUT toggle to the selected covariate panel.
+	if (continueAdd) {
+		var formData = new FormData(document.getElementById("covar_add_sample") );
+		var req = new XMLHttpRequest();
+		req.open("POST", "UploadSampleCovariate", true);
+		req.onreadystatechange = function () {
+			if (NgChmGui.UTIL.debug) {console.log('state change');}
+			if (req.readyState == req.DONE) {
+				if (NgChmGui.UTIL.debug) {console.log('done');}
+		        if (req.status != 200) {
+		    		NgChmGui.UTIL.hideLoading();
+		            console.log('Failed to upload covariate '  + req.status);
+		        } else {
+		        	NgChmGui.mapProperties = JSON.parse(req.response);
+		        	if (NgChmGui.UTIL.validSession()) {
+		        		nextFunction();
+		    	        NgChmGui.COV.validateEntries(false);
+		        	}
+		        }
+			}
+		};
+		NgChmGui.UTIL.showLoading();
+		req.send(formData);
+	} else {
+		NgChmGui.COV.hideCovarUpload();
+		NgChmGui.COV.selectClassDropdown(selItem);
+	}
+	
 }
 
 /**********************************************************************************

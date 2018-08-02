@@ -23,7 +23,9 @@ NgChmGui.FILE.loadData = function() {
 		document.getElementById("mapNameValue").value = NgChmGui.mapProperties.chm_name;
 		document.getElementById("mapDescValue").value = NgChmGui.mapProperties.chm_description;
 		NgChmGui.isSample = NgChmGui.mapProperties.builder_config.matrix_grid_config.isSample;
+		NgChmGui.matrixFile.setMatrixFileName(NgChmGui.mapProperties.builder_config.matrix_grid_config.matrixFileName);
 	}
+	NgChmGui.FILE.displayFileName();
 	var chmFileItem = document.getElementById('image-upload');
 	chmFileItem.addEventListener('change', NgChmGui.matrixFile.sendMatrix, false);
 	NgChmGui.FILE.validateEntries(false);
@@ -102,6 +104,18 @@ NgChmGui.FILE.removeCovarDataEntry = function(item, id, itemCtr) {
 }
 
 /**********************************************************************************
+ * FUNCTION - displayFileName: This function retrieves the original matrix file
+ * name and displays it on the Matrix screen when the user returns to the screen.
+ **********************************************************************************/
+NgChmGui.FILE.displayFileName = function() {
+	var textSpan = document.getElementById('matrixNameText');
+	while( textSpan.firstChild) {
+		textSpan.removeChild( textSpan.firstChild );
+	}
+	textSpan.appendChild(document.createTextNode(NgChmGui.matrixFile.getMatrixFileName()));
+}
+
+/**********************************************************************************
  * FUNCTION - MatrixFile: This function defines the MatrixFile object.
  **********************************************************************************/
 NgChmGui.FILE.MatrixFile = function() {
@@ -115,6 +129,7 @@ NgChmGui.FILE.MatrixFile = function() {
 	var firstDataPos = [0,0];
 	var errMessages = "";
 	var warnMessages = "";
+	var matrixFileName = "None Assigned";
 	
 	/**********************************************************************************
 	 * FUNCTION - setChangedState: This function sets the "changed state" for the 
@@ -122,6 +137,13 @@ NgChmGui.FILE.MatrixFile = function() {
 	 **********************************************************************************/
 	this.setChangedState = function(state) {
 		hasChanged = state;
+	}
+	
+	this.setMatrixFileName = function(text) {
+		matrixFileName = text;
+	}
+	this.getMatrixFileName = function() {
+		return matrixFileName;
 	}
 	
 	/**********************************************************************************
@@ -143,8 +165,11 @@ NgChmGui.FILE.MatrixFile = function() {
 	this.sendMatrix = function(isSample) {
 		var req = new XMLHttpRequest();
 		var formData = new FormData( document.getElementById("matrix_frm") );
+		var filePath = document.getElementById('file-input').value;
+		var selectedFileName = filePath.substring(12,filePath.length);
 		if (isSample === true) {
 			NgChmGui.isSample = 'Y';
+			selectedFileName = 'SampleMatrix.txt';
 			req.open("GET", "UploadMatrix", true);
 		} else {
 			NgChmGui.isSample = 'N';
@@ -160,6 +185,9 @@ NgChmGui.FILE.MatrixFile = function() {
 		        } else {
 		    		if (NgChmGui.UTIL.debug) {console.log('200');}
 		    		if (!req.response.startsWith("NOFILE")) {
+			        	//Display file name below of file open buttons
+		    			matrixFileName = selectedFileName;
+		    			NgChmGui.FILE.displayFileName();
 			        	//Remove any previous dtat from matrix display box
 			        	clearDisplayBox();
 			        	//Got corner of matrix data.
@@ -318,7 +346,8 @@ NgChmGui.FILE.MatrixFile = function() {
 		                 colCovs: colCovs,
 				         rowCovTypes: rowCovTypes,
 				         colCovTypes: colCovTypes,
-				         isSample: NgChmGui.isSample};
+				         isSample: NgChmGui.isSample,
+				         matrixFileName: matrixFileName};
 		return JSON.stringify(someData);
 	}
 

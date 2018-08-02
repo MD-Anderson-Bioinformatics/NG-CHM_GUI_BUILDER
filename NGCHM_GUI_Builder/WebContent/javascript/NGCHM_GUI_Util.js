@@ -97,6 +97,7 @@ NgChmGui.UTIL.editWidgetForBuilder = function() {
 	document.getElementById('summary_box_canvas').style.display = 'none';
 	document.getElementById('bottom_buttons').style.display = 'none';
 	document.getElementById('barMenu_btn').style.display = 'none';
+	document.getElementById('colorMenu_btn').style.display = 'none';
 	document.getElementById('mdaServiceHeader').style.border = 'none';
 	document.getElementById('summary_box_canvas').style.display = 'none';
 	document.getElementById('column_dendro_canvas').style.display = '';
@@ -600,11 +601,16 @@ NgChmGui.UTIL.downloadViewer = function() {
  * FUNCTION - setScreenNotes: This function loads notes to the viewer-side panel
  * of the screen.  It is called from all screens.
  **********************************************************************************/
-NgChmGui.UTIL.setScreenNotes = function(text) {
+NgChmGui.UTIL.setScreenNotes = function(text,narrowNotes) {
 	if (typeof text === 'undefined') {
 		text = " ";
 	} else {
 		var notes = document.getElementById("screenNotesDisplay");
+		if (typeof narrowNotes !== 'undefined') {
+			notes.style.width = '97%';
+		} else {
+			notes.style.width = '100%';
+		}
 		notes.innerHTML = text;
 	}
 }
@@ -635,6 +641,10 @@ NgChmGui.UTIL.newlines = function(text) {
     return n;
 }
 
+/**********************************************************************************
+ * FUNCTION - isAlphaNumeric: This function tests whether an input value is alpa-
+ * numeric and returns a boolean.
+ **********************************************************************************/
 NgChmGui.UTIL.isAlphaNumeric = function(str) {
 	  var code, i, len;
 	
@@ -652,7 +662,36 @@ NgChmGui.UTIL.isAlphaNumeric = function(str) {
 	  return true;
 };
 
+/**********************************************************************************
+ * FUNCTION - isNumeric: This function tests whether an input value is numeric and
+ * returns a boolean.
+ **********************************************************************************/
 NgChmGui.UTIL.isNumeric = function(n) {
 	return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
+/**********************************************************************************
+ * FUNCTION - download: This function downloads a given file (downloadPath) to a 
+ * given output file name (fileName).
+ **********************************************************************************/
+NgChmGui.UTIL.download = function(downloadPath, fileName) {
+    var element = document.createElement('a');
+    element.href = downloadPath;
+    element.setAttribute('target','_blank');
+    element.download = fileName;
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+}
+
+/**********************************************************************************
+ * FUNCTION - removeOptions: This function clears out all of the options in an
+ * html select dropdown or list.
+ **********************************************************************************/
+NgChmGui.UTIL.removeOptions = function(selectbox) {
+    for (var i = selectbox.options.length - 1; i >= 0; i--) {
+        selectbox.remove(i);
+    }
 }
 

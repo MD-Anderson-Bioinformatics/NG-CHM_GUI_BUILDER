@@ -399,13 +399,37 @@ div.serviceHeaderLogo img
     100% { transform: rotate(360deg); }
 }
 
+.screenNotesContainer {
+   width: 100%;
+}
+
 #screenNotesDisplay{
     font-family: Arial;
     font-weight: bold;
     font-size: 12px;
 	color: #0843c1;
     height: 72px;
-    width: 100%;
     overflow-y: auto;
 }
 
+.screenNotesleft {
+   float: left;
+   width: 97%;
+}
+
+.screenNotesRight {
+   float: right;
+   width: 3%;
+}
+
+#collapseMap {
+   float: right;
+}
+
+#matrixNameText {
+  display: block;
+  width: 300px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

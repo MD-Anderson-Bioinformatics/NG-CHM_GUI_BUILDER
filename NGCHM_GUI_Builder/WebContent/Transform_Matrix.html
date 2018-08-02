@@ -242,7 +242,14 @@
 		        	</div>
 			</div>
 	        <div id="trans_data" class="layout_display_container" style="width: 70%;height: 80%">
-	        	<div id="screenNotesDisplay"></div>
+	        		<div class="screenNotesleft">
+	        			<div id="screenNotesDisplay"></div>
+	        		</div>
+				    <div class="screenNotesRight">
+				   		<div id='dowloadMatrix' class="image-container" style="right: 0px">
+							<img id='dowloadMatrix_btn' src='images/buttonGetMatrix.png' alt='Download Edited Matrix' onclick='NgChmGui.TRANS.downloadMatrix();' />
+						</div>
+					</div>
 	        	<br>
 		     	<div id="matrix_stats" style="float: left;">
 		        	<b>Number of Rows:</b>  <label id="numRows"></label><br> <br>

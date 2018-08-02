@@ -86,7 +86,7 @@ NgChmGui.TRANS.validateEntries = function(leavingPage, formatError) {
 	
 	//Add in page instruction text
 	pageText = pageText + "This page provides summary statistics of your matrix data including the distribution of values and row/column standard deviations.  Filters and transforms can be used to manipulate the matrix to produce better heat maps.  For example, a Z-norm transform could be used to normalize rows with values that differ in magnitude and a standard deviation filter could be used to remove rows with values that do not differ much across the columns." ;
-	NgChmGui.UTIL.setScreenNotes(pageText);
+	NgChmGui.UTIL.setScreenNotes(pageText, true);
 	
 	return valid;
 }
@@ -626,4 +626,18 @@ NgChmGui.TRANS.update = function () {
 NgChmGui.TRANS.next = function() {
 	window.open("Edit_Covariates.html","_self");
 }
+
+/**********************************************************************************
+ * FUNCTION - downloadMatrix: This function downloads the current working matrix
+ * file with the original matrix name followed by the literal "_edited".
+ **********************************************************************************/
+NgChmGui.TRANS.downloadMatrix = function() {
+	var outputLocation = NgChmGui.mapProperties.output_location.substring(NgChmGui.mapProperties.output_location.indexOf("MapBuildDir"));
+	var downloadPath = outputLocation.substring(0, outputLocation.lastIndexOf("/")) + "/workingMatrix.txt";
+	var origMatrixName = NgChmGui.mapProperties.builder_config.matrix_grid_config.matrixFileName;
+	var outputFile = origMatrixName.substring(0,origMatrixName.lastIndexOf(".")) + "_edited.txt"
+	NgChmGui.UTIL.download(downloadPath, outputFile);
+} 
+
+
 
