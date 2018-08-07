@@ -104,9 +104,10 @@ NgChmGui.COV.setupClassPrefs = function(classes) {
 	var classSelectStr = "<select name='classPref_list' id='classPref_list' style='font-size: 12px;' onchange='NgChmGui.COV.showClassSelection();'></select>"
 	var addButton = "<img id='add_covar_btn' src='images/addButton.png' alt='Add Covariate' style='vertical-align: bottom;' onclick='NgChmGui.COV.openCovarUpload()' />";
 	var removeButton = "<img id='remove_covar_btn' src='images/removeButton.png' alt='Remove Covariate' style='vertical-align: bottom;display: none' onclick='NgChmGui.COV.openCovarRemoval()' />";
+	var reorderButton = "<img id='reorder_covar_btn' src='images/reorderButton2.png' alt='Reorder Covariates' style='vertical-align: bottom;display: none' onclick='NgChmGui.COV.openCovarReorder()' />";
 	NgChmGui.UTIL.setTableRow(prefContents,["Covariates: ", classSelectStr]);
 	NgChmGui.UTIL.addBlankRow(prefContents)
-	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;",addButton +"&nbsp;"+ removeButton]);
+	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;",addButton +"&nbsp;"+ removeButton +"&nbsp;&nbsp;&nbsp;&nbsp;"+ reorderButton]);
 	NgChmGui.UTIL.addBlankRow(prefContents, 2);
 	classPrefsDiv.appendChild(prefContents);
 	prefsPanelDiv.appendChild(classPrefsDiv);
@@ -117,6 +118,9 @@ NgChmGui.COV.setupClassPrefs = function(classes) {
 			classPrefsDiv.appendChild(classContentsDiv);
 			classContentsDiv.style.display='none';
 		}
+		if (NgChmGui.COV.showReorder()) {
+			document.getElementById("reorder_covar_btn").style.display = '';
+		}
 		document.getElementById("remove_covar_btn").style.display = '';
 		document.getElementById("classPref_list").style.display = '';
 	} else {
@@ -126,6 +130,191 @@ NgChmGui.COV.setupClassPrefs = function(classes) {
 		document.getElementById("classPref_list").style.display = 'none';
 	}
 	return classPrefsDiv; 
+}
+
+/**********************************************************************************
+ * FUNCTION - openCovarReorder: This function loads and opens up the covariate
+ * reorder panel.
+ **********************************************************************************/
+NgChmGui.COV.openCovarReorder = function() {
+	var classes = NgChmGui.mapProperties.classification_files;
+	var reorderColsDiv = document.getElementById("reorderColumnsDiv");
+	var colCovars = document.getElementById("colCovar_list");
+	NgChmGui.UTIL.removeOptions(colCovars);
+	var colCovarsCtr = -1;
+	var colCovarOptions = "";
+	var reorderRowsDiv = document.getElementById("reorderRowsDiv");
+	var rowCovars = document.getElementById("rowCovar_list");
+	NgChmGui.UTIL.removeOptions(rowCovars);
+	var rowCovarsCtr = -1;
+	var rowCovarOptions = "";
+	for (var i=0;i<classes.length;i++) {
+		var classItem = classes[i];
+		var option = document.createElement("option");
+		option.text = classItem.name;
+		if (classItem.position === 'row') {
+			rowCovarsCtr++;
+			option.value = rowCovarsCtr;
+			if (rowCovarsCtr === 0) {
+				option.selected = true;
+			}
+			rowCovars.add(option); 
+		} else {
+			colCovarsCtr++;
+			option.value = colCovarsCtr;
+			if (colCovarsCtr === 0) {
+				option.selected = true;
+			}
+			colCovars.add(option); 
+		}
+	}
+	if (rowCovarsCtr > 0) {
+		if (rowCovarsCtr > 11) {
+			rowCovars.size = 10;
+		} else {
+			rowCovars.size = rowCovarsCtr + 1;
+		}
+		reorderRowsDiv.style.display = ''
+	} else {
+		colCovars.size = colCovarsCtr + 1;
+		reorderRowsDiv.style.display = 'none'
+	}
+	if (colCovarsCtr > 0) {
+		if (colCovarsCtr > 11) {
+			colCovars.size = 10;
+		} else {
+			colCovars.size = colCovarsCtr + 1;
+		}
+		colCovars.focus();
+		reorderColsDiv.style.display = ''
+	} else {
+		reorderColsDiv.style.display = 'none'
+	}
+	document.getElementById("covarSelection").style.display = 'none';
+	document.getElementById("covarReOrder").style.display = '';
+}
+
+/**********************************************************************************
+ * FUNCTION - covarOrderUp: This function moves a selected covariate upward
+ * in the list box, for a given axis, when the user presses the up button.
+ **********************************************************************************/
+NgChmGui.COV.covarOrderUp = function(type) {
+	var selectList = document.getElementById("colCovar_list");
+	if (type === 'row') {
+		selectList = document.getElementById("rowCovar_list");
+	}
+	var selectOptions = selectList.getElementsByTagName('option');
+	for (var i = 1; i < selectOptions.length; i++) {
+		var opt = selectOptions[i];
+		if (opt.selected) {
+			selectList.removeChild(opt);
+			selectList.insertBefore(opt, selectOptions[i - 1]);
+		}
+   }
+}
+
+/**********************************************************************************
+ * FUNCTION - covarOrderDown: This function moves a selected covariate downward
+ * in the list box, for a given axis, when the user presses the down button.
+ **********************************************************************************/
+NgChmGui.COV.covarOrderDown = function(type) {
+	var selectList = document.getElementById("colCovar_list");
+	if (type === 'row') {
+		selectList = document.getElementById("rowCovar_list");
+	}
+	var selectOptions = selectList.getElementsByTagName('option');
+	for (var i = selectOptions.length - 2; i >= 0; i--) {
+		var opt = selectOptions[i];
+		if (opt.selected) {
+		   var nextOpt = selectOptions[i + 1];
+		   opt = selectList.removeChild(opt);
+		   nextOpt = selectList.replaceChild(opt, nextOpt);
+		   selectList.insertBefore(nextOpt, opt);
+		}
+    }
+}
+
+/**********************************************************************************
+ * FUNCTION - showReorder: This function determines whether the reorder button should
+ * be shown.  There must be at least 2 covariates on at least one axis.
+ **********************************************************************************/
+NgChmGui.COV.showReorder = function() {
+	var classes = NgChmGui.mapProperties.classification_files;
+	var rowCovarsCtr = 0;
+	var colCovarsCtr = 0;
+	for (var i=0;i<classes.length;i++) {
+		var classItem = classes[i];
+		if (classItem.position === 'row') {
+			rowCovarsCtr++;
+		} else {
+			colCovarsCtr++;
+		}
+	}
+	if ((rowCovarsCtr > 1) || (colCovarsCtr > 1)) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+/**********************************************************************************
+ * FUNCTION - applyCovarOrder: This function reorders the covariates for a given
+ * map according to the order set in the reorder panel.
+ **********************************************************************************/
+NgChmGui.COV.applyCovarOrder = function() {
+	var classes = NgChmGui.mapProperties.classification_files;
+	var colCovarList = document.getElementById("colCovar_list");
+	var rowCovarList = document.getElementById("rowCovar_list");
+	var colOptions = colCovarList.getElementsByTagName('option');
+	var newColOrder = [];
+	for (var i = 0; i < colOptions.length; i++) {
+		var opt = colOptions[i];
+		newColOrder.push(opt.text);
+	}
+	var rowOptions = rowCovarList.getElementsByTagName('option');
+	var newRowOrder = [];
+	for (var i = 0; i < rowOptions.length; i++) {
+		var opt = rowOptions[i];
+		newRowOrder.push(opt.text);
+	}
+	var newOrderClasses = [];
+	for (var i=0;i<newColOrder.length;i++) {
+		var newOrderItem = newColOrder[i];
+		for (var j=0;j<classes.length;j++) {
+			var classItem = classes[j];
+			if ((classItem.position === "column") && (classItem.name.toUpperCase() === newOrderItem.toUpperCase())) {
+				newOrderClasses.push(classItem);
+				break;
+			}
+		}
+	}
+	for (var i=0;i<newRowOrder.length;i++) {
+		var newOrderItem = newRowOrder[i];
+		for (var j=0;j<classes.length;j++) {
+			var classItem = classes[j];
+			if ((classItem.position === "row") && (classItem.name.toUpperCase() === newOrderItem.toUpperCase())) {
+				newOrderClasses.push(classItem);
+				break;
+			}
+		}
+	}
+	NgChmGui.mapProperties.classification_files = newOrderClasses;
+	document.getElementById("preferencesPanel").innerHTML = "";
+	NgChmGui.COV.loadData();
+	NgChmGui.UTIL.setBuildProps();
+	NgChmGui.UTIL.applySettings(NgChmGui.COV.applySettings, NgChmGui.UTIL.loadHeatMapView);
+	document.getElementById("covarReOrder").style.display = 'none';
+	document.getElementById("covarSelection").style.display = '';
+}
+
+/**********************************************************************************
+ * FUNCTION - closeCovarReorder: This function closes the covariate reorder panel.
+ * It fires at the end of applying reorders OR when the user presses the cancel
+ * button on the reorder panel.
+ **********************************************************************************/
+NgChmGui.COV.closeCovarReorder = function() {
+	 document.getElementById("covarReOrder").style.display = 'none';
+	 document.getElementById("covarSelection").style.display = '';
 }
 
 /**********************************************************************************

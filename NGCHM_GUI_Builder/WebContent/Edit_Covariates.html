@@ -39,6 +39,74 @@
 	  		</div>
 	    </div>   
        	<div id="DisplayContainer" class="display_container" style="position: relative;">
+	 		<div id="covarReOrder" class="data_entry_container" style="position: relative;display: none;width: 25%;">   
+				<div id="reOrderPanel">
+	        		<table>
+	        			<tr>
+	        				<td>
+			        			<div id='reorderColumnsDiv' style="display: '';">
+	        						<table>
+				  	        			<tr class='chmTR'>
+				  	        				<td>
+							 	        		<div id="reOrderColumnCovars" class="sec-header">Re-order Column Covariates:</div>
+							 	        	</td>
+							 	        </tr>
+				 	        			<tr class='chmTR'>
+				 	        				<td>
+												<select name="colCovar_list" id="colCovar_list" style="width: 200px;font-size: 12px;"></select>	
+											</td>
+											<td rowspan="2">
+												<img id='colCovarUp_btn' src='images/arrowUpButton.png' alt='Move Covariate Up' style="vertical-align: bottom;" onclick="NgChmGui.COV.covarOrderUp('col')" /><br/><br/>
+												<img id='colCovarDown_btn' src='images/arrowDownButton.png' alt='Move Covariate Down' style="vertical-align: bottom;" onclick="NgChmGui.COV.covarOrderDown('col')" />
+											</td>	 	        	
+				 	        			</tr>
+				 	        			<tr class='chmTR'>
+				 	        				<td>
+						 						<div class="pref-header">(order from top to bottom)</div>
+						 					</td>
+						 				</tr>
+						 			</table>
+			        			</div>
+			        		</td>
+			        	</tr>
+			        	<tr>
+	        				<td>
+			        			<div id='reorderRowsDiv' style="display: '';">
+	        						<table>
+				  	        			<tr class='chmTR'>
+				  	        				<td>
+							 	        		<div id="reOrderRowCovars" class="sec-header">Re-order Row Covariates:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+							 	        	</td>
+							 	        </tr>
+				 	        			<tr class='chmTR'>
+				 	        				<td>
+												<select name="rowCovar_list" id="rowCovar_list" style="width: 200px;font-size: 12px;"></select>	
+											</td>
+											<td rowspan="2">
+												<img id='rowCovarUp_btn' src='images/arrowUpButton.png' alt='Move Covariate Up' style="vertical-align: bottom;" onclick="NgChmGui.COV.covarOrderUp('row')" /><br/><br/>
+												<img id='rowCovarDown_btn' src='images/arrowDownButton.png' alt='Move Covariate Down' style="vertical-align: bottom;" onclick="NgChmGui.COV.covarOrderDown('row')" />
+											</td>	 	        	
+				 	        			</tr>
+				 	        			<tr class='chmTR'>
+				 	        				<td>
+						 						<div class="pref-header">(order from left to right)</div>
+						 					</td>
+						 				</tr>
+						 			</table>
+			        			</div>
+			        		</td>
+			        	</tr>
+		 				<tr><td>&nbsp;</td></tr>
+		 				<tr><td>&nbsp;</td></tr>
+		        		<tr>
+		        			<td>
+								<img id='covReorder_cancel_btn' src='images/cancelButton.png' alt='Cluster the Data' style="vertical-align: bottom;" onclick="NgChmGui.COV.closeCovarReorder()" />
+								<img id='covReorder_apply_btn' src='images/reorderButton.png' alt='Cluster the Data' style="vertical-align: bottom;" onclick="NgChmGui.COV.applyCovarOrder()" />
+							</td>
+						</tr>
+					</table>
+				</div>
+	 		</div>
 	 		<div id="covarAddSample" class="data_entry_container" style="position: relative;display: none;width: 25%;">   
 		        <form method="POST" enctype="multipart/form-data" id="covar_add_sample" onsubmit="return false;">
 		        	<input name='selFile' id='selFile' style='display: none'/>
@@ -175,7 +243,7 @@
 			        </div>   
 		        </div>
 			</div>
-	        <div id="heatMapView" class="layout_display_container" style="width: 60%;">
+	        <div id="heatMapView" class="layout_display_container" style="width: 75%;">
 	        	<div id=screenNotesDisplay></div>
 	        	<br>
 				<div id='NGCHMEmbed' style="background-color: white; height: 75%; margin-left: 10em; margin-top: .2em; padding: 5px"></div>

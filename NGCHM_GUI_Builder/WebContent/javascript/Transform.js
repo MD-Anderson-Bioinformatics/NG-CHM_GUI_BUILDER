@@ -55,7 +55,7 @@ NgChmGui.TRANS.validateEntries = function(leavingPage, formatError) {
 			valid = false;
 		}	
 		if(NgChmGui.TRANS.matrixInfo.emptyRows > 0) {
-			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Matrix contains " + NgChmGui.TRANS.matrixInfo.emptyRows + " entirely empty data Row(s)x. All values missing. Use Filter to remove rows or replace missing values.</p>" + NgChmGui.UTIL.nextLine;
+			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Matrix contains " + NgChmGui.TRANS.matrixInfo.emptyRows + " entirely empty data Row(s). All values missing. Use Filter to remove rows or replace missing values.</p>" + NgChmGui.UTIL.nextLine;
 			valid = false;
 		}	
 		if(NgChmGui.TRANS.matrixInfo.emptyCols > 0) {

@@ -74,7 +74,7 @@ public class ProcessCovariate {
 				covBreaks.add(Float.toString(highVal));
 			}
 			ArrayList<String> covColors = getDefaultClassColors(covBreaks, type);
-			HeatmapPropertiesManager.ColorMap cm = mgr.new ColorMap(type,covColors, covBreaks,"#000000");
+			HeatmapPropertiesManager.ColorMap cm = mgr.new ColorMap(type,covColors, covBreaks,"#B3B3B3");
 			covar.color_map = cm;
 		} catch (Exception e) {
 			// do something here

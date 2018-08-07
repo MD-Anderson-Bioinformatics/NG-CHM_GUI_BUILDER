@@ -97,28 +97,25 @@ public class HeatmapBuild extends HttpServlet {
 			    File ngchmFileNew = new File(workingDir+"/"+ map.chm_name+"/"+ map.chm_name+map.builder_config.ngchmVersion+".ngchm");
 		    	ngchmFile.renameTo(ngchmFileNew);
 		    }
-	        
-		    //If the map has not been built before, save the auto-generated break points to the properties.
-	        if (map.matrix_files.get(0).color_map == null) {
-	        	HeatmapPropertiesManager.ColorMap theMap = setDefaultMatrixColors(workingDir, map);
-	        	map.matrix_files.get(0).color_map = theMap;
+	        if (!errMsg.contains("BUILD ERROR")) {
+			    //If the map has not been built before, save the auto-generated break points to the properties.
+		        if (map.matrix_files.get(0).color_map == null) {
+		        	HeatmapPropertiesManager.ColorMap theMap = setDefaultMatrixColors(workingDir, map);
+		        	map.matrix_files.get(0).color_map = theMap;
+		        }
 	        }
-    		mgr.save();
+	        
 	        if (errMsg != "") {
 		        if (errMsg.contains("BUILD ERROR")) {
-		        	if (errMsg.contains("Importing Heat Map Configuration")) {
-		        		map.builder_config.buildErrors = "BUILD ERROR: You session has expired during processing.  Please restart heat map.";
-		        	} else {
-					    map.builder_config.buildErrors = errMsg;
-		        	}
+				    map.builder_config.buildErrors = errMsg;
 		        } else {
 					String toks[] = errMsg.split("\n");
 					for (int i=0;i<toks.length;i++) {
 						map.builder_config.buildWarnings.add(toks[i]);
 					}
 		        }
-        		mgr.save();
 	        }
+    		mgr.save();
 	    } catch (Exception e) {
 	    	throw e;
 	    }			

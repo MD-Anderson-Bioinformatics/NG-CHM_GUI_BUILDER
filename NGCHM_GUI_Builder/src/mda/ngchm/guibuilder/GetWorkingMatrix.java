@@ -198,7 +198,7 @@ public class GetWorkingMatrix extends HttpServlet {
 								colCount[i] += 1;
 								//remove any column from missingCols array if a value is found in another row at that column
 								int iPos = missingCols.indexOf(i);
-								if (iPos > 0) {
+								if (iPos >= 0) {
 									missingCols.remove(iPos);
 								}
 							} else if (Util.isMissing(val)) {
@@ -226,7 +226,7 @@ public class GetWorkingMatrix extends HttpServlet {
 						line = rdr.readLine();
 						rowCtr++;
 					}	
-					//If columns array has a value, count as emtpy
+					//If columns array has a value, count as empty
 					counts.emptyCols = missingCols.size();
 					rdr.close();
 					
