@@ -1064,49 +1064,30 @@ NgChmGui.FORMAT.setLabelTypeList = function(ctr) {
 		ctr++;
 		setTimeout(function(){NgChmGui.FORMAT.setLabelTypeList(ctr);},2000);
 	} else {
-		var labelTypeList = [];
-		var pluginsList = NgChm.CUST.customPlugins;
-		for (var i=0;i<pluginsList.length;i++) {
-			var pluginLinkouts = pluginsList[i].linkouts;
-			if (typeof pluginLinkouts !== 'undefined') {
-				for (var j=0;j<pluginLinkouts.length;j++) {
-					var pluginLinkout = pluginLinkouts[j];
-					if (labelTypeList.indexOf(pluginLinkout.typeName) < 0) {
-						labelTypeList.push(pluginLinkout.typeName);
-					}
-				}
-			} else {
-				if (pluginsList[i].name === "TCGA") {
-					var tcgaBase = "bio.tcga.barcode.sample";
-					if (labelTypeList.indexOf(tcgaBase) < 0) {
-						labelTypeList.push(tcgaBase);
-					}				
-					if (typeof NgChm.CUST.subTypes[tcgaBase] !== 'undefined') {
-						for(var m=0;m<NgChm.CUST.subTypes[tcgaBase].length;m++) {
-							var subVal = NgChm.CUST.subTypes[tcgaBase][m];
-							if (labelTypeList.indexOf(subVal) < 0) {
-								labelTypeList.push(subVal);
-							}
-						}
-					}
-				} 
-			} 
-		}
-		labelTypeList.sort();
-		
 		var rowLabelSelect = document.getElementById('rowLabelType');
 		var colLabelSelect = document.getElementById('colLabelType');
-		
+		//Extract option display and value from linkoutTypes as pipe delimited pairs in array
+		var labelTypeList = [];
+		for (var i=0;i<NgChm.CUST.linkoutTypes.length;i++) {
+			var linkTyp = NgChm.CUST.linkoutTypes[i];
+			labelTypeList.push(linkTyp.displayName+"|"+linkTyp.typeName);
+		}
+		//Sort the label type list by display name
+		labelTypeList.sort();
+		//Construct option items for both row and label type select DOM elements.
 		for (var k=0;k<labelTypeList.length;k++) {
 			var labelItem = labelTypeList[k];
+			var labelDisplay = labelItem.substring(0,labelItem.lastIndexOf("|"));
+			var labelValue = labelItem.substring(labelItem.lastIndexOf("|")+1,labelItem.length);
 		    var option = document.createElement('option');
-		    option.setAttribute('value', labelItem);
-		    option.appendChild(document.createTextNode(labelItem));
+		    option.setAttribute('value', labelValue);
+		    option.appendChild(document.createTextNode(labelDisplay));
 		    rowLabelSelect.appendChild(option);
 		    var option2 = option.cloneNode(true);
 		    colLabelSelect.appendChild(option2);
 		} 
-	  	document.getElementById("rowLabelType").value = NgChmGui.mapProperties.row_configuration.data_type;
+		//Set value of row and column selects to values stored in mapProperties
+		document.getElementById("rowLabelType").value = NgChmGui.mapProperties.row_configuration.data_type;
 	  	document.getElementById("colLabelType").value = NgChmGui.mapProperties.col_configuration.data_type;
 	}
 } 
