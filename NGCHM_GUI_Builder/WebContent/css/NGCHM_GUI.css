@@ -412,14 +412,14 @@ div.serviceHeaderLogo img
     overflow-y: auto;
 }
 
-.screenNotesleft {
+.screenNotesLeft {
    float: left;
-   width: 97%;
+   width: 90%;
 }
 
 .screenNotesRight {
    float: right;
-   width: 3%;
+   width: 10%;
 }
 
 #collapseMap {
