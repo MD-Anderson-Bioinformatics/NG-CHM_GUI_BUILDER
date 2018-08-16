@@ -184,7 +184,9 @@ NgChmGui.FILE.MatrixFile = function() {
 		            console.log('Failed to upload matrix '  + req.status);
 		        } else {
 		    		if (NgChmGui.UTIL.debug) {console.log('200');}
-		    		if (!req.response.startsWith("NOFILE")) {
+		    		if (req.response.startsWith("ERROR")) {
+		    			NgChmGui.FILE.fileUploadError(req.response);
+		    		} else if (!req.response.startsWith("NOFILE")) {
 			        	//Display file name below of file open buttons
 		    			matrixFileName = selectedFileName;
 		    			NgChmGui.FILE.displayFileName();
@@ -872,4 +874,22 @@ NgChmGui.FILE.validateEntries = function(leavingPage) {
 	
 	return valid;
 }
+
+/**********************************************************************************
+ * FUNCTION - fileUploadError: This function sets an error message on the screen when
+ * a user uploads an incorrect file type.
+ **********************************************************************************/
+NgChmGui.FILE.fileUploadError = function(text) {
+	var pageText = "";
+	pageText = pageText + "<p class='error_message'>" + text + "</p>" + NgChmGui.UTIL.nextLine;
+	//Add in page instruction text
+	if (NgChmGui.matrixFile.isLoaded()){
+		pageText = pageText + NgChmGui.FILE.pageText2 + NgChmGui.UTIL.nextLine;
+	} else {
+		pageText = pageText + NgChmGui.FILE.pageText1 + NgChmGui.UTIL.nextLine;;
+	}
+	NgChmGui.UTIL.setScreenNotes(pageText);
+}
+
+
 

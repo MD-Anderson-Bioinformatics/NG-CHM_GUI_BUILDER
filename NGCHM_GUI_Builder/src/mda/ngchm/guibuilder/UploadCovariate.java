@@ -1,11 +1,13 @@
 package mda.ngchm.guibuilder;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -23,6 +25,7 @@ import javax.servlet.http.Part;
 @MultipartConfig
 public class UploadCovariate extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	private static Set<String> EXCEL_FILES = new HashSet<String>(Arrays.asList("XLS","XLSX","XLSM"));
        
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession mySession = request.getSession();
@@ -55,16 +58,16 @@ public class UploadCovariate extends HttpServlet {
 	        	if (covFile.exists()) {
 	        		covFile.delete();
 	        	}
-			    out = new FileOutputStream(new File(covFileName));
+	    	    String inFile = filePart.getSubmittedFileName();
+	    	    String inType = inFile.substring(inFile.lastIndexOf(".")+1, inFile.length()).toUpperCase();
 		        filecontent = filePart.getInputStream();
-		        int read = 0;
-		        final byte[] bytes = new byte[1024];
-	
-		        while ((read = filecontent.read(bytes)) != -1) {
-		            out.write(bytes, 0, read);
-		        }
-		        out.close();
-	
+			    if (EXCEL_FILES.contains(inType)) {
+			        Util.uploadXLS(covFileName, filecontent);
+			    } else if ("CSV".equals(inType)) {
+			        Util.uploadCSV(covFileName, filecontent);
+			    } else {
+			        Util.uploadTSV(covFileName, filecontent);
+			    }
 			    ProcessCovariate cov = new ProcessCovariate();
 	        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructDefaultCovariate(mgr, covName, covFileName, axisType, colorType);
 	        	map.classification_files.add(classJsonObj);	 
@@ -88,19 +91,13 @@ public class UploadCovariate extends HttpServlet {
 	        writer.println("<br/> ERROR: " + e.getMessage());
 
 	    } finally {
-	        if (out != null) {
-	            out.close();
-	        }
-	        if (filecontent != null) {
-	            filecontent.close();
-	        }
-	        if (writer != null) {
-	            writer.close();
-	        }
+	        if (out != null) {out.close();out = null;}
+	        if (filecontent != null) {filecontent.close(); filecontent = null;}
+	        if (writer != null) {writer.close();}
 	    }
 	}
 
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doGet(request, response);
 	}
 	

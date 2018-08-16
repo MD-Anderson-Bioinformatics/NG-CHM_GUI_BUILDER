@@ -2,11 +2,13 @@ package mda.ngchm.guibuilder;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -26,7 +28,14 @@ import org.apache.tomcat.util.http.fileupload.FileUtils;
 @MultipartConfig
 public class UploadMatrix extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	private static Set<String> EXCEL_FILES = new HashSet<String>(Arrays.asList("XLS","XLSX","XLSM"));
        
+	/*******************************************************************
+	 * METHOD: doGet
+	 *
+	 * This method is called from the web app to upload the sample matrix 
+	 * file.
+	 ******************************************************************/
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("application/json;charset=UTF-8");
 	    OutputStream out = null;
@@ -35,7 +44,7 @@ public class UploadMatrix extends HttpServlet {
 	    final PrintWriter writer = response.getWriter();
 
 	    try {
-    		uploadMatrixFile(request, writer, filecontent, out);
+    		uploadMatrixFile(request, writer, filecontent, "TXT");
 	    } catch (Exception e) {
 	        writer.println("Error uploading sample matrix.");
 	        writer.println("<br/> ERROR: " + e.getMessage());
@@ -53,16 +62,23 @@ public class UploadMatrix extends HttpServlet {
 	    }
 	}
 
+	/*******************************************************************
+	 * METHOD: doPost
+	 *
+	 * This method is called from the web app to upload a matrix file 
+	 * selected by the user.
+	 ******************************************************************/
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("application/json;charset=UTF-8");
 	    final Part filePart = request.getPart("matrix");
-	    OutputStream out = null;
+	    String inFile = filePart.getSubmittedFileName();
+	    String inType = inFile.substring(inFile.lastIndexOf(".")+1, inFile.length()).toUpperCase();
 	    InputStream filecontent = filePart.getInputStream();
 	    final PrintWriter writer = response.getWriter();
 
 	    try {
 	    	if (filePart.getSize() > 0) {
-	    		uploadMatrixFile(request, writer, filecontent, out);
+	    		uploadMatrixFile(request, writer, filecontent, inType);
 	    	} else {
 		        writer.println("NOFILE");
 	    	}
@@ -70,9 +86,6 @@ public class UploadMatrix extends HttpServlet {
 	        writer.println("Error uploading matrix.");
 	        writer.println("<br/> ERROR: " + e.getMessage());
 	    } finally {
-	        if (out != null) {
-	            out.close();
-	        }
 	        if (filecontent != null) {
 	            filecontent.close();
 	        }
@@ -82,7 +95,14 @@ public class UploadMatrix extends HttpServlet {
 	    }	
 	}
 	
-	private void uploadMatrixFile(HttpServletRequest request, PrintWriter writer, InputStream filecontent, OutputStream out) throws Exception {
+	/*******************************************************************
+	 * METHOD: uploadMatrixFile
+	 *
+	 * This method uploads a matrix file to the session directory as 
+	 * OriginalMatrix.txt.  This file can be the sample text file OR a 
+	 * user selected tab separated, comma separated, or excel file.
+	 ******************************************************************/
+	private void uploadMatrixFile(HttpServletRequest request, PrintWriter writer, InputStream filecontent, String fileType) throws Exception {
 		HttpSession mySession = request.getSession();
 		String jsonMatrixCorner = "no data";
 	    final String fileName = "originalMatrix.txt";
@@ -94,21 +114,17 @@ public class UploadMatrix extends HttpServlet {
 			FileUtils.cleanDirectory(theDir);
 		}
 	    String matrixFile = workingDir + "/" + fileName;
-	    out = new FileOutputStream(new File(matrixFile));
-
-        int read = 0;
-        final byte[] bytes = new byte[1024];
-
-        while ((read = filecontent.read(bytes)) != -1) {
-            out.write(bytes, 0, read);
-        }
+	    if (EXCEL_FILES.contains(fileType)) {
+		    Util.uploadXLS(matrixFile, filecontent);
+	    } else if ("CSV".equals(fileType)) {
+		    Util.uploadCSV(matrixFile, filecontent);
+	    } else {
+		    Util.uploadTSV(matrixFile, filecontent);
+	    }
         jsonMatrixCorner = Util.getTopOfMatrix(matrixFile, 21, 20);
 	    writer.println(jsonMatrixCorner);
-	    out.close();
 	}
 
-
-	
 }
 
 
