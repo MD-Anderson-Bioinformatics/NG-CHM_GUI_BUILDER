@@ -401,7 +401,11 @@ NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
 	var prefContentsCp = document.createElement("TABLE"); 
 	NgChmGui.UTIL.setTableRow(prefContentsCp, ["&nbsp;<u>Category</u>","<b><u>"+"Color"+"</b></u>"]); 
 	for (var j = 0; j < thresholds.length; j++) {
-		var threshold = thresholds[j];
+		var threshold = thresholds[j]
+		if (threshold.length > 43) {
+			threshold = threshold.substring(0,40)+"...";
+		} 
+		threshold =  threshold + "&nbsp;&nbsp;&nbsp;";
 		var color = colors[j];
 		var threshId = j+"_breakPt_"+key;
 		var colorId = j+"_color_"+key;
@@ -411,25 +415,25 @@ NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
 	NgChmGui.UTIL.addBlankRow(prefContentsCp);
 	NgChmGui.UTIL.setTableRow(prefContentsCp, ["&nbsp;Missing Color:",  "<input class='spectrumColor' type='color' name='missing_colorPrefCp_"+key+"' id='missing_colorPrefCp_"+key+"' value='"+classItem.color_map.missing+"' onchange='NgChmGui.UTIL.setBuildProps();' >"]);
 	NgChmGui.UTIL.addBlankRow(prefContentsCp, 3);
-	NgChmGui.UTIL.setTableRow(prefContentsCp, ["&nbsp;<u>Choose a pre-defined color palette:</u>"],3);
-	NgChmGui.UTIL.addBlankRow(prefContentsCp);
+	var prefPalletsCp = document.createElement("TABLE"); 
+	NgChmGui.UTIL.setTableRow(prefPalletsCp, ["&nbsp;<u>Choose a pre-defined color palette:</u>"],3);
+	NgChmGui.UTIL.addBlankRow(prefPalletsCp);
 	if (classItem.color_map.type == "discrete"){
-//		var scheme1 = "<div style='display:flex'><div class='preDefPalette' style='background: linear-gradient(to right, #1f77b4,#ff7f0e,#2ca02c,#d62728,#9467bd,#8c564b,#e377c2,#7f7f7f,#bcbd22,#17becf);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ",[\"#1f77b4\",\"#ff7f0e\",\"#2ca02c\", \"#d62728\", \"#9467bd\", \"#8c564b\", \"#e377c2\", \"#7f7f7f\", \"#bcbd22\", \"#17becf\"],\"#ffffff\",\""+classItem.color_map.type+"\")'> </div><div class='preDefPaletteMissingColor' style='background:white'></div></div>";
 		var scheme1 = "<div style='display:flex'><div class='preDefPalette' style='background: linear-gradient(to right, #2e1f54,#52057f,#bf033b,#f00a36,#ed3b21,#ffc719,#598c14,#335238, #4a8594,#706357);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ",[\"#1f77b4\",\"#ff7f0e\",\"#2ca02c\", \"#d62728\", \"#9467bd\", \"#8c564b\", \"#e377c2\", \"#7f7f7f\", \"#bcbd22\", \"#17becf\"],\"#ffffff\",\""+classItem.color_map.type+"\")'> </div><div class='preDefPaletteMissingColor' style='background:white'></div></div>";
-//		var scheme2 = "<div style='display:flex'><div class='preDefPalette' style='background: linear-gradient(to right, #1f77b4,#aec7e8,#ff7f0e,#ffbb78,#2ca02c,#98df8a,#d62728,#ff9896,#9467bd,#c5b0d5,#8c564b,#c49c94,#e377c2,#f7b6d2,#7f7f7f,#c7c7c7,#bcbd22,#dbdb8d,#17becf,#9edae5);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ", [\"#1f77b4\",\"#aec7e8\",\"#ff7f0e\",\"#ffbb78\",\"#2ca02c\",\"#98df8a\",\"#d62728\",\"#ff9896\",\"#9467bd\",\"#c5b0d5\",\"#8c564b\",\"#c49c94\",\"#e377c2\",\"#f7b6d2\",\"#7f7f7f\",\"#c7c7c7\",\"#bcbd22\",\"#dbdb8d\",\"#17becf\",\"#9edae5\"],\"#ffffff\",\""+classItem.color_map.type+"\")'> </div><div class='preDefPaletteMissingColor' style='background:white'></div></div>";
 		var scheme2 = "<div style='display:flex'><div class='preDefPalette' style='background: linear-gradient(to right, #da5a47,#ffa500,#00a5dc,#004eaf,#2db928,#057855,#b1a24a,#ff2d37,#737373,#cdcdcd, #f0f0f0);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ", [\"#1f77b4\",\"#aec7e8\",\"#ff7f0e\",\"#ffbb78\",\"#2ca02c\",\"#98df8a\",\"#d62728\",\"#ff9896\",\"#9467bd\",\"#c5b0d5\",\"#8c564b\",\"#c49c94\",\"#e377c2\",\"#f7b6d2\",\"#7f7f7f\",\"#c7c7c7\",\"#bcbd22\",\"#dbdb8d\",\"#17becf\",\"#9edae5\"],\"#ffffff\",\""+classItem.color_map.type+"\")'> </div><div class='preDefPaletteMissingColor' style='background:white'></div></div>";
 		var scheme3 = "<div style='display:flex'><div class='preDefPalette' style='background: linear-gradient(to right,#393b79, #637939, #8c6d31, #843c39, #7b4173, #5254a3, #8ca252, #bd9e39, #ad494a, #a55194, #6b6ecf, #b5cf6b, #e7ba52, #d6616b, #ce6dbd, #9c9ede, #cedb9c, #e7cb94, #e7969c, #de9ed6);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ", [\"#393b79\", \"#637939\", \"#8c6d31\", \"#843c39\", \"#7b4173\", \"#5254a3\", \"#8ca252\", \"#bd9e39\", \"#ad494a\", \"#a55194\", \"#6b6ecf\", \"#b5cf6b\", \"#e7ba52\", \"#d6616b\", \"#ce6dbd\", \"#9c9ede\", \"#cedb9c\", \"#e7cb94\", \"#e7969c\", \"#de9ed6\"],\"#ffffff\",\""+classItem.color_map.type+"\")'> </div><div class='preDefPaletteMissingColor' style='background:white'></div></div>";
-		NgChmGui.UTIL.setTableRow(prefContentsCp, [scheme1,scheme2,scheme3]);
-		NgChmGui.UTIL.setTableRow(prefContentsCp, ["&nbsp;Palette1",  "&nbsp;<b>Palette2</b>","&nbsp;<b>Palette3</b>"]);
+		NgChmGui.UTIL.setTableRow(prefPalletsCp, [scheme1,scheme2,scheme3]);
+		NgChmGui.UTIL.setTableRow(prefPalletsCp, ["&nbsp;Palette1",  "&nbsp;<b>Palette2</b>","&nbsp;<b>Palette3</b>"]);
 	} else {
 		var rainbow = "<div style='display:flex'><div class='preDefPalette' style='background: linear-gradient(to right, red,orange,yellow,green,blue,violet);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ", [\"#FF0000\",\"#FF8000\",\"#FFFF00\",\"#00FF00\",\"#0000FF\",\"#FF00FF\"],\"#000000\",\""+classItem.color_map.type+"\")' > </div><div class='preDefPaletteMissingColor' style='background:black'></div></div>";
 		var greyscale = "<div style='display:flex'><div class='preDefPalette' style='background: linear-gradient(to right, white,black);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ", [\"#FFFFFF\",\"#000000\"],\"#FF0000\",\""+classItem.color_map.type+"\")' > </div><div class='preDefPaletteMissingColor' style='background:red'></div></div>";
 		var redBlackGreen = "<div style='display:flex'><div id='setRedBlackGreen' class='preDefPalette' style='background: linear-gradient(to right, green,black,red);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ", [\"#00FF00\",\"#000000\",\"#FF0000\"],\"#ffffff\",\""+classItem.color_map.type+"\")'> </div>" +
 		"<div class='preDefPaletteMissingColor' style='background:white'></div></div>"
-		NgChmGui.UTIL.setTableRow(prefContentsCp, [greyscale,rainbow,redBlackGreen]);
-		NgChmGui.UTIL.setTableRow(prefContentsCp, ["&nbsp;Greyscale",  "&nbsp;<b>Rainbow</b>","&nbsp;<b>Green Red</b>"]);
+		NgChmGui.UTIL.setTableRow(prefPalletsCp, [greyscale,rainbow,redBlackGreen]);
+		NgChmGui.UTIL.setTableRow(prefPalletsCp, ["&nbsp;Greyscale",  "&nbsp;<b>Rainbow</b>","&nbsp;<b>Green Red</b>"]);
 	}
 	helpprefsCp.appendChild(prefContentsCp);
+	helpprefsCp.appendChild(prefPalletsCp);
 	
 	//Build high/low bounds/colors sub panel for bar and scatter plot covariates
 	var helpprefsBp = NgChmGui.UTIL.getDivElement("breakPrefsBp_"+key);
