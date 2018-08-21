@@ -399,13 +399,16 @@ NgChmGui.FILE.MatrixFile = function() {
 				} else if (rowCovRadio.checked) {
 					changeType = 'cov';
 					var colPos = rowCovs.indexOf(col);
+					var covName =  hot.getDataAtCell(rowLabelRow,col).trim();
 					if (col == colLabelCol) {
 						errMessages = errMessages + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "The Label column cannot be overlaid with a covariate bar.</p><br>"
 						warnMessages = warnMessages + NgChmGui.UTIL.warningPrefix + "Row Covariate was not selected. <br>";	
+					} else if (covName === "") {
+						errMessages = errMessages + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "The selected Row Covariate does not have a label in the Labels Row.</p><br>"
 					} else {
 						if (colPos < 0) {
 							rowCovs.push(col);
-							NgChmGui.FILE.addCovarDataEntry("rowColorType", col, hot.getDataAtCell(rowLabelRow,col),covCtr); 
+							NgChmGui.FILE.addCovarDataEntry("rowColorType", col, covName,covCtr); 
 						} else {
 							rowCovs.splice(colPos, 1);
 							NgChmGui.FILE.removeCovarDataEntry("rowColorType", col, covCtr);
@@ -414,13 +417,16 @@ NgChmGui.FILE.MatrixFile = function() {
 				} else if (colCovRadio.checked) {
 					changeType = 'cov';
 					var rowPos = colCovs.indexOf(row);
+					var covName =  hot.getDataAtCell(row,colLabelCol).trim();
 					if (row == rowLabelRow) {
 						errMessages = errMessages + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "The Label column cannot be overlaid with a covariate bar.</p><br>"
 						warnMessages = warnMessages + NgChmGui.UTIL.warningPrefix + "Column Covariate was not selected. </p><br>";	
+					} else if (covName === "") {
+						errMessages = errMessages + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "The selected Column Covariate does not have a label in the Labels Column.</p><br>"
 					} else {
 						if (rowPos < 0) {
 							colCovs.push(row);
-							NgChmGui.FILE.addCovarDataEntry("colColorType", row, hot.getDataAtCell(row,colLabelCol),covCtr); 
+							NgChmGui.FILE.addCovarDataEntry("colColorType", row, covName,covCtr); 
 						} else {
 							colCovs.splice(rowPos, 1);
 							NgChmGui.FILE.removeCovarDataEntry("colColorType", row, covCtr); 
