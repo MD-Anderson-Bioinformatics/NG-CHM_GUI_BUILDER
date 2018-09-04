@@ -103,8 +103,9 @@ public class ProcessMatrix extends HttpServlet {
 			        for (int i=0;i<matrixConfig.rowCovs.size();i++) {
 			        	int covCol = matrixConfig.rowCovs.get(i);
 			        	String covType = matrixConfig.rowCovTypes.get(i);
+			        	String covName = matrixConfig.rowCovNames.get(i);
 			        	String covFileName = workingDir + "/covariate_"+ covCtr + ".txt";
-			        	String covName = buildFilteredRowCovariate(workingDir, matrixConfig, covFileName, covCol);
+			        	buildFilteredRowCovariate(workingDir, matrixConfig, covFileName, covCol);
 			        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructDefaultCovariate(mgr, covName, covFileName, "row", covType);
 			        	map.classification_files.add(classJsonObj);	    
 			        	covCtr++;
@@ -114,8 +115,9 @@ public class ProcessMatrix extends HttpServlet {
 			        for (int i=0;i<matrixConfig.colCovs.size();i++) {
 			        	int covRow = matrixConfig.colCovs.get(i);
 			        	String covType = matrixConfig.colCovTypes.get(i);
+			        	String covName = matrixConfig.colCovNames.get(i);
 			        	String covFileName = workingDir + "/covariate_"+ covCtr + ".txt";
-				        String covName = buildFilteredColCovariate(workingDir, matrixConfig, covFileName, covRow);
+				        buildFilteredColCovariate(workingDir, matrixConfig, covFileName, covRow);
 			        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructDefaultCovariate(mgr, covName, covFileName, "column", covType);
 			        	map.classification_files.add(classJsonObj);	        	 
 			        	covCtr++;
@@ -386,9 +388,8 @@ public class ProcessMatrix extends HttpServlet {
 	 * This method constructs a column covariate bar data file from contents
 	 * extracted from the original data matrix uploaded to the builder.
 	 ******************************************************************/
-	private String buildFilteredColCovariate(String workingDir, HeatmapPropertiesManager.MatrixGridConfig matrixConfig, String covFileName, int covCol) throws Exception {
+	private void buildFilteredColCovariate(String workingDir, HeatmapPropertiesManager.MatrixGridConfig matrixConfig, String covFileName, int covCol) throws Exception {
 	    String originalFile = workingDir + "/originalMatrix.txt";
-		String covName = "";
 		BufferedReader reader = new BufferedReader(new FileReader(originalFile));
 		BufferedWriter  writer = new BufferedWriter(new FileWriter(covFileName));
 		try {
@@ -408,7 +409,6 @@ public class ProcessMatrix extends HttpServlet {
 						}
 					} else if (rowNum == covCol) {
 						covToks = line.split("\t",-1);
-						covName = covToks[matrixConfig.colLabelCol];
 					}
 					if ((labelToks != null) && (covToks != null)) {
 						break;
@@ -430,7 +430,7 @@ public class ProcessMatrix extends HttpServlet {
 			reader.close();
 			writer.close();
 		}
-		return covName;
+		return;
 	}
 	
 	/*******************************************************************
@@ -439,9 +439,8 @@ public class ProcessMatrix extends HttpServlet {
 	 * This method constructs a row covariate bar data file from contents
 	 * extracted from the original data matrix uploaded to the builder.
 	 ******************************************************************/
-	private String buildFilteredRowCovariate(String workingDir, HeatmapPropertiesManager.MatrixGridConfig matrixConfig, String covFileName, int covRow) throws Exception {
+	private void buildFilteredRowCovariate(String workingDir, HeatmapPropertiesManager.MatrixGridConfig matrixConfig, String covFileName, int covRow) throws Exception {
 	    String originalFile = workingDir + "/originalMatrix.txt";
-		String covName = "";
 		BufferedReader reader = new BufferedReader(new FileReader(originalFile));
 		BufferedWriter writer = new BufferedWriter(new FileWriter(covFileName));
 		try {
@@ -457,7 +456,6 @@ public class ProcessMatrix extends HttpServlet {
 					if (!toks[labelOffset].trim().equals("")) {
 						labelPos--;
 					}
-					covName = toks[labelPos];
 				} else if (rowNum >= matrixConfig.dataStartRow) {
 					String toks[] = line.split("\t",-1);
 					String covLabel = toks[matrixConfig.colLabelCol];
@@ -473,7 +471,7 @@ public class ProcessMatrix extends HttpServlet {
 			reader.close();
 			writer.close();
 		}
-		return covName;
+		return;
 	}
 
 }

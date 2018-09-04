@@ -13,6 +13,7 @@ NgChmGui.COV.loadData =  function() {
 		prefsPanelDiv.style.left = 0;
 		prefsPanelDiv.style.right = "";
 		var classes = NgChmGui.mapProperties.classification_files;
+		NgChmGui.COV.clearPreferencesPanel();
 		var classPrefsDiv = NgChmGui.COV.setupClassPrefs(classes);
 		NgChmGui.COV.setClassPrefOptions(classes);
 		NgChmGui.UTIL.loadHeatMapView();
@@ -23,11 +24,22 @@ NgChmGui.COV.loadData =  function() {
 }
 
 /**********************************************************************************
- * FUNCTION - the validate function is called on page load, page exit, and when
+ * FUNCTION - clearPreferencesPanel: this function clears all DOM elements
+ * from the covariate preferences panel.  It is used when the panel is reloaded
+ * after an apply.  
+ **********************************************************************************/
+NgChmGui.COV.clearPreferencesPanel =  function() {
+	var myNode = document.getElementById("preferencesPanel");
+	while (myNode.firstChild) {
+	    myNode.removeChild(myNode.firstChild);
+	}
+}
+
+/**********************************************************************************
+ * FUNCTION - validateEntries: the validate function is called on page load, page exit, and when
  * user operations are performed.  It creates conditional messages in the message
  * area including errors and warnings.  It also returns false if errors are detected.  
  **********************************************************************************/
-
 NgChmGui.COV.validateEntries = function(leavingPage, passedError) {
 	var valid = true;
 	var pageText = "";
@@ -379,7 +391,7 @@ NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
 	barTypeOptionsSelect = barTypeOptionsSelect+barTypeOptions;
 
 	var barName = "<input name='namePref_"+key+"' id='namePref_"+key+"' value='"+classItem.name+"' maxlength='30' size='20' onchange='NgChmGui.UTIL.setBuildProps();'>&emsp;";
-	NgChmGui.UTIL.setTableRow(classContents, ["&nbsp;&nbsp;Bar Name:", "<b>"+NgChmGui.UTIL.toTitleCase(classItem.name)+"</b>"]);
+	NgChmGui.UTIL.setTableRow(classContents, ["&nbsp;&nbsp;Bar Name:", "<b>"+barName+"</b>"]);
 	NgChmGui.UTIL.setTableRow(classContents,["&nbsp;&nbsp;Bar Position: ","<b>"+NgChmGui.UTIL.toTitleCase(classItem.position)+"</b>"]);
 	NgChmGui.UTIL.setTableRow(classContents,["&nbsp;&nbsp;Color Type: ","<b>"+NgChmGui.UTIL.toTitleCase(classItem.color_map.type)+"</b>"]);
 	if (classItem.color_map.type === 'continuous') {
@@ -478,6 +490,10 @@ NgChmGui.COV.applySettings = function() {
 	for (var key in classBars) {
 		var classItem = classBars[key];
 		var classKey =  NgChmGui.COV.getClassKey(classItem);
+		var className =  document.getElementById('namePref_'+classKey).value;
+		if (className !== classItem.name) {
+			NgChmGui.COV.setNameOnMatrix(classItem, className);
+		}
 		classItem.height = document.getElementById('heightPref_'+classKey).value;
 		classItem.show = document.getElementById('showPref_'+classKey).value;
 		if (classItem.color_map.type === 'continuous') {
@@ -502,6 +518,35 @@ NgChmGui.COV.applySettings = function() {
 }
 
 /**********************************************************************************
+ * FUNCTION - setNameOnMatrix: This function is called when the user has changed
+ * the name of an existing covariate bar.  In this case the name must be updated
+ * on the matrix_grid_configuration as well as the covariate configuration.  This is
+ * so that the appropriate name can be set on the Matrix screen when the user
+ * returns to that screen.
+ **********************************************************************************/
+NgChmGui.COV.setNameOnMatrix = function (classItem, newName) {
+	var gridConfig = NgChmGui.mapProperties.builder_config.matrix_grid_config;
+	var oldName = classItem.name;
+	var classType = classItem.position;
+	if (classType === "row") {
+		for (var i=0;i<gridConfig.rowCovNames.length;i++) {
+			var currCov = gridConfig.rowCovNames[i];
+			if (currCov === oldName) {
+				gridConfig.rowCovNames.splice(i,1,newName);
+			}
+		}
+	} else {
+		for (var i=0;i<gridConfig.colCovNames.length;i++) {
+			var currCov = gridConfig.colCovNames[i];
+			if (currCov === oldName) {
+				gridConfig.colCovNames.splice(i,1,newName);
+			}
+		}
+	}
+	classItem.name = newName;
+}
+
+/**********************************************************************************
  * FUNCTION - setClassPrefOptions: This function loads dropdowns for each covariate
  * bar panel after those panels have been created
  **********************************************************************************/
@@ -510,7 +555,6 @@ NgChmGui.COV.setClassPrefOptions = function(classes) {
 	for (var i=0;i<classes.length;i++) {
 		var classItem = classes[i];
 		var key =  NgChmGui.COV.getClassKey(classItem);
-		NgChmGui.COV.getClassFromPanel()
 		document.getElementById('showPref_'+key).value = classItem.show;
 		if (classItem.color_map.type === 'continuous') {
 			document.getElementById('barTypePref_'+key).value = classItem.bar_type;

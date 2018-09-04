@@ -38,6 +38,10 @@ NgChmGui.FILE.loadData = function() {
  * handsontable.
  **********************************************************************************/
 NgChmGui.FILE.addCovarDataEntry = function(item, id, name, itemCtr) {
+	var title = name+" (Row "+(id+1)+")";
+	if (item.indexOf("row") > -1) {
+		title =  name+" (Col "+(id+1)+")";
+	}
 	var prefsPanelDiv = document.getElementById("matrixCovsPanel");
 	if (itemCtr === 0) {
 		NgChmGui.FILE.showCovarPrefsTitle();
@@ -47,7 +51,7 @@ NgChmGui.FILE.addCovarDataEntry = function(item, id, name, itemCtr) {
 	var colorTypeOptionsSelect = "<select name='"+name+"' id='"+item+"Pref_"+id+"' class='cov_color_pref' onchange='NgChmGui.FILE.colorTypeChange();';>" 
 	var colorTypeOptions = "<option value='none'></option><option value='discrete'>Discrete</option><option value='continuous'>Continuous</option></select>";
 	colorTypeOptionsSelect = colorTypeOptionsSelect+colorTypeOptions;
-	covarDiv.innerHTML = "&nbsp;&nbsp;"+name+":&nbsp;&nbsp;"+colorTypeOptionsSelect;
+	covarDiv.innerHTML = "&nbsp;&nbsp;"+title+":&nbsp;&nbsp;"+colorTypeOptionsSelect;
 	prefsPanelDiv.appendChild(covarDiv);
 	covarDiv.style.display = '';
 }
@@ -125,7 +129,9 @@ NgChmGui.FILE.MatrixFile = function() {
 	var rowLabelRow = 0;
 	var dataStartPos = [1,1];
 	var rowCovs = [];
+	var rowCovNames = [];
 	var colCovs = [];
+	var colCovNames = [];
 	var firstDataPos = [0,0];
 	var errMessages = "";
 	var warnMessages = "";
@@ -288,7 +294,9 @@ NgChmGui.FILE.MatrixFile = function() {
 		rowLabelRow = 0;
 		dataStartPos = [1,1];
 		rowCovs = [];
+		rowCovNames = [];
 		colCovs = [];
+		colCovNames = [];
 		firstDataPos = [0,0];
 		hasChanged = true;
 		//Remove any color_type dropdown lists from Matrix screen
@@ -313,7 +321,9 @@ NgChmGui.FILE.MatrixFile = function() {
 		rowLabelRow = 0;
 		dataStartPos = [1,1];
 		rowCovs = [];
+		rowCovNames = [];
 		colCovs = [];
+		colCovNames = [];
     	var container = document.getElementById('matrixDisplay');
     	while (container.hasChildNodes()) {
     		container.removeChild(container.lastChild);
@@ -348,6 +358,8 @@ NgChmGui.FILE.MatrixFile = function() {
 		                 colCovs: colCovs,
 				         rowCovTypes: rowCovTypes,
 				         colCovTypes: colCovTypes,
+				         rowCovNames: rowCovNames,
+				         colCovNames: colCovNames,
 				         isSample: NgChmGui.isSample,
 				         matrixFileName: matrixFileName};
 		return JSON.stringify(someData);
@@ -400,17 +412,21 @@ NgChmGui.FILE.MatrixFile = function() {
 					changeType = 'cov';
 					var colPos = rowCovs.indexOf(col);
 					var covName =  hot.getDataAtCell(rowLabelRow,col).trim();
+					if (covName === "") {
+						covName = 'RowCovar_'+(col+1);
+						warnMessages = warnMessages + NgChmGui.UTIL.warningPrefix + "Selected Row Covariate given the default name ("+covName+") because the matrix does not contain a label.</p><br>"
+					}
 					if (col == colLabelCol) {
 						errMessages = errMessages + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "The Label column cannot be overlaid with a covariate bar.</p><br>"
 						warnMessages = warnMessages + NgChmGui.UTIL.warningPrefix + "Row Covariate was not selected. <br>";	
-					} else if (covName === "") {
-						errMessages = errMessages + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "The selected Row Covariate does not have a label in the Labels Row.</p><br>"
 					} else {
 						if (colPos < 0) {
 							rowCovs.push(col);
+							rowCovNames.push(covName);
 							NgChmGui.FILE.addCovarDataEntry("rowColorType", col, covName,covCtr); 
 						} else {
 							rowCovs.splice(colPos, 1);
+							rowCovNames.splice(covName, 1);
 							NgChmGui.FILE.removeCovarDataEntry("rowColorType", col, covCtr);
 						}
 					}
@@ -418,17 +434,21 @@ NgChmGui.FILE.MatrixFile = function() {
 					changeType = 'cov';
 					var rowPos = colCovs.indexOf(row);
 					var covName =  hot.getDataAtCell(row,colLabelCol).trim();
+					if (covName === "") {
+						covName = 'ColCovar_'+(row+1);
+						warnMessages = warnMessages + NgChmGui.UTIL.warningPrefix + "Selected Column Covariate given the default name ("+covName+") because the matrix does not contain a label.</p><br>"
+					}
 					if (row == rowLabelRow) {
 						errMessages = errMessages + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "The Label column cannot be overlaid with a covariate bar.</p><br>"
 						warnMessages = warnMessages + NgChmGui.UTIL.warningPrefix + "Column Covariate was not selected. </p><br>";	
-					} else if (covName === "") {
-						errMessages = errMessages + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "The selected Column Covariate does not have a label in the Labels Column.</p><br>"
 					} else {
 						if (rowPos < 0) {
 							colCovs.push(row);
+							colCovNames.push(covName);
 							NgChmGui.FILE.addCovarDataEntry("colColorType", row, covName,covCtr); 
 						} else {
 							colCovs.splice(rowPos, 1);
+							colCovNames.splice(covName, 1);
 							NgChmGui.FILE.removeCovarDataEntry("colColorType", row, covCtr); 
 						}
 					}
@@ -662,13 +682,15 @@ NgChmGui.FILE.MatrixFile = function() {
 		colCovs = gridConfig.colCovs;
 		rowCovTypes = gridConfig.rowCovTypes;
 		colCovTypes = gridConfig.colCovTypes;
+		rowCovNames = gridConfig.rowCovNames;
+		colCovNames = gridConfig.colCovNames;
 		firstDataPos = [gridConfig.firstDataRow, gridConfig.firstDataCol];
 		loadDataFromFile();
 		var remCov = [];
 		var covRemoved = false;
 		if (colCovs.length > 0) {
 			for (var i =0;i<colCovs.length;i++) {
-				var heading = dataTable[(colCovs[i])] [colLabelCol];
+				var heading = colCovNames[i];
 				if (covFound(heading,"column")) {
 					NgChmGui.FILE.addCovarDataEntry("colColorType", colCovs[i], heading, colCovs.length+rowCovs.length); 
 					var colorType = "discrete";
@@ -697,7 +719,7 @@ NgChmGui.FILE.MatrixFile = function() {
 		}
 		if (rowCovs.length > 0) {
 			for (var i =0;i<rowCovs.length;i++) {
-				var heading = dataTable[rowLabelRow] [(rowCovs[i])];
+				var heading = rowCovNames[i];
 				if (covFound(heading,"row")) {
 					NgChmGui.FILE.addCovarDataEntry("rowColorType", rowCovs[i], heading, colCovs.length+rowCovs.length); 
 					var colorType = "discrete";
