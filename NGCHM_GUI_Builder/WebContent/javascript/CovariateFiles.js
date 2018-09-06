@@ -377,8 +377,13 @@ NgChmGui.COV.getClassKey = function (classItem) {
  **********************************************************************************/
 NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
 	var key =  NgChmGui.COV.getClassKey(classItem);
+	var shortName = classItem.name;
+	if (classItem.name.length > 30) {
+		shortName = classItem.name.substring(0,30)+"...";
+	}
+	shortName = shortName+" ("+classItem.position+")";
 	var classSelect = document.getElementById('classPref_list');
-	classSelect.options[classSelect.options.length] = new Option(classItem.name, key);
+	classSelect.options[classSelect.options.length] = new Option(shortName, key);
 	var name = classItem.name;
 	var colors = classItem.color_map.colors;
 	var thresholds = classItem.color_map.thresholds;
@@ -389,8 +394,7 @@ NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
 	var barTypeOptionsSelect = "<select name='barTypePref_"+key+"' id='barTypePref_"+key+"' onchange='NgChmGui.COV.togglePlotTypeProperties(&quot;"+key+"&quot;)'>"; 
 	var barTypeOptions = "<option value='color_plot'>Color Plot</option><option value='bar_plot'>Bar Plot</option><option value='scatter_plot'>Scatter Plot</option></select>";
 	barTypeOptionsSelect = barTypeOptionsSelect+barTypeOptions;
-
-	var barName = "<input name='namePref_"+key+"' id='namePref_"+key+"' value='"+classItem.name+"' maxlength='30' size='20' onchange='NgChmGui.UTIL.setBuildProps();'>&emsp;";
+	var barName = "<input name='namePref_"+key+"' id='namePref_"+key+"' value='"+classItem.name+"' maxlength='30' size='20' onchange='NgChmGui.COV.checkCovariateName(\""+key+"\",\""+classItem.position+"\");'>&emsp;";
 	NgChmGui.UTIL.setTableRow(classContents, ["&nbsp;&nbsp;Bar Name:", "<b>"+barName+"</b>"]);
 	NgChmGui.UTIL.setTableRow(classContents,["&nbsp;&nbsp;Bar Position: ","<b>"+NgChmGui.UTIL.toTitleCase(classItem.position)+"</b>"]);
 	NgChmGui.UTIL.setTableRow(classContents,["&nbsp;&nbsp;Color Type: ","<b>"+NgChmGui.UTIL.toTitleCase(classItem.color_map.type)+"</b>"]);
@@ -479,6 +483,31 @@ NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
 }	
 
 /**********************************************************************************
+ * FUNCTION - checkCovariateName: This function checks the covariate name just entered
+ * (onchange) to validate that there are no other covariate bars on the SAME axis
+ * with the same name.  An error is raised if the name needs to be changed.
+ **********************************************************************************/
+NgChmGui.COV.checkCovariateName = function(key, axis) {
+	var classBars = NgChmGui.mapProperties.classification_files;
+	var nameVal =  document.getElementById('namePref_'+key).value;
+	var nameFoundCnt = 0;
+	for (var key in classBars) {
+		var classItem = classBars[key];
+		var classKey =  NgChmGui.COV.getClassKey(classItem);
+		var className =  document.getElementById('namePref_'+classKey).value;
+		var classAxis =  classItem.position;
+		if ((classAxis === axis) && (className === nameVal)) {
+			nameFoundCnt++;
+		}
+	}
+	if (nameFoundCnt > 1) {
+		NgChmGui.COV.validateEntries(false, "A "+axis+" covariate already exists with the name: "+nameVal+". Please select a different name.<br>");
+	} else {
+		NgChmGui.UTIL.setBuildProps();
+	}
+}
+
+/**********************************************************************************
  * FUNCTION - applyClassPrefs: This function applies changes made in the covariate
  * panels to the mapProperties object in advance of saving the properties.
  **********************************************************************************/
@@ -492,7 +521,7 @@ NgChmGui.COV.applySettings = function() {
 		var classKey =  NgChmGui.COV.getClassKey(classItem);
 		var className =  document.getElementById('namePref_'+classKey).value;
 		if (className !== classItem.name) {
-			NgChmGui.COV.setNameOnMatrix(classItem, className);
+			NgChmGui.COV.setNameOnMatrixConfig(classItem, className);
 		}
 		classItem.height = document.getElementById('heightPref_'+classKey).value;
 		classItem.show = document.getElementById('showPref_'+classKey).value;
@@ -518,13 +547,13 @@ NgChmGui.COV.applySettings = function() {
 }
 
 /**********************************************************************************
- * FUNCTION - setNameOnMatrix: This function is called when the user has changed
+ * FUNCTION - setNameOnMatrixConfig: This function is called when the user has changed
  * the name of an existing covariate bar.  In this case the name must be updated
  * on the matrix_grid_configuration as well as the covariate configuration.  This is
  * so that the appropriate name can be set on the Matrix screen when the user
  * returns to that screen.
  **********************************************************************************/
-NgChmGui.COV.setNameOnMatrix = function (classItem, newName) {
+NgChmGui.COV.setNameOnMatrixConfig = function (classItem, newName) {
 	var gridConfig = NgChmGui.mapProperties.builder_config.matrix_grid_config;
 	var oldName = classItem.name;
 	var classType = classItem.position;

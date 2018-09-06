@@ -695,7 +695,7 @@ NgChmGui.FILE.MatrixFile = function() {
 					NgChmGui.FILE.addCovarDataEntry("colColorType", colCovs[i], heading, colCovs.length+rowCovs.length); 
 					var colorType = "discrete";
 					for (var j=0;j<NgChmGui.mapProperties.classification_files.length;j++) {
-						if ((heading === NgChmGui.mapProperties.classification_files[j].name) && (NgChmGui.mapProperties.classification_files[j].position = "column")) {
+						if ((heading === NgChmGui.mapProperties.classification_files[j].name) && (NgChmGui.mapProperties.classification_files[j].position === "column")) {
 							colorType = NgChmGui.mapProperties.classification_files[j].color_map.type;
 							break;
 						}
@@ -724,7 +724,7 @@ NgChmGui.FILE.MatrixFile = function() {
 					NgChmGui.FILE.addCovarDataEntry("rowColorType", rowCovs[i], heading, colCovs.length+rowCovs.length); 
 					var colorType = "discrete";
 					for (var j=0;j<NgChmGui.mapProperties.classification_files.length;j++) {
-						if ((heading === NgChmGui.mapProperties.classification_files[j].name) && (NgChmGui.mapProperties.classification_files[j].position = "row")) {
+						if ((heading === NgChmGui.mapProperties.classification_files[j].name) && (NgChmGui.mapProperties.classification_files[j].position === "row")) {
 							colorType = NgChmGui.mapProperties.classification_files[j].color_map.type;
 							break;
 						}
