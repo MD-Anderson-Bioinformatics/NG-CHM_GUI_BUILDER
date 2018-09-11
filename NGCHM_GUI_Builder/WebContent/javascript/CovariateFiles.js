@@ -101,6 +101,46 @@ NgChmGui.COV.validateEntries = function(leavingPage, passedError) {
 	return valid;
 }
 
+/**********************************************************************************
+ * FUNCTION - checkCovariateNames/checkCovariateName: This function loops thru the 
+ * covariate names entered on the Covariate panels and checks that there are no 
+ * duplicates on a given axis.
+ **********************************************************************************/
+NgChmGui.COV.checkCovariateNames = function() {
+	var valid = true;
+	var classes = NgChmGui.mapProperties.classification_files;
+	for (var i=0; i< classes.length; i++) {
+		var classItem = classes[i];
+		var classKey =  NgChmGui.COV.getClassKey(classItem);
+		var className =  document.getElementById('namePref_'+classKey).value;
+		var dupFound = NgChmGui.COV.checkCovariateName(className,classItem.position);
+		if (dupFound === true) {
+			valid = false;
+			break;
+		}
+	}
+	return valid;
+}
+
+NgChmGui.COV.checkCovariateName = function(nameVal, axis) {
+	var dupFound = false;
+	var classBars = NgChmGui.mapProperties.classification_files;
+	var errMsg = '';
+	var nameFoundCnt = 0;
+	for (var key in classBars) {
+		var classItem = classBars[key];
+		var classKey =  NgChmGui.COV.getClassKey(classItem);
+		var className =  document.getElementById('namePref_'+classKey).value;
+		if ((classItem.position === axis) && (className === nameVal)) {
+			nameFoundCnt++;
+		}
+	}
+	if (nameFoundCnt > 1) {
+		NgChmGui.COV.validateEntries(false, "Multiple "+axis+" covariate bars exist with the name: "+nameVal+". Please ensure that all Bar Names are unique on the "+axis+" axis.<br>");
+		dupFound = true;
+	}
+	return dupFound;
+}
 
 /**********************************************************************************
  * FUNCTION - setupClassPrefs: This function begins the process of loading all
@@ -394,7 +434,7 @@ NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
 	var barTypeOptionsSelect = "<select name='barTypePref_"+key+"' id='barTypePref_"+key+"' onchange='NgChmGui.COV.togglePlotTypeProperties(&quot;"+key+"&quot;)'>"; 
 	var barTypeOptions = "<option value='color_plot'>Color Plot</option><option value='bar_plot'>Bar Plot</option><option value='scatter_plot'>Scatter Plot</option></select>";
 	barTypeOptionsSelect = barTypeOptionsSelect+barTypeOptions;
-	var barName = "<input name='namePref_"+key+"' id='namePref_"+key+"' value='"+classItem.name+"' maxlength='30' size='20' onchange='NgChmGui.COV.checkCovariateName(\""+key+"\",\""+classItem.position+"\");'>&emsp;";
+	var barName = "<input name='namePref_"+key+"' id='namePref_"+key+"' value='"+classItem.name+"' maxlength='30' size='20' onchange='NgChmGui.UTIL.setBuildProps();'>&emsp;";
 	NgChmGui.UTIL.setTableRow(classContents, ["&nbsp;&nbsp;Bar Name:", "<b>"+barName+"</b>"]);
 	NgChmGui.UTIL.setTableRow(classContents,["&nbsp;&nbsp;Bar Position: ","<b>"+NgChmGui.UTIL.toTitleCase(classItem.position)+"</b>"]);
 	NgChmGui.UTIL.setTableRow(classContents,["&nbsp;&nbsp;Color Type: ","<b>"+NgChmGui.UTIL.toTitleCase(classItem.color_map.type)+"</b>"]);
@@ -418,8 +458,8 @@ NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
 	NgChmGui.UTIL.setTableRow(prefContentsCp, ["&nbsp;<u>Category</u>","<b><u>"+"Color"+"</b></u>"]); 
 	for (var j = 0; j < thresholds.length; j++) {
 		var threshold = thresholds[j]
-		if (threshold.length > 43) {
-			threshold = threshold.substring(0,40)+"...";
+		if (threshold.length > 27) {
+			threshold = threshold.substring(0,27)+"...";
 		} 
 		threshold =  threshold + "&nbsp;&nbsp;&nbsp;";
 		var color = colors[j];
@@ -483,35 +523,15 @@ NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
 }	
 
 /**********************************************************************************
- * FUNCTION - checkCovariateName: This function checks the covariate name just entered
- * (onchange) to validate that there are no other covariate bars on the SAME axis
- * with the same name.  An error is raised if the name needs to be changed.
- **********************************************************************************/
-NgChmGui.COV.checkCovariateName = function(key, axis) {
-	var classBars = NgChmGui.mapProperties.classification_files;
-	var nameVal =  document.getElementById('namePref_'+key).value;
-	var nameFoundCnt = 0;
-	for (var key in classBars) {
-		var classItem = classBars[key];
-		var classKey =  NgChmGui.COV.getClassKey(classItem);
-		var className =  document.getElementById('namePref_'+classKey).value;
-		var classAxis =  classItem.position;
-		if ((classAxis === axis) && (className === nameVal)) {
-			nameFoundCnt++;
-		}
-	}
-	if (nameFoundCnt > 1) {
-		NgChmGui.COV.validateEntries(false, "A "+axis+" covariate already exists with the name: "+nameVal+". Please select a different name.<br>");
-	} else {
-		NgChmGui.UTIL.setBuildProps();
-	}
-}
-
-/**********************************************************************************
- * FUNCTION - applyClassPrefs: This function applies changes made in the covariate
+ * FUNCTION - applySettings: This function applies changes made in the covariate
  * panels to the mapProperties object in advance of saving the properties.
  **********************************************************************************/
 NgChmGui.COV.applySettings = function() {
+	//Must pre-validate user covariate name entries because field names are
+	//constructed using the name when the screen is loaded.
+	if (NgChmGui.COV.checkCovariateNames() === false) {
+		return;
+	}
     //reset builder errors
 	NgChmGui.mapProperties.builder_config.buildErrors = "";
 	NgChmGui.mapProperties.builder_config.buildWarnings = [];
