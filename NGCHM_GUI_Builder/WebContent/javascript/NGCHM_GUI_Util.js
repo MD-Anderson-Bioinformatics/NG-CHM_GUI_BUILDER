@@ -68,7 +68,7 @@ NgChmGui.UTIL.toURIString = function(form) {
 			var name = element.name;
 			var value = element.value;
 			if(name && ( element.type == "select-one" || // Is it a dropdown?
-					((element.offsetParent) && (element.type == 'radio') && (element.checked == true)))){ // is it a radio button? 
+					((element.offsetParent) && (element.type == 'radio') && (element.checked == true)) || (element.type == "file"))){ // is it a radio button? 
 				urlString = urlString + (urlString=="" ? "" : "&") + encodeURIComponent(name) + '=' + encodeURIComponent(value);
 				if (((element.offsetParent) && (element.type == 'radio') && (element.checked == true))){ // this radio item is checked, check the next element to see if it is a text input associated with this?
 					if (elements[i+1].type == "number" || elements[i+1].type == "text"){

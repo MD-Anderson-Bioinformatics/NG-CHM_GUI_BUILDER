@@ -80,6 +80,17 @@ public class Util {
 	}
 	
 	/*******************************************************************
+	 * METHOD: restoreWorkingFromTemp
+	 *
+	 * This method restores a working matrix file.
+	 ******************************************************************/
+	public static void restoreWorkingFromTemp(String workingMatrix) throws Exception {
+		String tempWorking = workingMatrix + ".tmp";
+		new File(workingMatrix).delete();
+		Files.copy(Paths.get(tempWorking), Paths.get(workingMatrix));
+	}
+	
+	/*******************************************************************
 	 * METHOD: copyWorkingToTemp
 	 *
 	 * This method copies a working matrix file to a temporary file.

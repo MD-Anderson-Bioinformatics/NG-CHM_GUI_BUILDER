@@ -26,6 +26,13 @@ NgChmGui.TRANS.validateEntries = function(leavingPage, formatError) {
 	
 	var numRows = NgChmGui.TRANS.matrixInfo.numRows;
 	var numCols = NgChmGui.TRANS.matrixInfo.numCols;
+	
+	//Generate build error messages
+	var buildErrors = NgChmGui.mapProperties.builder_config.buildErrors;
+	if (buildErrors !== "") {
+		pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + buildErrors + "</font></b></p>" + NgChmGui.UTIL.nextLine;
+		valid = false;
+	}
 	if ((numRows > 3500) || (numCols > 3500)) {
 		if (numRows > 3500) {
 			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Matrix has too many Rows (>3500) for this builder. Use Filters to remove some Rows.</p>" + NgChmGui.UTIL.nextLine;
@@ -292,6 +299,7 @@ NgChmGui.TRANS.selectTransform =  function() {
 	document.getElementById('MeanCenter').style.display = 'none';
 	document.getElementById('Z-Norm').style.display = 'none';
 	document.getElementById('Arithmetic').style.display = 'none';
+	document.getElementById('Correlation').style.display = 'none';
 	var sel = document.getElementById('Transform');
 	var filter = sel.options[sel.selectedIndex].value;
 		
@@ -308,6 +316,22 @@ NgChmGui.TRANS.selectTransform =  function() {
 NgChmGui.TRANS.enableButton = function(buttonId) {
 	document.getElementById(buttonId).style.opacity = 1.0;
 	document.getElementById(buttonId).disabled = false;
+}
+
+NgChmGui.TRANS.correlationSelectionChange = function(el){
+	if (el.checked && el.value == "matrix"){
+		NgChmGui.TRANS.showDivById("correlation_matrix");
+	} else {
+		NgChmGui.TRANS.hideDivById("correlation_matrix");
+	}
+}
+
+NgChmGui.TRANS.showDivById = function(id) {
+	document.getElementById(id).style.display = "inherit";
+}
+
+NgChmGui.TRANS.hideDivById = function(id) {
+	document.getElementById(id).style.display = "none";
 }
 
 NgChmGui.TRANS.correctMatrixData =  function() {
@@ -388,11 +412,14 @@ NgChmGui.TRANS.transformMatrixData =  function() {
 		        } else {
 					if (NgChmGui.UTIL.debug) {console.log('200');}
 		        	NgChmGui.mapProperties = JSON.parse(req.response);
-		        	if (NgChmGui.UTIL.validSession()) {
-			        	NgChmGui.TRANS.updateLog(document.getElementById("trans_frm"));
+		        	NgChmGui.TRANS.getWorkingMatrix();
+		        	if (NgChmGui.mapProperties.builder_config.buildErrors == "" && NgChmGui.UTIL.validSession()){
+		        		NgChmGui.TRANS.updateLog(document.getElementById("trans_frm"));
 			        	NgChmGui.TRANS.processTransforms();
-			        	NgChmGui.TRANS.getWorkingMatrix();
+		        	} else {
+		        		NgChmGui.TRANS.validateEntries(false);
 		        	}
+		        	NgChmGui.UTIL.hideLoading();
 			    }
 			}
 		};
@@ -429,6 +456,41 @@ NgChmGui.TRANS.resetMatrix =  function() {
 	req.send(formData);
 	NgChmGui.UTIL.showLoading();
 }
+
+
+NgChmGui.TRANS.sendMatrix = function() {
+	var req = new XMLHttpRequest();
+	var formData = new FormData( document.getElementById("trans_frm") );
+	var filePath = document.getElementById('correlation_matrix').value;
+	var selectedFileName = filePath.substring(12,filePath.length);
+	req.open("POST", "UploadCorrelationMatrix", true);
+	req.onreadystatechange = function () {
+		if (NgChmGui.UTIL.debug) {console.log('state change');}
+		if (req.readyState == req.DONE) {
+			if (NgChmGui.UTIL.debug) {console.log('done');}
+	        if (req.status != 200) {
+	        	NgChmGui.UTIL.hideLoading();
+	            console.log('Failed to upload matrix '  + req.status);
+	        } else {
+	    		if (NgChmGui.UTIL.debug) {console.log('200');}
+	    		if (req.response.startsWith("ERROR")) {
+	    			NgChmGui.FILE.fileUploadError(req.response);
+	    		} else if (!req.response.startsWith("NOFILE")) {
+	    		}
+				NgChmGui.UTIL.hideLoading();
+		    }
+		}
+	};
+	NgChmGui.UTIL.showLoading();
+	req.send(formData);
+}
+
+NgChmGui.TRANS.doReset = function(){
+	NgChmGui.mapProperties.builder_config.transform_config = {};
+	NgChmGui.UTIL.setHeatmapProperties();
+	NgChmGui.UTIL.applySettings(NgChmGui.TRANS.validateEntries,NgChmGui.TRANS.revertToState);
+}
+
 
 NgChmGui.TRANS.populateLog = function(){
 	var transformConfig = NgChmGui.mapProperties.builder_config.transform_config;
@@ -479,7 +541,11 @@ NgChmGui.TRANS.updateLog =  function(form){//formData) {
 								parseVal = nameEls[j].value;
 							}
 						} else {
-							parseVal = nameEls[j].value;
+							if (nameEls[j].files){
+								parseVal = nameEls[j].files[0].name;
+							} else {
+								parseVal = nameEls[j].value;
+							}
 						}
 					}
 					text = text.replace("[" + name + "]", parseVal);
@@ -501,8 +567,6 @@ NgChmGui.TRANS.updateLog =  function(form){//formData) {
 }
 
 NgChmGui.TRANS.revertToState =  function() {
-//	console.log(this.attributes);
-//	var el = this;
 	var els = document.getElementsByClassName("change_option");
 	var value = document.getElementById("change_select").value;
 	

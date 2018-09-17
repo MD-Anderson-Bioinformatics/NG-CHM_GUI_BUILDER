@@ -79,6 +79,7 @@ public class HeatmapPropertiesManager {
 	}
 	
 	public class TransformConfig {
+		public boolean correlationDone;
 		public ArrayList<String> logText;
 		public ArrayList<String> Uri;
 		public ArrayList<String> formId;
