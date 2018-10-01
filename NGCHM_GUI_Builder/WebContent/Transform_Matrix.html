@@ -45,7 +45,7 @@
 									<td style="line-height:4px;" colspan="2">&nbsp;</td>
 								</tr>
 								<tr class="chmTR">
-									<td style="font-weight: bold; font-size: 15px;">&nbsp;Transforms: </td>
+									<td style="font-weight: bold; font-size: 15px;">&nbsp;Actions: </td>
 									<td><select name="transPref_list" id="transPref_list" onchange="NgChmGui.TRANS.showTransSelection();"><option value="missingDiv">Missing/Invalid Data</option><option value="filterDiv">Filter Data</option><option value="transDiv">Transform Data</option></select></td>
 								</tr>
 							</tbody>
@@ -171,7 +171,8 @@
 						  				<option value="MeanCenter">Mean Center</option>
 						  				<option value="Z-Norm">Z-Norm</option>
 						  				<option value="Arithmetic">Arithmetic</option>
-						  				<option value="Correlation">Transpose and Correlation</option>
+						  				<option value="Transpose">Transpose</option>
+						  				<option value="Correlation">Correlation</option>
 									</select> 
 								</div>
 								<div id='Log'>
@@ -213,13 +214,22 @@
 					  					</div>
 				  					</div>
 								</div>
-								<div id='Correlation' style="display: none;">
+								<div id='Transpose' style="display: none;">
 					 	        	<div class="pref-header2">Method:
 					 	        		<br>
 					 	        		<div class="pref-header3">
 					 	        			<input type="radio" name="tctransformmethod" logText="Transpose matrix" value="transpose" onclick="NgChmGui.TRANS.enableButton('trans_btn')" onchange="NgChmGui.TRANS.correlationSelectionChange(this);" checked> Transpose matrix<br>
-					 						<input type="radio" name="tctransformmethod" logText="Correlate matrix with self" value="self" onclick="NgChmGui.TRANS.enableButton('trans_btn')" onchange="NgChmGui.TRANS.correlationSelectionChange(this);"> Correlate matrix by row with self<br>
-					 						<input type="radio" name="tctransformmethod" logText="Correlate matrix with [correlation_matrix]" value="matrix" onclick="NgChmGui.TRANS.enableButton('trans_btn')" onchange="NgChmGui.TRANS.correlationSelectionChange(this);"> Correlate matrix by row with selected matrix &nbsp;<br>
+					  					</div>
+				  					</div>
+								</div>
+								<div id='Correlation' style="display: none;">
+					 	        	<div class="pref-header2">Method:
+					 	        		<br>
+					 	        		<div class="pref-header3">
+					 						<input type="radio" name="tctransformmethod" logText="Correlate matrix with self by row" value="row_self" onclick="NgChmGui.TRANS.enableButton('trans_btn')" onchange="NgChmGui.TRANS.correlationSelectionChange(this);" checked> Correlate matrix by row with self<br>
+					 						<input type="radio" name="tctransformmethod" logText="Correlate matrix with self by column" value="col_self" onclick="NgChmGui.TRANS.enableButton('trans_btn')" onchange="NgChmGui.TRANS.correlationSelectionChange(this);"> Correlate matrix by column with self<br>
+					 						<input type="radio" name="tctransformmethod" logText="Correlate matrix with [correlation_matrix] by row" value="row_matrix" onclick="NgChmGui.TRANS.enableButton('trans_btn')" onchange="NgChmGui.TRANS.correlationSelectionChange(this);"> Correlate matrix by row with selected matrix &nbsp;<br>
+					 						<input type="radio" name="tctransformmethod" logText="Correlate matrix with [correlation_matrix] by column" value="col_matrix" onclick="NgChmGui.TRANS.enableButton('trans_btn')" onchange="NgChmGui.TRANS.correlationSelectionChange(this);"> Correlate matrix by column with selected matrix &nbsp;<br>
 									       <input id="correlation_matrix" type="file" name="correlation_matrix" onchange="NgChmGui.TRANS.sendMatrix()" style="display:none"><br>
 					  					</div>
 				  					</div>

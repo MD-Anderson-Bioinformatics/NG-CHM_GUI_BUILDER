@@ -44,6 +44,7 @@ public class TransformMatrix extends HttpServlet {
 	        File propFile = new File(workingDir + "/heatmapProperties.json");
 	        if (propFile.exists()) {
 	        	propJSON = mgr.load();
+	        	mgr.save();
 			    String transform = request.getParameter("Transform");
 			    if (transform.equals("Log"))
 			    	logTransform(matrixFile, request);
@@ -384,6 +385,10 @@ public class TransformMatrix extends HttpServlet {
 			List<String> rowLabels = getRowLabels(tmpWorking);
 			line = rdr.readLine();
 			double[][] matrix1 = getFileAsMatrix(tmpWorking);
+			if (operation.equals("col_self") || operation.equals("col_matrix")) {
+				matrix1 = getTranspose(matrix1);
+				rowLabels = getColLabels(tmpWorking);
+			}
 			int numRows1 = matrix1.length;
 			int numCols1 = matrix1[0].length;
 			double[] rowMeans1 = getRowMeansFromMatrix(matrix1);
@@ -395,11 +400,11 @@ public class TransformMatrix extends HttpServlet {
 			String appropriateSize = "";
 			String errMsg = "Correlation against selected file not done. ";
 			String corrMatrix;
-			if (operation.equals("self")) {
+			if (operation.equals("row_self") || operation.equals("col_self")) {
 				matrix2 = getTranspose(matrix1);
 			} else {// if (operation.equals("matrix")){
 				corrMatrix = tmpWorking.replace("workingMatrix.txt.tmp", "correlationMatrix.txt");
-				compatible = checkMatrixCompatibility(tmpWorking, corrMatrix, mgr);
+				compatible = checkMatrixCompatibility(tmpWorking, corrMatrix, mgr, operation);
 				if (compatible.equals("")) {
 					colLabels = getColLabels( corrMatrix);
 					matrix2 = getFileAsMatrix(corrMatrix);
@@ -497,9 +502,16 @@ public class TransformMatrix extends HttpServlet {
 				out.write("\n");
 				line = rdr.readLine();
 			}
-			mgr.getMap().builder_config.buildProps = "Y";
-			mgr.getMap().builder_config.transform_config.correlationDone = true;
-			mgr.save();
+			if (operation.equals("row_matrix") || operation.equals("col_matrix")) {
+				
+				mgr.getMap().builder_config.buildProps = "Y";
+				if (mgr.getMap().builder_config.transform_config == null) {
+						mgr.getMap().builder_config.transform_config = mgr.new TransformConfig(false, null, null, null);
+				}
+				mgr.getMap().builder_config.transform_config.correlationDone = true;
+				mgr.save();
+			}
+			
 
 			rdr.close();
 			out.close();
@@ -852,7 +864,7 @@ public class TransformMatrix extends HttpServlet {
 	}
 	
 	// returns 0 if it is compatible, 1 if the label sizes don't match, 2 if the label order don't match
-	private static String checkMatrixCompatibility (String matrixFile1, String matrixFile2, HeatmapPropertiesManager mgr) throws Exception{
+	private static String checkMatrixCompatibility (String matrixFile1, String matrixFile2, HeatmapPropertiesManager mgr, String operation) throws Exception{
 		File corrFile = new File(matrixFile2);
 		if (!corrFile.exists()) {
 			System.out.println("Correlation Matrix File not found.");
@@ -864,6 +876,9 @@ public class TransformMatrix extends HttpServlet {
 			}
 		}
 		List<String> colLabels1 = getColLabels(matrixFile1);
+		if (operation.equals("col_matrix")) {
+			colLabels1 = getRowLabels(matrixFile1);
+		}
 		List<String> rowLabels2 = getRowLabels(matrixFile2);
 		if (colLabels1.size() != rowLabels2.size()) {
 			System.out.println("Label size mismatch");

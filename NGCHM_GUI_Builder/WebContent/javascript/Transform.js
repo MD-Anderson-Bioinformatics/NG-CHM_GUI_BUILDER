@@ -299,6 +299,7 @@ NgChmGui.TRANS.selectTransform =  function() {
 	document.getElementById('MeanCenter').style.display = 'none';
 	document.getElementById('Z-Norm').style.display = 'none';
 	document.getElementById('Arithmetic').style.display = 'none';
+	document.getElementById('Transpose').style.display = 'none';
 	document.getElementById('Correlation').style.display = 'none';
 	var sel = document.getElementById('Transform');
 	var filter = sel.options[sel.selectedIndex].value;
@@ -319,7 +320,7 @@ NgChmGui.TRANS.enableButton = function(buttonId) {
 }
 
 NgChmGui.TRANS.correlationSelectionChange = function(el){
-	if (el.checked && el.value == "matrix"){
+	if (el.checked && (el.value == "row_matrix" || el.value == "col_matrix")){
 		NgChmGui.TRANS.showDivById("correlation_matrix");
 	} else {
 		NgChmGui.TRANS.hideDivById("correlation_matrix");

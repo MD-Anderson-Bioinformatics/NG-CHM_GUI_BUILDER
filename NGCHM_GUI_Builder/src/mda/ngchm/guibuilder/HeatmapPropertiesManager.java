@@ -83,7 +83,7 @@ public class HeatmapPropertiesManager {
 		public ArrayList<String> logText;
 		public ArrayList<String> Uri;
 		public ArrayList<String> formId;
-		public TransformConfig (ArrayList<String> logText, ArrayList<String> Uri, ArrayList<String> formId) {
+		public TransformConfig (boolean correlationDone, ArrayList<String> logText, ArrayList<String> Uri, ArrayList<String> formId) {
 			this.logText = logText; this.Uri = Uri; this.formId = formId;
 		}
 	}
