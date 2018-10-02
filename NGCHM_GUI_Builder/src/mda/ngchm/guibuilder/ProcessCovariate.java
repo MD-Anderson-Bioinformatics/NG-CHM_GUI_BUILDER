@@ -21,13 +21,33 @@ public class ProcessCovariate {
 	 * file.
 	 ******************************************************************/
 	public HeatmapPropertiesManager.Classification constructDefaultCovariate(HeatmapPropertiesManager mgr, String covName, String covFilePath, String covPos) throws Exception {
-		return constructDefaultCovariate(mgr, covName, covFilePath, covPos, null);
+		return constructDefaultCovariate(mgr, covName, covFilePath, covPos, null, "0");
+	}
+
+	public HeatmapPropertiesManager.Classification constructTreeCutCovariate(HeatmapPropertiesManager mgr, String covName, String covFilePath, String covPos, String colorType, String treeCuts) throws Exception {
+		HeatmapPropertiesManager.Classification covar = mgr.new Classification(covName, covFilePath, covPos, "Y", "15", "color_plot", "#000000", "#FFFFFF", "0", "99", null, treeCuts);
+		try {
+			String type = colorType;
+			int cutNbr = Integer.parseInt(treeCuts);		
+			ArrayList<String> covBreaks = new ArrayList<String>();
+			for (int i=0; i<cutNbr; i++) {
+				String cat = "Cluster"+(i+1);
+			    covBreaks.add(cat);
+			}
+			ArrayList<String> covColors = getDefaultClassColors(covBreaks, type);
+			HeatmapPropertiesManager.ColorMap cm = mgr.new ColorMap(type,covColors, covBreaks,"#000000");
+			covar.color_map = cm;
+		} catch (Exception e) {
+			// do something here
+			System.out.println(e.toString());
+		}
+		return covar;
 	}
 	
-	public HeatmapPropertiesManager.Classification constructDefaultCovariate(HeatmapPropertiesManager mgr, String covName, String covFilePath, String covPos, String colorType) throws Exception {
+	public HeatmapPropertiesManager.Classification constructDefaultCovariate(HeatmapPropertiesManager mgr, String covName, String covFilePath, String covPos, String colorType, String treeCuts) throws Exception {
 	    String covariateFile = covFilePath;
 		BufferedReader reader = new BufferedReader(new FileReader(covariateFile));
-		HeatmapPropertiesManager.Classification covar = mgr.new Classification(covName, covFilePath, covPos, "Y", "15", "color_plot", "#000000", "#FFFFFF", "0", "99", null);
+		HeatmapPropertiesManager.Classification covar = mgr.new Classification(covName, covFilePath, covPos, "Y", "15", "color_plot", "#000000", "#FFFFFF", "0", "99", null, treeCuts);
 		try {
 			String line = reader.readLine();
 			ArrayList<String> covBreaks = new ArrayList<String>();

@@ -3,6 +3,7 @@ package mda.ngchm.guibuilder;
 import java.io.BufferedReader;
 import java.io.File; 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 
 import javax.servlet.ServletException;
@@ -15,6 +16,8 @@ import javax.servlet.http.HttpSession;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
 
 import com.google.gson.Gson;
+
+import mda.ngchm.guibuilder.HeatmapPropertiesManager.Classification;
 
 /**
  * Servlet implementation class Upload Data Matrix
@@ -89,7 +92,7 @@ public class MapProperties extends HttpServlet {
 		        //Mark properties as "clean" for update.
 		        mapConfig.builder_config.buildProps = "N";
 			    mgr.save();
-
+	    
 			    //Delete pre-existing heatmap prior to fresh build
 			    HeatmapPropertiesManager.Heatmap map = mgr.getMap();
 			    File mapDir = new File(workingDir+"/" + map.chm_name);
@@ -103,6 +106,8 @@ public class MapProperties extends HttpServlet {
 			    boolean clusterSuccess = false;
 			    try {
 				    if (!mapConfig.builder_config.buildCluster.equals("N")) {
+					    //Add/update any treecut covariate bars
+				        processTreeCutCovariates(mgr, mapConfig);
 				        //Re-build the heat map 
 					    Cluster clusterer = new Cluster();
 					    clusterer.clusterHeatMap(workingDir);
@@ -155,6 +160,43 @@ public class MapProperties extends HttpServlet {
 	    HeatmapPropertiesManager.Heatmap covarConfig = new Gson().fromJson(data, HeatmapPropertiesManager.Heatmap.class);
 	    
 	    return covarConfig; 
+	}
+
+	private void processTreeCutCovariates(HeatmapPropertiesManager mgr, HeatmapPropertiesManager.Heatmap mapConfig) throws Exception {
+	    ProcessCovariate cov = new ProcessCovariate();
+	    ArrayList<Classification> classes = mapConfig.classification_files;
+	    String clusterProp = mapConfig.builder_config.buildCluster;
+	    boolean clusterRows = (clusterProp.equals("R") || clusterProp.equals("B")) ? true : false;
+	    boolean clusterCols = (clusterProp.equals("C") || clusterProp.equals("B")) ? true : false;
+	    if (clusterRows) {
+	        for (int i=0;i<classes.size();i++) {
+	        	Classification cbar = classes.get(i);
+	            if (cbar.position.equals("row") && cbar.path.equals("treecut")) {
+			    	classes.remove(i);	
+	            	break;
+	            }
+	        }
+		    if (!mapConfig.builder_config.rowCuts.equals("0")) {
+	        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructTreeCutCovariate(mgr, mapConfig.builder_config.rowCutsLabel, "treecut", "row", "discrete", mapConfig.builder_config.rowCuts);
+	        	classes.add(classJsonObj);
+		    }
+	    }
+	    
+	    if (clusterCols) {
+	        for (int i=0;i<classes.size();i++) {
+	        	Classification cbar = classes.get(i);
+	            if (cbar.position.equals("column") && cbar.path.equals("treecut")) {
+			    	classes.remove(i);	
+	            	break;
+	            }
+	        }
+		    if (!mapConfig.builder_config.colCuts.equals("0")) {
+	        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructTreeCutCovariate(mgr, mapConfig.builder_config.colCutsLabel, "treecut", "column", "discrete", mapConfig.builder_config.colCuts);
+	        	classes.add(classJsonObj);	
+		    }
+	    }
+	    mgr.save();
+	    return; 
 	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

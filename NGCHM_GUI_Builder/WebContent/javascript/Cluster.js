@@ -6,28 +6,43 @@ NgChmGui.createNS('NgChmGui.CLUSTER');
  * and column ordering on the cluster screen.
  **********************************************************************************/
 NgChmGui.CLUSTER.loadData =  function() {
+	var builderConfig = NgChmGui.mapProperties.builder_config;
 	if (NgChmGui.UTIL.loadHeaderData()) {
 		if (typeof NgChmGui.mapProperties.col_configuration !== 'undefined') {
 			document.getElementById("ColOrder").value = NgChmGui.mapProperties.col_configuration.order_method;
+			document.getElementById("colCuts").value = builderConfig.colCuts;
+			document.getElementById("colCutsName").value = builderConfig.colCutsLabel;
 			if (document.getElementById("ColOrder").value !== "Hierarchical") {
 				document.getElementById("ColDistance").value = "euclidean";
 				document.getElementById("ColAgglomeration").value = "ward";
+				document.getElementById("colAddCuts").checked = false;
 			} else {
 				document.getElementById("ColDistance").value = NgChmGui.mapProperties.col_configuration.distance_metric;
 				document.getElementById("ColAgglomeration").value = NgChmGui.mapProperties.col_configuration.agglomeration_method;
+				if (builderConfig.colCuts > 0) {
+					document.getElementById("colAddCuts").checked = true;
+				}
 			}
 			NgChmGui.CLUSTER.setColOrderVisibility();
+			NgChmGui.UTIL.setColCutVisibility();
 		}
 		if (typeof NgChmGui.mapProperties.row_configuration !== 'undefined') {
 			document.getElementById("RowOrder").value = NgChmGui.mapProperties.row_configuration.order_method;
+			document.getElementById("rowCuts").value = builderConfig.rowCuts;
+			document.getElementById("rowCutsName").value = builderConfig.rowCutsLabel;
 			if (document.getElementById("RowOrder").value !== "Hierarchical") {
 				document.getElementById("RowDistance").value = "euclidean";
 				document.getElementById("RowAgglomeration").value = "ward";
+				document.getElementById("rowAddCuts").checked = false;
 			} else {
 				document.getElementById("RowDistance").value = NgChmGui.mapProperties.row_configuration.distance_metric;
 				document.getElementById("RowAgglomeration").value = NgChmGui.mapProperties.row_configuration.agglomeration_method;
+				if (builderConfig.rowCuts > 0) {
+					document.getElementById("rowAddCuts").checked = true;
+				}
 			}
 			NgChmGui.CLUSTER.setRowOrderVisibility();
+			NgChmGui.UTIL.setRowCutVisibility();
 		}
 		NgChmGui.UTIL.loadHeatMapView();
 		NgChmGui.CLUSTER.validateEntries(false);
@@ -93,13 +108,30 @@ NgChmGui.CLUSTER.clusteringComplete = function(){
 NgChmGui.CLUSTER.setColOrderVisibility =  function() {
 	var distance = document.getElementById("col_distance");
 	var agglom = document.getElementById("col_method");
+	var cuts = document.getElementById("col_treecuts");
 	if (document.getElementById("ColOrder").value !== "Hierarchical") {
 		distance.style.display = 'none';
 		agglom.style.display = 'none';
+		cuts.style.display = 'none';
 	} else {
 		distance.style.display = '';
 		agglom.style.display = '';
+		cuts.style.display = '';
 	}
+}
+
+NgChmGui.UTIL.setColCutVisibility =  function() {
+	var checkBox = document.getElementById("colAddCuts");
+	var options = document.getElementById("col_treecuts_options");
+	var name = document.getElementById("colCutsName");
+	var cuts = document.getElementById("colCuts");
+	if (checkBox.checked == true) {
+		options.style.display = '';
+	} else {
+		options.style.display = 'none';
+		name.value = "Clusters";
+		cuts.value = "0";
+	}	
 }
 
 /**********************************************************************************
@@ -109,13 +141,30 @@ NgChmGui.CLUSTER.setColOrderVisibility =  function() {
 NgChmGui.CLUSTER.setRowOrderVisibility =  function(orderVal) {
 	var distance = document.getElementById("row_distance");
 	var agglom = document.getElementById("row_method");
+	var cuts = document.getElementById("row_treecuts");
 	if (document.getElementById("RowOrder").value !== "Hierarchical") {
 		distance.style.display = 'none';
 		agglom.style.display = 'none';
+		cuts.style.display = 'none';
 	} else {
 		distance.style.display = '';
 		agglom.style.display = '';
+		cuts.style.display = '';
 	}
+}
+
+NgChmGui.UTIL.setRowCutVisibility =  function() {
+	var checkBox = document.getElementById("rowAddCuts");
+	var options = document.getElementById("row_treecuts_options");
+	var name = document.getElementById("rowCutsName");
+	var cuts = document.getElementById("rowCuts");
+	if (checkBox.checked == true) {
+		options.style.display = '';
+	} else {
+		options.style.display = 'none';
+		name.value = "Clusters";
+		cuts.value = "0";
+	}	
 }
 
 /**********************************************************************************
@@ -123,12 +172,26 @@ NgChmGui.CLUSTER.setRowOrderVisibility =  function(orderVal) {
  * panel to the mapProperties object in advance of saving the properties.
  **********************************************************************************/
 NgChmGui.CLUSTER.applyClusterPrefs = function() {
-	NgChmGui.mapProperties.row_configuration.order_method = document.getElementById('RowOrder').value
-	NgChmGui.mapProperties.row_configuration.distance_metric = document.getElementById('RowDistance').value
-	NgChmGui.mapProperties.row_configuration.agglomeration_method = document.getElementById('RowAgglomeration').value
-	NgChmGui.mapProperties.col_configuration.order_method = document.getElementById('ColOrder').value
-	NgChmGui.mapProperties.col_configuration.distance_metric = document.getElementById('ColDistance').value
-	NgChmGui.mapProperties.col_configuration.agglomeration_method = document.getElementById('ColAgglomeration').value
+	NgChmGui.mapProperties.row_configuration.order_method = document.getElementById('RowOrder').value;
+	NgChmGui.mapProperties.row_configuration.distance_metric = document.getElementById('RowDistance').value;
+	NgChmGui.mapProperties.row_configuration.agglomeration_method = document.getElementById('RowAgglomeration').value;
+	if (document.getElementById('RowOrder').value !== "Hierarchical") {
+		NgChmGui.mapProperties.builder_config.rowCuts = "0";
+		NgChmGui.mapProperties.builder_config.rowCutsLabel = "Clusters";
+	} else {
+		NgChmGui.mapProperties.builder_config.rowCuts = document.getElementById("rowCuts").value;
+		NgChmGui.mapProperties.builder_config.rowCutsLabel = document.getElementById("rowCutsName").value;
+	}
+	NgChmGui.mapProperties.col_configuration.order_method = document.getElementById('ColOrder').value;
+	NgChmGui.mapProperties.col_configuration.distance_metric = document.getElementById('ColDistance').value;
+	NgChmGui.mapProperties.col_configuration.agglomeration_method = document.getElementById('ColAgglomeration').value;
+	if (document.getElementById('ColOrder').value !== "Hierarchical") {
+		NgChmGui.mapProperties.builder_config.colCuts = "0";
+		NgChmGui.mapProperties.builder_config.colCutsLabel = "Clusters";
+	} else {
+		NgChmGui.mapProperties.builder_config.colCuts = document.getElementById("colCuts").value;
+		NgChmGui.mapProperties.builder_config.colCutsLabel = document.getElementById("colCutsName").value;
+	}
 	return true;
 }
 

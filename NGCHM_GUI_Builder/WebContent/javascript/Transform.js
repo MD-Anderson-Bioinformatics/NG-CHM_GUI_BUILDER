@@ -689,7 +689,7 @@ NgChmGui.TRANS.update = function () {
 
 //When update completes, go to next page.
 NgChmGui.TRANS.next = function() {
-	window.open("Edit_Covariates.html","_self");
+	NgChmGui.UTIL.gotoClusterScreen();
 }
 
 /**********************************************************************************

@@ -38,43 +38,8 @@
         <br>
        	<div id="clusterDisplayContainer" class="display_container" style="position: relative">
 	 		<div id="clusterSelection" class="data_entry_container" style="width: 25%">
-	 	        	<div class="sec-header">Select Column Ordering Options:</div>
-					<table class="data_entry">
-						<tr><td>
-				            <select name="ColOrder" id="ColOrder" onchange="NgChmGui.CLUSTER.setColOrderVisibility();NgChmGui.UTIL.setBuildCluster('C');">
-				  				<option value="Hierarchical">Hierarchical Clustering</option>
-				  				<option value="Random">Random</option>
-				  				<option value="Original">Original Order</option>
-							</select> 
-						</td></tr>
-						<tr><td>
-						    <div id='col_distance' class='pref-header' style="display: none;">&nbsp;&nbsp;Distance:
-				            <select name="ColDistance" id="ColDistance"  onchange="NgChmGui.UTIL.setBuildCluster('C');">
-				  				<option value="euclidean">Euclidean</option>
-								<!-- <option value="binary">Binary</option> ** breaks dendrogram-->
-								<option value="manhattan">Manhattan</option>
-								<option value="maximum">Maximum</option>
-								<option value="canberra">Canberra</option>	    
-								<option value="minkowski">Minkowski</option>	    
-								<!-- <option value="correlation">Correlation</option> ** breaks dendrogram-->	    
-				 			</select>
-				 			</div>
-				 		</td></tr>
-						<tr><td>
-						    <div id='col_method' class='pref-header' style="display: none;">&nbsp;&nbsp;Method:&nbsp;
-				            <select name="ColAgglomeration" id="ColAgglomeration"  onchange="NgChmGui.UTIL.setBuildCluster('C');">
-								<option value="average">Average Linkage</option>
-								<option value="complete">Complete Linkage</option>
-								<option value="single">Single Linkage</option>
-								<option value="ward" selected="true">Ward</option>
-								<option value="mcquitty">Mcquitty</option>	    
-								<!-- <option value="median">Median</option>	    ** these methods lead to broken clustering
-								<option value="centroid">Centroid</option>	 -->
-							</select><br/><br/>	    
-							</div>
-						</td></tr>
-					</table>
-	 	        	<div class="sec-header">Select Row Ordering Options:</div>
+
+	 	        	<div class="sec-header">Row Ordering Options:</div>
 					<table class="data_entry">
 						<tr><td>
 				            <select name="RowOrder" id="RowOrder" onchange="NgChmGui.CLUSTER.setRowOrderVisibility();NgChmGui.UTIL.setBuildCluster('R');">
@@ -106,18 +71,98 @@
 								<option value="mcquitty">Mcquitty</option>	    
 								<!-- <option value="median">Median</option>	    ** these methods lead to broken clustering
 								<option value="centroid">Centroid</option>	 -->
-							</select>	
+							</select></br>	
 							</div>    
 						</td></tr>
+						<tr><td>
+						    <div id='row_treecuts' class='pref-header' style="display: none;">
+								<input id='rowAddCuts' type="checkbox" name="rowAddCuts" onclick="NgChmGui.UTIL.setBuildProps();NgChmGui.UTIL.setRowCutVisibility();">Add Cluster-Based Covariate<br>				           
+					    		<div id='row_treecuts_options' class='pref-header' style="display: none;">&nbsp;Name:
+									<input name='rowCutsName' id='rowCutsName' maxlength='30' size='15' onchange="NgChmGui.UTIL.setBuildCluster('R');" style="font-size: 11.5;"></input>
+									&nbsp;&nbsp;Clusters:
+									<select name="rowCuts" id="rowCuts" onchange="NgChmGui.UTIL.setBuildCluster('R');">
+									<option value="0">none</option>
+									<option value="2">2</option>
+									<option value="3">3</option>
+									<option value="4">4</option>
+									<option value="5">5</option>
+									<option value="6">6</option>
+									<option value="7">7</option>
+									<option value="8">8</option>
+									<option value="9">9</option>
+									<option value="10">10</option>
+									</select>
+								</div>
+								<br>
+							</div>
+						</td></tr>
 					</table>
+	 	        	<div class="sec-header">Column Ordering Options:</div>
+					<table class="data_entry">
+						<tr><td>
+				            <select name="ColOrder" id="ColOrder" onchange="NgChmGui.CLUSTER.setColOrderVisibility();NgChmGui.UTIL.setBuildCluster('C');">
+				  				<option value="Hierarchical">Hierarchical Clustering</option>
+				  				<option value="Random">Random</option>
+				  				<option value="Original">Original Order</option>
+							</select> 
+						</td></tr>
+						<tr><td>
+						    <div id='col_distance' class='pref-header' style="display: none;">&nbsp;&nbsp;Distance:
+				            <select name="ColDistance" id="ColDistance"  onchange="NgChmGui.UTIL.setBuildCluster('C');">
+				  				<option value="euclidean">Euclidean</option>
+								<!-- <option value="binary">Binary</option> ** breaks dendrogram-->
+								<option value="manhattan">Manhattan</option>
+								<option value="maximum">Maximum</option>
+								<option value="canberra">Canberra</option>	    
+								<option value="minkowski">Minkowski</option>	    
+								<!-- <option value="correlation">Correlation</option> ** breaks dendrogram-->	    
+				 			</select>
+				 			</div>
+				 		</td></tr>
+						<tr><td>
+						    <div id='col_method' class='pref-header' style="display: none;">&nbsp;&nbsp;Method:&nbsp;
+				            <select name="ColAgglomeration" id="ColAgglomeration"  onchange="NgChmGui.UTIL.setBuildCluster('C');">
+								<option value="average">Average Linkage</option>
+								<option value="complete">Complete Linkage</option>
+								<option value="single">Single Linkage</option>
+								<option value="ward" selected="true">Ward</option>
+								<option value="mcquitty">Mcquitty</option>	    
+								<!-- <option value="median">Median</option>	    ** these methods lead to broken clustering
+								<option value="centroid">Centroid</option>	 -->
+							</select><br/>	    
+							</div>
+						</td></tr>
+						<tr><td>
+						    <div id='col_treecuts' class='pref-header' style="display: none;">
+								<input id='colAddCuts' type="checkbox" name="colAddCuts" onclick="NgChmGui.UTIL.setBuildProps();NgChmGui.UTIL.setColCutVisibility();">Add Cluster-Based Covariate<br>				           
+					    		<div id='col_treecuts_options' class='pref-header' style="display: none;">&nbsp;Name:
+									<input name='colCutsName' id='colCutsName' maxlength='30' size='15' onchange="NgChmGui.UTIL.setBuildCluster('C');" style="font-size: 11.5;"></input>
+									&nbsp;&nbsp;Clusters:
+									<select name="colCuts" id="colCuts" onchange="NgChmGui.UTIL.setBuildCluster('C');">
+									<option value="0">none</option>
+									<option value="2">2</option>
+									<option value="3">3</option>
+									<option value="4">4</option>
+									<option value="5">5</option>
+									<option value="6">6</option>
+									<option value="7">7</option>
+									<option value="8">8</option>
+									<option value="9">9</option>
+									<option value="10">10</option>
+									</select>
+								</div>
+								<br>
+							</div>
+						</td></tr>
+					</table>					
 					<br/>
 					<img id='cluster_btn' src='images/applyButton.png' alt='Cluster the Data' style="vertical-align: bottom;" onclick='NgChmGui.UTIL.applySettings(NgChmGui.CLUSTER.applyClusterPrefs,NgChmGui.CLUSTER.clusteringComplete)' />
 					<div class ='navigation_bar'>
 				        <div id="clusterPrevButton"  class="prev_btn">  
-				        	<img id='clusterPrev_btn' src='images/prevButton.png' alt='Go to previous step' onclick='NgChmGui.UTIL.gotoCovariatesScreen();' />		
+								<img id='clusterPrev_btn' src='images/prevButton.png' alt='Go to previous step' onclick='NgChmGui.UTIL.gotoTransformScreen();' />
 				        </div>   
 				        <div id="clusterNextButton"  class="next_btn">  
-				        	<img id='clusterNext_btn' src='images/nextButton.png' alt='Go to next step' onclick='NgChmGui.UTIL.applySettings(NgChmGui.CLUSTER.applyClusterPrefs,NgChmGui.CLUSTER.gotoFormatScreen)' />		
+				        	<img id='clusterNext_btn' src='images/nextButton.png' alt='Go to next step' onclick='NgChmGui.UTIL.applySettings(NgChmGui.CLUSTER.applyClusterPrefs,NgChmGui.UTIL.gotoCovariatesScreen)' />		
 				        </div>
 			        </div>   
 		    </div>			

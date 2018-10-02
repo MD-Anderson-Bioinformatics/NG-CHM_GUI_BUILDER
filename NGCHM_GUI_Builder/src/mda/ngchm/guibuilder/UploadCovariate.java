@@ -69,7 +69,7 @@ public class UploadCovariate extends HttpServlet {
 			        Util.uploadTSV(covFileName, filecontent);
 			    }
 			    ProcessCovariate cov = new ProcessCovariate();
-	        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructDefaultCovariate(mgr, covName, covFileName, axisType, colorType);
+	        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructDefaultCovariate(mgr, covName, covFileName, axisType, colorType,"0");
 	        	map.classification_files.add(classJsonObj);	 
 		        //Mark properties as "clean" for update.
 	        	map.builder_config.buildProps = "N";

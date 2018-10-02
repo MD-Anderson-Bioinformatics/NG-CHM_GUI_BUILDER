@@ -327,12 +327,14 @@ NgChmGui.UTIL.setBuildProps =  function() {
 NgChmGui.UTIL.setBuildCluster =  function(type) {
 	NgChmGui.UTIL.setBuildProps();
 	var currCluster = NgChmGui.mapProperties.builder_config.buildCluster;
-	if ((type === 'C') && (currCluster === 'R')) {
-		NgChmGui.mapProperties.builder_config.buildCluster= "B";
-	} else if ((type === 'R') && (currCluster === 'C')) {
-		NgChmGui.mapProperties.builder_config.buildCluster= "B";
-	} else {
-		NgChmGui.mapProperties.builder_config.buildCluster= type;
+	if (currCluster !== "B") {
+		if ((type === 'C') && (currCluster === 'R')) {
+			NgChmGui.mapProperties.builder_config.buildCluster= "B";
+		} else if ((type === 'R') && (currCluster === 'C')) {
+			NgChmGui.mapProperties.builder_config.buildCluster= "B";
+		} else {
+			NgChmGui.mapProperties.builder_config.buildCluster= type;
+		}
 	}
 }
 

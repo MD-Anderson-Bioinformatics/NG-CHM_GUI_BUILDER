@@ -438,14 +438,14 @@ NgChmGui.FORMAT.setGapTable = function (prefContents, config, type) {
 		var gapMethodDiv = NgChmGui.UTIL.getDivElement(type+"GapMethodDiv");
 		var methodContents = document.createElement("TABLE");
 		NgChmGui.UTIL.addBlankRow(methodContents)
-		var gapMethodStr = "<select name='"+type+"GapMethod_list' id='"+type+"GapMethod_list' onchange='"+changeMethod+"'><option value='"+type+"ByLocations' onchange='NgChmGui.UTIL.setBuildProps();'>Gaps By Location</option><option value='"+type+"ByTreeCuts'>Dendrogram Tree Cut</option></select>"
+		var gapMethodStr = "<select name='"+type+"GapMethod_list' id='"+type+"GapMethod_list' onchange='"+changeMethod+"'><option value='"+type+"ByLocations' onchange='NgChmGui.UTIL.setBuildProps();'>Gaps By Location</option><option value='"+type+"ByTreeCuts'>Gaps By Cluster</option></select>"
 		NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;Gap Method: ",gapMethodStr]);
 		NgChmGui.UTIL.addBlankRow(prefContents);
 		var treeCutsData = config.tree_cuts.toString();
 		var treeCuts = "<input name='"+type+"TreeCuts'  id='"+type+"TreeCuts'  onchange='NgChmGui.UTIL.setBuildProps();' value='"+config.tree_cuts+"' maxlength='3' size='2'>&emsp;";
 		var treeCutsDiv = NgChmGui.UTIL.getDivElement(type+"ByTreeCuts");
 		var byTreeCutsContents = document.createElement("TABLE");
-		NgChmGui.UTIL.setTableRow(byTreeCutsContents,["&nbsp;&nbsp;Dendrogram Tree Cuts: ", treeCuts]);
+		NgChmGui.UTIL.setTableRow(byTreeCutsContents,["&nbsp;&nbsp;# of Clusters: ", treeCuts]);
 		treeCutsDiv.append(byTreeCutsContents);
 		NgChmGui.UTIL.setTableRow(prefContents,[gapLocationsDiv.outerHTML],2);
 		NgChmGui.UTIL.setTableRow(prefContents,[treeCutsDiv.outerHTML],2);

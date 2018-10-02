@@ -45,6 +45,10 @@ public class HeatmapPropertiesManager {
 		public String longRowLabel = "";
 		public String longColLabel = "";
 		public int ngchmVersion = 0;
+		public String rowCuts = "0";
+		public String rowCutsLabel = "Clusters";
+		public String colCuts = "0";
+		public String colCutsLabel = "Clusters";
 		public ArrayList<String> buildWarnings = new ArrayList<String>();
 		public MatrixGridConfig matrix_grid_config;
 		public TransformConfig transform_config;
@@ -79,10 +83,12 @@ public class HeatmapPropertiesManager {
 	}
 	
 	public class TransformConfig {
-		public boolean correlationDone;
+		public boolean correlationDone = false;
 		public ArrayList<String> logText;
 		public ArrayList<String> Uri;
 		public ArrayList<String> formId;
+		public TransformConfig () {
+		}
 		public TransformConfig (boolean correlationDone, ArrayList<String> logText, ArrayList<String> Uri, ArrayList<String> formId) {
 			this.logText = logText; this.Uri = Uri; this.formId = formId;
 		}
@@ -144,7 +150,8 @@ public class HeatmapPropertiesManager {
 		public String high_bound;
 		public String show;
 		public ColorMap color_map;
-		public Classification (String name, String path, String position, String showVal, String heightVal, String barType, String fgColor, String bgColor, String lowBound, String highBound, ColorMap cmap) {
+		public String tree_cuts = "0";
+		public Classification (String name, String path, String position, String showVal, String heightVal, String barType, String fgColor, String bgColor, String lowBound, String highBound, ColorMap cmap, String treeCuts) {
 			this.name = name; 
 			this.path = path; 
 			this.position = position; 
@@ -156,6 +163,7 @@ public class HeatmapPropertiesManager {
 			this.low_bound = lowBound; 
 			this.high_bound = highBound;
 			this.color_map = cmap;
+			this.tree_cuts = treeCuts;
 		}
 	}
 

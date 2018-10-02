@@ -972,7 +972,7 @@ NgChmGui.COV.hideAllClassDivs = function() {
 /*Run validation to see if we can leave the screen.*/
 NgChmGui.COV.gotoClusterScreen = function() {
 	if (NgChmGui.COV.validateEntries(true)) {
-		NgChmGui.UTIL.gotoClusterScreen();
+		NgChmGui.UTIL.gotoFormatScreen();
 	}
 }
 
