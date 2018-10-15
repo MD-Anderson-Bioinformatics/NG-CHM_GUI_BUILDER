@@ -138,7 +138,7 @@ NgChmGui.UTIL.setColCutVisibility =  function() {
  * FUNCTION - setRowOrderVisibility: This function sets the visibility of the row
  * agglomeration and distance metric dropdowns, based on the order method selected.
  **********************************************************************************/
-NgChmGui.CLUSTER.setRowOrderVisibility =  function(orderVal) {
+NgChmGui.CLUSTER.setRowOrderVisibility =  function() {
 	var distance = document.getElementById("row_distance");
 	var agglom = document.getElementById("row_method");
 	var cuts = document.getElementById("row_treecuts");
