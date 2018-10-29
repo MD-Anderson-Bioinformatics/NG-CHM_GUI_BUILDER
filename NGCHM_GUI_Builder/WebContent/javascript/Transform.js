@@ -106,6 +106,7 @@ NgChmGui.TRANS.hideAllTransDivs =  function() {
 	document.getElementById('missingDiv').style.display = 'none';
 	document.getElementById('filterDiv').style.display = 'none';
 	document.getElementById('transDiv').style.display = 'none';
+	document.getElementById('corrDiv').style.display = 'none';
 }
 
 /**********************************************************************************
@@ -299,8 +300,6 @@ NgChmGui.TRANS.selectTransform =  function() {
 	document.getElementById('MeanCenter').style.display = 'none';
 	document.getElementById('Z-Norm').style.display = 'none';
 	document.getElementById('Arithmetic').style.display = 'none';
-	document.getElementById('Transpose').style.display = 'none';
-	document.getElementById('Correlation').style.display = 'none';
 	var sel = document.getElementById('Transform');
 	var filter = sel.options[sel.selectedIndex].value;
 		
@@ -311,6 +310,22 @@ NgChmGui.TRANS.selectTransform =  function() {
 		document.getElementById('trans_btn').style.display = '';
 	}	else {
 		document.getElementById('trans_btn').style.display = 'none';
+	}
+}
+
+NgChmGui.TRANS.selectCorrelation =  function() {
+	document.getElementById('Transpose').style.display = 'none';
+	document.getElementById('Correlation').style.display = 'none';
+	var sel = document.getElementById('Correlations');
+	var filter = sel.options[sel.selectedIndex].value;
+		
+	var div = document.getElementById(filter);
+	
+	if (div !== undefined && div !== null) {
+		div.style.display = '';
+		document.getElementById('correlation_btn').style.display = '';
+	}	else {
+		document.getElementById('correlation_btn').style.display = 'none';
 	}
 }
 
@@ -431,6 +446,41 @@ NgChmGui.TRANS.transformMatrixData =  function() {
 	}
 }
 
+
+NgChmGui.TRANS.correlateMatrixData =  function() {
+	var req = new XMLHttpRequest();
+	var formData = NgChmGui.UTIL.toURIString( document.getElementById("corr_frm") );
+	if (formData){
+		req.open("POST", "CorrelateMatrix", true);
+		req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		req.onreadystatechange = function () {
+			if (NgChmGui.UTIL.debug) {console.log('state change');}
+			if (req.readyState == req.DONE) {
+				if (NgChmGui.UTIL.debug) {console.log('done');}
+		        if (req.status != 200) {
+		        	NgChmGui.UTIL.hideLoading();
+		            console.log('Failed to correlate matrix '  + req.status);
+		        } else {
+					if (NgChmGui.UTIL.debug) {console.log('200');}
+		        	NgChmGui.mapProperties = JSON.parse(req.response);
+		        	NgChmGui.TRANS.getWorkingMatrix();
+		        	if (NgChmGui.mapProperties.builder_config.buildErrors == "" && NgChmGui.UTIL.validSession()){
+		        		NgChmGui.TRANS.updateLog(document.getElementById("corr_frm"));
+			        	NgChmGui.TRANS.processTransforms();
+		        	} else {
+		        		NgChmGui.TRANS.validateEntries(false);
+		        	}
+		        	NgChmGui.UTIL.hideLoading();
+			    }
+			}
+		};
+		req.send(formData);
+		NgChmGui.UTIL.showLoading();
+	} else {
+		NgChmGui.TRANS.validateEntries(false, true);
+	}
+}
+
 NgChmGui.TRANS.resetMatrix =  function() {
 	var req = new XMLHttpRequest();
 	var formData = NgChmGui.UTIL.toURIString( );
@@ -461,7 +511,7 @@ NgChmGui.TRANS.resetMatrix =  function() {
 
 NgChmGui.TRANS.sendMatrix = function() {
 	var req = new XMLHttpRequest();
-	var formData = new FormData( document.getElementById("trans_frm") );
+	var formData = new FormData( document.getElementById("corr_frm") );
 	var filePath = document.getElementById('correlation_matrix').value;
 	var selectedFileName = filePath.substring(12,filePath.length);
 	req.open("POST", "UploadCorrelationMatrix", true);
