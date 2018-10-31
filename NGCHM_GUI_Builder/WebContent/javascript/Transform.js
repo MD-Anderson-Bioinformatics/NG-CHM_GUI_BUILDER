@@ -28,21 +28,22 @@ NgChmGui.TRANS.validateEntries = function(leavingPage, formatError) {
 	var numCols = NgChmGui.TRANS.matrixInfo.numCols;
 	
 	//Generate build error messages
-	var buildErrors = NgChmGui.mapProperties.builder_config.buildErrors;
+	var builderConfig = NgChmGui.mapProperties.builder_config
+	var buildErrors = builderConfig.buildErrors;
 	if (buildErrors !== "") {
 		pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + buildErrors + "</font></b></p>" + NgChmGui.UTIL.nextLine;
 		valid = false;
 	}
-	if ((numRows > 3500) || (numCols > 3500)) {
-		if (numRows > 3500) {
+	if ((numRows > parseInt(NgChmGui.mapProperties.builder_config.rowsMaximum)) || (numCols > parseInt(NgChmGui.mapProperties.builder_config.rowsMaximum))) {
+		if (numRows > parseInt(builderConfig.rowsMaximum)) {
 			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Matrix has too many Rows (>3500) for this builder. Use Filters to remove some Rows.</p>" + NgChmGui.UTIL.nextLine;
 			valid = false;
 		} 
-		if (numCols > 3500) {
+		if (numCols > parseInt(builderConfig.colsMaximum)) {
 			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Matrix has too many Columns (>3500) for this builder. Use Filters to remove some Columns.</p>" + NgChmGui.UTIL.nextLine;
 			valid = false;
 		}
-	} else if ((numRows + numCols) > 4000) {
+	} else if ((numRows + numCols) > parseInt(builderConfig.rowsColsMaximum)) {
 		pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Matrix with " + numRows + " rows and " + numCols + " columns exceeds the maximum number of rows and cols for this builder.  Use Filters to remove rows or columns so that their sum does not exceed 4000.</p>" + NgChmGui.UTIL.nextLine;
 		valid = false;
 	}
@@ -75,11 +76,11 @@ NgChmGui.TRANS.validateEntries = function(leavingPage, formatError) {
 	} else {
 		//Generate warning messages
 		if (valid) {
-			if (NgChmGui.TRANS.matrixInfo.numRows > 1000) {
+			if (NgChmGui.TRANS.matrixInfo.numRows > parseInt(builderConfig.rowsWarning)) {
 				pageText = pageText + NgChmGui.UTIL.warningPrefix + "Your matrix has a large number of rows consider using the Filter Data transform to remove non-informative rows" + NgChmGui.UTIL.nextLine;
 			}	
 	
-			if (NgChmGui.TRANS.matrixInfo.numCols > 1000) {
+			if (NgChmGui.TRANS.matrixInfo.numCols > parseInt(builderConfig.colsWarning)) {
 				pageText = pageText + NgChmGui.UTIL.warningPrefix + "Your matrix has a large number of columns consider using the Filter Data transform to remove non-informative rows" + NgChmGui.UTIL.nextLine;
 			}	
 		}

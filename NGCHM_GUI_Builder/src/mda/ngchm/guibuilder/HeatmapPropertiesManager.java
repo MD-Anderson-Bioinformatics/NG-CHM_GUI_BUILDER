@@ -49,6 +49,11 @@ public class HeatmapPropertiesManager {
 		public String rowCutsLabel = "Clusters";
 		public String colCuts = "0";
 		public String colCutsLabel = "Clusters";
+		public String rowsWarning = "1000";
+		public String colsWarning = "1000";
+		public String colsMaximum = "3500";
+		public String rowsMaximum = "3500";
+		public String rowsColsMaximum = "4000";    
 		public ArrayList<String> buildWarnings = new ArrayList<String>();
 		public MatrixGridConfig matrix_grid_config;
 		public TransformConfig transform_config;
