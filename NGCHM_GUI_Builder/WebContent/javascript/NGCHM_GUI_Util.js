@@ -439,8 +439,8 @@ NgChmGui.UTIL.newHeatMapNotice = function() {
 	NgChmGui.UTIL.initMessageBox();
 	NgChmGui.UTIL.setMessageBoxHeader("Build New Heat Map");
 	NgChmGui.UTIL.setMessageBoxText("<br>If you choose to continue, the current map will be deleted and you will no longer have access to it in the NG-CHM Builder.<br><br>You may want to download the current map as an NG-CHM File or PDF first.<br><br>", 6);
-	NgChmGui.UTIL.setMessageBoxButton(1, "images/continueButton.png", "Start all new Heat Map Build", "NgChmGui.MAP.newMapConfirm");
-	NgChmGui.UTIL.setMessageBoxButton(3, "images/cancelButton.png", "", "NgChmGui.UTIL.messageBoxCancel");
+	NgChmGui.UTIL.setMessageBoxButton(1, "images/prefCancel.png", "", "NgChmGui.UTIL.messageBoxCancel");
+	NgChmGui.UTIL.setMessageBoxButton(3, "images/prefContinue.png", "Start all new Heat Map Build", "NgChmGui.MAP.newMapConfirm");
 	document.getElementById('message').style.display = '';
 }
 

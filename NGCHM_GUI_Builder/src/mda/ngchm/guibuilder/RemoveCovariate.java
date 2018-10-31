@@ -45,7 +45,8 @@ public class RemoveCovariate extends HttpServlet {
 	        //Check for pre-existence of properties file.  If exists, load from properties manager
 	        if (propFile.exists()) {
 	        	mgr.load();
-		        HeatmapPropertiesManager.Heatmap map = mgr.getMap();
+	        	mgr.resetBuildConfig();
+	        	HeatmapPropertiesManager.Heatmap map = mgr.getMap();
 	        	String covFileName = workingDir + "/covariate_"+ axisType+"_"+covName + ".txt";
 	        	File covFile = new File(covFileName);
 	        	if (covFile.exists()) {

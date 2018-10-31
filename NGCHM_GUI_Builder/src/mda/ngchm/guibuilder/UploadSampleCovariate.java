@@ -58,7 +58,8 @@ public class UploadSampleCovariate extends HttpServlet {
 	        //Check for pre-existence of properties file.  If exists, load from properties manager
 	        if (propFile.exists()) {
 	        	mgr.load();
-		        HeatmapPropertiesManager.Heatmap map = mgr.getMap();
+	        	mgr.resetBuildConfig();
+	        	HeatmapPropertiesManager.Heatmap map = mgr.getMap();
 		        //Input File
 		        File sampleCovar = new File(getServletContext().getRealPath("/") + selFile);
 			    filecontent = new FileInputStream(sampleCovar);

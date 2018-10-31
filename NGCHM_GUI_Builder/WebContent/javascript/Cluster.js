@@ -97,8 +97,7 @@ NgChmGui.CLUSTER.validateEntries = function(leavingPage) {
  * been changed and sent to the server to perform clustering.
  **********************************************************************************/
 NgChmGui.CLUSTER.clusteringComplete = function(){
-	NgChmGui.CLUSTER.validateEntries(false);
-	NgChmGui.UTIL.loadHeatMapView();
+	NgChmGui.UTIL.getHeatmapProperties(NgChmGui.CLUSTER.loadData); 
 }
 
 /**********************************************************************************

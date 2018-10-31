@@ -85,13 +85,12 @@ public class MapProperties extends HttpServlet {
 	    	}
 	        workingDir = workingDir + "/" + mySession.getId();
 	        if (new File(workingDir).exists()) {
-		        HeatmapPropertiesManager.Heatmap mapConfig = getConfigDataFromRequest(request);
 		        HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
+		        HeatmapPropertiesManager.Heatmap mapConfig = getConfigDataFromRequest(request);
 		        //Get properties and update them to the new config data
 	        	mgr.setMap(mapConfig);
 		        //Mark properties as "clean" for update.
-		        mapConfig.builder_config.buildProps = "N";
-			    mgr.save();
+	        	mgr.resetBuildConfig();
 	    
 			    //Delete pre-existing heatmap prior to fresh build
 			    HeatmapPropertiesManager.Heatmap map = mgr.getMap();
@@ -114,7 +113,7 @@ public class MapProperties extends HttpServlet {
 				    }
 				    clusterSuccess = true;
 			    } catch (Exception e) {
-			    	map.builder_config.buildErrors = "ERROR occurred while clustering matrix. Try again.";
+			    	map.builder_config.buildErrors = "ERROR occurred while clustering matrix. Please again.";
 				    mgr.save();
 			    }
 			    

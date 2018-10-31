@@ -59,7 +59,7 @@ public class ProcessMatrix extends HttpServlet {
 			//Construct and write out a working matrix file that has been filtered of covariate and whitespace rows/columns.
 		    String matrixFile = workingDir + "/workingMatrix.txt";
 		    ArrayList<String> matrixErrors = new ArrayList<String>();
-	        String[] longLabels = buildFilteredMatrix(workingDir, matrixConfig, matrixFile,matrixErrors);
+	        String[] longLabels = buildFilteredMatrix(workingDir, matrixConfig, matrixFile, matrixErrors);
         	String propJSON = "{\"return_code\": 0}";
 	        
 	        File propFile = new File(workingDir + "/heatmapProperties.json");
@@ -242,7 +242,7 @@ public class ProcessMatrix extends HttpServlet {
 	 * file will contain only the matix data, exclusive of any covariate
 	 * bar and/or whitespace columns/rows in the original matrix.
 	 ******************************************************************/
-	private String[] buildFilteredMatrix(String workingDir, HeatmapPropertiesManager.MatrixGridConfig matrixConfig, String workingFile,ArrayList<String> matrixErrors) throws Exception {
+	public String[] buildFilteredMatrix(String workingDir, HeatmapPropertiesManager.MatrixGridConfig matrixConfig, String workingFile,ArrayList<String> matrixErrors) throws Exception {
 	    String originalFile = workingDir + "/originalMatrix.txt";
 	    int endPoint = getEndOfMatrix(workingDir, matrixConfig);
 		BufferedReader reader = new BufferedReader(new FileReader(originalFile));

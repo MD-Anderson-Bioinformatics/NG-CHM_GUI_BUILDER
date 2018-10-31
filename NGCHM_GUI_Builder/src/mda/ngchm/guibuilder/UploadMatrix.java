@@ -42,9 +42,17 @@ public class UploadMatrix extends HttpServlet {
     	File sampleMatrix = new File(getServletContext().getRealPath("/") + "SampleMatrix.txt");
 	    FileInputStream filecontent = new FileInputStream(sampleMatrix);
 	    final PrintWriter writer = response.getWriter();
+		HttpSession mySession = request.getSession();
+       //Create a directory using the http session ID
+    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
+    	workingDir = workingDir + "/" + mySession.getId();
+	    File theDir = new File(workingDir);
+		if (!theDir.mkdir()) {
+			FileUtils.cleanDirectory(theDir);
+		}
 
 	    try {
-    		uploadMatrixFile(request, writer, filecontent, "TXT");
+    		uploadMatrixFile(workingDir, writer, filecontent, "TXT");
 	    } catch (Exception e) {
 	        writer.println("Error uploading sample matrix.");
 	        writer.println("<br/> ERROR: " + e.getMessage());
@@ -75,10 +83,18 @@ public class UploadMatrix extends HttpServlet {
 	    String inType = inFile.substring(inFile.lastIndexOf(".")+1, inFile.length()).toUpperCase();
 	    InputStream filecontent = filePart.getInputStream();
 	    final PrintWriter writer = response.getWriter();
+		HttpSession mySession = request.getSession();
+       //Create a directory using the http session ID
+    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
+    	workingDir = workingDir + "/" + mySession.getId();
+	    File theDir = new File(workingDir);
+		if (!theDir.mkdir()) {
+			FileUtils.cleanDirectory(theDir);
+		}
 
 	    try {
 	    	if (filePart.getSize() > 0) {
-	    		uploadMatrixFile(request, writer, filecontent, inType);
+	    		uploadMatrixFile(workingDir, writer, filecontent, inType);
 	    	} else {
 		        writer.println("NOFILE");
 	    	}
@@ -102,17 +118,12 @@ public class UploadMatrix extends HttpServlet {
 	 * OriginalMatrix.txt.  This file can be the sample text file OR a 
 	 * user selected tab separated, comma separated, or excel file.
 	 ******************************************************************/
-	private void uploadMatrixFile(HttpServletRequest request, PrintWriter writer, InputStream filecontent, String fileType) throws Exception {
-		HttpSession mySession = request.getSession();
+	public void uploadMatrixFile(String workingDir, InputStream filecontent, String fileType) throws Exception {
+		uploadMatrixFile(workingDir, null, filecontent,fileType);
+	}
+	public void uploadMatrixFile(String workingDir, PrintWriter writer, InputStream filecontent, String fileType) throws Exception {
 		String jsonMatrixCorner = "no data";
 	    final String fileName = "originalMatrix.txt";
-        //Create a directory using the http session ID
-    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
-    	workingDir = workingDir + "/" + mySession.getId();
-	    File theDir = new File(workingDir);
-		if (!theDir.mkdir()) {
-			FileUtils.cleanDirectory(theDir);
-		}
 	    String matrixFile = workingDir + "/" + fileName;
 	    if (EXCEL_FILES.contains(fileType)) {
 		    Util.uploadXLS(matrixFile, filecontent);
@@ -122,7 +133,9 @@ public class UploadMatrix extends HttpServlet {
 		    Util.uploadTSV(matrixFile, filecontent);
 	    }
         jsonMatrixCorner = Util.getTopOfMatrix(matrixFile, 21, 20);
-	    writer.println(jsonMatrixCorner);
+        if (writer != null) {
+    	    writer.println(jsonMatrixCorner);
+        }
 	}
 
 }

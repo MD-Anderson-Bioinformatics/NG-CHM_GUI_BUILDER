@@ -36,18 +36,48 @@ public class UploadCovariate extends HttpServlet {
 	    final String covName = request.getParameter("covName");
 	    final String colorType = request.getParameter("colorType");
 	    final String axisType = request.getParameter("axisType");
-	  
-	    OutputStream out = null;
-	    InputStream filecontent = null;
 	    final PrintWriter writer = response.getWriter();
 
 	    try {
 	        //Create a directory using the http session ID
 	    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
 	    	workingDir = workingDir + "/" + mySession.getId();
-
 	        HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
+	        File propFile = new File(workingDir + "/heatmapProperties.json");
+
+	        //Check for pre-existence of properties file.  If exists, load from properties manager
 		    String propJSON = "{}";
+	        if (propFile.exists()) {
+	        	mgr.resetBuildConfig();
+	        	processCovariateUpload(workingDir, filePart, covName, colorType, axisType);
+		        //Re-build the heat map 
+			    HeatmapBuild builder = new HeatmapBuild();
+			    builder.buildHeatMap(workingDir);
+			    //Return edited props
+	        	propJSON = mgr.load();
+	        } else {
+	        	propJSON = "{\"no_file\": 1}";
+	        }
+	        
+	       	response.setContentType("application/json");
+	    	response.getWriter().write(propJSON.toString());
+	    	response.flushBuffer();
+	    } catch (Exception e) {
+	        writer.println("Error uploading covariate.");
+	        writer.println("<br/> ERROR: " + e.getMessage());
+
+	    } finally {
+	        if (writer != null) {writer.close();}
+	    }
+	}
+	
+	public void processCovariateUpload(String workingDir, Part filePart, String covName, String colorType, String axisType) throws Exception {
+	  
+	    OutputStream out = null;
+	    InputStream filecontent = null;
+
+	    try {
+	        HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
 	        File propFile = new File(workingDir + "/heatmapProperties.json");
 	        //Check for pre-existence of properties file.  If exists, load from properties manager
 	        if (propFile.exists()) {
@@ -74,33 +104,18 @@ public class UploadCovariate extends HttpServlet {
 		        //Mark properties as "clean" for update.
 	        	map.builder_config.buildProps = "N";
 			    mgr.save();
-		        
-		        //Re-build the heat map 
-			    HeatmapBuild builder = new HeatmapBuild();
-			    builder.buildHeatMap(workingDir);
-			    //Return edited props
-	        	propJSON = mgr.load();
-	        } else {
-	        	propJSON = "{\"no_file\": 1}";
 	        }
-	       	response.setContentType("application/json");
-	    	response.getWriter().write(propJSON.toString());
-	    	response.flushBuffer();
-	    } catch (Exception e) {
-	        writer.println("Error uploading covariate.");
-	        writer.println("<br/> ERROR: " + e.getMessage());
-
 	    } finally {
 	        if (out != null) {out.close();out = null;}
 	        if (filecontent != null) {filecontent.close(); filecontent = null;}
-	        if (writer != null) {writer.close();}
 	    }
+	    return;
 	}
 
-protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		doGet(request, response);
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+			doGet(request, response);
+		}
+		
 	}
-	
-}
 
 

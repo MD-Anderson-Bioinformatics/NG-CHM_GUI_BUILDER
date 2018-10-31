@@ -329,6 +329,15 @@ NgChmGui.TRANS.selectCorrelation =  function() {
 	}
 }
 
+NgChmGui.TRANS.setRadio = function(buttonId, idx) {
+	var radio = document.getElementsByName(buttonId);
+	for (i = 0; i < radio.length; i++) {
+		if (i === idx) {
+			radio[i].checked = true;
+		}
+	}
+}
+
 NgChmGui.TRANS.enableButton = function(buttonId) {
 	document.getElementById(buttonId).style.opacity = 1.0;
 	document.getElementById(buttonId).disabled = false;

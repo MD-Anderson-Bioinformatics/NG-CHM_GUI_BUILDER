@@ -30,12 +30,17 @@ public class Cluster  {
 		    String rowDendro = workingDir  + "/rowDendro.txt";  
 		    String rowOrderMethod = map.row_configuration.order_method;
 		    if (rowOrderMethod.equals("Hierarchical")) {   
-			    performOrdering(engine, matrixFile, rowOrderMethod, "row", map.row_configuration.distance_metric, map.row_configuration.agglomeration_method, rowOrder, rowDendro);  //Get from props
-		    	map.row_configuration.order_file = rowOrder;  
-		    	map.row_configuration.dendro_file = rowDendro; 
-		    	if (map.row_configuration.dendro_show.equals("NA"))	{	 	    	
-	    			map.row_configuration.dendro_show = "ALL";  
-	    			map.row_configuration.dendro_height = "100";  
+		    	try {
+				    performOrdering(engine, matrixFile, rowOrderMethod, "row", map.row_configuration.distance_metric, map.row_configuration.agglomeration_method, rowOrder, rowDendro);  //Get from props
+			    	map.row_configuration.order_file = rowOrder;  
+			    	map.row_configuration.dendro_file = rowDendro; 
+			    	if (map.row_configuration.dendro_show.equals("NA"))	{	 	    	
+		    			map.row_configuration.dendro_show = "ALL";  
+		    			map.row_configuration.dendro_height = "100";  
+			    	}
+		    	} catch (Exception e) {
+		    		map.row_configuration.order_method = "Original";
+			    	map.builder_config.buildErrors = "ERROR occurred while clustering rows. Row Order reset to Original.  Please try a different Row Distance Measure and/or Agglomeration Method.";
 		    	}
 		    } else {
 		    	map.row_configuration.order_file = null;  
@@ -49,14 +54,22 @@ public class Cluster  {
 		    String colDendro = workingDir  + "/colDendro.txt";  
 			String colOrderMethod = map.col_configuration.order_method;
 		    if (colOrderMethod.equals("Hierarchical")) {   
-				performOrdering(engine, matrixFile, colOrderMethod, "column", map.col_configuration.distance_metric, map.col_configuration.agglomeration_method, colOrder, colDendro);  //Get from props
-		    	map.col_configuration.order_file = colOrder;  
-		    	map.col_configuration.dendro_file = colDendro; 
-		    	if (map.col_configuration.dendro_show.equals("NA"))	{	 	    	
-	    			map.col_configuration.dendro_show = "ALL";  
-	    			map.col_configuration.dendro_height = "100";  
+		    	try {
+		    		performOrdering(engine, matrixFile, colOrderMethod, "column", map.col_configuration.distance_metric, map.col_configuration.agglomeration_method, colOrder, colDendro);  //Get from props
+			    	map.col_configuration.order_file = colOrder;  
+			    	map.col_configuration.dendro_file = colDendro; 
+			    	if (map.col_configuration.dendro_show.equals("NA"))	{	 	    	
+		    			map.col_configuration.dendro_show = "ALL";  
+		    			map.col_configuration.dendro_height = "100";  
+			    	}
+		    	} catch (Exception e) {
+		    		colOrderMethod = "Original"; 
+		    		map.col_configuration.order_method = colOrderMethod;
+			    	map.builder_config.buildWarnings.add("An error occurred while clustering columns. Column Order has been reset to Original.  Please try a different Column Distance Measure and/or Agglomeration Method.");
+				    mgr.save();
 		    	}
-		    } else {
+		    } 
+		    if (!colOrderMethod.equals("Hierarchical")) {   
 		    	map.col_configuration.order_file = null;  
 		    	map.col_configuration.dendro_file = null;  
 		    	map.col_configuration.dendro_show = "NA";  

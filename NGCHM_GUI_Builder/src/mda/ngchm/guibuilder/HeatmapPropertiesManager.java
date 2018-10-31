@@ -14,7 +14,7 @@ public class HeatmapPropertiesManager {
 		public String chm_name;
 		public String chm_description;
 		public ArrayList<MatrixFile> matrix_files = new ArrayList<MatrixFile>();
-		public ArrayList<Map> chm_attributes = new ArrayList<Map>();
+		public ArrayList<Map<String,String>> chm_attributes = new ArrayList<Map<String,String>>();
 		public ArrayList<Classification> classification_files = new ArrayList<Classification>();
 		public Order col_configuration;
 		public Order row_configuration;
@@ -75,6 +75,11 @@ public class HeatmapPropertiesManager {
 		public ArrayList<String> colCovNames = new ArrayList<String>();
 		public String isSample;
 		public String matrixFileName;
+		public MatrixGridConfig (String name, String desc, String mname) {
+			this.mapName = name; this.mapDesc = desc; this.matrixName = mname;
+			this.firstDataRow = 0; this.firstDataCol = 0; this.dataStartRow = 1; this.dataStartCol = 1; 
+			this.rowLabelRow = 0; this.colLabelCol = 0; this.isSample = "N";
+		}
 		public MatrixGridConfig (int fdRow, int fdCol, int dsRow, int dsCol, int rowLabel, int colLabel, ArrayList<Integer> rowCovs, ArrayList<String> rowCovTypes, ArrayList<Integer> colCovs,  ArrayList<String> colCovTypes, String isSample, String matrixFileName) {
 			this.firstDataRow = fdRow; this.firstDataCol = fdCol; this.dataStartRow = dsRow; this.dataStartCol = dsCol; 
 			this.rowLabelRow = rowLabel; this.colLabelCol = colLabel; this.rowCovs = rowCovs; this.rowCovTypes = rowCovTypes; 
@@ -119,6 +124,17 @@ public class HeatmapPropertiesManager {
 			this.tree_cuts = "0";
 			this.data_type.add("none");
 		}
+		public Order (String order_method, String distance_metric, String agglomeration_method) {
+			this.order_method = order_method;
+			this.distance_metric = distance_metric;
+			this.agglomeration_method = agglomeration_method;
+			this.dendro_show = "NA";
+			this.label_display_length = "20";
+			this.label_display_abbreviation = "END";
+			this.cut_width = "5";
+			this.tree_cuts = "0";
+			this.data_type.add("none");
+		}
 		public Order (String order_method, String distance_metric, String agglomeration_method, String order_file,	String dendro_file, String dendro_show, String dendro_height) {
 			this.order_method = order_method; this .distance_metric = distance_metric; this.agglomeration_method = agglomeration_method;
 			this.order_file = order_file; this.dendro_file = dendro_file; this.dendro_show = dendro_show; this.dendro_height = dendro_height; 
@@ -135,6 +151,9 @@ public class HeatmapPropertiesManager {
 			this.missing = missing;
 			this.thresholds = thresholds;
 			this.colors = colors;
+		}
+		public ColorMap (String type) {
+			this.type = type;
 		}
 	}
 	
@@ -182,6 +201,14 @@ public class HeatmapPropertiesManager {
 	
 	public HeatmapPropertiesManager(String directory) {
 		this.directory = directory;
+	}
+	
+	public void resetBuildConfig() throws Exception{
+		theMap.builder_config.buildErrors = "";
+		theMap.builder_config.buildWarnings = new ArrayList<String>();
+		theMap.builder_config.buildProps = "N";
+		save();
+		return;
 	}
 	
 	/*******************************************************************

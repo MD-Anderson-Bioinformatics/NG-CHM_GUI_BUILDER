@@ -40,6 +40,7 @@ public class HeatmapBuild extends HttpServlet {
 
 	        HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
 	        mgr.load();
+	        mgr.resetBuildConfig();
 	        HeatmapPropertiesManager.Heatmap map = mgr.getMap();
 	        if (map.matrix_files.get(0).color_map != null) {
 	        	map.matrix_files.get(0).color_map = null;
@@ -82,9 +83,6 @@ public class HeatmapBuild extends HttpServlet {
 	        HeatmapPropertiesManager.Heatmap map = mgr.getMap();
 	        //Check for pre-existence of properties file.  If exists, load from properties manager
 	        if (propFile.exists()) {
-	        	//Initialize errors and warnings before calling HMDG
-	        	map.builder_config.buildErrors = "";
-	        	map.builder_config.buildWarnings = new ArrayList<String>();
 			    //Call HeatmapDataGenerator to generate final heat map .ngchm file
 			    String genArgs[] = new String[] {propsPath, "-NGCHM"};
 				errMsg = HeatmapDataGenerator.processHeatMap(genArgs);
