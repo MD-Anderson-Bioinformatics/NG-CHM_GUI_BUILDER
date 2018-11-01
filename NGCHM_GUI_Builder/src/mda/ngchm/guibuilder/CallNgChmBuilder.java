@@ -192,6 +192,7 @@ public class CallNgChmBuilder extends HttpServlet {
 			if (request.getParameter("MatrixGridShow") != null ) {map.matrix_files.get(0).grid_show = request.getParameter("MatrixGridShow");}
 			if (request.getParameter("MatrixSelectionColor") != null ) {map.matrix_files.get(0).selection_color = request.getParameter("MatrixSelectionColor");}
 			if (request.getParameter("MatrixGapColor") != null ) {map.matrix_files.get(0).cuts_color = request.getParameter("MatrixGapColor");}
+			if (request.getParameter("MatrixSummaryMethod") != null ) {map.matrix_files.get(0).summary_method = request.getParameter("MatrixSummaryMethod");}
 			//Create Row Order Object and set on map
 			String rowOrder = request.getParameter("RowOrder") == null ? "Original" : request.getParameter("RowOrder");
 			if (map.row_configuration == null) {

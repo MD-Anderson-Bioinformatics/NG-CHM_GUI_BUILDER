@@ -196,6 +196,7 @@ NgChmGui.FORMAT.setFormatTaskOptions = function() {
 	document.getElementById('rowLabelAbbrevPref').value = rowConfig.label_display_abbreviation;
 	document.getElementById('colLabelAbbrevPref').value = colConfig.label_display_abbreviation;
 	document.getElementById('gridShowPref').value = matrixConfig.grid_show;
+	document.getElementById('summaryWidth').value = NgChmGui.mapProperties.summary_width;
 	if (document.getElementById('rowGapMethod_list') !== null) {
 		document.getElementById('rowGapMethod_list').value = rowConfig.tree_cuts !== "0" ? "rowByTreeCuts" : "rowByLocations";
 		NgChmGui.FORMAT.showRowGapMethodSelection();
@@ -252,10 +253,12 @@ NgChmGui.FORMAT.formatDisplayPrefs = function() {
 	var colorGrid = "<input class='spectrumColor' type='color' name='gridColorPref' id='gridColorPref' onchange='NgChmGui.UTIL.setBuildProps();' value='"+matrixConfig.grid_color+"'>"; 
 	var colorGaps = "<input class='spectrumColor' type='color' name='gapsColorPref' id='gapsColorPref' onchange='NgChmGui.UTIL.setBuildProps();' value='"+matrixConfig.cuts_color+"'>"; 
 	var colorSelect = "<input class='spectrumColor' type='color' name='selectionColorPref' id='selectionColorPref'  onchange='NgChmGui.UTIL.setBuildProps();' value='"+matrixConfig.selection_color+"'>"; 
+	var summaryWidth = "<select name='summaryWidth' id='summaryWidth' onchange='NgChmGui.UTIL.setBuildProps();'><option value='10'>10%</option><option value='20'>20%</option><option value='30'>30%</option><option value='40'>40%</option><option value='50'>50%</option><option value='60'>70%</option><option value='70'>80%</option><option value='80'>60%</option><option value='90'>90%</option></select>";
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Selection Color:",colorSelect]);
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Grid Color:",colorGrid]);
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Gaps Color:",colorGaps]);
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Show Grid:",showGrid]);
+	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Summary Display Width:",summaryWidth]);
 	NgChmGui.UTIL.addBlankRow(prefContents);
 	NgChmGui.UTIL.setTableRow(prefContents,["ROW DISPLAY OPTIONS"], 2);
 	if (rowConfig.order_method === "Hierarchical") {
@@ -738,6 +741,7 @@ NgChmGui.FORMAT.getFormatDisplayFromScreen = function() {
 	//Get->set matrix config preferences
 	var matrixConfig = NgChmGui.mapProperties.matrix_files[0];
 	matrixConfig.grid_show = document.getElementById('gridShowPref').value;
+	NgChmGui.mapProperties.summary_width = document.getElementById('summaryWidth').value;
 	matrixConfig.grid_color = document.getElementById('gridColorPref').value;
 	matrixConfig.cuts_color = document.getElementById('gapsColorPref').value;
 	matrixConfig.selection_color = document.getElementById('selectionColorPref').value;

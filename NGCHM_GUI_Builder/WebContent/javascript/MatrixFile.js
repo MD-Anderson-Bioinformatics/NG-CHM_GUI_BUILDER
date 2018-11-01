@@ -22,6 +22,7 @@ NgChmGui.FILE.loadData = function() {
 	if (NgChmGui.UTIL.elemExist(NgChmGui.mapProperties.chm_name)) {
 		document.getElementById("mapNameValue").value = NgChmGui.mapProperties.chm_name;
 		document.getElementById("mapDescValue").value = NgChmGui.mapProperties.chm_description;
+		document.getElementById("matrixSummaryMethod").value = NgChmGui.mapProperties.matrix_files[0].summary_method;
 		NgChmGui.isSample = NgChmGui.mapProperties.builder_config.matrix_grid_config.isSample;
 		NgChmGui.matrixFile.setMatrixFileName(NgChmGui.mapProperties.builder_config.matrix_grid_config.matrixFileName);
 	}
@@ -89,6 +90,9 @@ NgChmGui.FILE.changeNameDesc = function() {
 		NgChmGui.matrixFile.setChangedState(true);
 	}
 	if (document.getElementById('mapDescValue').value !== NgChmGui.mapProperties.chm_description) {
+		NgChmGui.matrixFile.setChangedState(true);
+	}
+	if (document.getElementById('matrixSummaryMethod').value !== NgChmGui.mapProperties.matrixSummaryMethod) {
 		NgChmGui.matrixFile.setChangedState(true);
 	}
 }
@@ -211,6 +215,7 @@ NgChmGui.FILE.MatrixFile = function() {
 			        	NgChmGui.FILE.validateEntries(false);
 			    		document.getElementById("mapNameValue").value = "";
 			    		document.getElementById("mapDescValue").value = "";
+			    		document.getElementById("matrixSummaryMethod").value = "average";
 		    		}
 					NgChmGui.UTIL.hideLoading();
 			    }
@@ -348,6 +353,7 @@ NgChmGui.FILE.MatrixFile = function() {
 		var someData =  {mapName: document.getElementById('mapNameValue').value.trim(),
 		                 mapDesc: document.getElementById('mapDescValue').value.trim(),
 		                 matrixName: document.getElementById('matrixNameValue').value,
+		                 matrixSummaryMethod: document.getElementById('matrixSummaryMethod').value,
 		                 firstDataRow: firstDataPos[0],
 		                 firstDataCol: firstDataPos[1],
 		                 dataStartRow: dataStartPos[0],

@@ -62,7 +62,8 @@
 		 		<div id='map_info' style="border-top: 4px double #0843c1;">
 			 		<div id='map_name' class="inputText">
 		     			<div id="mapName" style="font-size: 14px; color: #0843c1; width: 90%"><b>Heat Map Name:</b>&nbsp;&nbsp;<textarea name="mapNameValue" id="mapNameValue" rows="1" cols="40" style="resize: none" maxlength="40" onchange='NgChmGui.FILE.changeNameDesc()'></textarea></div><br>
-		     			<div id="mapDesc" style="font-size: 14px; color: #0843c1;"><b>Heat Map Desc:</b>&nbsp;&nbsp;<textarea name="mapDescValue" id="mapDescValue" rows="4" cols="40" style="resize: none" onchange='NgChmGui.FILE.changeNameDesc()'></textarea></div>
+		     			<div id="mapDesc" style="font-size: 14px; color: #0843c1;"><b>Heat Map Desc:</b>&nbsp;&nbsp;<textarea name="mapDescValue" id="mapDescValue" rows="4" cols="40" style="resize: none" onchange='NgChmGui.FILE.changeNameDesc()'></textarea></div><br>
+		     			<div id="matrixSummary" style="font-size: 14px; color: #0843c1;"><b>Matrix Summary Method:</b>&nbsp;&nbsp;<select name='matrixSummaryMethod' id='matrixSummaryMethod' onchange='NgChmGui.FILE.changeNameDesc()'><option value='average'>Average Value</option><option value='sample'>Sampled Value</option><option value='mode'>Predominant Value</option></select></div>
 				 		<div id='matrix_name' class="inputText" style="display: none;">
 			     			<div id="matrixName"><b>Matrix Name:</b>&nbsp;&nbsp;<input name="matrixNameValue" id="matrixNameValue" size="40" value="Data Layer 1"></input></div>
 			  		    </div>

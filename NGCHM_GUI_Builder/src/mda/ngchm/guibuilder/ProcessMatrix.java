@@ -84,7 +84,7 @@ public class ProcessMatrix extends HttpServlet {
 			    map.builder_config = (mgr.new BuilderConfig(matrixConfig,longLabels[0], longLabels[1]));
 			    //Remove any existing matrix files as we are putting a new one on the map
 			    map.matrix_files.removeAll(map.matrix_files);
-				map.matrix_files.add(mgr.new MatrixFile(matrixConfig.matrixName, matrixFile, "average", null));  
+				map.matrix_files.add(mgr.new MatrixFile(matrixConfig.matrixName, matrixFile, matrixConfig.matrixSummaryMethod, null));  
 	
 				//Add "default" row/col order configurations in original order
 				if (map.row_configuration == null) {
@@ -161,6 +161,9 @@ public class ProcessMatrix extends HttpServlet {
 			return true;
 		}
 		if (!configOld.matrixName.equals(configNew.matrixName)) {
+			return true;
+		}
+		if (!configOld.matrixSummaryMethod.equals(configNew.matrixSummaryMethod)) {
 			return true;
 		}
 		if (covarsChanged(configOld, configNew)) {

@@ -66,6 +66,7 @@ public class HeatmapPropertiesManager {
 		public String mapName;
 		public String mapDesc;
 		public String matrixName;
+		public String matrixSummaryMethod;
 		public int firstDataRow;
 		public int firstDataCol;
 		public int dataStartRow;
