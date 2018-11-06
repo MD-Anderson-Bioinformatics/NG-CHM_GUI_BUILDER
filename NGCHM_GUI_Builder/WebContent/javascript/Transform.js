@@ -20,7 +20,7 @@ NgChmGui.TRANS.loadData =  function() {
  * FUNCTION - validateEntries: This function validates user entries on the transform
  * screen.
  **********************************************************************************/
-NgChmGui.TRANS.validateEntries = function(leavingPage, formatError) {
+NgChmGui.TRANS.validateEntries = function(leavingPage, formatError, otherError, otherWarning) {
 	var valid = true;
 	var pageText = "";
 	
@@ -47,7 +47,10 @@ NgChmGui.TRANS.validateEntries = function(leavingPage, formatError) {
 		pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Matrix with " + numRows + " rows and " + numCols + " columns exceeds the maximum number of rows and cols for this builder.  Use Filters to remove rows or columns so that their sum does not exceed 4000.</p>" + NgChmGui.UTIL.nextLine;
 		valid = false;
 	}
-	
+	if (otherError && otherError !== "") {
+		pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + otherError + "</font></b></p>" + NgChmGui.UTIL.nextLine;
+		valid = false;
+	}
 	//Generate error messages
 	if (leavingPage) {
 		if (NgChmGui.TRANS.matrixInfo.numInvalid > 0) {
@@ -85,7 +88,9 @@ NgChmGui.TRANS.validateEntries = function(leavingPage, formatError) {
 			}	
 		}
 	}
-	
+	if (otherWarning && otherWarning !== "") {
+		pageText = pageText + NgChmGui.UTIL.warningPrefix + otherWarning + NgChmGui.UTIL.nextLine;
+	}
 	//if (NgChmGui.TRANS.matrixInfo.minValue < 0) {
 	//	pageText = pageText + NgChmGui.UTIL.warningPrefix + "Your matrix has negative values.  A log transform would result in invalid values - use a different transform to remove negative values prior to log transforms." + NgChmGui.UTIL.nextLine;
 	//}	
@@ -363,6 +368,16 @@ NgChmGui.TRANS.hideDivById = function(id) {
 NgChmGui.TRANS.correctMatrixData =  function() {
 	var req = new XMLHttpRequest();
 	var formData = NgChmGui.UTIL.toURIString( document.getElementById("missing_frm") );
+	if (NgChmGui.TRANS.matrixInfo.numInvalid == 0 || NgChmGui.TRANS.matrixInfo.numMissing == 0){
+		if (document.getElementById('Correction').value == "ReplaceInvalid" && NgChmGui.TRANS.matrixInfo.numInvalid == 0){
+			NgChmGui.TRANS.validateEntries(false,false,false, "No invalid values to correct. Correction not applied");
+			return
+		} else if ( document.getElementById('Correction').value == "FillMissing" && NgChmGui.TRANS.matrixInfo.numMissing == 0){
+			NgChmGui.TRANS.validateEntries(false,false,false, "No missing values to fill. Correction not applied");
+			return
+		}
+		
+	}
 	if (formData){
 		req.open("POST", "CorrectMatrix", true);
 		req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
