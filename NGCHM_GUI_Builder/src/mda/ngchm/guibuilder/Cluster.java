@@ -40,7 +40,7 @@ public class Cluster  {
 			    	}
 		    	} catch (Exception e) {
 		    		map.row_configuration.order_method = "Original";
-			    	map.builder_config.buildErrors = "ERROR occurred while clustering rows. Row Order reset to Original.  Please try a different Row Distance Measure and/or Agglomeration Method.";
+			    	map.builder_config.buildWarnings.add("An error occurred while clustering rows using Distance: " + map.row_configuration.distance_metric + " and Agglomeration: " + map.row_configuration.agglomeration_method + ". Row order has been reset to Original.  Please try a different row Distance Measure and/or Agglomeration Method.");
 		    	}
 		    } else {
 		    	map.row_configuration.order_file = null;  
@@ -65,7 +65,7 @@ public class Cluster  {
 		    	} catch (Exception e) {
 		    		colOrderMethod = "Original"; 
 		    		map.col_configuration.order_method = colOrderMethod;
-			    	map.builder_config.buildWarnings.add("An error occurred while clustering columns. Column Order has been reset to Original.  Please try a different Column Distance Measure and/or Agglomeration Method.");
+			    	map.builder_config.buildWarnings.add("An error occurred while clustering columns using Distance: " + map.col_configuration.distance_metric + " and Agglomeration: " + map.col_configuration.agglomeration_method + ". Column order has been reset to Original.  Please try a different column Distance Measure and/or Agglomeration Method.");
 				    mgr.save();
 		    	}
 		    } 

@@ -39,16 +39,21 @@
 	 		<div id="formatSelection" class="data_entry_container" style="width: 15%">
 	 			<br>
         		<div class="image-container">
-					<img id='downloadMap_btn' src='images/ngChmDownloadButton.png' alt='Download the heat map to NG-CHM file' onclick='NgChmGui.MAP.downloadMap();' />
+					<img id='downloadMap_btn' src='images/ngChmGetNgchmButton.png' alt='Download the heat map to NG-CHM file' onclick='NgChmGui.MAP.downloadMap();' />
 				</div>
 				<br><br>
-        		<div class="image-container">
-	 				<img id='downloadPdf_btn' src='images/ngChmPdfButton.png' alt='Download the heat map to PDF file' onclick='NgChm.PDF.openPdfPrefs(this,null);' />
+         		<div class="image-container">
+	 				<img id='downloadPng_btn' src='images/ngChmGetThumbnailButton.png' alt='Download Thumbnail .PNG Image file' onclick='NgChm.UTIL.downloadSummaryPng();' />
 				</div>
  				<br><br>
         		<div class="image-container">
+	 				<img id='downloadPdf_btn' src='images/ngChmPdfButton.png' alt='Download the heat map to PDF file' onclick='NgChm.PDF.openPdfPrefs(this,null);' />
+				</div>
+				<br><br> 
+        		<div class="image-container">
 	 				<a class="downloadViewer_btn" id="nonpressed" href="ngChmApp.html" download><img src="images/ngChmViewerButton.png"/></a>
 				</div>
+ 				<br><br>
  				<br><br>
          		<div class="image-container">
 	 				<img id='newHeatMap_btn' src='images/ngChmNewMapButton.png' alt='Start a new heat map build' onclick='NgChmGui.MAP.newMapRequest();' />
