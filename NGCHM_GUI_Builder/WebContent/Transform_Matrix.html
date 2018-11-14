@@ -319,35 +319,39 @@
 						</div>
 					</div>
 	        	<br>
-		     	<div id="matrix_stats" style="float: left;">
-		        	<b>Number of Rows:</b>  <label id="numRows"></label><br> <br>
-		        	<b>Number of Columns:</b> <label id="numCols"></label><br><br> 
-		        	<b>Missing Values:</b> <label id="numMissing"></label><br><br>
-		        	<b>Invalid Values:</b> <label id="numInvalid"></label><br><br>
-		        	<b>Minimum Value:</b> <label id="minVal"></label><br><br>
-		        	<b>Maximum Value:</b> <label id="maxVal"></label><br><br>
-		        	&nbsp;<br>
-		    	</div>
-		    	<div style="float:right">
-			    	<div class=""><b>Distribution:</b>
-				            <select name="Histogram" id="Histogram" onchange="NgChmGui.TRANS.selectHistogram()">
-				  				<option value="matrix_histo">Matrix Data</option>
-				  				<option value="row_sd_matrix_histo">Row Standard Deviation</option>
-				  				<option value="col_sd_matrix_histo">Column Standard Deviation</option>
-							</select> 
-					</div>
-			    	<div id="matrix_histo" style="float: right;">
-			    		<!-- <b>Data Distribution:</b><br> -->
-			    		<canvas id="histo_canvas" style="width: 500px; height: 150px;"></canvas>
-			    	</div>    
-			    	<div id="row_sd_matrix_histo" style="float: right; display: none">
-			    		<!-- <b>Row Standard Deviation Distribution:</b><br> -->
-			    		<canvas id="row_sd_histo_canvas" style="width: 500px; height: 150px;"></canvas>
-			    	</div>    
-			    	<div id="col_sd_matrix_histo" style="float: right; display:none">
-			    		<!-- <b>Column Standard Deviation Distribution:</b><br> -->
-			    		<canvas id="col_sd_histo_canvas" style="width: 500px; height: 150px;"></canvas>
-			    	</div>    
+	        	<div id="stats_wrapper" style="width:100%;display:inline-flex">
+	        	
+			     	<div id="matrix_stats" style="float: left;">
+			        	<b>Number of Rows:</b>  <label id="numRows"></label><br> <br>
+			        	<b>Number of Columns:</b> <label id="numCols"></label><br><br> 
+			        	<b>Missing Values:</b> <label id="numMissing"></label><br><br>
+			        	<b>Invalid Values:</b> <label id="numInvalid"></label><br><br>
+			        	<b>Minimum Value:</b> <label id="minVal"></label><br><br>
+			        	<b>Maximum Value:</b> <label id="maxVal"></label><br><br>
+			        	&nbsp;<br>
+			    	</div>
+			    	<div style="float:right;padding-left: 10px;">
+				    	<div class=""><b>Distribution:</b>
+					            <select name="Histogram" id="Histogram" onchange="NgChmGui.TRANS.selectHistogram()">
+					  				<option value="matrix_histo">Matrix Data</option>
+					  				<option value="row_sd_matrix_histo">Row Standard Deviation</option>
+					  				<option value="col_sd_matrix_histo">Column Standard Deviation</option>
+								</select> 
+						</div>
+				    	<div id="matrix_histo" style="float: right;">
+				    		<!-- <b>Data Distribution:</b><br> -->
+				    		<canvas id="histo_canvas" style="width: 500px; height: 150px;"></canvas>
+				    	</div>    
+				    	<div id="row_sd_matrix_histo" style="float: right; display: none">
+				    		<!-- <b>Row Standard Deviation Distribution:</b><br> -->
+				    		<canvas id="row_sd_histo_canvas" style="width: 500px; height: 150px;"></canvas>
+				    	</div>    
+				    	<div id="col_sd_matrix_histo" style="float: right; display:none">
+				    		<!-- <b>Column Standard Deviation Distribution:</b><br> -->
+				    		<canvas id="col_sd_histo_canvas" style="width: 500px; height: 150px;"></canvas>
+				    	</div>    
+			    	</div>
+			    	
 		    	</div>
 		        <div id="transMatrixDisplay" style="display: none; "></div>		    
 	        </div>
