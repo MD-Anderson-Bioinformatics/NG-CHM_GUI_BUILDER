@@ -21,6 +21,9 @@ NgChmGui.COV.loadData =  function() {
 		prefsPanelDiv.style.display = '';
 		NgChmGui.COV.validateEntries(false);
 	}
+	if (NgChmGui.UTIL.setUpAdvanced() === true) {
+		NgChmGui.COV.setAdvanced();
+	};
 }
 
 /**********************************************************************************
@@ -182,6 +185,27 @@ NgChmGui.COV.setupClassPrefs = function(classes) {
 		document.getElementById("classPref_list").style.display = 'none';
 	}
 	return classPrefsDiv; 
+}
+
+/**********************************************************************************
+ * FUNCTION - setAdvanced: This function applies special advanced/standard function
+ * display rules that apply to the Covariates screen.
+ **********************************************************************************/
+NgChmGui.COV.setAdvanced = function() {
+	if (NgChmGui.UTIL.showAdvanced === 'N') {
+		var classes = NgChmGui.mapProperties.classification_files;
+		if (classes.length > 0) {
+			for (var i=0;i<classes.length;i++) {
+				var classItem = classes[i];
+				if (classItem.color_map.type === 'continuous') {
+					var key =  NgChmGui.COV.getClassKey(classItem);
+					var barTypeSelect = document.getElementById("barTypePref_"+key);
+					barTypeSelect.value = 'color_plot';
+					NgChmGui.COV.togglePlotTypeProperties(key);
+				}
+			}
+		}
+	}
 }
 
 /**********************************************************************************
@@ -437,9 +461,8 @@ NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
 	var barName = "<input name='namePref_"+key+"' id='namePref_"+key+"' value='"+classItem.name+"' maxlength='30' size='20' onchange='NgChmGui.UTIL.setBuildProps();'>&emsp;";
 	NgChmGui.UTIL.setTableRow(classContents, ["&nbsp;&nbsp;Bar Name:", "<b>"+barName+"</b>"]);
 	NgChmGui.UTIL.setTableRow(classContents,["&nbsp;&nbsp;Bar Position: ","<b>"+NgChmGui.UTIL.toTitleCase(classItem.position)+"</b>"]);
-	NgChmGui.UTIL.setTableRow(classContents,["&nbsp;&nbsp;Color Type: ","<b>"+NgChmGui.UTIL.toTitleCase(classItem.color_map.type)+"</b>"]);
 	if (classItem.color_map.type === 'continuous') {
-		NgChmGui.UTIL.setTableRow(classContents, ["&nbsp;&nbsp;Bar Type:", barTypeOptionsSelect]);
+		NgChmGui.UTIL.setTableRow(classContents, ["&nbsp;&nbsp;Bar Type:", "<div class='advancedAction'>"+barTypeOptionsSelect+"</div><div class='standardAction'><b>Color Plot</b>"]);
 	} else {
 		NgChmGui.UTIL.setTableRow(classContents,["&nbsp;&nbsp;Bar Type: ","<b>"+NgChmGui.UTIL.toTitleCase(classItem.bar_type)+"</b>"]);
 	}

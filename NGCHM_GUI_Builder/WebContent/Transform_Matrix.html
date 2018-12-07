@@ -1,6 +1,7 @@
 
 <html lang="en">
     <head>
+		<link rel="shortcut icon" href="ngChmIcon.ico">    	
     	<!-- Global site tag (gtag.js) - Google Analytics -->
 		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-33437813-6"></script>
 		<script>
@@ -31,10 +32,13 @@
 	           		<img id="mdaLogo" src="images/mdabcblogo262x108.png" alt=""/>
 	           </a>
 	       	</div>
-	 		<div id='map_info'>
-		    	<div id="pageTitle">NG-CHM BUILDER: Transform Matrix</div>
+	 		<div id='mapInfo'>
+		    	<div class="pageTitle">NG-CHM BUILDER: Transform Matrix</div>
      			<div id="ngchmName"  class="inputText" style="font-size: 14px;color: rgb(51, 51, 51);"></div>
 	  		</div>
+      		<div id='optionsMode' class="image-container">
+				<img id='optionsMode_btn' src='images/showAdvancedButton.png' alt='Show Standard or Advanced Features' onclick='NgChmGui.UTIL.toggleAdvanced();' />
+			</div>
 	    </div>   
      	<div id="TransformDisplayContainer" class="display_container" style="position: relative">
 	 		<div id="transforms" class="data_entry_container" style="width: 25%">
@@ -45,9 +49,9 @@
 									<td style="line-height:4px;" colspan="2">&nbsp;</td>
 								</tr>
 								<tr class="chmTR">
-									<td style="font-weight: bold; font-size: 15px;">&nbsp;Actions: </td>
+									<td style="font-weight: bold; font-size: 15px;"><span class="advancedAction">&nbsp;Actions:</span></td>
 									<td>
-										<select name="transPref_list" id="transPref_list" onchange="NgChmGui.TRANS.showTransSelection();">
+										<select name="transPref_list" class="advancedAction" id="transPref_list" onchange="NgChmGui.TRANS.showTransSelection();">
 											<option value="missingDiv">Missing/Invalid Data</option>
 											<option value="filterDiv">Filter Data</option>
 											<option value="transDiv">Transform Data</option>
@@ -302,7 +306,7 @@
 	        	</div>
 	        	<div class ='navigation_bar'>
 				        <div id="transPrevButton"  class="prev_btn">  
-						    <img id='prev1_btn' src='images/prevButton.png' alt='Go to previous step' onclick='window.open("Select_Matrix.html","_self")' />
+						    <img id='prev1_btn' src='images/prevButton.png' alt='Go to previous step' onclick='NgChmGui.UTIL.gotoMatrixScreen();' />
 				        </div>   
 				        <div id="transNextButton"  class="next_btn">  
 					    	<img id='next1_btn' src='images/nextButton.png' alt='Go to next step' onclick='NgChmGui.TRANS.done()' />

@@ -100,7 +100,18 @@ div.serviceHeaderLogo img
     font-size: 12px;
 }
 
-#pageTitle
+#mapInfo
+{
+    width: 80%;
+}
+
+#optionsMode
+{
+    align: right;
+    height: 20px
+}
+
+.pageTitle
 {
     font-family: Arial;
     font-weight: bold;

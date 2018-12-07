@@ -14,6 +14,7 @@ NgChmGui.TRANS.loadData =  function() {
 		NgChmGui.TRANS.getWorkingMatrix();
 	}
 	NgChmGui.TRANS.populateLog();
+	NgChmGui.UTIL.setUpAdvanced();
 }
 
 /**********************************************************************************

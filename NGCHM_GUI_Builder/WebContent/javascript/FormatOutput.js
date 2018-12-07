@@ -21,6 +21,41 @@ NgChmGui.FORMAT.loadData =  function() {
 		NgChmGui.FORMAT.setLabelTypeList(0);
 		NgChmGui.FORMAT.loadColorPreviewDiv(0);
 	}
+	if (NgChmGui.UTIL.setUpAdvanced() === true) {
+		NgChmGui.FORMAT.setAdvanced();
+	}
+}
+
+/**********************************************************************************
+ * FUNCTION - setAdvanced: This function applies special advanced/standard function
+ * display rules that apply to the Covariates screen.
+ **********************************************************************************/
+NgChmGui.FORMAT.setAdvanced = function() {
+	var taskList = document.getElementById('formatTask_list');
+	if (NgChmGui.UTIL.showAdvanced === 'N') {
+		if (taskList.selectedIndex === 3) {
+			taskList.selectedIndex = 0;
+			NgChmGui.FORMAT.showFormatSelection();
+		}
+		for (var i=0; i<taskList.length; i++){
+			  if (taskList.options[i].value === 'map_gaps' ) {
+				  taskList.remove(i);
+			  }
+		}
+	} else {
+		var gapsFound = false;
+		for (var i=0; i<taskList.length; i++){
+			  if (taskList.options[i].value === 'map_gaps' ) {
+				  gapsFound = true;
+			  }
+		}
+		if (gapsFound === false) {
+		    var opt = document.createElement('option');
+		    opt.value = 'map_gaps';
+		    opt.innerHTML = 'Heat Map Gaps';
+		    taskList.appendChild(opt);
+		}
+	}
 }
 
 /**********************************************************************************
@@ -159,7 +194,7 @@ NgChmGui.FORMAT.setupFormatTasks = function(classes) {
 	var formatPrefsDiv = NgChmGui.UTIL.getDivElement("formatPrefsDiv");
 	var prefContents = document.createElement("TABLE");
 	NgChmGui.UTIL.addBlankRow(prefContents)
-	var formatTaskStr = "<select name='formatTask_list' id='formatTask_list' onchange='NgChmGui.FORMAT.showFormatSelection();'><option value='matrix_colors'>Matrix Colors/Breaks</option><option value='format_display'>Heat Map Display</option><option value='map_gaps'>Heat Map Gaps</option><option value='label_config'>Labels and Attributes</option></select>"
+	var formatTaskStr = "<select name='formatTask_list' id='formatTask_list' onchange='NgChmGui.FORMAT.showFormatSelection();'><option value='matrix_colors'>Matrix Colors/Breaks</option><option value='format_display'>Heat Map Display</option><option value='label_config'>Labels and Attributes</option><option value='map_gaps'>Heat Map Gaps</option></select>"
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;Format Tasks: ", formatTaskStr]);
 	NgChmGui.UTIL.addBlankRow(prefContents, 2);
 	formatPrefsDiv.appendChild(prefContents);
@@ -251,12 +286,12 @@ NgChmGui.FORMAT.formatDisplayPrefs = function() {
 	NgChmGui.UTIL.addBlankRow(prefContents);
 	var showGrid = "<select name='gridShowPref' id='gridShowPref' onchange='NgChmGui.UTIL.setBuildProps();'><option value='Y'>YES</option><option value='N'>NO</option></select>";
 	var colorGrid = "<input class='spectrumColor' type='color' name='gridColorPref' id='gridColorPref' onchange='NgChmGui.UTIL.setBuildProps();' value='"+matrixConfig.grid_color+"'>"; 
-	var colorGaps = "<input class='spectrumColor' type='color' name='gapsColorPref' id='gapsColorPref' onchange='NgChmGui.UTIL.setBuildProps();' value='"+matrixConfig.cuts_color+"'>"; 
+	var colorGaps = "<div class='advancedAction'><input class='spectrumColor' type='color' name='gapsColorPref' id='gapsColorPref' onchange='NgChmGui.UTIL.setBuildProps();' value='"+matrixConfig.cuts_color+"'></div>"; 
 	var colorSelect = "<input class='spectrumColor' type='color' name='selectionColorPref' id='selectionColorPref'  onchange='NgChmGui.UTIL.setBuildProps();' value='"+matrixConfig.selection_color+"'>"; 
 	var summaryWidth = "<select name='summaryWidth' id='summaryWidth' onchange='NgChmGui.UTIL.setBuildProps();'><option value='10'>10%</option><option value='20'>20%</option><option value='30'>30%</option><option value='40'>40%</option><option value='50'>50%</option><option value='60'>70%</option><option value='70'>80%</option><option value='80'>60%</option><option value='90'>90%</option></select>";
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Selection Color:",colorSelect]);
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Grid Color:",colorGrid]);
-	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Gaps Color:",colorGaps]);
+	NgChmGui.UTIL.setTableRow(prefContents,["<span class='advancedAction'>&nbsp;&nbsp;Gaps Color:</span>",colorGaps]);
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Show Grid:",showGrid]);
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Summary Display Width:",summaryWidth]);
 	NgChmGui.UTIL.addBlankRow(prefContents);
@@ -320,22 +355,22 @@ NgChmGui.FORMAT.setupLabelConfigPrefs = function() {
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Label Types:  "+rowLabelTypePref+labelTypeOptions], 2);  
 	NgChmGui.UTIL.addBlankRow(prefContents);
 	var topRowItemData = rowConfig.top_items.toString();
-	var topRowItems = "<textarea name='rowTopItems' id='rowTopItems' style='font-family: sans-serif;font-size: 90%; resize: none;' ' rows='3', cols='50' onchange='NgChmGui.UTIL.setBuildProps();'>"+topRowItemData+"</textarea>";
-	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Top Label Items:"]);
+	var topRowItems = "<div class='advancedAction'><textarea name='rowTopItems' id='rowTopItems' style='font-family: sans-serif;font-size: 90%; resize: none;' ' rows='3', cols='50' onchange='NgChmGui.UTIL.setBuildProps();'>"+topRowItemData+"</textarea></div>";
+	NgChmGui.UTIL.setTableRow(prefContents,["<span class='advancedAction'>&nbsp;&nbsp;Top Label Items:</span>"]);
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;"+topRowItems],2);
-	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;<b>Enter comma-separated labels to highlight on map</b>"], 2);
+	NgChmGui.UTIL.setTableRow(prefContents,["<span class='advancedAction'>&nbsp;&nbsp;<b>Enter comma-separated labels to highlight on map</b></span>"]);
 	NgChmGui.UTIL.addBlankRow(prefContents,2);
 	NgChmGui.UTIL.setTableRow(prefContents,["COLUMN LABEL CONFIGURATION"], 2);
 	NgChmGui.UTIL.addBlankRow(prefContents);
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Label Types:  "+colLabelTypePref+labelTypeOptions], 2);  
 	NgChmGui.UTIL.addBlankRow(prefContents);
 	var topColItemData = colConfig.top_items.toString();
-	var topColItems = "<textarea name='colTopItems' id='colTopItems' style='font-family: sans-serif;font-size: 90%;resize: none;' rows='3', cols='50' onchange='NgChmGui.UTIL.setBuildProps();'>"+topColItemData+"</textarea>"; 
-	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Top Label Items:"]);
+	var topColItems = "<div class='advancedAction'><textarea name='colTopItems' id='colTopItems' style='font-family: sans-serif;font-size: 90%;resize: none;' rows='3', cols='50' onchange='NgChmGui.UTIL.setBuildProps();'>"+topColItemData+"</textarea></div>"; 
+	NgChmGui.UTIL.setTableRow(prefContents,["<span class='advancedAction'>&nbsp;&nbsp;Top Label Items:</span>"]);
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;"+topColItems],2);
-	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;<b>Enter comma-separated labels to highlight on map</b>"], 2);
+	NgChmGui.UTIL.setTableRow(prefContents,["<span class='advancedAction'>&nbsp;&nbsp;<b>Enter comma-separated labels to highlight on map</b></span>"]);
 	NgChmGui.UTIL.addBlankRow(prefContents,2);
-	NgChmGui.UTIL.setTableRow(prefContents,["HEAT MAP ATTRIBUTES"], 2);
+	NgChmGui.UTIL.setTableRow(prefContents,["<span class='advancedAction'>HEAT MAP ATTRIBUTES</span>"], 2);
 	var attributesData = "";
 	if (NgChmGui.mapProperties.chm_attributes.length > 0) {
 		for (var i=0;i<NgChmGui.mapProperties.chm_attributes.length;i++) {
@@ -348,10 +383,10 @@ NgChmGui.FORMAT.setupLabelConfigPrefs = function() {
 			}
 		}
 	}
-	var mapAttributes = "<textarea name='mapAttributes' id='mapAttributes' rows='2', cols='40' style='font-family: sans-serif;font-size: 90%;resize: none' onchange='NgChmGui.UTIL.setBuildProps();'>"+attributesData+"</textarea>";
-	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;Enter a colon-separated key/value pair (key:value)."]);
+	var mapAttributes = "<div class='advancedAction'><textarea name='mapAttributes' id='mapAttributes' rows='2', cols='40' style='font-family: sans-serif;font-size: 90%;resize: none' onchange='NgChmGui.UTIL.setBuildProps();'>"+attributesData+"</textarea></div>";
+	NgChmGui.UTIL.setTableRow(prefContents,["<span class='advancedAction'>&nbsp;Enter a colon-separated key/value pair (key:value).</span>"]);
 	NgChmGui.UTIL.setTableRow(prefContents,[mapAttributes]);
-	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;Multiple attributes entries may be separated with a comma: "]);
+	NgChmGui.UTIL.setTableRow(prefContents,["<span class='advancedAction'>&nbsp;Multiple attributes entries may be separated with a comma: </span>"]);
 	labelTypePrefs.appendChild(prefContents);
 	labelTypePrefs.className = 'preferencesSubPanel';
 	labelTypePrefs.style.display='none';
@@ -389,7 +424,7 @@ NgChmGui.FORMAT.setupLabelTypePrefs = function() {
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;"+colTypeItems],2);
 	labelTypePrefs.appendChild(prefContents);
 	labelTypePrefs.className = 'preferencesSubPanel';
-	labelTypePrefs.style.display='none';
+	labelTypePrefs.style.display='none';  
 
 	return labelTypePrefs;
 }
@@ -402,6 +437,7 @@ NgChmGui.FORMAT.setupGapPrefs = function() {
 	var rowConfig = NgChmGui.mapProperties.row_configuration;
 	var colConfig = NgChmGui.mapProperties.col_configuration;
 	var gapPrefs = NgChmGui.UTIL.getDivElement("map_gaps");
+	gapPrefs.className = 'advancedAction';
 	var prefContents = document.createElement("TABLE");
 	NgChmGui.UTIL.addBlankRow(prefContents);
 	NgChmGui.FORMAT.setGapTable(prefContents, rowConfig, "row");

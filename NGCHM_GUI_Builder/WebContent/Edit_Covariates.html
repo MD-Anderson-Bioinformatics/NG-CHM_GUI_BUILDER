@@ -1,6 +1,7 @@
 
 <html lang="en">
     <head>
+		<link rel="shortcut icon" href="ngChmIcon.ico">    	
     	<!-- Global site tag (gtag.js) - Google Analytics -->
 		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-33437813-6"></script>
 		<script>
@@ -33,10 +34,13 @@
 	           		<img id="mdaLogo" src="images/mdabcblogo262x108.png" alt=""/>
 	           </a>
 	       	</div>
-	 		<div id='map_info'>
-		    	<div id="pageTitle">NG-CHM BUILDER: Process Covariates</div>
+	 		<div id='mapInfo'>
+		    	<div class="pageTitle">NG-CHM BUILDER: Process Covariates</div>
      			<div id="ngchmName"  class="inputText" style="font-size: 14px;color: rgb(51, 51, 51);"></div>
 	  		</div>
+      		<div id='optionsMode' class="image-container">
+				<img id='optionsMode_btn' src='images/showAdvancedButton.png' alt='Show Standard or Advanced Features' onclick='NgChmGui.UTIL.toggleAdvanced();NgChmGui.COV.setAdvanced();' />
+			</div>
 	    </div>   
        	<div id="DisplayContainer" class="display_container" style="position: relative;">
 	 		<div id="covarReOrder" class="data_entry_container" style="position: relative;display: none;width: 25%;">   

@@ -17,7 +17,7 @@ NgChmGui.FILE.Matrix = function() {
  **********************************************************************************/
 NgChmGui.FILE.loadData = function() {
 	var properties = NgChmGui.mapProperties;
-	var matrixFile = new NgChmGui.FILE.Matrix();
+	var matrixFile = new NgChmGui.FILE.Matrix(); 
 	NgChmGui.matrixFile = matrixFile.getMatrixFile();
 	if (NgChmGui.UTIL.elemExist(NgChmGui.mapProperties.chm_name)) {
 		document.getElementById("mapNameValue").value = NgChmGui.mapProperties.chm_name;
@@ -30,6 +30,7 @@ NgChmGui.FILE.loadData = function() {
 	var chmFileItem = document.getElementById('image-upload');
 	chmFileItem.addEventListener('change', NgChmGui.matrixFile.sendMatrix, false);
 	NgChmGui.FILE.validateEntries(false);
+	NgChmGui.UTIL.setUpAdvanced();
 }
 
 /**********************************************************************************

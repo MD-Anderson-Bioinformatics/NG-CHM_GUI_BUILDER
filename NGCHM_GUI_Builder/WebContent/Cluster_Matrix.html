@@ -1,6 +1,7 @@
 
 <html lang="en">
     <head>
+		<link rel="shortcut icon" href="ngChmIcon.ico">    	
     	<!-- Global site tag (gtag.js) - Google Analytics -->
 		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-33437813-6"></script>
 		<script>
@@ -30,10 +31,13 @@
 	           		<img id="mdaLogo" src="images/mdabcblogo262x108.png" alt=""/>
 	           </a>
 	       	</div>
-	 		<div id='map_info'>
-		    	<div id="pageTitle">NG-CHM BUILDER: Cluster Matrix</div>
+	 		<div id='mapInfo'>
+		    	<div class="pageTitle">NG-CHM BUILDER: Cluster Matrix</div>
      			<div id="ngchmName" class="inputText" style="font-size: 14px;color: rgb(51, 51, 51);"></div>
  	  		</div>
+      		<div id='optionsMode' class="image-container">
+				<img id='optionsMode_btn' src='images/showAdvancedButton.png' alt='Show Standard or Advanced Features' onclick='NgChmGui.UTIL.toggleAdvanced();' />
+			</div>
 	    </div>   
         <br>
        	<div id="clusterDisplayContainer" class="display_container" style="position: relative">
@@ -75,25 +79,27 @@
 							</div>    
 						</td></tr>
 						<tr><td>
-						    <div id='row_treecuts' class='pref-header' style="display: none;">
-								<input id='rowAddCuts' type="checkbox" name="rowAddCuts" onclick="NgChmGui.UTIL.setBuildProps();NgChmGui.UTIL.setRowCutVisibility();">Add Cluster-Based Covariate<br>				           
-					    		<div id='row_treecuts_options' class='pref-header' style="display: none;">&nbsp;Name:
-									<input name='rowCutsName' id='rowCutsName' maxlength='30' size='15' onchange="NgChmGui.UTIL.setBuildCluster('R');" style="font-size: 11.5;"></input>
-									&nbsp;&nbsp;Clusters:
-									<select name="rowCuts" id="rowCuts" onchange="NgChmGui.UTIL.setBuildCluster('R');">
-									<option value="0">none</option>
-									<option value="2">2</option>
-									<option value="3">3</option>
-									<option value="4">4</option>
-									<option value="5">5</option>
-									<option value="6">6</option>
-									<option value="7">7</option>
-									<option value="8">8</option>
-									<option value="9">9</option>
-									<option value="10">10</option>
-									</select>
+							<div class="advancedAction">
+							    <div id='row_treecuts' class='pref-header' style="display: none;">
+									<input id='rowAddCuts' type="checkbox" name="rowAddCuts" onclick="NgChmGui.UTIL.setBuildProps();NgChmGui.UTIL.setRowCutVisibility();">Add Cluster-Based Covariate<br>				           
+						    		<div id='row_treecuts_options' class='pref-header' style="display: none;">&nbsp;Name:
+										<input name='rowCutsName' id='rowCutsName' maxlength='30' size='15' onchange="NgChmGui.UTIL.setBuildCluster('R');" style="font-size: 11.5;"></input>
+										&nbsp;&nbsp;Clusters:
+										<select name="rowCuts" id="rowCuts" onchange="NgChmGui.UTIL.setBuildCluster('R');">
+										<option value="0">none</option>
+										<option value="2">2</option>
+										<option value="3">3</option>
+										<option value="4">4</option>
+										<option value="5">5</option>
+										<option value="6">6</option>
+										<option value="7">7</option>
+										<option value="8">8</option>
+										<option value="9">9</option>
+										<option value="10">10</option>
+										</select>
+									</div>
+									<br>
 								</div>
-								<br>
 							</div>
 						</td></tr>
 					</table>
@@ -133,25 +139,27 @@
 							</div>
 						</td></tr>
 						<tr><td>
-						    <div id='col_treecuts' class='pref-header' style="display: none;">
-								<input id='colAddCuts' type="checkbox" name="colAddCuts" onclick="NgChmGui.UTIL.setBuildProps();NgChmGui.UTIL.setColCutVisibility();">Add Cluster-Based Covariate<br>				           
-					    		<div id='col_treecuts_options' class='pref-header' style="display: none;">&nbsp;Name:
-									<input name='colCutsName' id='colCutsName' maxlength='30' size='15' onchange="NgChmGui.UTIL.setBuildCluster('C');" style="font-size: 11.5;"></input>
-									&nbsp;&nbsp;Clusters:
-									<select name="colCuts" id="colCuts" onchange="NgChmGui.UTIL.setBuildCluster('C');">
-									<option value="0">none</option>
-									<option value="2">2</option>
-									<option value="3">3</option>
-									<option value="4">4</option>
-									<option value="5">5</option>
-									<option value="6">6</option>
-									<option value="7">7</option>
-									<option value="8">8</option>
-									<option value="9">9</option>
-									<option value="10">10</option>
-									</select>
+							<div class="advancedAction">
+							    <div id='col_treecuts' class='pref-header' style="display: none;">
+									<input id='colAddCuts' type="checkbox" name="colAddCuts" onclick="NgChmGui.UTIL.setBuildProps();NgChmGui.UTIL.setColCutVisibility();">Add Cluster-Based Covariate<br>				           
+						    		<div id='col_treecuts_options' class='pref-header' style="display: none;">&nbsp;Name:
+										<input name='colCutsName' id='colCutsName' maxlength='30' size='15' onchange="NgChmGui.UTIL.setBuildCluster('C');" style="font-size: 11.5;"></input>
+										&nbsp;&nbsp;Clusters:
+										<select name="colCuts" id="colCuts" onchange="NgChmGui.UTIL.setBuildCluster('C');">
+										<option value="0">none</option>
+										<option value="2">2</option>
+										<option value="3">3</option>
+										<option value="4">4</option>
+										<option value="5">5</option>
+										<option value="6">6</option>
+										<option value="7">7</option>
+										<option value="8">8</option>
+										<option value="9">9</option>
+										<option value="10">10</option>
+										</select>
+									</div>
+									<br>
 								</div>
-								<br>
 							</div>
 						</td></tr>
 					</table>					
@@ -162,7 +170,7 @@
 								<img id='clusterPrev_btn' src='images/prevButton.png' alt='Go to previous step' onclick='NgChmGui.UTIL.gotoTransformScreen();' />
 				        </div>   
 				        <div id="clusterNextButton"  class="next_btn">  
-				        	<img id='clusterNext_btn' src='images/nextButton.png' alt='Go to next step' onclick='NgChmGui.UTIL.applySettings(NgChmGui.CLUSTER.applyClusterPrefs,NgChmGui.UTIL.gotoCovariatesScreen)' />		
+				        	<img id='clusterNext_btn' src='images/nextButton.png' alt='Go to next step' onclick='NgChmGui.UTIL.applySettings(NgChmGui.CLUSTER.applyClusterPrefs,NgChmGui.CLUSTER.gotoCovariatesScreen)' />		
 				        </div>
 			        </div>   
 		    </div>			

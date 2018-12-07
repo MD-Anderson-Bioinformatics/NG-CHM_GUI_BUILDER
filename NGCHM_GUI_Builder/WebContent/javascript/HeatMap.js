@@ -12,6 +12,7 @@ NgChmGui.MAP.loadData = function() {
 		NgChmGui.UTIL.setScreenNotes(NgChmGui.MAP.pageText1, true);
 		NgChmGui.UTIL.loadHeatMapView(false);
 	}
+	NgChmGui.UTIL.setUpAdvanced();
 }
 
 /**********************************************************************************

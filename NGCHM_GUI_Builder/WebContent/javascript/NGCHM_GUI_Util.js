@@ -570,22 +570,33 @@ NgChmGui.UTIL.hideLoading = function() {
  * They are used to navigate to the next screen from a previous screen
  **********************************************************************************/
 NgChmGui.UTIL.gotoMatrixScreen = function() {
-	window.open("Select_Matrix.html","_self");
+	window.open("Select_Matrix.html?adv="+NgChmGui.UTIL.showAdvanced,"_self");
 }
 NgChmGui.UTIL.gotoTransformScreen = function() {
-	window.open("Transform_Matrix.html","_self");
+	window.open("Transform_Matrix.html?adv="+NgChmGui.UTIL.showAdvanced,"_self");
 }
 NgChmGui.UTIL.gotoCovariatesScreen = function() {
-	window.open("Edit_Covariates.html","_self");
+	window.open("Edit_Covariates.html?adv="+NgChmGui.UTIL.showAdvanced,"_self");
 }
 NgChmGui.UTIL.gotoClusterScreen = function() {
-	window.open("Cluster_Matrix.html","_self");
+	window.open("Cluster_Matrix.html?adv="+NgChmGui.UTIL.showAdvanced,"_self");
 }
 NgChmGui.UTIL.gotoFormatScreen = function() {
-	window.open("Format_Display.html","_self");
+	window.open("Format_Display.html?adv="+NgChmGui.UTIL.showAdvanced,"_self");
 }
 NgChmGui.UTIL.gotoHeatMapScreen = function() {
-	window.open("View_HeatMap.html","_self");
+	window.open("View_HeatMap.html?adv="+NgChmGui.UTIL.showAdvanced,"_self");
+}
+
+/**********************************************************************************
+ * FUNCTION - urlParam: This function is used to retrieve the set the advanced/standard
+ * functionality off of the URL param value.
+ **********************************************************************************/
+NgChmGui.UTIL.urlParam = function(name){
+    var w =window;
+    var rx = new RegExp('[\&|\?]'+name+'=([^\&\#]+)'),
+        val = w.location.search.match(rx);
+    return !val ? '':val[1];
 }
 
 /**********************************************************************************
@@ -696,4 +707,63 @@ NgChmGui.UTIL.removeOptions = function(selectbox) {
         selectbox.remove(i);
     }
 }
+
+/**********************************************************************************
+ * VARIABLE - showAdvanced: UTIL variable for storing/passing show advanced setting 
+ **********************************************************************************/
+NgChmGui.UTIL.showAdvanced = 'INIT';
+
+/**********************************************************************************
+ * FUNCTION - setUpAdvanced: This function sets the showAdvanced variable based 
+ * upon the URL-based "adv" parameter passed to the screen.  If no parameter is found
+ * the value is set to NO.
+ **********************************************************************************/
+NgChmGui.UTIL.setUpAdvanced = function() {
+	var urlAdv = NgChmGui.UTIL.urlParam('adv');
+	if (NgChmGui.UTIL.showAdvanced === 'INIT') {
+		NgChmGui.UTIL.showAdvanced = ((urlAdv === null) || ((urlAdv === ''))) ? 'N' : urlAdv;
+		NgChmGui.UTIL.loadAdvanced();
+		return true;
+	}
+	return false;
+}
+
+/**********************************************************************************
+ * FUNCTION - toggleAdvanced: This function toggles the advanced/standard functionality
+ * setting when the user clicks on the advanced settings button on the menu bar.
+ **********************************************************************************/
+NgChmGui.UTIL.toggleAdvanced = function() {
+	NgChmGui.UTIL.showAdvanced = NgChmGui.UTIL.showAdvanced === 'N' ? 'Y' : 'N';
+	NgChmGui.UTIL.loadAdvanced();
+}
+
+/**********************************************************************************
+ * FUNCTION - loadAdvanced: This function loads the screen and shows/hides advanced/
+ * standard features based upon the NgChmGui.UTIL.showAdvanced setting value.
+ **********************************************************************************/
+NgChmGui.UTIL.loadAdvanced = function() {
+	var optionsBtn = document.getElementById("optionsMode_btn");
+	if (NgChmGui.UTIL.showAdvanced === 'N') {
+		optionsBtn.src = 'images/showAdvancedButton.png';
+	} else {
+		optionsBtn.src = 'images/hideAdvancedButton.png';
+	}
+	var advElements = document.getElementsByClassName("advancedAction");
+	for (var i = 0; i < advElements.length; i++) {
+		if (NgChmGui.UTIL.showAdvanced === 'N') {
+			advElements[i].style.display = 'none';
+		} else {
+			advElements[i].style.display = '';
+		}
+	}
+	var stdElements = document.getElementsByClassName("standardAction");
+	for (var i = 0; i < stdElements.length; i++) {
+		if (NgChmGui.UTIL.showAdvanced === 'N') {
+			stdElements[i].style.display = '';
+		} else {
+			stdElements[i].style.display = 'none';
+		}
+	}
+}
+
 

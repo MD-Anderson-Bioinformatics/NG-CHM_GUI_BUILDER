@@ -7,6 +7,7 @@ NgChmGui.createNS('NgChmGui.CLUSTER');
  **********************************************************************************/
 NgChmGui.CLUSTER.loadData =  function() {
 	var builderConfig = NgChmGui.mapProperties.builder_config;
+	NgChmGui.UTIL.setUpAdvanced();
 	if (NgChmGui.UTIL.loadHeaderData()) {
 		if (typeof NgChmGui.mapProperties.col_configuration !== 'undefined') {
 			document.getElementById("ColOrder").value = NgChmGui.mapProperties.col_configuration.order_method;
@@ -195,8 +196,8 @@ NgChmGui.CLUSTER.applyClusterPrefs = function() {
 }
 
 /* Validate and go to next screen if everything is good */
-NgChmGui.CLUSTER.gotoFormatScreen = function() {
+NgChmGui.CLUSTER.gotoCovariatesScreen = function() {
 	if (NgChmGui.CLUSTER.validateEntries(true)){
-		NgChmGui.UTIL.gotoFormatScreen()
+		NgChmGui.UTIL.gotoCovariatesScreen();
 	}
 }
