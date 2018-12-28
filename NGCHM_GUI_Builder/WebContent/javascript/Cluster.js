@@ -25,7 +25,7 @@ NgChmGui.CLUSTER.loadData =  function() {
 				}
 			}
 			NgChmGui.CLUSTER.setColOrderVisibility();
-			NgChmGui.UTIL.setColCutVisibility();
+			NgChmGui.CLUSTER.setColCutVisibility();
 		}
 		if (typeof NgChmGui.mapProperties.row_configuration !== 'undefined') {
 			document.getElementById("RowOrder").value = NgChmGui.mapProperties.row_configuration.order_method;
@@ -43,7 +43,7 @@ NgChmGui.CLUSTER.loadData =  function() {
 				}
 			}
 			NgChmGui.CLUSTER.setRowOrderVisibility();
-			NgChmGui.UTIL.setRowCutVisibility();
+			NgChmGui.CLUSTER.setRowCutVisibility();
 		}
 		NgChmGui.UTIL.loadHeatMapView();
 		NgChmGui.CLUSTER.validateEntries(false);
@@ -120,7 +120,11 @@ NgChmGui.CLUSTER.setColOrderVisibility =  function() {
 	}
 }
 
-NgChmGui.UTIL.setColCutVisibility =  function() {
+/**********************************************************************************
+ * FUNCTION - setColCutVisibility: This function sets the visibility of the 
+ * cluster based column covariate bar controls.
+ **********************************************************************************/
+NgChmGui.CLUSTER.setColCutVisibility =  function() {
 	var checkBox = document.getElementById("colAddCuts");
 	var options = document.getElementById("col_treecuts_options");
 	var name = document.getElementById("colCutsName");
@@ -153,7 +157,11 @@ NgChmGui.CLUSTER.setRowOrderVisibility =  function() {
 	}
 }
 
-NgChmGui.UTIL.setRowCutVisibility =  function() {
+/**********************************************************************************
+ * FUNCTION - setRowCutVisibility: This function sets the visibility of the 
+ * cluster based row covariate bar controls.
+ **********************************************************************************/
+NgChmGui.CLUSTER.setRowCutVisibility =  function() {
 	var checkBox = document.getElementById("rowAddCuts");
 	var options = document.getElementById("row_treecuts_options");
 	var name = document.getElementById("rowCutsName");

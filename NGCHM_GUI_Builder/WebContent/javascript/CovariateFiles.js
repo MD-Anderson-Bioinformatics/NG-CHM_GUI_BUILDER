@@ -473,7 +473,9 @@ NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
 	var showOptions = "<option value='N'>No</option><option value='Y'>Yes</option></select>";
 	showSelect = showSelect + showOptions;
 	NgChmGui.UTIL.setTableRow(classContents, ["&nbsp;&nbsp;Show:", showSelect]);
-	NgChmGui.UTIL.addBlankRow(classContents, 2);
+	NgChmGui.UTIL.addBlankRow(classContents, 1);
+	NgChmGui.UTIL.setTableRow(classContents, ["&nbsp;&nbsp;Color Type:", "<b>"+NgChmGui.UTIL.toTitleCase(classItem.color_map.type)+"</b>"]);
+	NgChmGui.UTIL.addBlankRow(classContents, 1);
 
 	//Build color breaks sub panel for color_plot covariates
 	var helpprefsCp = NgChmGui.UTIL.getDivElement("breakPrefsCp_"+key);

@@ -767,3 +767,105 @@ NgChmGui.UTIL.loadAdvanced = function() {
 }
 
 
+/**********************************************************************************
+ * FUNCTION - getHexToRgb: This function converts a hex color to an rgb value.
+ **********************************************************************************/
+NgChmGui.UTIL.getHexToRgb = function(hex) { // I didn't write this function. I'm not that clever. Thanks stackoverflow
+    var rgbColor = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return rgbColor ? {
+        r: parseInt(rgbColor[1], 16),
+        g: parseInt(rgbColor[2], 16),
+        b: parseInt(rgbColor[3], 16),
+        a: 255
+    } : null;
+}
+
+/**********************************************************************************
+ * FUNCTION - getApproximatedColor: This function converts an hex color value to an
+ * rgb color value and then uses that value to generate an approximated color name
+ * based upon calculated Hue, Saturation, and Luminance values.
+ **********************************************************************************/
+NgChmGui.UTIL.getApproximatedColor = function(hexCode) {
+	var rgb = NgChmGui.UTIL.getHexToRgb(hexCode);
+	var colorVal = 'Unknown';
+	var rCalc = rgb.r/255;
+	var gCalc = rgb.g/255;
+	var bCalc = rgb.b/255;
+	var minVal =  rCalc;
+	if (gCalc < minVal) {
+		minVal = gCalc;
+	}
+	if (bCalc < minVal) {
+		minVal = bCalc;
+	}
+	var maxVal =  rCalc;
+	if (gCalc > maxVal) {
+		maxVal = gCalc;
+	}
+	if (bCalc > maxVal) {
+		maxVal = bCalc;
+	}
+	//Calculate luminance
+	var luminance = Math.round(((minVal+maxVal)/2)*100);
+	//Calculate saturation
+	var saturation = 0;
+	if (luminance <= .5) {
+		saturation = (maxVal-minVal)/(maxVal+minVal);
+	} else {
+		saturation = (maxVal-minVal)/(2.0-maxVal-minVal);
+	}
+	saturation = saturation * 100;
+	//Calculate hue
+	var hue = 0;
+	if (rCalc === maxVal) {
+		hue = (gCalc-bCalc)/(maxVal-minVal);
+	} else if (gCalc === maxVal) {
+		hue = 2.0 + (bCalc-rCalc)/(maxVal-minVal);
+	} else {
+		hue = 4.0 + (rCalc-gCalc)/(maxVal-minVal);
+	}
+	//Convert hue to degrees on a 360 degree scale
+	var hueDegrees = hue*60;
+	if (hueDegrees < 0) {
+		hueDegrees = hueDegrees + 360;
+	}
+	hueDegrees = Math.round(hueDegrees);
+	//Use hue degrees to calculate color family
+	var hueColor = 'Black';
+	if ((hueDegrees > 340) || (hueDegrees < 11)) {
+		hueColor = 'Red'
+	} else if ((hueDegrees > 10) && (hueDegrees < 46)) {
+		hueColor = 'Orange';
+	} else if ((hueDegrees > 45) && (hueDegrees < 71)) {
+		hueColor = 'Yellow';
+	} else if ((hueDegrees > 70) && (hueDegrees < 170)) {
+		hueColor = 'Green';
+	} else if ((hueDegrees > 169) && (hueDegrees < 186)) {
+		hueColor = 'Cyan';
+	} else if ((hueDegrees > 185) && (hueDegrees < 265)) {
+		hueColor = 'Blue';
+	} else if ((hueDegrees > 264) && (hueDegrees < 286)) {
+		hueColor = 'Purple';
+	} else {
+		hueColor = 'Magenta';
+	}
+	//Use saturation and luminance to adjust color family (light/dark/gray/black/white)
+	//for final color value
+	if (saturation < 15) {
+		colorVal = 'Gray';
+	} else if (luminance < 13) {
+		colorVal = 'Black';
+	} else if (luminance > 97) {
+		colorVal = 'White';
+	} else if ((luminance > 12) && (luminance < 40)) {
+		colorVal = 'Dark' + hueColor;
+	} else if (luminance > 60) {
+		colorVal = 'Light' + hueColor;
+	} else {
+		colorVal = hueColor;
+	}
+	//Add RGB values to color value returned for display
+	colorVal += " (rgb: " + rgb.r + "," + rgb.g + "," + rgb.b + ")";
+	return colorVal
+}
+

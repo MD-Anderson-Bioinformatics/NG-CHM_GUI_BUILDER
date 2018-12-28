@@ -165,6 +165,7 @@ public class HeatmapPropertiesManager {
 	
 	public class Classification {
 		public String name;
+		public String filename;
 		public String path;
 		public String height;
 		public String position;
@@ -176,8 +177,9 @@ public class HeatmapPropertiesManager {
 		public String show;
 		public ColorMap color_map;
 		public String tree_cuts = "0";
-		public Classification (String name, String path, String position, String showVal, String heightVal, String barType, String fgColor, String bgColor, String lowBound, String highBound, ColorMap cmap, String treeCuts) {
+		public Classification (String name, String filename, String path, String position, String showVal, String heightVal, String barType, String fgColor, String bgColor, String lowBound, String highBound, ColorMap cmap, String treeCuts) {
 			this.name = name; 
+			this.filename = filename; 
 			this.path = path; 
 			this.position = position; 
 			this.show = showVal;

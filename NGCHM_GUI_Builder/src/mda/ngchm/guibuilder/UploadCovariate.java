@@ -37,7 +37,7 @@ public class UploadCovariate extends HttpServlet {
 	    final String colorType = request.getParameter("colorType");
 	    final String axisType = request.getParameter("axisType");
 	    final PrintWriter writer = response.getWriter();
-
+	    
 	    try {
 	        //Create a directory using the http session ID
 	    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
@@ -48,6 +48,7 @@ public class UploadCovariate extends HttpServlet {
 	        //Check for pre-existence of properties file.  If exists, load from properties manager
 		    String propJSON = "{}";
 	        if (propFile.exists()) {
+	        	mgr.load();
 	        	mgr.resetBuildConfig();
 	        	processCovariateUpload(workingDir, filePart, covName, colorType, axisType);
 		        //Re-build the heat map 
@@ -99,7 +100,7 @@ public class UploadCovariate extends HttpServlet {
 			        Util.uploadTSV(covFileName, filecontent);
 			    }
 			    ProcessCovariate cov = new ProcessCovariate();
-	        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructDefaultCovariate(mgr, covName, covFileName, axisType, colorType,"0");
+	        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructDefaultCovariate(mgr, inFile, covName, covFileName, axisType, colorType,"0");
 	        	map.classification_files.add(classJsonObj);	 
 		        //Mark properties as "clean" for update.
 	        	map.builder_config.buildProps = "N";

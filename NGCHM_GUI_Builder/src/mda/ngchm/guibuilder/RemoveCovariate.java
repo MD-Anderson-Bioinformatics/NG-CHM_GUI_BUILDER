@@ -56,6 +56,15 @@ public class RemoveCovariate extends HttpServlet {
 	        	for (int i=0;i < map.classification_files.size(); i++) {
 	        		HeatmapPropertiesManager.Classification currClass = map.classification_files.get(i);
 	        		if (currClass.name.equals(covName) && (currClass.position.equals(axisType))) {
+	        			if (currClass.path.equals("treecut")) {
+	        				if (currClass.position.equals("row")) {
+	    	        			map.builder_config.rowCuts = "0";
+	    	        			map.builder_config.rowCutsLabel = "Clusters";
+	        				} else {
+	    	        			map.builder_config.colCuts = "0";
+	    	        			map.builder_config.colCutsLabel = "Clusters";
+	        				}
+	        			}
 	        			indexToRem = i;
 	        		}
 	        	}

@@ -106,7 +106,7 @@ public class ProcessMatrix extends HttpServlet {
 			        	String covName = matrixConfig.rowCovNames.get(i);
 			        	String covFileName = workingDir + "/covariate_"+ covCtr + ".txt";
 			        	buildFilteredRowCovariate(workingDir, matrixConfig, covFileName, covCol);
-			        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructDefaultCovariate(mgr, covName, covFileName, "row", covType, "0");
+			        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructDefaultCovariate(mgr, matrixConfig.matrixFileName, covName, covFileName, "row", covType, "0");
 			        	map.classification_files.add(classJsonObj);	    
 			        	covCtr++;
 			        }
@@ -118,7 +118,7 @@ public class ProcessMatrix extends HttpServlet {
 			        	String covName = matrixConfig.colCovNames.get(i);
 			        	String covFileName = workingDir + "/covariate_"+ covCtr + ".txt";
 				        buildFilteredColCovariate(workingDir, matrixConfig, covFileName, covRow);
-			        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructDefaultCovariate(mgr, covName, covFileName, "column", covType, "0");
+			        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructDefaultCovariate(mgr, matrixConfig.matrixFileName, covName, covFileName, "column", covType, "0");
 			        	map.classification_files.add(classJsonObj);	        	 
 			        	covCtr++;
 			        }

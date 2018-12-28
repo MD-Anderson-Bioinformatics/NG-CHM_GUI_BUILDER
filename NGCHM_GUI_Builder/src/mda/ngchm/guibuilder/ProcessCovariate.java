@@ -20,12 +20,8 @@ public class ProcessCovariate {
 	 * This method constructs a default covariate given an input covariate
 	 * file.
 	 ******************************************************************/
-	public HeatmapPropertiesManager.Classification constructDefaultCovariate(HeatmapPropertiesManager mgr, String covName, String covFilePath, String covPos) throws Exception {
-		return constructDefaultCovariate(mgr, covName, covFilePath, covPos, null, "0");
-	}
-
 	public HeatmapPropertiesManager.Classification constructTreeCutCovariate(HeatmapPropertiesManager mgr, String covName, String covFilePath, String covPos, String colorType, String treeCuts) throws Exception {
-		HeatmapPropertiesManager.Classification covar = mgr.new Classification(covName, covFilePath, covPos, "Y", "15", "color_plot", "#000000", "#FFFFFF", "0", "99", null, treeCuts);
+		HeatmapPropertiesManager.Classification covar = mgr.new Classification(covName, "Generated Cluster-Based File", covFilePath, covPos, "Y", "15", "color_plot", "#000000", "#FFFFFF", "0", "99", null, treeCuts);
 		try {
 			String type = colorType;
 			int cutNbr = Integer.parseInt(treeCuts);		
@@ -44,10 +40,10 @@ public class ProcessCovariate {
 		return covar;
 	}
 	
-	public HeatmapPropertiesManager.Classification constructDefaultCovariate(HeatmapPropertiesManager mgr, String covName, String covFilePath, String covPos, String colorType, String treeCuts) throws Exception {
+	public HeatmapPropertiesManager.Classification constructDefaultCovariate(HeatmapPropertiesManager mgr, String fileName, String covName, String covFilePath, String covPos, String colorType, String treeCuts) throws Exception {
 	    String covariateFile = covFilePath;
 		BufferedReader reader = new BufferedReader(new FileReader(covariateFile));
-		HeatmapPropertiesManager.Classification covar = mgr.new Classification(covName, covFilePath, covPos, "Y", "15", "color_plot", "#000000", "#FFFFFF", "0", "99", null, treeCuts);
+		HeatmapPropertiesManager.Classification covar = mgr.new Classification(covName, fileName, covFilePath, covPos, "Y", "15", "color_plot", "#000000", "#FFFFFF", "0", "99", null, treeCuts);
 		try {
 			String line = reader.readLine();
 			ArrayList<String> covBreaks = new ArrayList<String>();

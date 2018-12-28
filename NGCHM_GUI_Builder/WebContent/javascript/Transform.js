@@ -427,6 +427,7 @@ NgChmGui.TRANS.filterMatrixData =  function() {
 			        	NgChmGui.TRANS.updateLog(document.getElementById("filter_frm") );
 			        	NgChmGui.TRANS.processTransforms();
 			        	NgChmGui.TRANS.getWorkingMatrix();
+			        	NgChmGui.TRANS.initSelects();
 		        	}
 			    }
 			}
@@ -458,6 +459,7 @@ NgChmGui.TRANS.transformMatrixData =  function() {
 		        	if (NgChmGui.mapProperties.builder_config.buildErrors == "" && NgChmGui.UTIL.validSession()){
 		        		NgChmGui.TRANS.updateLog(document.getElementById("trans_frm"));
 			        	NgChmGui.TRANS.processTransforms();
+			        	NgChmGui.TRANS.initSelects();
 		        	} else {
 		        		NgChmGui.TRANS.validateEntries(false);
 		        	}
@@ -568,6 +570,22 @@ NgChmGui.TRANS.doReset = function(){
 	NgChmGui.UTIL.applySettings(NgChmGui.TRANS.validateEntries,NgChmGui.TRANS.revertToState);
 }
 
+NgChmGui.TRANS.initSelects = function() {
+	document.getElementsByName('arange_min')[0].value = '';
+	document.getElementsByName('arange_max')[0].value = '';
+	document.getElementsByName('1range_min')[0].value = '';
+	document.getElementsByName('1range_max')[0].value = '';
+	document.getElementsByName('range_max')[0].value = '';
+	document.getElementsByName('std_limit')[0].value = '';
+	document.getElementsByName('std_pct')[0].value = '';
+	document.getElementsByName('std_num_keep')[0].value = '';
+	document.getElementsByName('std_pct_missing')[0].value = '';
+	document.getElementsByName('std_num_missing')[0].value = '';
+	document.getElementsByName('add_value')[0].value = '';
+	document.getElementsByName('subtract_value')[0].value = '';
+	document.getElementsByName('multiply_value')[0].value = '';
+	document.getElementsByName('divide_value')[0].value = '';
+}
 
 NgChmGui.TRANS.populateLog = function(){
 	var transformConfig = NgChmGui.mapProperties.builder_config.transform_config;
