@@ -120,11 +120,11 @@ NgChmGui.MAP.getChangeLog = function() {
 		if (currClass.bar_type === "color_plot") {
 			logText += colorMap;
 		} else {
-			logText += "    Foreground Color: " + currClass.fg_color + "\n";
-			logText += "    Background Color: " + currClass.bg_color + "\n";
+			logText += "    Foreground Color: " + NgChmGui.UTIL.getApproximatedColor(currClass.fg_color) + "\n";
+			logText += "    Background Color: " + NgChmGui.UTIL.getApproximatedColor(currClass.bg_color) + "\n";
 			logText += "    Lower Bound: " + currClass.low_bound + "\n";
 			logText += "    Upper Bound: " + currClass.high_bound + "\n";
-			logText += "    Missing Color: " + currClass.color_map.missing + "\n";
+			logText += "    Missing Color: " + NgChmGui.UTIL.getApproximatedColor(currClass.color_map.missing) + "\n";
 		}
 		logText += "\n";
 	}
