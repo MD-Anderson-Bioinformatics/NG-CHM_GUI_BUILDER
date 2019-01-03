@@ -32,6 +32,7 @@ public class HeatmapPropertiesManager {
 		public String selection_color;
 		public String cuts_color;
 		public ColorMap color_map;
+		public ArrayList<String> original_thresholds;
 		public MatrixFile (String name, String path, String summary_method, ColorMap cmap) {
 			this.name = name; this.path = path; this.summary_method = summary_method; this.color_map = cmap;
 			this.grid_show = "N"; this.grid_color = "#FFFFFF"; this.cuts_color = "#FFFFFF"; this.selection_color = "#00FF38";
@@ -172,6 +173,8 @@ public class HeatmapPropertiesManager {
 		public String bar_type;
 		public String fg_color;
 		public String bg_color;
+		public String orig_low_bound;
+		public String orig_high_bound;
 		public String low_bound;
 		public String high_bound;
 		public String show;

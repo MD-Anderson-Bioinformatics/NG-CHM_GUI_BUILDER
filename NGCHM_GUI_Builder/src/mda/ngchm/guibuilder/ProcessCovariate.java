@@ -31,7 +31,7 @@ public class ProcessCovariate {
 			    covBreaks.add(cat);
 			}
 			ArrayList<String> covColors = getDefaultClassColors(covBreaks, type);
-			HeatmapPropertiesManager.ColorMap cm = mgr.new ColorMap(type,covColors, covBreaks,"#000000");
+			HeatmapPropertiesManager.ColorMap cm = mgr.new ColorMap(type,covColors, covBreaks,"#B3B3B3");
 			covar.color_map = cm;
 		} catch (Exception e) {
 			// do something here
@@ -85,7 +85,9 @@ public class ProcessCovariate {
 			if (type.equals("continuous")) {
 				covBreaks.clear();
 				covar.low_bound = Float.toString(lowVal);
+				covar.orig_low_bound = Float.toString(lowVal);
 				covar.high_bound = Float.toString(highVal);
+				covar.orig_high_bound = Float.toString(highVal);
 				covBreaks.add(Float.toString(lowVal));
 				covBreaks.add(Float.toString(highVal));
 			}

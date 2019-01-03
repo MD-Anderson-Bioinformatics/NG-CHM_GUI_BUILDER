@@ -100,6 +100,7 @@ public class HeatmapBuild extends HttpServlet {
 		        if (map.matrix_files.get(0).color_map == null) {
 		        	HeatmapPropertiesManager.ColorMap theMap = setDefaultMatrixColors(workingDir, map);
 		        	map.matrix_files.get(0).color_map = theMap;
+		        	map.matrix_files.get(0).original_thresholds = theMap.thresholds;
 		        }
 	        }
 	        
