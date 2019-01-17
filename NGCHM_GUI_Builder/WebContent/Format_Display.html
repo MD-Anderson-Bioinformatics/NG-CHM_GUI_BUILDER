@@ -37,21 +37,20 @@
 		    	<div class="pageTitle">NG-CHM BUILDER: Format Heat Map</div>
      			<div id="ngchmName" class="inputText" style="font-size: 14px;color: rgb(51, 51, 51);"></div>
 	  		</div>
-      		<div id='optionsMode' class="image-container">
-				<img id='optionsMode_btn' src='images/showAdvancedButton.png' alt='Show Standard or Advanced Features' onclick='NgChmGui.UTIL.toggleAdvanced();NgChmGui.FORMAT.setAdvanced();' />
-			</div>
+	 		<div id="helpDiv"><img id='barHelp_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this,1);' src='images/questionMark.png' alt='Open Help Page' onclick='NgChmGui.UTIL.helpOpen("Format");' align="top"/></div> 
 	    </div>   
        	<div id="FormatDisplayContainer" class="display_container" style="position: relative">
 		    <div id="formatSelection" class="data_entry_container" style="width: 25%">
+		 		<div id='optionsMode' align='right' class='chmTR'><b>Show Advanced Features:</b><input type='checkbox' id='optionsCheck' name='optionsCheck' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);NgChmGui.FORMAT.setAdvanced();' onclick='NgChmGui.UTIL.toggleAdvanced();'></div>
 				<div id="preferencesPanel" style="display: none;">
 				</div>
 				<br/>
-				<img id='apply_btn' src='images/applyButton.png' alt='Cluster the Data' style="vertical-align: bottom;" onclick="NgChmGui.UTIL.applySettings(NgChmGui.FORMAT.applySettings, NgChmGui.FORMAT.applyComplete);" />
+				<img id='formatApply_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/applyButton.png' alt='Cluster the Data' style="vertical-align: bottom;" onclick="NgChmGui.UTIL.applySettings(NgChmGui.FORMAT.applySettings, NgChmGui.FORMAT.applyComplete);" />
 				<div class ='navigation_bar'>
-			        <div id="prevButton"  class="prev_btn">  
+			        <div id="formatPrevButton" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'  class="prev_btn">  
 			        	<img id='covarPrev_btn' src='images/prevButton.png' alt='Go to previous step' onclick='NgChmGui.UTIL.gotoCovariatesScreen();' />		
 			        </div>   
-			        <div id="nextButton"  class="next_btn">  
+			        <div id="formatNextButton" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'  class="next_btn">  
 			        	<img id='covarNext_btn' src='images/nextButton.png' alt='Go to next step' onclick='NgChmGui.UTIL.applySettings(NgChmGui.FORMAT.applySettings, NgChmGui.FORMAT.gotoHeatMapScreen);' />		
 			        </div>
 		        </div>   

@@ -20,6 +20,17 @@ table.breakPrefsTable td {
 	padding: 0px 10px 5px 10px;
 }
 
+table.helpTable { 
+  border-collapse: collapse; 
+  width: 90%;
+}
+  
+table.helpTable td, 
+table.helpTable th { 
+  border: 1px solid black;
+  padding: 5px; 
+}
+
 div.serviceHeader
 {
 	position: relative;
@@ -444,3 +455,31 @@ div.serviceHeaderLogo img
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
+#bubbleHelp {
+    margin: 5px !important;
+    padding: 5px 10px 5px 10px !important;
+    border: 1px solid #1a1a1a;
+    border-radius: 15px;
+    font-size: 90% !important;
+    font-family: Arial;
+    font-weight: normal;
+    background: #FFFF99;
+    color: #000000;
+    min-width: 50px;
+    z-index: 10000;
+    text-align: left;
+    box-shadow: 5px 5px 5px #777777;
+    position: absolute;
+}
+
+#helpDiv {
+	position: absolute;
+	right: 10px;
+	top: 5px;
+}
+
+
+
+
+

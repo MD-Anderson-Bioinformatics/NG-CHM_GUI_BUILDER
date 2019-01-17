@@ -35,26 +35,24 @@
 		    	<div class="pageTitle">NG-CHM BUILDER: Cluster Matrix</div>
      			<div id="ngchmName" class="inputText" style="font-size: 14px;color: rgb(51, 51, 51);"></div>
  	  		</div>
-      		<div id='optionsMode' class="image-container">
-				<img id='optionsMode_btn' src='images/showAdvancedButton.png' alt='Show Standard or Advanced Features' onclick='NgChmGui.UTIL.toggleAdvanced();' />
-			</div>
+	 		<div id="helpDiv"><img id='barHelp_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this,1);' src='images/questionMark.png' alt='Open Help Page' onclick='NgChmGui.UTIL.helpOpen("Cluster");' align="top"/></div> 
 	    </div>   
         <br>
        	<div id="clusterDisplayContainer" class="display_container" style="position: relative">
 	 		<div id="clusterSelection" class="data_entry_container" style="width: 25%">
-
+			 		<div id='optionsMode' align='right' class='chmTR'><b>Show Advanced Features:</b><input type='checkbox' id='optionsCheck' name='optionsCheck' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onclick='NgChmGui.UTIL.toggleAdvanced();'></div>
 	 	        	<div class="sec-header">Row Ordering Options:</div>
 					<table class="data_entry">
 						<tr><td>
-				            <select name="RowOrder" id="RowOrder" onchange="NgChmGui.CLUSTER.setRowOrderVisibility();NgChmGui.UTIL.setBuildCluster('R');">
+				            <select name="RowOrder" id="RowOrder"  onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange="NgChmGui.CLUSTER.setRowOrderVisibility();NgChmGui.UTIL.setBuildCluster('R');">
 				  				<option value="Hierarchical">Hierarchical Clustering</option>
 				  				<option value="Random">Random</option>
 				  				<option value="Original">Original Order</option>
 							</select>
 						</td></tr>
 						<tr><td>
-						     <div id='row_distance' class='pref-header' style="display: none;">&nbsp;&nbsp;Distance:
-				             <select name="RowDistance" id="RowDistance" onchange="NgChmGui.UTIL.setBuildCluster('R');">
+						     <div id='row_distance' class='pref-header' style="display: none;">&nbsp;&nbsp;Distance Metric:
+				             <select name="RowDistance" id="RowDistance"  onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'onchange="NgChmGui.UTIL.setBuildCluster('R');">
 				  				<option value="euclidean">Euclidean</option>
 								<!-- <option value="binary">Binary</option>  ** breaks dendrogram-->
 								<option value="manhattan">Manhattan</option>
@@ -66,8 +64,8 @@
 				 			</div>
 						</td></tr>
 						<tr ><td>
-						    <div id='row_method' class='pref-header' style="display: none;">&nbsp;&nbsp;Method:&nbsp;
-				            <select name="RowAgglomeration" id="RowAgglomeration" onchange="NgChmGui.UTIL.setBuildCluster('R');">
+						    <div id='row_method' class='pref-header' style="display: none;">&nbsp;&nbsp;Agglomeration:&nbsp;
+				            <select name="RowAgglomeration" id="RowAgglomeration"  onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'onchange="NgChmGui.UTIL.setBuildCluster('R');">
 								<option value="average">Average Linkage</option>
 								<option value="complete">Complete Linkage</option>
 								<option value="single">Single Linkage</option>
@@ -81,11 +79,11 @@
 						<tr><td>
 							<div class="advancedAction">
 							    <div id='row_treecuts' class='pref-header' style="display: none;">
-									<input id='rowAddCuts' type="checkbox" name="rowAddCuts" onclick="NgChmGui.UTIL.setBuildCluster('R');NgChmGui.CLUSTER.setRowCutVisibility();">Add Cluster-Based Covariate<br>				           
-						    		<div id='row_treecuts_options' class='pref-header' style="display: none;">&nbsp;Name:
-										<input name='rowCutsName' id='rowCutsName' maxlength='30' size='15' onchange="NgChmGui.UTIL.setBuildCluster('R');" style="font-size: 11.5;"></input>
+									<input id='rowAddCuts'  onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'type="checkbox" name="rowAddCuts" onclick="NgChmGui.UTIL.setBuildCluster('R');NgChmGui.CLUSTER.setRowCutVisibility();">Add Cluster-Based Covariate<br>				           
+						    		<div id='row_treecuts_options'  class='pref-header' style="display: none;">&nbsp;Name:
+										<input name='rowCutsName' id='rowCutsName' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'maxlength='30' size='15' onchange="NgChmGui.UTIL.setBuildCluster('R');" style="font-size: 11.5;"></input>
 										&nbsp;&nbsp;Clusters:
-										<select name="rowCuts" id="rowCuts" onchange="NgChmGui.UTIL.setBuildCluster('R');">
+										<select name="rowCuts" id="rowCuts" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange="NgChmGui.UTIL.setBuildCluster('R');">
 										<option value="0">none</option>
 										<option value="2">2</option>
 										<option value="3">3</option>
@@ -106,15 +104,15 @@
 	 	        	<div class="sec-header">Column Ordering Options:</div>
 					<table class="data_entry">
 						<tr><td>
-				            <select name="ColOrder" id="ColOrder" onchange="NgChmGui.CLUSTER.setColOrderVisibility();NgChmGui.UTIL.setBuildCluster('C');">
+				            <select name="ColOrder" id="ColOrder" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange="NgChmGui.CLUSTER.setColOrderVisibility();NgChmGui.UTIL.setBuildCluster('C');">
 				  				<option value="Hierarchical">Hierarchical Clustering</option>
 				  				<option value="Random">Random</option>
 				  				<option value="Original">Original Order</option>
 							</select> 
 						</td></tr>
 						<tr><td>
-						    <div id='col_distance' class='pref-header' style="display: none;">&nbsp;&nbsp;Distance:
-				            <select name="ColDistance" id="ColDistance"  onchange="NgChmGui.UTIL.setBuildCluster('C');">
+						    <div id='col_distance' class='pref-header' style="display: none;">&nbsp;&nbsp;Distance Metric:
+				            <select name="ColDistance" id="ColDistance" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'  onchange="NgChmGui.UTIL.setBuildCluster('C');">
 				  				<option value="euclidean">Euclidean</option>
 								<!-- <option value="binary">Binary</option> ** breaks dendrogram-->
 								<option value="manhattan">Manhattan</option>
@@ -126,8 +124,8 @@
 				 			</div>
 				 		</td></tr>
 						<tr><td>
-						    <div id='col_method' class='pref-header' style="display: none;">&nbsp;&nbsp;Method:&nbsp;
-				            <select name="ColAgglomeration" id="ColAgglomeration"  onchange="NgChmGui.UTIL.setBuildCluster('C');">
+						    <div id='col_method' class='pref-header' style="display: none;">&nbsp;&nbsp;Agglomeration:&nbsp;
+				            <select name="ColAgglomeration" id="ColAgglomeration" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'  onchange="NgChmGui.UTIL.setBuildCluster('C');">
 								<option value="average">Average Linkage</option>
 								<option value="complete">Complete Linkage</option>
 								<option value="single">Single Linkage</option>
@@ -141,11 +139,11 @@
 						<tr><td>
 							<div class="advancedAction">
 							    <div id='col_treecuts' class='pref-header' style="display: none;">
-									<input id='colAddCuts' type="checkbox" name="colAddCuts" onclick="NgChmGui.UTIL.setBuildCluster('C');NgChmGui.CLUSTER.setColCutVisibility();">Add Cluster-Based Covariate<br>				           
+									<input id='colAddCuts' type="checkbox" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' name="colAddCuts" onclick="NgChmGui.UTIL.setBuildCluster('C');NgChmGui.CLUSTER.setColCutVisibility();">Add Cluster-Based Covariate<br>				           
 						    		<div id='col_treecuts_options' class='pref-header' style="display: none;">&nbsp;Name:
-										<input name='colCutsName' id='colCutsName' maxlength='30' size='15' onchange="NgChmGui.UTIL.setBuildCluster('C');" style="font-size: 11.5;"></input>
+										<input name='colCutsName' id='colCutsName'onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'  maxlength='30' size='15' onchange="NgChmGui.UTIL.setBuildCluster('C');" style="font-size: 11.5;"></input>
 										&nbsp;&nbsp;Clusters:
-										<select name="colCuts" id="colCuts" onchange="NgChmGui.UTIL.setBuildCluster('C');">
+										<select name="colCuts" id="colCuts" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange="NgChmGui.UTIL.setBuildCluster('C');">
 										<option value="0">none</option>
 										<option value="2">2</option>
 										<option value="3">3</option>
@@ -164,12 +162,12 @@
 						</td></tr>
 					</table>					
 					<br/>
-					<img id='cluster_btn' src='images/applyButton.png' alt='Cluster the Data' style="vertical-align: bottom;" onclick='NgChmGui.UTIL.applySettings(NgChmGui.CLUSTER.applyClusterPrefs,NgChmGui.CLUSTER.clusteringComplete)' />
+					<img id='clusterApply' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/applyButton.png' alt='Cluster the Data' style="vertical-align: bottom;" onclick='NgChmGui.UTIL.applySettings(NgChmGui.CLUSTER.applyClusterPrefs,NgChmGui.CLUSTER.clusteringComplete)' />
 					<div class ='navigation_bar'>
-				        <div id="clusterPrevButton"  class="prev_btn">  
+				        <div id="clusterPrevButton" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'  class="prev_btn">  
 								<img id='clusterPrev_btn' src='images/prevButton.png' alt='Go to previous step' onclick='NgChmGui.UTIL.gotoTransformScreen();' />
 				        </div>   
-				        <div id="clusterNextButton"  class="next_btn">  
+				        <div id="clusterNextButton" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' class="next_btn">  
 				        	<img id='clusterNext_btn' src='images/nextButton.png' alt='Go to next step' onclick='NgChmGui.UTIL.applySettings(NgChmGui.CLUSTER.applyClusterPrefs,NgChmGui.CLUSTER.gotoCovariatesScreen)' />		
 				        </div>
 			        </div>   

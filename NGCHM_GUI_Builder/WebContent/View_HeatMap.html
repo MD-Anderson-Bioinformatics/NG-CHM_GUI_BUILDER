@@ -21,6 +21,7 @@
 		 	window.onload = function() {
 				NgChmGui.UTIL.getHeatmapProperties(NgChmGui.MAP.loadData);
 				NgChmGui.UTIL.messageBoxConfigure();
+				NgChmGui.UTIL.showAdvanced = NgChmGui.UTIL.urlParam('adv');
 		 	}
 	 	</script>
     </head>
@@ -35,41 +36,42 @@
 		    	<div class="pageTitle">NG-CHM BUILDER: Interactive Heat Map</div>
      			<div id="ngchmName" class="inputText" style="font-size: 14px;color: rgb(51, 51, 51);"></div>
 	  		</div>
+	 		<div id="helpDiv"><img id='barHelp_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this,1);' src='images/questionMark.png' alt='Open Help Page' onclick='NgChmGui.UTIL.helpOpen("Heatmap");' align="top"/></div> 
 	    </div>   
        	<div id="FormatDisplayContainer" class="display_container" style="position: relative">
 	 		<div id="formatSelection" class="data_entry_container" style="width: 15%">
 	 			<br>
         		<div class="image-container">
-					<img id='downloadMap_btn' src='images/getNgchmFileButton.png' alt='Download the heat map to NG-CHM file' onclick='NgChmGui.MAP.downloadMap();' />
+					<img id='downloadMap_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/getNgchmFileButton.png' alt='Download the heat map to NG-CHM file' onclick='NgChmGui.MAP.downloadMap();' />
 				</div>
 				<br><br>
-         		<div class="image-container">
-	 				<img id='downloadPng_btn' src='images/getNgchmThumbnailButton.png' alt='Download Thumbnail .PNG Image file' onclick='NgChm.UTIL.downloadSummaryPng();' />
-				</div>
- 				<br><br>
         		<div class="image-container">
-	 				<img id='downloadPdf_btn' src='images/ngChmPdfButton.png' alt='Download the heat map to PDF file' onclick='NgChm.PDF.openPdfPrefs(this,null);' />
+	 				<img id='downloadPdf_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/ngChmPdfButton.png' alt='Download the heat map to PDF file' onclick='NgChm.PDF.openPdfPrefs(this,null);' />
 				</div>
 				<br><br> 
         		<div class="image-container">
-	 				<a class="downloadViewer_btn" id="nonpressed" href="ngChmApp.html" download><img src="images/ngChmViewerButton.png"/></a>
+	 				<a id="downloadViewer_btn" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' href="ngChmApp.html" download><img src="images/ngChmViewerButton.png"/></a>
 				</div>
  				<br><br>
         		<div class="image-container">
-	 				<img id='downloadChangeLog_btn' src='images/ngChmCreationLogButton.png' alt='Download the heat map change log' onclick='NgChmGui.MAP.getChangeLog();' />
+	 				<img id='downloadChangeLog_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/ngChmCreationLogButton.png' alt='Download the heat map change log' onclick='NgChmGui.MAP.getChangeLog();' />
 				</div>
 				<br><br> 
+          		<div class="image-container">
+	 				<img id='downloadThumb_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/getNgchmThumbnailButton.png' alt='Download Thumbnail .PNG Image file' onclick='NgChm.UTIL.downloadSummaryPng();' />
+				</div>
+ 				<br><br>
  				<br><br>
  				<br><br>
          		<div class="image-container">
-	 				<img id='newHeatMap_btn' src='images/ngChmNewMapButton.png' alt='Start a new heat map build' onclick='NgChmGui.MAP.newMapRequest();' />
+	 				<img id='newHeatMap_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/ngChmNewMapButton.png' alt='Start a new heat map build' onclick='NgChmGui.MAP.newMapRequest();' />
 				</div>
  				<br><br>
  				<br><br>
 				<div class ='navigation_bar'>
 			        <div id="prevButton"  class="prev_btn">  
-			        	<img id='covarPrev_btn' src='images/prevButton.png' alt='Go to previous step' onclick='NgChmGui.UTIL.gotoFormatScreen();' />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;		
-						<img id='returnToMatrix_btn' src='images/ngChmReturnButton.png' alt='Start a new heat map build' onclick='NgChmGui.UTIL.gotoMatrixScreen();' style='left: 80px;'/>
+			        	<img id='viewHeatMapPrev_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/prevButton.png' alt='Go to previous step' onclick='NgChmGui.UTIL.gotoFormatScreen();' />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;		
+						<img id='returnToMatrix_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/ngChmReturnButton.png' alt='Start a new heat map build' onclick='NgChmGui.UTIL.gotoMatrixScreen();' style='left: 80px;'/>
 			        </div>  
 		        </div>
  		    </div>			
@@ -80,12 +82,12 @@
 	        		</div>
 				    <div class="screenNotesRight">
 				   		<div id='expandMap' class="image-container" style="right: 0px">
-							<img id='expandMap_btn' src='images/buttonExpandMap.png' alt='Enlarge Heat Map to Full Screen' onclick='NgChmGui.MAP.expandMap();' />
+							<img id='expandMap_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this,1);' src='images/buttonExpandMap.png' alt='Enlarge Heat Map to Full Screen' onclick='NgChmGui.MAP.expandMap();' />
 						</div>
 					</div>
 				</div>   
 	      		<div id='collapseMap' class="image-container" style="display: none">
-					<img id='collapseMap_btn' src='images/buttonCollapseMap.png' alt='Return Heat Map to Original Size' onclick='NgChmGui.MAP.collapseMap();' />
+					<img id='collapseMap_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this,1);' src='images/buttonCollapseMap.png' alt='Return Heat Map to Original Size' onclick='NgChmGui.MAP.collapseMap();' />
 				</div>
 				<div id='NGCHMEmbed' style="background-color: white; height: 78%; margin-bottom: 0.25em; padding: 5px"></div>
 				<script src='javascript/ngchmWidget-min.js'></script>

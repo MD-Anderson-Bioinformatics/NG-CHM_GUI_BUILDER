@@ -721,7 +721,7 @@ NgChmGui.UTIL.showAdvanced = 'INIT';
 NgChmGui.UTIL.setUpAdvanced = function() {
 	var urlAdv = NgChmGui.UTIL.urlParam('adv');
 	if (NgChmGui.UTIL.showAdvanced === 'INIT') {
-		NgChmGui.UTIL.showAdvanced = ((urlAdv === null) || ((urlAdv === ''))) ? 'N' : urlAdv;
+		NgChmGui.UTIL.showAdvanced = ((urlAdv === null) || (urlAdv === '') || (urlAdv === 'INIT')) ? 'N' : urlAdv;
 		NgChmGui.UTIL.loadAdvanced();
 		return true;
 	}
@@ -733,6 +733,12 @@ NgChmGui.UTIL.setUpAdvanced = function() {
  * setting when the user clicks on the advanced settings button on the menu bar.
  **********************************************************************************/
 NgChmGui.UTIL.toggleAdvanced = function() {
+	var optionsBtn = document.getElementById("optionsCheck");
+	NgChmGui.UTIL.showAdvanced = optionsBtn.checked === true ? 'Y' : 'N';
+	NgChmGui.UTIL.loadAdvanced();
+}
+
+NgChmGui.UTIL.toggleAdvanced2 = function() {
 	NgChmGui.UTIL.showAdvanced = NgChmGui.UTIL.showAdvanced === 'N' ? 'Y' : 'N';
 	NgChmGui.UTIL.loadAdvanced();
 }
@@ -742,6 +748,32 @@ NgChmGui.UTIL.toggleAdvanced = function() {
  * standard features based upon the NgChmGui.UTIL.showAdvanced setting value.
  **********************************************************************************/
 NgChmGui.UTIL.loadAdvanced = function() {
+	var optionsBtn = document.getElementById("optionsCheck");
+	if (NgChmGui.UTIL.showAdvanced === 'N') {
+		optionsBtn.checked = false;
+	} else {
+		optionsBtn.checked = true;
+		
+	}
+	var advElements = document.getElementsByClassName("advancedAction");
+	for (var i = 0; i < advElements.length; i++) {
+		if (NgChmGui.UTIL.showAdvanced === 'N') {
+			advElements[i].style.display = 'none';
+		} else {
+			advElements[i].style.display = '';
+		}
+	}
+	var stdElements = document.getElementsByClassName("standardAction");
+	for (var i = 0; i < stdElements.length; i++) {
+		if (NgChmGui.UTIL.showAdvanced === 'N') {
+			stdElements[i].style.display = '';
+		} else {
+			stdElements[i].style.display = 'none';
+		}
+	}
+}
+
+NgChmGui.UTIL.loadAdvanced2 = function() {
 	var optionsBtn = document.getElementById("optionsMode_btn");
 	if (NgChmGui.UTIL.showAdvanced === 'N') {
 		optionsBtn.src = 'images/showAdvancedButton.png';
@@ -765,7 +797,6 @@ NgChmGui.UTIL.loadAdvanced = function() {
 		}
 	}
 }
-
 
 /**********************************************************************************
  * FUNCTION - getHexToRgb: This function converts a hex color to an rgb value.
@@ -869,3 +900,258 @@ NgChmGui.UTIL.getApproximatedColor = function(hexCode) {
 	return colorVal
 }
 
+/**********************************************************************************
+ * FUNCTION - helpOpen: This function opens the NgChm Builder help html page.  If
+ * an anchor is passed in, it opens the html document to that anchor.  It is 
+ * called from the  right-justified help icon on the header bar of each screen.
+ **********************************************************************************/
+NgChmGui.UTIL.helpOpen = function(anchor) {
+	var shortPath = location.pathname.substring(0,(location.pathname.indexOf("NGCHM_GUI_Builder")+18));
+	var url = location.origin+shortPath;
+	url += "ngChmBuilderHelp.html";
+	if (anchor !== undefined) {
+		url += "#"+anchor;
+	}
+	window.open(url,'_blank');
+}
+
+/**********************************************************************************
+ * FUNCTION - hlp: This function displays a bubble help box on the screen.  It is
+ * activated when the user hovers over a control on the screen. It uses the control's
+ * ID to retrieve text and display width from a help text array and then draws
+ * that text into the bubble help box.  The box is displayed to the right of the
+ * control unless a value is passed in to the "reverse" parameter (which causes
+ * the box to be displayed to the left of the control).
+ **********************************************************************************/
+NgChmGui.UTIL.hlp = function(e,reverse) {
+	NgChmGui.UTIL.hlpC();
+    var helptext = NgChmGui.UTIL.getDivElement("bubbleHelp");
+	NgChmGui.UTIL.detailPoint = setTimeout(function(){
+		var itemId = e.id.indexOf("_") < 0 ? e.id : e.id.substring(0,e.id.indexOf("_"));
+		if (e.id.indexOf("_color_") > 0) {
+			itemId = "covColor";
+		} else if (e.id.startsWith("color")) {
+			itemId = "matrixColor";
+		}
+	    var helpItem = NgChmGui.UTIL.hoverGetHelpItem(itemId);
+	    var elemPos = NgChmGui.UTIL.getElemPosition(e);
+	    var bodyElem = document.getElementsByTagName('body')[0];
+	    if (bodyElem) {
+	    	bodyElem.appendChild(helptext);
+	    }
+	    if (reverse !== undefined) {
+	    	helptext.style.left = elemPos.left - 50 - helpItem[1];
+	    } else {
+	    	helptext.style.left = elemPos.left + e.clientWidth + 20;
+	    }
+    	helptext.style.top = elemPos.top - 10;
+	    helptext.style.width = helpItem[1];
+		var htmlclose = "</font></b>";
+		helptext.innerHTML = "<b><font size='2' color='#0843c1'>"+helpItem[0]+"</font></b>";
+		helptext.style.display="inherit"; 
+	},1500);
+}
+
+/**********************************************************************************
+ * FUNCTION - hlpC: This function clears any bubble help box displayed on the screen.
+ **********************************************************************************/
+NgChmGui.UTIL.hlpC = function() {
+	clearTimeout(NgChmGui.UTIL.detailPoint);
+	var helptext = document.getElementById('bubbleHelp');
+	if (helptext){
+		helptext.remove();
+	}
+}
+
+/**********************************************************************************
+ * FUNCTION - getElemPosition: This function finds the help element selected's 
+ * position on the screen and passes it back to the help function for display. 
+ * The position returned is the position on the entire screen (not the panel that
+ * the control is embedded in).  In this way, the help text bubble may be placed
+ * on the document body.
+ **********************************************************************************/
+NgChmGui.UTIL.getElemPosition = function(el) {
+    var _x = 0;
+    var _y = 0;
+    while( el && !isNaN( el.offsetLeft ) && !isNaN( el.offsetTop ) ) {
+        _x += el.offsetLeft - el.scrollLeft;
+        _y += el.offsetTop - el.scrollTop;
+        el = el.offsetParent;
+    }
+    return { top: _y, left: _x };
+}
+
+/**********************************************************************************
+ * FUNCTION - hoverGetHelpItem: This function uses the element id to retrieve
+ * help text and text width from a 2 dimensional array containing all of the 
+ * application's help text.
+ **********************************************************************************/
+NgChmGui.UTIL.hoverGetHelpItem = function(id) {
+	var helpItem = ['Unknown help item.',50];
+	for (var i=0;i<NgChmGui.UTIL.helpItems.length;i++) {
+		if (NgChmGui.UTIL.helpItems[i][0] === id) {
+			helpItem = [NgChmGui.UTIL.helpItems[i][1],NgChmGui.UTIL.helpItems[i][2]];
+			break;
+		}
+	}
+	return helpItem;
+}
+
+/**********************************************************************************
+ * ARRAY - helpItems: This 2 dimensional array contains all of the bubble help text 
+ * for the NgChm Builder application.  Each array row contains 3 values: The id
+ * name of a control; the help text for that control; and the display width for 
+ * the box holding the text.
+ **********************************************************************************/
+NgChmGui.UTIL.helpItems = [
+	  //Matrix Screen
+	  ["getMatrix", "Press this button to select a data matrix file and begin building the heat map.", 300],
+	  ["sampleMatrix", "Press this button to select the sample data matrix. This matrix can be used to explore all of the features of the NG-CHM Builder. By proceeding through the screens and making configuration selections, you may construct the sample heat map and view it interactively.", 400],
+	  ["mapNameValue", "Enter a Name for the heat map. This name will be displayed in the NG-CHM Viewer and be used as the file name for the map when downloaded.", 400],
+	  ["mapDescValue", "Enter a free-form description for the heat map. This description will appear in the NG-CHM Viewer.", 300],
+	  ["matrixSummaryMethod", "Select a Pixel Summary Method.  This method will be used to summarize values for pixel representation on the summary panel left side of the NG-CHM Viewer.", 400],
+	  ["optionsCheck", "Check this box to expand builder options to show advanced system features. Uncheck the box to see a streamlined set of standard builder options.", 400],
+	  ["rowlabelPos", "Select this button to choose the label row of the matrix by clicking a row on the grid below.", 300],
+	  ["collabelPos", "Select this button to choose the label column of the matrix by clicking a column on the grid below.", 300],
+	  ["rowCovPos", "Select this button to choose the row covariates in the matrix by clicking column(s) on the grid below.", 300],
+	  ["colCovPos", "Select this button to choose the column covariates in the matrix by clicking row(s)on the grid below.", 300],
+	  ["colColorTypePref", "Select a color type (discrete or continuous) for this column covariate.", 300],
+	  ["rowColorTypePref", "Select a color type (discrete or continuous) for this row covariate.", 300],
+	  ["dataStart", "Select this button to choose choose the row/column position where matrix data begins by clicking a cell on the grid below.", 300],
+	  ["matrixNextButton", "Press this button to proceed to the Transform Matrix screen.", 300],
+	  ["barHelp", "Open the NG-CHM Builder help page.", 180],
+
+	  //Transform Screen
+	  ["transPref", "Select a type for the Transformation action that you wish to perform.", 200],
+	  ["Correction", "Select a missing/invalid data correction type to apply to the matrix.", 200],
+	  ["nreplace", "Select this button to choose the value to be used in replacing invalid values.", 300],
+	  ["mreplace", "Select this button to choose the value to be used in replacing missing values.", 300],
+	  ["Filter", "Select a filter type to apply to the matrix.", 200],
+	  ["vfiltermethod", "Select this button to choose a Standard Deviation filtering method from the available options.", 300],
+	  ["rfiltermethod", "Select this button to choose a Range filtering method from the available options.", 300],
+	  ["mfiltermethod", "Select this button to choose a Missing Data filtering method from the available options.", 300],
+	  ["Transform", "Select a Transformation type to apply to the matrix.", 200],
+	  ["tlfiltermethod", "Select this button to choose a Logarithmic transformation method from the available options.", 300],
+	  ["tmrowcol", "Select this button to choose a Mean Centering transformation method from the available options.", 300],
+	  ["tzrowcol", "Select this button to choose a Z-Normalization transformation method from the available options.", 300],
+	  ["tatransformmethod", "Select this button to choose an Arithmetic transformation method from the available options.", 300],
+	  ["Correlations", "Select this button to choose a Correlation type to apply to the matrix.", 300],
+	  ["tctransformmethod", "Select this button to choose a Matrix Operation method from the available options.", 300],
+	  ["trans", "Press this button to apply Transformations selections and reload the matrix.", 300],
+	  ["correlation", "Press this button to apply Correlation Matrix selections and reload the matrix.", 300],
+	  ["filter", "Press this button to apply Filter selections and reload the matrix.", 300],
+	  ["correct", "Press this button to apply Missing/Invalid data correction selections and reload the matrix.", 300],
+	  ["restore", "Press this button to restore the matrix to a previous step, or back to the original version, by selecting a row from the box above and pressing this button.", 400],
+	  ["transPrevButton", "Press this button to return to the Select Matrix screen.", 200],
+	  ["transNextButton", "Press this button apply any changes made and proceed to the Cluster Matrix screen.", 220],
+	  ["Histogram", "Select the distribution method for the histogram displayed below.", 180],
+	  ["dowloadMatrix", "Press this button to download a matrix text file containing transformed data matrix.", 200],
+	  
+	  //Cluster Screen
+	  ["RowOrder", "Select the row Ordering Method to be applied to the heat map.", 300],
+	  ["RowDistance", "Select the Distance Metric to be applied to hierarchically clustered rows.", 200],
+	  ["RowAgglomeration", "Select the Agglomeration Method to be applied to hierarchically clustered rows.", 200],
+	  ["rowAddCuts", "Check this box to add a cluster-based row covariate bar to the heat map.", 200],
+	  ["rowCutsName", "Enter a display name for the cluster-based row covariate bar.", 220],
+	  ["rowCuts", "Select the number of clusters to be included in the cluster-based row covariate bar.", 300],
+	  ["ColOrder", "Select the column Ordering Method to be applied to the heat map.", 220],
+	  ["ColDistance", "Select the Distance Metric to be applied to hierarchically clustered columns.", 200],
+	  ["ColAgglomeration", "Select the Agglomeration Method to be applied to hierarchically clustered columns.", 220],
+	  ["colAddCuts", "Check this box to add a cluster-based column covariate bar to the heat map.", 200],
+	  ["colCutsName", "Enter a display name for the cluster-based column covariate bar.", 220],
+	  ["colCuts", "Select the number of clusters to be included in the cluster-based column covariate bar.", 300],
+	  ["clusterApply", "Press this button to apply any clustering changes, rebuild, and reload the displayed heat map.", 300],
+	  ["clusterPrevButton", "Press this button to return to the Transform Matrix screen.", 200],
+	  ["clusterNextButton", "Press this button to apply any changes and proceed to the Process Covariates screen.", 300],
+	  
+	  //Covariate Screen
+	  ["classPref", "Select an existing covariate bar to edit (below).", 250],
+	  ["addCovar", "Press this button to add a covariate bar to the heat map.", 220],
+	  ["removeCovar", "Press this button to remove a covariate bar from the heat map.", 220],
+	  ["reorderCovar", "Press this button to reorder the display of covariate bars on the heat map", 250],
+	  ["heightPref", "Enter a value for the display height of the covariate bar.", 210],
+	  ["barType", "Select a display type for this continuous covariate bar.", 230],
+	  ["showPref", "Choose whether covariate bar will be displayed (or hidden) on the heat map.", 250],
+	  ["colCovarMove", "Select a row covariate bar to relocate from this display box.", 300],
+	  ["colCovarUp", "Press this button to move the selected column covariate up the list.  This will result in the covariate moving up when displayed.", 400],
+	  ["colCovarDown", "Press this button to move the selected column covariate down the list.  This will result in the covariate moving down when displayed.", 400],
+	  ["rowCovarMove", "Select a column covariate bar to relocate from this display box.", 200],
+	  ["rowCovarUp", "Press this button to move the selected row covariate up the list.  This will result in the covariate moving to the left when displayed.", 400],
+	  ["rowCovarDown", "Press this button to move the selected row covariate down the list.  This will result in covariate moving to the right when displayed.", 400],
+	  ["covReorderCancel", "Press this button to cancel any covariate reordering changes made and return to the covariate edit panel.", 300],
+	  ["covReorderApply", "Press this button to apply all covariate reordering changes, rebuild, and return to the heat map and return to the covariate edit panel.", 400],
+	  ["AgeCovar", "Select the sample Age covariate bar for addition to the sample heat map.", 250],
+	  ["RaceCovar", "Select the sample Gleason Score covariate bar for addition to the sample heat map.", 250],
+	  ["RaceCovar", "Select the sample PSA covariate bar for addition to the sample heat map.", 250],
+	  ["RaceCovar", "Select the sample Race covariate bar for addition to the sample heat map.", 250],
+	  ["covSampUploadCancel", "Press this button to cancel any sample covariate bar selection made and return to the covariate edit panel.", 300],
+	  ["covSampUploadApply", "Press this button to add the selected sample covariate bar, rebuild the heat map, and return to the covariate edit panel.", 300],
+	  ["covarFileSelect", "Press this button to select a covariate file for the heat map.", 250],
+	  ["covName", "Enter the label that you want to appear displayed with the covariate bar.", 250],
+	  ["axisType", "Select the axis upon which the covariate bar will appear in the heat map.", 250],
+	  ["colorType", "Select the color type, continuous or discrete, for the values in the covariate bar.", 300],
+	  ["covUploadCancel", "Press this button to cancel the covariate file upload and return to the covariate edit panel.", 300],
+	  ["covUploadApply", "Press this button to add the selected covariate bar, rebuild the heat map, and return to the covariate edit panel.", 400],
+	  ["covRemoveCancel", "Press this button to cancel the removal of the covariate bar and return to the covariate edit panel.", 300],
+	  ["covRemoveApply", "Press this button to remove the covariate bar, rebuild the heat map, and return to the covariate edit panel.", 400],
+	  ["covColor", "Select a color for this category on the covariate bar.", 250],
+	  ["missing", "Select a color for missing values.", 170],
+	  ["covPalette", "Select a pre-defined set of colors for the covariate bar.", 200],
+	  ["bgColorPref", "Select a foreground color for scatter/bar plot display.", 300],
+	  ["fgColorPref", "Select a background color for scatter/bar plot display.", 300],
+	  ["lowBound", "Select a lower boundary value for the scatter/bar plot range.", 300],
+	  ["highBound", "Select an upper boundary value for the scatter/bar plot range.", 300],
+	  ["covarApply", "Press this button to apply any covariate changes, rebuild, and reload the displayed heat map.", 300],
+	  ["covarPrevButton", "Press this button to return to the Cluster Matrix screen.", 200],
+	  ["covarNextButton", "Press this button to apply any changes and proceed to the Format Heat Map screen.", 300],
+	  
+	  // Format Screen	  
+	  ["formatTask", "Select the type of heat map formatting task that you wish to perform.", 300],
+	  ["breakPt", "Enter/Edit a value for this threshold.", 200],
+	  ["breakAdd", "Press this button to add a new threshold below this item.", 280],
+	  ["breakDel", "Press this button to remove this threshhold item.", 280],
+	  ["matrixColor", "Select a color for display of data points that fall within this threshold in the matrix.", 300],
+	  ["matrixPalette", "Select a pre-defined set of colors for the display of the matrix bar.", 250],
+	  ["reloadButton", "Press this button to reload the color histogram.", 250],
+	  ["gridShowPref", "Choose whether a grid will be displayed on the detail side of the heat map.", 300],
+	  ["gridColorPref", "Select a color for the grid displayed on the detail side of the heat map.", 300],
+	  ["gapsColorPref", "Select a color for the display of any heat map gaps.", 250],
+	  ["selectionColorPref", "Select a color for the display of the selection box.", 250],
+	  ["summaryWidth", "Select a display percentage for the summary side of the heat map view.", 250],
+	  ["rowDendroShowPref", "Select if and where the row dendrogram will be displayed in the heat map view.", 300],
+	  ["rowDendroHeightPref", "Select the display height for the row dendrogram.", 250],
+	  ["rowLabelSizePref", "Select the maximum displayed label length for row labels in the heat map view.", 300],
+	  ["rowLabelAbbrevPref", "Select where (beginning/middle/end) to abbreviate row labels that exceed the maximum displayed length.", 400],
+	  ["colDendroShowPref", "Select if and where the column dendrogram will be displayed in the heat map view.", 300],
+	  ["colDendroHeightPref", "Select the display height for the column dendrogram.", 250],
+	  ["colLabelSizePref", "Select the maximum displayed length for columns labels in the heat map view.", 300],
+	  ["colLabelAbbrevPref", "Select where (beginning/middle/end) to abbreviate column labels that exceed the maximum displayed length.", 400],
+	  ["rowLabelType", "Select a label type for all row labels. Label type is used to link labels to active plug-ins defined for the heat map.", 400],
+	  ["rowTopItems", "Enter a comma-delimited string of row labels as top items. These items will be highlighted, for easy access, on the summary side of the heat map view.", 400],
+	  ["colLabelType", "Select a label type for all column labels. Label type is used to link labels to active plug-ins defined for the heat map.", 400],
+	  ["colTopItems", "Enter a comma-delimited string of column labels as top items. These items will be highlighted, for easy access, on the summary side of the heat map view.", 400],
+	  ["mapAttributes", "Enter a comma-delimited list of colon-separated key/value pairs as additional attributes for this heat map.", 350],
+	  ["rowGapMethod", "Select a row gap method (by location or cluster) for gaps to be added to rows in the the heat map.", 350],
+	  ["rowGapLocations", "Enter a comma-delimited list of numeric gap locations. A row gap will be placed in the heat map at each of these locations.", 400],
+	  ["rowTreeCuts", "Enter a numeric value for the the number of hierarchichal row clusters to break the heat map up with gaps.", 350],
+	  ["rowCutWidth", "Enter a numeric value for the height (in rows) of all row gaps displayed in the heat map.", 300],
+	  ["colGapMethod", "Select a column gap method (by location or cluster) for gaps to be added to columns in the heat map.", 350],
+	  ["colGapLocations", "Enter a comma-delimited list of numeric gap locations. A column gap will be placed in the heat map at each of these locations.", 400],
+	  ["colTreeCuts", "Enter a numeric value for the number of hierarchichal column clusters to break the heat map up with gaps.", 350],
+	  ["colCutWidth", "Enter a numeric value for the width (in columns) of all column gaps displayed in the heat map.", 300],
+	  ["formatApply", "Press this button to apply any format changes, rebuild, and reload the displayed heat map.", 300],
+	  ["formatPrevButton", "Press this button to return to the Process Covariates screen.", 200],
+	  ["formatNextButton", "Press this button to apply any changes and proceed to the Interactive Heat Map screen.", 300],
+
+	  // Interactive Heat Map Screen
+	  ["downloadMap", "Press this button to download a portable .NGCHM file containing this heat map.  This file may be opened in the stand-alone NG-CHM File Viewer application which may also be downloaded from this screen.", 400],
+	  ["downloadPdf", "Press this button to create a configurable PDF document for this heat map. This PDF is the best source for publication quality images of the heat map.", 400],
+	  ["downloadViewer", "Press this button to download a .HTML file containing the NG-CHM File Viewer application. This application may be used to open saved .NGCHM files containing heat maps.", 400],
+	  ["downloadChangeLog", "Press this button to generate a PDF document containing the creation log for this heat map.  This log contains a listing of all of the configuration setting changes that were made during the creation of the heat map and may be used to recreate the map at a later date.", 400],
+	  ["downloadThumb", "Press this button to download a small .PNG image of the summary side of this heat map. This image may be used as a small 'overview' image for the map in publications or as a click-able thumbnail to be displayed on pages with embedded heat maps.", 400],
+	  ["newHeatMap", "Press this button to delete the current heat map and return to the Matrix Selection screen to create a new heat map. Please note that any entries for the current heat map will be lost.  You may want to save a .NGCHM for the map before proceeding.", 300],
+	  ["expandMap", "Press this button to expand the size of the heat map view panel to full screen mode.", 300],
+	  ["collapseMap", "Press this button to collapse the size of the heat map view panel back to normal size.", 300],
+	  ["viewHeatMapPrev", "Press this button to return to the Format Heat Map screen.", 300],
+	  ["returnToMatrix", "Press this button to return to the Matrix Selection screen at the beginning of the heat map creation process. All settings for your current heat map will be retained.", 300]
+];

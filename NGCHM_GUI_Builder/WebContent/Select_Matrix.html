@@ -38,24 +38,22 @@
 	 		<div id='mapInfo'>
 		    	<div class="pageTitle">NG-CHM BUILDER: Select Matrix</div>
 	  		</div>
-      		<div id='optionsMode' class="image-container">
-				<img id='optionsMode_btn' src='images/showAdvancedButton.png' alt='Show Standard or Advanced Features' onclick='NgChmGui.UTIL.toggleAdvanced();NgChmGui.matrixFile.setChangedState(true);' />
-			</div>
-	    </div>   
+	 		<div id="helpDiv"><img id='barHelp_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this,1);' src='images/questionMark.png' alt='Open Help Page' onclick='NgChmGui.UTIL.helpOpen();' align="top"/></div> 
+ 	    </div>   
       	<div id="container" class="display_container" style="position: relative;">
 		    <div id="matrixSelection" class="data_entry_container" style="width: 25%">
 		 		<div id="fileLookup">   
 			        <form method="POST" enctype="multipart/form-data" id="matrix_frm" onsubmit="return false;">
 				        	<div class="image-upload" id="image-upload">
 							    <label for="file-input">
-							        <img src="images/buttonMatrixOpen.png"/>
+							        <img src="images/buttonMatrixOpen.png" id='getMatrix' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'/>
 							    </label>
-			    				<input id="file-input" type="file" name="matrix" id="matrix"/>
+			    				<input id="file-input" type="file" name="matrix" id="matrix"  />
 							</div>
 				        	<table cellpadding="0">
 				        		<tr class="chmTR">
 				        			<td><b>&nbsp;&nbsp;Try Sample Matrix:&nbsp;&nbsp;</b></td>
-									<td><img id='sampleMatrix_btn' align="bottom" src='images/buttonSampleOpen.png' alt='Select Sample Matrix' onclick='NgChmGui.matrixFile.sendMatrix(true);' /></td>
+									<td><img id='sampleMatrix_btn' align="bottom" src='images/buttonSampleOpen.png' alt='Select Sample Matrix' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onclick='NgChmGui.matrixFile.sendMatrix(true);' /></td>
 								</tr>
 				        	</table>
 			        </form>
@@ -66,10 +64,11 @@
 		        	</table>
 			    </div>
 		 		<div id='map_info' style="border-top: 4px double #0843c1;">
+			 		<div id='optionsMode' align='right' class='chmTR'><b>Show Advanced Features:</b><input type='checkbox' id='optionsCheck' name='optionsCheck' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onclick='NgChmGui.UTIL.toggleAdvanced();'></div>
 			 		<div id='map_name' class="inputText">
-		     			<div id="mapName" style="font-size: 14px; color: #0843c1; width: 90%"><b>Heat Map Name:</b>&nbsp;&nbsp;<textarea name="mapNameValue" id="mapNameValue" rows="1" cols="40" style="resize: none" maxlength="40" onchange='NgChmGui.FILE.changeNameDesc()'></textarea></div><br>
-		     			<div id="mapDesc" style="font-size: 14px; color: #0843c1;"><b>Heat Map Description:</b>&nbsp;&nbsp;<textarea name="mapDescValue" id="mapDescValue" rows="4" cols="40" style="resize: none" onchange='NgChmGui.FILE.changeNameDesc()'></textarea></div><br>
-		     			<div id="matrixSummary" class="advancedAction" style="font-size: 14px; color: #0843c1;"><b>Pixel Summary Method:</b>&nbsp;&nbsp;<select name='matrixSummaryMethod' id='matrixSummaryMethod' onchange='NgChmGui.FILE.changeNameDesc()'><option value='average'>Mean Value</option><option value='sample'>Sampled Value</option><option value='mode'>Predominant Value</option></select></div>
+		     			<div id="mapName" style="font-size: 14px; color: #0843c1; width: 90%"><b>Heat Map Name:</b>&nbsp;&nbsp;<textarea name="mapNameValue" id="mapNameValue" rows="1" cols="40" style="resize: none" maxlength="40" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.FILE.changeNameDesc()'></textarea></div><br>
+		     			<div id="mapDesc" style="font-size: 14px; color: #0843c1;"><b>Heat Map Description:</b>&nbsp;&nbsp;<textarea name="mapDescValue" id="mapDescValue" rows="4" cols="40" style="resize: none" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.FILE.changeNameDesc()'></textarea></div><br>
+		     			<div id="matrixSummary" class="advancedAction" style="font-size: 14px; color: #0843c1;"><b>Pixel Summary Method:</b>&nbsp;&nbsp;<select name='matrixSummaryMethod' id='matrixSummaryMethod' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.FILE.changeNameDesc()'><option value='average'>Mean Value</option><option value='sample'>Sampled Value</option><option value='mode'>Predominant Value</option></select></div>
 				 		<div id='matrix_name' class="inputText" style="display: none;">
 			     			<div id="matrixName"><b>Matrix Name:</b>&nbsp;&nbsp;<input name="matrixNameValue" id="matrixNameValue" size="40" value="Data Layer 1"></input></div>
 			  		    </div>
@@ -79,7 +78,7 @@
 					<div id="covarPrefsTitle" class="sec-header" style="display: none;"><br>Enter Color Type for Covariates</div>				
 				</div>
 				<div class ='navigation_bar'>
-			        <div id="matrixNextButton" class="next_btn" style="display: none;">
+			        <div id="matrixNextButton" class="next_btn" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' style="display: none;">
 				    	<img id='matrixNext_btn' class="next_btn" src='images/nextButton.png' alt='Go to next step' onclick='NgChmGui.matrixFile.processMatrix();' />
 				    </div>
 			    </div>
@@ -88,11 +87,11 @@
 	        	<div  id="screenNotesDisplay"></div>
 			    <div id="matrix" style="display: none;">
 					<div>
-						<input type="radio" id="rowlabelPos" name="rowType" value="rowLabel" checked> Labels Row (blue)
-						<input type="radio" id="collabelPos" name="rowType" value="colLabel"> Labels Column (blue)
-					  		<input type="radio" id="rowCovPos" class="advancedAction" name="rowType" value="rowCov"><span class="advancedAction"> Row Covariates (yellow)</span>
-					  		<input type="radio" id="colCovPos" class="advancedAction" name="rowType" value="colCov"><span class="advancedAction"> Column Covariates (yellow)</span>
-				  		<input type="radio" id="dataStart" name="rowType" value="dataStart"> Data Start Location (green)
+						<input type="radio" id="rowlabelPos" name="rowType" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' value="rowLabel" checked> Labels Row (blue)
+						<input type="radio" id="collabelPos" name="rowType" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' value="colLabel"> Labels Column (blue)
+					  		<input type="radio" id="rowCovPos" class="advancedAction" name="rowType" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' value="rowCov"><span class="advancedAction"> Row Covariates (yellow)</span>
+					  		<input type="radio" id="colCovPos" class="advancedAction" name="rowType" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' value="colCov"><span class="advancedAction"> Column Covariates (yellow)</span>
+				  		<input type="radio" id="dataStart" name="rowType" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' value="dataStart"> Data Start Location (green)
 				  	</div>
 			        <br><br>
 			        <div id="matrixDisplay" style="display: none;"></div>

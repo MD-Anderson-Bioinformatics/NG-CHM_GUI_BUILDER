@@ -50,7 +50,7 @@ NgChmGui.FILE.addCovarDataEntry = function(item, id, name, itemCtr) {
 	}
    	var covarDiv = NgChmGui.UTIL.getDivElement(item+"Div_"+id);
    	covarDiv.className = 'pref-header';
-	var colorTypeOptionsSelect = "<select name='"+name+"' id='"+item+"Pref_"+id+"' class='cov_color_pref' onchange='NgChmGui.FILE.colorTypeChange();';>" 
+	var colorTypeOptionsSelect = "<select name='"+name+"' id='"+item+"Pref_"+id+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' class='cov_color_pref' onchange='NgChmGui.FILE.colorTypeChange();';>" 
 	var colorTypeOptions = "<option value='none'></option><option value='discrete'>Discrete</option><option value='continuous'>Continuous</option></select>";
 	colorTypeOptionsSelect = colorTypeOptionsSelect+colorTypeOptions;
 	covarDiv.innerHTML = "&nbsp;&nbsp;"+title+":&nbsp;&nbsp;"+colorTypeOptionsSelect;
@@ -861,25 +861,16 @@ NgChmGui.FILE.validateEntries = function(leavingPage) {
 		//Generate error messages
 		var mapName = document.getElementById('mapNameValue').value.trim();
 		if (mapName === "") {
-			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Heat Map Name entry missing.</p>" + NgChmGui.UTIL.nextLine;
+			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Heat Map Name entry missing.</p>";
 			valid = false
 		}
 		if (!NgChmGui.UTIL.isAlphaNumeric(mapName)) {
-			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Heat Map Name cannot contain non-alphanumeric charcaters (Exceptions: space, hyphen, and underscore)</p>" + NgChmGui.UTIL.nextLine;
-			valid = false
-		}
-		var mapDesc = document.getElementById('mapDescValue').value.trim();
-		if (mapDesc === "") {
-			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Heat Map Description entry missing.</p>" + NgChmGui.UTIL.nextLine;
-			valid = false
-		}
-		if (!NgChmGui.UTIL.isAlphaNumeric(mapDesc)) {
-			pageText = pageText  + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Heat Map Description cannot contain non-alphanumeric charcaters (Exceptions: space, hyphen, and underscore).</p>" + NgChmGui.UTIL.nextLine;
+			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Heat Map Name cannot contain non-alphanumeric characters (Exceptions: space, hyphen, and underscore)</p>";
 			valid = false
 		}
 		
 		if (document.getElementById('matrixNameValue').value.trim() === "") {
-			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Missing Matrix Name entry.</p>" + NgChmGui.UTIL.nextLine;
+			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Missing Matrix Name entry.</p>";
 			valid = false
 		}
 		
@@ -888,7 +879,7 @@ NgChmGui.FILE.validateEntries = function(leavingPage) {
 		for (var i=0;i<covColorTypes.length;i++) {
 			var type = covColorTypes[i];
 			if (type.value === 'none') {
-				pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Missing Color Type entry for Covariate: " + type.name + "</p>" +NgChmGui.UTIL.nextLine;
+				pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Missing Color Type entry for Covariate: " + type.name + "</p>";
 				valid = false
 			}
 		}
@@ -916,7 +907,7 @@ NgChmGui.FILE.validateEntries = function(leavingPage) {
  **********************************************************************************/
 NgChmGui.FILE.fileUploadError = function(text) {
 	var pageText = "";
-	pageText = pageText + "<p class='error_message'>" + text + "</p>" + NgChmGui.UTIL.nextLine;
+	pageText = pageText + "<p class='error_message'>" + text + "</p>";
 	//Add in page instruction text
 	if (NgChmGui.matrixFile.isLoaded()){
 		pageText = pageText + NgChmGui.FILE.pageText2 + NgChmGui.UTIL.nextLine;

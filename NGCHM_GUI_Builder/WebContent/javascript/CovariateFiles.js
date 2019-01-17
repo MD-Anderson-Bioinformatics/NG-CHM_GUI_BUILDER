@@ -64,16 +64,16 @@ NgChmGui.COV.validateEntries = function(leavingPage, passedError) {
 	for (var i=0; i< classes.length; i++) {
 		var classItem = classes[i];
 		if ((classItem.height.indexOf(".") > 0) || (classItem.height < 1) || isNaN(classItem.height)) {
-			pageText = pageText + "<p class='error_message'>"+ NgChmGui.UTIL.errorPrefix + "Covariate <font color='red'>" + classItem.name.toUpperCase() + "</font> Height entry must be an integer between 1 and 99.</p>" + NgChmGui.UTIL.nextLine;
+			pageText = pageText + "<p class='error_message'>"+ NgChmGui.UTIL.errorPrefix + "Covariate <font color='red'>" + classItem.name.toUpperCase() + "</font> Height entry must be an integer between 1 and 99.</p>";
 			valid = false;
 		}
 		if (classItem.bar_type !== 'color_plot') {
 			if (isNaN(classItem.low_bound)) {
-				pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Covariate <font color='red'>" + classItem.name.toUpperCase() + "</font> Lower Bound entry must be numeric.</p>" + NgChmGui.UTIL.nextLine;
+				pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Covariate <font color='red'>" + classItem.name.toUpperCase() + "</font> Lower Bound entry must be numeric.</p>";
 				valid = false;
 			}
 			if (isNaN(classItem.high_bound)) {
-				pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Covariate <font color='red'>" + classItem.name.toUpperCase() + "</font> Upper Bound entry must be numeric.</p>" + NgChmGui.UTIL.nextLine;
+				pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Covariate <font color='red'>" + classItem.name.toUpperCase() + "</font> Upper Bound entry must be numeric.</p>";
 				valid = false;
 			}
 		}
@@ -115,7 +115,7 @@ NgChmGui.COV.checkCovariateNames = function() {
 	for (var i=0; i< classes.length; i++) {
 		var classItem = classes[i];
 		var classKey =  NgChmGui.COV.getClassKey(classItem);
-		var className =  document.getElementById('namePref_'+classKey).value;
+		var className =  document.getElementById('covName_'+classKey).value;
 		var dupFound = NgChmGui.COV.checkCovariateName(className,classItem.position);
 		if (dupFound === true) {
 			valid = false;
@@ -133,7 +133,7 @@ NgChmGui.COV.checkCovariateName = function(nameVal, axis) {
 	for (var key in classBars) {
 		var classItem = classBars[key];
 		var classKey =  NgChmGui.COV.getClassKey(classItem);
-		var className =  document.getElementById('namePref_'+classKey).value;
+		var className =  document.getElementById('covName_'+classKey).value;
 		if ((classItem.position === axis) && (className === nameVal)) {
 			nameFoundCnt++;
 		}
@@ -156,10 +156,10 @@ NgChmGui.COV.setupClassPrefs = function(classes) {
 	var classBars = classes;
 	var classPrefsDiv = NgChmGui.UTIL.getDivElement("classPrefsDiv");
 	var prefContents = document.createElement("TABLE");
-	var classSelectStr = "<select name='classPref_list' id='classPref_list' style='font-size: 12px;' onchange='NgChmGui.COV.showClassSelection();'></select>"
-	var addButton = "<img id='add_covar_btn' src='images/addButton.png' alt='Add Covariate' style='vertical-align: bottom;' onclick='NgChmGui.COV.openCovarUpload()' />";
-	var removeButton = "<img id='remove_covar_btn' src='images/removeButton.png' alt='Remove Covariate' style='vertical-align: bottom;display: none' onclick='NgChmGui.COV.openCovarRemoval()' />";
-	var reorderButton = "<img id='reorder_covar_btn' src='images/reorderButton2.png' alt='Reorder Covariates' style='vertical-align: bottom;display: none' onclick='NgChmGui.COV.openCovarReorder()' />";
+	var classSelectStr = "<select name='classPref_list' id='classPref_list' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' style='font-size: 12px;' onchange='NgChmGui.COV.showClassSelection();'></select>"
+	var addButton = "<img id='addCovar_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/addButton.png' alt='Add Covariate' style='vertical-align: bottom;' onclick='NgChmGui.COV.openCovarUpload()' />";
+	var removeButton = "<img id='removeCovar_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/removeButton.png' alt='Remove Covariate' style='vertical-align: bottom;display: none' onclick='NgChmGui.COV.openCovarRemoval()' />";
+	var reorderButton = "<img id='reorderCovar_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/reorderButton2.png' alt='Reorder Covariates' style='vertical-align: bottom;display: none' onclick='NgChmGui.COV.openCovarReorder()' />";
 	NgChmGui.UTIL.setTableRow(prefContents,["Covariates: ", classSelectStr]);
 	NgChmGui.UTIL.addBlankRow(prefContents)
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;",addButton +"&nbsp;"+ removeButton +"&nbsp;&nbsp;&nbsp;&nbsp;"+ reorderButton]);
@@ -174,14 +174,14 @@ NgChmGui.COV.setupClassPrefs = function(classes) {
 			classContentsDiv.style.display='none';
 		}
 		if (NgChmGui.COV.showReorder()) {
-			document.getElementById("reorder_covar_btn").style.display = '';
+			document.getElementById("reorderCovar_btn").style.display = '';
 		}
-		document.getElementById("remove_covar_btn").style.display = '';
+		document.getElementById("removeCovar_btn").style.display = '';
 		document.getElementById("classPref_list").style.display = '';
 	} else {
 		var noClassesDiv = NgChmGui.COV.getEmptyClassesPanel();
 		classPrefsDiv.appendChild(noClassesDiv);
-		document.getElementById("remove_covar_btn").style.display = 'none';
+		document.getElementById("removeCovar_btn").style.display = 'none';
 		document.getElementById("classPref_list").style.display = 'none';
 	}
 	return classPrefsDiv; 
@@ -199,7 +199,7 @@ NgChmGui.COV.setAdvanced = function() {
 				var classItem = classes[i];
 				if (classItem.color_map.type === 'continuous') {
 					var key =  NgChmGui.COV.getClassKey(classItem);
-					var barTypeSelect = document.getElementById("barTypePref_"+key);
+					var barTypeSelect = document.getElementById("barType_"+key);
 					barTypeSelect.value = 'color_plot';
 					NgChmGui.COV.togglePlotTypeProperties(key);
 				}
@@ -215,12 +215,12 @@ NgChmGui.COV.setAdvanced = function() {
 NgChmGui.COV.openCovarReorder = function() {
 	var classes = NgChmGui.mapProperties.classification_files;
 	var reorderColsDiv = document.getElementById("reorderColumnsDiv");
-	var colCovars = document.getElementById("colCovar_list");
+	var colCovars = document.getElementById("colCovarMove_list");
 	NgChmGui.UTIL.removeOptions(colCovars);
 	var colCovarsCtr = -1;
 	var colCovarOptions = "";
 	var reorderRowsDiv = document.getElementById("reorderRowsDiv");
-	var rowCovars = document.getElementById("rowCovar_list");
+	var rowCovars = document.getElementById("rowCovarMove_list");
 	NgChmGui.UTIL.removeOptions(rowCovars);
 	var rowCovarsCtr = -1;
 	var rowCovarOptions = "";
@@ -275,9 +275,9 @@ NgChmGui.COV.openCovarReorder = function() {
  * in the list box, for a given axis, when the user presses the up button.
  **********************************************************************************/
 NgChmGui.COV.covarOrderUp = function(type) {
-	var selectList = document.getElementById("colCovar_list");
+	var selectList = document.getElementById("colCovarMove_list");
 	if (type === 'row') {
-		selectList = document.getElementById("rowCovar_list");
+		selectList = document.getElementById("rowCovarMove_list");
 	}
 	var selectOptions = selectList.getElementsByTagName('option');
 	for (var i = 1; i < selectOptions.length; i++) {
@@ -294,9 +294,9 @@ NgChmGui.COV.covarOrderUp = function(type) {
  * in the list box, for a given axis, when the user presses the down button.
  **********************************************************************************/
 NgChmGui.COV.covarOrderDown = function(type) {
-	var selectList = document.getElementById("colCovar_list");
+	var selectList = document.getElementById("colCovarMove_list");
 	if (type === 'row') {
-		selectList = document.getElementById("rowCovar_list");
+		selectList = document.getElementById("rowCovarMove_list");
 	}
 	var selectOptions = selectList.getElementsByTagName('option');
 	for (var i = selectOptions.length - 2; i >= 0; i--) {
@@ -455,10 +455,10 @@ NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
 	classDiv.className = 'preferencesSubPanel';
 	var classContents = document.createElement("TABLE"); 
 	NgChmGui.UTIL.addBlankRow(classContents);
-	var barTypeOptionsSelect = "<select name='barTypePref_"+key+"' id='barTypePref_"+key+"' onchange='NgChmGui.COV.togglePlotTypeProperties(&quot;"+key+"&quot;)'>"; 
+	var barTypeOptionsSelect = "<select name='barType_"+key+"' id='barType_"+key+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/cancelButton.png' onchange='NgChmGui.COV.togglePlotTypeProperties(&quot;"+key+"&quot;)'>"; 
 	var barTypeOptions = "<option value='color_plot'>Color Plot</option><option value='bar_plot'>Bar Plot</option><option value='scatter_plot'>Scatter Plot</option></select>";
 	barTypeOptionsSelect = barTypeOptionsSelect+barTypeOptions;
-	var barName = "<input name='namePref_"+key+"' id='namePref_"+key+"' value='"+classItem.name+"' maxlength='30' size='20' onchange='NgChmGui.UTIL.setBuildProps();'>&emsp;";
+	var barName = "<input name='covName_"+key+"' id='covName_"+key+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/cancelButton.png' value='"+classItem.name+"' maxlength='30' size='20' onchange='NgChmGui.UTIL.setBuildProps();'>&emsp;";
 	NgChmGui.UTIL.setTableRow(classContents, ["&nbsp;&nbsp;Bar Name:", "<b>"+barName+"</b>"]);
 	NgChmGui.UTIL.setTableRow(classContents,["&nbsp;&nbsp;Bar Position: ","<b>"+NgChmGui.UTIL.toTitleCase(classItem.position)+"</b>"]);
 	if (classItem.color_map.type === 'continuous') {
@@ -467,9 +467,9 @@ NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
 		NgChmGui.UTIL.setTableRow(classContents,["&nbsp;&nbsp;Bar Type: ","<b>"+NgChmGui.UTIL.toTitleCase(classItem.bar_type)+"</b>"]);
 	}
 	NgChmGui.UTIL.addBlankRow(classContents);
-	var barHeight = "<input name='heightPref_"+key+"' id='heightPref_"+key+"' value='"+classItem.height+"' onchange='NgChmGui.UTIL.setBuildProps();'  maxlength='2' size='2'>&emsp;";
+	var barHeight = "<input name='heightPref_"+key+"' id='heightPref_"+key+"' value='"+classItem.height+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();'  maxlength='2' size='2'>&emsp;";
 	NgChmGui.UTIL.setTableRow(classContents, ["&nbsp;&nbsp;Height:", barHeight]);
-	var showSelect = "<select name='showPref_"+key+"' id='showPref_"+key+"' value='"+classItem.show+"' onchange='NgChmGui.UTIL.setBuildProps();' ;>" // 
+	var showSelect = "<select name='showPref_"+key+"' id='showPref_"+key+"' value='"+classItem.show+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();' ;>" // 
 	var showOptions = "<option value='N'>No</option><option value='Y'>Yes</option></select>";
 	showSelect = showSelect + showOptions;
 	NgChmGui.UTIL.setTableRow(classContents, ["&nbsp;&nbsp;Show:", showSelect]);
@@ -490,25 +490,25 @@ NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
 		var color = colors[j];
 		var threshId = j+"_breakPt_"+key;
 		var colorId = j+"_color_"+key;
-		var colorInput = "<input class='spectrumColor' type='color' name='"+colorId+"_colorPref' id='"+colorId+"_colorPref' value='"+color+"' onchange='NgChmGui.UTIL.setBuildProps();' >"; 
+		var colorInput = "<input class='spectrumColor' type='color' name='"+colorId+"_colorPref' id='"+colorId+"_colorPref' value='"+color+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();' >"; 
 		NgChmGui.UTIL.setTableRow(prefContentsCp, ["&nbsp;&nbsp;"+threshold, colorInput]);
 	} 
 	NgChmGui.UTIL.addBlankRow(prefContentsCp);
-	NgChmGui.UTIL.setTableRow(prefContentsCp, ["&nbsp;Missing Color:",  "<input class='spectrumColor' type='color' name='missing_colorPrefCp_"+key+"' id='missing_colorPrefCp_"+key+"' value='"+classItem.color_map.missing+"' onchange='NgChmGui.UTIL.setBuildProps();' >"]);
+	NgChmGui.UTIL.setTableRow(prefContentsCp, ["&nbsp;Missing Color:",  "<input class='spectrumColor' type='color' name='missing_colorPrefCp_"+key+"' id='missing_colorPrefCp_"+key+"' value='"+classItem.color_map.missing+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();' >"]);
 	NgChmGui.UTIL.addBlankRow(prefContentsCp, 3);
 	var prefPalletsCp = document.createElement("TABLE"); 
 	NgChmGui.UTIL.setTableRow(prefPalletsCp, ["&nbsp;<u>Choose a pre-defined color palette:</u>"],3);
 	NgChmGui.UTIL.addBlankRow(prefPalletsCp);
 	if (classItem.color_map.type == "discrete"){
-		var scheme1 = "<div style='display:flex'><div class='preDefPalette' style='background: linear-gradient(to right, #2e1f54,#52057f,#bf033b,#f00a36,#ed3b21,#ffc719,#598c14,#335238, #4a8594,#706357);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ",[\"#1f77b4\",\"#ff7f0e\",\"#2ca02c\", \"#d62728\", \"#9467bd\", \"#8c564b\", \"#e377c2\", \"#7f7f7f\", \"#bcbd22\", \"#17becf\"],\"#ffffff\",\""+classItem.color_map.type+"\")'> </div><div class='preDefPaletteMissingColor' style='background:white'></div></div>";
-		var scheme2 = "<div style='display:flex'><div class='preDefPalette' style='background: linear-gradient(to right, #da5a47,#ffa500,#00a5dc,#004eaf,#2db928,#057855,#b1a24a,#ff2d37,#737373,#cdcdcd, #f0f0f0);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ", [\"#1f77b4\",\"#aec7e8\",\"#ff7f0e\",\"#ffbb78\",\"#2ca02c\",\"#98df8a\",\"#d62728\",\"#ff9896\",\"#9467bd\",\"#c5b0d5\",\"#8c564b\",\"#c49c94\",\"#e377c2\",\"#f7b6d2\",\"#7f7f7f\",\"#c7c7c7\",\"#bcbd22\",\"#dbdb8d\",\"#17becf\",\"#9edae5\"],\"#ffffff\",\""+classItem.color_map.type+"\")'> </div><div class='preDefPaletteMissingColor' style='background:white'></div></div>";
-		var scheme3 = "<div style='display:flex'><div class='preDefPalette' style='background: linear-gradient(to right,#393b79, #637939, #8c6d31, #843c39, #7b4173, #5254a3, #8ca252, #bd9e39, #ad494a, #a55194, #6b6ecf, #b5cf6b, #e7ba52, #d6616b, #ce6dbd, #9c9ede, #cedb9c, #e7cb94, #e7969c, #de9ed6);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ", [\"#393b79\", \"#637939\", \"#8c6d31\", \"#843c39\", \"#7b4173\", \"#5254a3\", \"#8ca252\", \"#bd9e39\", \"#ad494a\", \"#a55194\", \"#6b6ecf\", \"#b5cf6b\", \"#e7ba52\", \"#d6616b\", \"#ce6dbd\", \"#9c9ede\", \"#cedb9c\", \"#e7cb94\", \"#e7969c\", \"#de9ed6\"],\"#ffffff\",\""+classItem.color_map.type+"\")'> </div><div class='preDefPaletteMissingColor' style='background:white'></div></div>";
+		var scheme1 = "<div id='covPalette_1' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' style='display:flex'><div class='preDefPalette' style='background: linear-gradient(to right, #2e1f54,#52057f,#bf033b,#f00a36,#ed3b21,#ffc719,#598c14,#335238, #4a8594,#706357);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ",[\"#1f77b4\",\"#ff7f0e\",\"#2ca02c\", \"#d62728\", \"#9467bd\", \"#8c564b\", \"#e377c2\", \"#7f7f7f\", \"#bcbd22\", \"#17becf\"],\"#ffffff\",\""+classItem.color_map.type+"\")'> </div><div class='preDefPaletteMissingColor' style='background:white'></div></div>";
+		var scheme2 = "<div id='covPalette_2' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' style='display:flex'><div class='preDefPalette' style='background: linear-gradient(to right, #da5a47,#ffa500,#00a5dc,#004eaf,#2db928,#057855,#b1a24a,#ff2d37,#737373,#cdcdcd, #f0f0f0);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ", [\"#1f77b4\",\"#aec7e8\",\"#ff7f0e\",\"#ffbb78\",\"#2ca02c\",\"#98df8a\",\"#d62728\",\"#ff9896\",\"#9467bd\",\"#c5b0d5\",\"#8c564b\",\"#c49c94\",\"#e377c2\",\"#f7b6d2\",\"#7f7f7f\",\"#c7c7c7\",\"#bcbd22\",\"#dbdb8d\",\"#17becf\",\"#9edae5\"],\"#ffffff\",\""+classItem.color_map.type+"\")'> </div><div class='preDefPaletteMissingColor' style='background:white'></div></div>";
+		var scheme3 = "<div id='covPalette_3' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' style='display:flex'><div class='preDefPalette' style='background: linear-gradient(to right,#393b79, #637939, #8c6d31, #843c39, #7b4173, #5254a3, #8ca252, #bd9e39, #ad494a, #a55194, #6b6ecf, #b5cf6b, #e7ba52, #d6616b, #ce6dbd, #9c9ede, #cedb9c, #e7cb94, #e7969c, #de9ed6);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ", [\"#393b79\", \"#637939\", \"#8c6d31\", \"#843c39\", \"#7b4173\", \"#5254a3\", \"#8ca252\", \"#bd9e39\", \"#ad494a\", \"#a55194\", \"#6b6ecf\", \"#b5cf6b\", \"#e7ba52\", \"#d6616b\", \"#ce6dbd\", \"#9c9ede\", \"#cedb9c\", \"#e7cb94\", \"#e7969c\", \"#de9ed6\"],\"#ffffff\",\""+classItem.color_map.type+"\")'> </div><div class='preDefPaletteMissingColor' style='background:white'></div></div>";
 		NgChmGui.UTIL.setTableRow(prefPalletsCp, [scheme1,scheme2,scheme3]);
 		NgChmGui.UTIL.setTableRow(prefPalletsCp, ["&nbsp;Palette1",  "&nbsp;<b>Palette2</b>","&nbsp;<b>Palette3</b>"]);
 	} else {
-		var rainbow = "<div style='display:flex'><div class='preDefPalette' style='background: linear-gradient(to right, red,orange,yellow,green,blue,violet);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ", [\"#FF0000\",\"#FF8000\",\"#FFFF00\",\"#00FF00\",\"#0000FF\",\"#FF00FF\"],\"#000000\",\""+classItem.color_map.type+"\")' > </div><div class='preDefPaletteMissingColor' style='background:black'></div></div>";
-		var greyscale = "<div style='display:flex'><div class='preDefPalette' style='background: linear-gradient(to right, white,black);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ", [\"#FFFFFF\",\"#000000\"],\"#FF0000\",\""+classItem.color_map.type+"\")' > </div><div class='preDefPaletteMissingColor' style='background:red'></div></div>";
-		var redBlackGreen = "<div style='display:flex'><div id='setRedBlackGreen' class='preDefPalette' style='background: linear-gradient(to right, green,black,red);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ", [\"#00FF00\",\"#000000\",\"#FF0000\"],\"#ffffff\",\""+classItem.color_map.type+"\")'> </div>" +
+		var rainbow = "<div id='covPalette_r' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' style='display:flex'><div class='preDefPalette' style='background: linear-gradient(to right, red,orange,yellow,green,blue,violet);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ", [\"#FF0000\",\"#FF8000\",\"#FFFF00\",\"#00FF00\",\"#0000FF\",\"#FF00FF\"],\"#000000\",\""+classItem.color_map.type+"\")' > </div><div class='preDefPaletteMissingColor' style='background:black'></div></div>";
+		var greyscale = "<div id='covPalette_gs' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'style='display:flex'><div class='preDefPalette' style='background: linear-gradient(to right, white,black);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ", [\"#FFFFFF\",\"#000000\"],\"#FF0000\",\""+classItem.color_map.type+"\")' > </div><div class='preDefPaletteMissingColor' style='background:red'></div></div>";
+		var redBlackGreen = "<div id='covPalette_rbg' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'style='display:flex'><div id='setRedBlackGreen' class='preDefPalette' style='background: linear-gradient(to right, green,black,red);' onclick='NgChmGui.COV.setBreaksToPalette(\""+ key+ "\", "+ classIdx+ ", [\"#00FF00\",\"#000000\",\"#FF0000\"],\"#ffffff\",\""+classItem.color_map.type+"\")'> </div>" +
 		"<div class='preDefPaletteMissingColor' style='background:white'></div></div>"
 		NgChmGui.UTIL.setTableRow(prefPalletsCp, [greyscale,rainbow,redBlackGreen]);
 		NgChmGui.UTIL.setTableRow(prefPalletsCp, ["&nbsp;Greyscale",  "&nbsp;<b>Rainbow</b>","&nbsp;<b>Green Red</b>"]);
@@ -519,18 +519,18 @@ NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
 	//Build high/low bounds/colors sub panel for bar and scatter plot covariates
 	var helpprefsBp = NgChmGui.UTIL.getDivElement("breakPrefsBp_"+key);
 	var prefContentsBp = document.createElement("TABLE"); 
-	var lowBoundInput = "<input name='low_bound_"+key+"' id='low_bound_"+key+"' value='"+classItem.low_bound+"' maxlength='10' size='5' onchange='NgChmGui.UTIL.setBuildProps();' >&emsp;";
-	var highBoundInput = "<input name='high_bound_"+key+"' id='high_bound_"+key+"' value='"+classItem.high_bound+"' maxlength='10' size='5' onchange='NgChmGui.UTIL.setBuildProps();' >&emsp;";
+	var lowBoundInput = "<input name='lowBound_"+key+"' id='lowBound_"+key+"' value='"+classItem.low_bound+"' maxlength='10' size='5' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();' >&emsp;";
+	var highBoundInput = "<input name='highBound_"+key+"' id='highBound_"+key+"' value='"+classItem.high_bound+"' maxlength='10' size='5' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();' >&emsp;";
 	NgChmGui.UTIL.addBlankRow(prefContentsBp);
 	NgChmGui.UTIL.setTableRow(prefContentsBp, ["&nbsp;&nbsp;Lower Bound:", lowBoundInput]);
 	NgChmGui.UTIL.setTableRow(prefContentsBp, ["&nbsp;&nbsp;Upper Bound:", highBoundInput]);
 	NgChmGui.UTIL.addBlankRow(prefContentsBp);
-	var bgColorInput = "<input class='spectrumColor' type='color' name='bgColorPref_"+key+"' id='bgColorPref_"+key+"' value='"+classItem.bg_color+"' onchange='NgChmGui.UTIL.setBuildProps();' >"; 
-	var fgColorInput = "<input class='spectrumColor' type='color' name='fgColorPref_"+key+"' id='fgColorPref_"+key+"' value='"+classItem.fg_color+"' onchange='NgChmGui.UTIL.setBuildProps();' >"; 
+	var bgColorInput = "<input class='spectrumColor' type='color' name='bgColorPref_"+key+"' id='bgColorPref_"+key+"' value='"+classItem.bg_color+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();' >"; 
+	var fgColorInput = "<input class='spectrumColor' type='color' name='fgColorPref_"+key+"' id='fgColorPref_"+key+"' value='"+classItem.fg_color+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();' >"; 
 	NgChmGui.UTIL.setTableRow(prefContentsBp, ["&nbsp;&nbsp;Foreground Color:", fgColorInput]);
 	NgChmGui.UTIL.setTableRow(prefContentsBp, ["&nbsp;&nbsp;Background Color:", bgColorInput]);
 	NgChmGui.UTIL.addBlankRow(prefContentsBp);
-	NgChmGui.UTIL.setTableRow(prefContentsBp, ["&nbsp;Missing Color:",  "<input class='spectrumColor' type='color' name='missing_colorPrefBp_"+key+"' id='missing_colorPrefBp_"+key+"' value='"+classItem.color_map.missing+"' onchange='NgChmGui.UTIL.setBuildProps();' >"]);
+	NgChmGui.UTIL.setTableRow(prefContentsBp, ["&nbsp;Missing Color:",  "<input class='spectrumColor' type='color' name='missing_colorPrefBp_"+key+"' id='missing_colorPrefBp_"+key+"' value='"+classItem.color_map.missing+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();' >"]);
 	helpprefsBp.appendChild(prefContentsBp);
 	if (classItem.bar_type === 'color_plot') {
 		helpprefsBp.style.display="none";
@@ -564,17 +564,17 @@ NgChmGui.COV.applySettings = function() {
 	for (var key in classBars) {
 		var classItem = classBars[key];
 		var classKey =  NgChmGui.COV.getClassKey(classItem);
-		var className =  document.getElementById('namePref_'+classKey).value;
+		var className =  document.getElementById('covName_'+classKey).value;
 		if (className !== classItem.name) {
 			NgChmGui.COV.setNameOnMatrixConfig(classItem, className);
 		}
 		classItem.height = document.getElementById('heightPref_'+classKey).value;
 		classItem.show = document.getElementById('showPref_'+classKey).value;
 		if (classItem.color_map.type === 'continuous') {
-			classItem.bar_type = document.getElementById('barTypePref_'+classKey).value;
+			classItem.bar_type = document.getElementById('barType_'+classKey).value;
 		}
-		classItem.low_bound = document.getElementById('low_bound_'+classKey).value;
-		classItem.high_bound = document.getElementById('high_bound_'+classKey).value;
+		classItem.low_bound = document.getElementById('lowBound_'+classKey).value;
+		classItem.high_bound = document.getElementById('highBound_'+classKey).value;
 		classItem.bg_color = document.getElementById('bgColorPref_'+classKey).value;
 		classItem.fg_color = document.getElementById('fgColorPref_'+classKey).value;
 		var colors = classItem.color_map.colors;
@@ -631,7 +631,7 @@ NgChmGui.COV.setClassPrefOptions = function(classes) {
 		var key =  NgChmGui.COV.getClassKey(classItem);
 		document.getElementById('showPref_'+key).value = classItem.show;
 		if (classItem.color_map.type === 'continuous') {
-			document.getElementById('barTypePref_'+key).value = classItem.bar_type;
+			document.getElementById('barType_'+key).value = classItem.bar_type;
 		}
 	}
 	NgChmGui.COV.showClassSelection(0);
@@ -670,7 +670,7 @@ NgChmGui.COV.readyUpload = function() {
 		var idxDot = fileNameTxt.indexOf('.');
 		covName.value = fileNameTxt.substring(0,idxDot);
 	}
-	document.getElementById('covUpload_apply_btn').style.display = '';
+	document.getElementById('covUploadApply_btn').style.display = '';
 }
 
 /**********************************************************************************
@@ -729,13 +729,13 @@ NgChmGui.COV.addCovariateBar = function(nextFunction) {
 NgChmGui.COV.addSampleCovariateBar = function(nextFunction) {
 	var selFile = document.getElementById('selFile');
 	var selItem;
-	if (document.getElementById('Age_Covar').checked) {
+	if (document.getElementById('AgeCovar').checked) {
 		selFile.value = "SampleAgeCovariate.txt";
 		selItem = "column_Age";
-	} else if (document.getElementById('Gleason_Covar').checked) {
+	} else if (document.getElementById('GleasonCovar').checked) {
 		selFile.value = "SampleGleasonCovariate.txt";
 		selItem = "column_Gleason_Score";
-	} else if (document.getElementById('Psa_Covar').checked) {
+	} else if (document.getElementById('PsaCovar').checked) {
 		selFile.value = "SamplePsaCovariate.txt";
 		selItem = "column_PSA";
 	} else {
@@ -913,7 +913,7 @@ NgChmGui.COV.removeCovariateBarFromScreen = function() {
  * color panel defined for the map depending on the bar type.  
  **********************************************************************************/
 NgChmGui.COV.togglePlotTypeProperties = function(key) {
-	var barType = document.getElementById("barTypePref_"+key);
+	var barType = document.getElementById("barType_"+key);
 	var barTypeVal = barType.value;
 	var bbDiv = document.getElementById("breakPrefsBp_"+key);
 	var cbDiv = document.getElementById("breakPrefsCp_"+key);
