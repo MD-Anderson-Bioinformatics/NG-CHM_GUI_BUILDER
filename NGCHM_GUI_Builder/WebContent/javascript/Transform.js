@@ -589,7 +589,7 @@ NgChmGui.TRANS.initSelects = function() {
 
 NgChmGui.TRANS.populateLog = function(){
 	var transformConfig = NgChmGui.mapProperties.builder_config.transform_config;
-	var log = document.getElementById("change_select");
+	var log = document.getElementById("changeSelect");
 	if (transformConfig && transformConfig.logText.length > 0){
 		for (var i = 0; i < transformConfig.logText.length; i++){
 			var updateDiv = document.createElement("option");
@@ -608,7 +608,7 @@ NgChmGui.TRANS.populateLog = function(){
 }
 
 NgChmGui.TRANS.updateLog =  function(form){//formData) {
-	var options = document.getElementById("change_select");
+	var options = document.getElementById("changeSelect");
 	if (form){ // This logic is called when an actual transform is taking place
 		var updateDiv = document.createElement("option");
 		updateDiv.classList.add("change_option");
@@ -663,7 +663,7 @@ NgChmGui.TRANS.updateLog =  function(form){//formData) {
 
 NgChmGui.TRANS.revertToState =  function() {
 	var els = document.getElementsByClassName("change_option");
-	var value = document.getElementById("change_select").value;
+	var value = document.getElementById("changeSelect").value;
 	
 	var req = new XMLHttpRequest();
 	var formData = NgChmGui.UTIL.toURIString( );
