@@ -798,6 +798,7 @@ NgChmGui.COV.loadNewCovariateBar = function() {
 	NgChmGui.COV.loadData();
 	NgChmGui.COV.selectClassDropdown(key);
 	NgChmGui.COV.showClassSelection();	
+	NgChmGui.UTIL.loadAdvanced();
 }
 
 /**********************************************************************************

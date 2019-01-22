@@ -40,7 +40,7 @@
 	    </div>   
      	<div id="TransformDisplayContainer" class="display_container" style="position: relative">
  	 		<div id="transforms" class="data_entry_container" style="width: 25%">
-		 		<div id='optionsMode' align='right' class='chmTR'><b>Show Advanced Features:</b><input type='checkbox' id='optionsCheck' name='optionsCheck' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onclick='NgChmGui.UTIL.toggleAdvanced();'></div>
+		 		<div id='optionsMode' align='right' class='chmTR'><b>Show Advanced Features:</b><input type='checkbox' id='optionsCheck' name='optionsCheck' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onclick='NgChmGui.UTIL.toggleAdvanced();NgChmGui.TRANS.setAdvanced();'></div>
 				<div id="preferencesPanel"  style="min-height: 400px;">
 						<table>
 							<tbody>
@@ -48,9 +48,9 @@
 									<td style="line-height:4px;" colspan="2">&nbsp;</td>
 								</tr>
 								<tr class="chmTR">
-									<td style="font-weight: bold; font-size: 15px;"><span class="advancedAction">&nbsp;Actions:</span></td>
+									<td style="font-weight: bold; font-size: 15px;">&nbsp;Actions:</td>
 									<td>
-										<select name="transPref_list" class="advancedAction" id="transPref_list" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'  onchange="NgChmGui.TRANS.showTransSelection();">
+										<select name="transPref_list" id="transPref_list" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'  onchange="NgChmGui.TRANS.showTransSelection();">
 											<option value="missingDiv">Missing/Invalid Data</option>
 											<option value="filterDiv">Filter Data</option>
 											<option value="transDiv">Transform Data</option>

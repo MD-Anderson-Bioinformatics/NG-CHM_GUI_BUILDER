@@ -28,7 +28,7 @@ NgChmGui.FORMAT.loadData =  function() {
 
 /**********************************************************************************
  * FUNCTION - setAdvanced: This function applies special advanced/standard function
- * display rules that apply to the Covariates screen.
+ * display rules that apply to the Format Heat Map screen.
  **********************************************************************************/
 NgChmGui.FORMAT.setAdvanced = function() {
 	var taskList = document.getElementById('formatTask_list');

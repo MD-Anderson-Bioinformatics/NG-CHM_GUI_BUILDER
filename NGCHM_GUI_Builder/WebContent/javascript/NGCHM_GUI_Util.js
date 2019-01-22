@@ -738,11 +738,6 @@ NgChmGui.UTIL.toggleAdvanced = function() {
 	NgChmGui.UTIL.loadAdvanced();
 }
 
-NgChmGui.UTIL.toggleAdvanced2 = function() {
-	NgChmGui.UTIL.showAdvanced = NgChmGui.UTIL.showAdvanced === 'N' ? 'Y' : 'N';
-	NgChmGui.UTIL.loadAdvanced();
-}
-
 /**********************************************************************************
  * FUNCTION - loadAdvanced: This function loads the screen and shows/hides advanced/
  * standard features based upon the NgChmGui.UTIL.showAdvanced setting value.
@@ -754,31 +749,6 @@ NgChmGui.UTIL.loadAdvanced = function() {
 	} else {
 		optionsBtn.checked = true;
 		
-	}
-	var advElements = document.getElementsByClassName("advancedAction");
-	for (var i = 0; i < advElements.length; i++) {
-		if (NgChmGui.UTIL.showAdvanced === 'N') {
-			advElements[i].style.display = 'none';
-		} else {
-			advElements[i].style.display = '';
-		}
-	}
-	var stdElements = document.getElementsByClassName("standardAction");
-	for (var i = 0; i < stdElements.length; i++) {
-		if (NgChmGui.UTIL.showAdvanced === 'N') {
-			stdElements[i].style.display = '';
-		} else {
-			stdElements[i].style.display = 'none';
-		}
-	}
-}
-
-NgChmGui.UTIL.loadAdvanced2 = function() {
-	var optionsBtn = document.getElementById("optionsMode_btn");
-	if (NgChmGui.UTIL.showAdvanced === 'N') {
-		optionsBtn.src = 'images/showAdvancedButton.png';
-	} else {
-		optionsBtn.src = 'images/hideAdvancedButton.png';
 	}
 	var advElements = document.getElementsByClassName("advancedAction");
 	for (var i = 0; i < advElements.length; i++) {

@@ -14,8 +14,44 @@ NgChmGui.TRANS.loadData =  function() {
 		NgChmGui.TRANS.getWorkingMatrix();
 	}
 	NgChmGui.TRANS.populateLog();
-	NgChmGui.UTIL.setUpAdvanced();
+	if (NgChmGui.UTIL.setUpAdvanced() === true) {
+		NgChmGui.TRANS.setAdvanced();
+	}
 }
+
+/**********************************************************************************
+ * FUNCTION - setAdvanced: This function applies special advanced/standard function
+ * display rules that apply to the Transform screen.
+ **********************************************************************************/
+NgChmGui.TRANS.setAdvanced = function() {
+	var taskList = document.getElementById('transPref_list');
+	if (NgChmGui.UTIL.showAdvanced === 'N') {
+		if (taskList.selectedIndex === 3) {
+			taskList.selectedIndex = 0;
+			NgChmGui.TRANS.showTransSelection();
+		}
+		for (var i=0; i<taskList.length; i++){
+			  if (taskList.options[i].value === 'corrDiv' ) {
+				  taskList.remove(i);
+			  }
+		}
+	} else {
+		var corrFound = false;
+		for (var i=0; i<taskList.length; i++){
+			  if (taskList.options[i].value === 'corrDiv' ) {
+				  corrFound = true;
+			  }
+		}
+		if (corrFound === false) {
+		    var opt = document.createElement('option');
+		    opt.value = 'corrDiv';
+		    opt.innerHTML = 'Matrix Operations';
+		    taskList.appendChild(opt);
+		}
+	}
+}
+
+
 
 /**********************************************************************************
  * FUNCTION - validateEntries: This function validates user entries on the transform
