@@ -180,6 +180,7 @@ public class HeatmapPropertiesManager {
 		public String show;
 		public ColorMap color_map;
 		public String tree_cuts = "0";
+		public String change_type = "N";
 		public Classification (String name, String filename, String path, String position, String showVal, String heightVal, String barType, String fgColor, String bgColor, String lowBound, String highBound, ColorMap cmap, String treeCuts) {
 			this.name = name; 
 			this.filename = filename; 

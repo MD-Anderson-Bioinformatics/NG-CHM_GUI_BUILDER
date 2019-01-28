@@ -8,7 +8,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -25,6 +28,7 @@ import com.google.gson.Gson;
 @WebServlet("/ProcessMatrix")
 public class ProcessMatrix extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	private static Set<String> NA_VALUES = new HashSet<String>(Arrays.asList("null","NA","N/A","-","?","NAN","NaN","Na","na","n/a",""," "));
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
@@ -105,7 +109,9 @@ public class ProcessMatrix extends HttpServlet {
 			        	String covType = matrixConfig.rowCovTypes.get(i);
 			        	String covName = matrixConfig.rowCovNames.get(i);
 			        	String covFileName = workingDir + "/covariate_"+ covCtr + ".txt";
-			        	buildFilteredRowCovariate(workingDir, matrixConfig, covFileName, covCol);
+			        	if (!buildFilteredRowCovariate(workingDir, matrixConfig, covFileName, covCol, covType)) {
+							matrixErrors.add("COVARIATE INVALID: " + covName + " - Matrix data column for continuous Color Type contains non-numeric data. Please change Color Type to Discrete.");
+			        	};
 			        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructDefaultCovariate(mgr, matrixConfig.matrixFileName, covName, covFileName, "row", covType, "0");
 			        	map.classification_files.add(classJsonObj);	    
 			        	covCtr++;
@@ -117,7 +123,9 @@ public class ProcessMatrix extends HttpServlet {
 			        	String covType = matrixConfig.colCovTypes.get(i);
 			        	String covName = matrixConfig.colCovNames.get(i);
 			        	String covFileName = workingDir + "/covariate_"+ covCtr + ".txt";
-				        buildFilteredColCovariate(workingDir, matrixConfig, covFileName, covRow);
+				        if (!buildFilteredColCovariate(workingDir, matrixConfig, covFileName, covRow, covType)) {
+							matrixErrors.add("COVARIATE INVALID: " + covName + " - Matrix data row for continuous Color Type contains non-numeric data. Please change Color Type to Discrete.");
+				        }
 			        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructDefaultCovariate(mgr, matrixConfig.matrixFileName, covName, covFileName, "column", covType, "0");
 			        	map.classification_files.add(classJsonObj);	        	 
 			        	covCtr++;
@@ -127,8 +135,9 @@ public class ProcessMatrix extends HttpServlet {
 	        }
 	        if (matrixErrors.size() > 0) {
 	        	propJSON = "{\"return_code\": \""+  matrixErrors.get(0) + "\"}";
+	        } else {
+				mgr.save();
 	        }
-			mgr.save();
 	       	response.setContentType("application/json");
 	    	response.getWriter().write(propJSON.toString());
 	    	response.flushBuffer();
@@ -391,8 +400,9 @@ public class ProcessMatrix extends HttpServlet {
 	 * This method constructs a column covariate bar data file from contents
 	 * extracted from the original data matrix uploaded to the builder.
 	 ******************************************************************/
-	private void buildFilteredColCovariate(String workingDir, HeatmapPropertiesManager.MatrixGridConfig matrixConfig, String covFileName, int covCol) throws Exception {
-	    String originalFile = workingDir + "/originalMatrix.txt";
+	private boolean buildFilteredColCovariate(String workingDir, HeatmapPropertiesManager.MatrixGridConfig matrixConfig, String covFileName, int covCol, String type) throws Exception {
+		boolean covarValid = true;
+		String originalFile = workingDir + "/originalMatrix.txt";
 		BufferedReader reader = new BufferedReader(new FileReader(originalFile));
 		BufferedWriter  writer = new BufferedWriter(new FileWriter(covFileName));
 		try {
@@ -426,6 +436,12 @@ public class ProcessMatrix extends HttpServlet {
 				if (!value.equals("")) {
 					writer.write(label+"\t"+value+"\n");
 				}
+				if (type.equals("continuous")) {
+					if ((!Util.isNumeric(value)) && (!NA_VALUES.contains(value))){
+						covarValid = false;
+						break;
+					}
+				}
 			}
 		} catch (Exception e) {
 			// do something here
@@ -433,7 +449,7 @@ public class ProcessMatrix extends HttpServlet {
 			reader.close();
 			writer.close();
 		}
-		return;
+		return covarValid;
 	}
 	
 	/*******************************************************************
@@ -442,7 +458,8 @@ public class ProcessMatrix extends HttpServlet {
 	 * This method constructs a row covariate bar data file from contents
 	 * extracted from the original data matrix uploaded to the builder.
 	 ******************************************************************/
-	private void buildFilteredRowCovariate(String workingDir, HeatmapPropertiesManager.MatrixGridConfig matrixConfig, String covFileName, int covRow) throws Exception {
+	private boolean buildFilteredRowCovariate(String workingDir, HeatmapPropertiesManager.MatrixGridConfig matrixConfig, String covFileName, int covRow, String type) throws Exception {
+		boolean covarValid = true;
 	    String originalFile = workingDir + "/originalMatrix.txt";
 		BufferedReader reader = new BufferedReader(new FileReader(originalFile));
 		BufferedWriter writer = new BufferedWriter(new FileWriter(covFileName));
@@ -464,6 +481,12 @@ public class ProcessMatrix extends HttpServlet {
 					String covLabel = toks[matrixConfig.colLabelCol];
 					String covValue = toks[covRow];
 					writer.write(covLabel+"\t"+covValue+"\n");
+					if (type.equals("continuous")) {
+						if ((!Util.isNumeric(covValue)) && (!NA_VALUES.contains(covValue))){
+							covarValid = false;
+							break;
+						}
+					}
 				}
 				rowNum++;
 				line = reader.readLine();
@@ -474,7 +497,7 @@ public class ProcessMatrix extends HttpServlet {
 			reader.close();
 			writer.close();
 		}
-		return;
+		return covarValid;
 	}
 
 }

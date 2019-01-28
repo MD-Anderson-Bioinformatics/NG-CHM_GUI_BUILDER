@@ -252,6 +252,7 @@ NgChmGui.FILE.MatrixFile = function() {
 				        } else {
 				        	var retVal = JSON.parse(req.response);
 				        	if (retVal.return_code !== 0) {
+				        		hasChanged = true;
 				        		NgChmGui.FILE.invalidMatrix(retVal.return_code);
 				        	} else {
 								NgChmGui.UTIL.gotoTransformScreen();

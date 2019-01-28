@@ -91,6 +91,7 @@ public class MapProperties extends HttpServlet {
 	        	mgr.setMap(mapConfig);
 		        //Mark properties as "clean" for update.
 	        	mgr.resetBuildConfig();
+	        	
 	    
 			    //Delete pre-existing heatmap prior to fresh build
 			    HeatmapPropertiesManager.Heatmap map = mgr.getMap();
@@ -99,7 +100,18 @@ public class MapProperties extends HttpServlet {
 			    	FileUtils.cleanDirectory(mapDir); 
 			    	FileUtils.deleteDirectory(mapDir);
 			    }
-			    
+
+			    ProcessCovariate cov = new ProcessCovariate();
+	        	for (int i = 0; i < map.classification_files.size(); i++) {
+	        		HeatmapPropertiesManager.Classification currClass = map.classification_files.get(i);
+	        		if (currClass.change_type.equals("Y")) {
+	        			HeatmapPropertiesManager.ColorMap cm = cov.constructDefaultColorMap(mgr, currClass, currClass.color_map.type);
+	        			currClass.color_map = cm;
+	        			currClass.change_type = "N";
+					    mgr.save();
+	        		}
+	        	}
+
 			    //Cluster, if necessary
 				System.out.println("START Clustering Matrix: " + new Date()); 
 			    boolean clusterSuccess = false;

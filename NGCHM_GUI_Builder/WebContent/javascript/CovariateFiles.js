@@ -39,6 +39,27 @@ NgChmGui.COV.clearPreferencesPanel =  function() {
 }
 
 /**********************************************************************************
+ * FUNCTION - setAdvanced: This function applies special advanced/standard function
+ * display rules that apply to the Covariates screen.
+ **********************************************************************************/
+NgChmGui.COV.setAdvanced = function() {
+	if (NgChmGui.UTIL.showAdvanced === 'N') {
+		var classes = NgChmGui.mapProperties.classification_files;
+		if (classes.length > 0) {
+			for (var i=0;i<classes.length;i++) {
+				var classItem = classes[i];
+				if (classItem.color_map.type === 'continuous') {
+					var key =  NgChmGui.COV.getClassKey(classItem);
+					var barTypeSelect = document.getElementById("barType_"+key);
+					barTypeSelect.value = 'color_plot';
+					NgChmGui.COV.togglePlotTypeProperties(key);
+				}
+			}
+		}
+	}
+}
+
+/**********************************************************************************
  * FUNCTION - validateEntries: the validate function is called on page load, page exit, and when
  * user operations are performed.  It creates conditional messages in the message
  * area including errors and warnings.  It also returns false if errors are detected.  
@@ -77,6 +98,18 @@ NgChmGui.COV.validateEntries = function(leavingPage, passedError) {
 				valid = false;
 			}
 		}
+/*		var colorMap = classItem.color_map;
+		if (colorMap.type === 'continuous') {
+			for (var j=0;j < colorMap.thresholds.length;j++) {
+				var currThresh = colorMap.thresholds[j];
+				if (!NgChmGui.UTIL.isNumeric(currThresh) && (currThresh !== 'NA')) {
+					pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Covariate <font color='red'>" + classItem.name.toUpperCase() + "</font> contains non-numeric categories and cannot have a Color Type of Continuous.</p>";
+					classItem.change_type = "N";
+					valid = false;
+					break;
+				}
+			}
+		}  */
 	}
 	
 	//page exit processing
@@ -100,6 +133,7 @@ NgChmGui.COV.validateEntries = function(leavingPage, passedError) {
 	   pageText = pageText + "Covariate bars are extra descriptive information that can be added above columns or to the left of rows on a heatmap. Covariates fall into two types: 1. discrete categorical information like smoker/non-smoker and 2. continuous numerical information like age.  Covariate files are tab delimited files with two values on each row 1. a label that matches the matrix row or column labels and 2. a value.  Use the add button to insert covariate bars or just hit next if you don't want them." ;
 	}
 	NgChmGui.UTIL.setScreenNotes(pageText);
+	NgChmGui.UTIL.loadAdvanced();
 	
 	return valid;
 }
@@ -187,211 +221,6 @@ NgChmGui.COV.setupClassPrefs = function(classes) {
 	return classPrefsDiv; 
 }
 
-/**********************************************************************************
- * FUNCTION - setAdvanced: This function applies special advanced/standard function
- * display rules that apply to the Covariates screen.
- **********************************************************************************/
-NgChmGui.COV.setAdvanced = function() {
-	if (NgChmGui.UTIL.showAdvanced === 'N') {
-		var classes = NgChmGui.mapProperties.classification_files;
-		if (classes.length > 0) {
-			for (var i=0;i<classes.length;i++) {
-				var classItem = classes[i];
-				if (classItem.color_map.type === 'continuous') {
-					var key =  NgChmGui.COV.getClassKey(classItem);
-					var barTypeSelect = document.getElementById("barType_"+key);
-					barTypeSelect.value = 'color_plot';
-					NgChmGui.COV.togglePlotTypeProperties(key);
-				}
-			}
-		}
-	}
-}
-
-/**********************************************************************************
- * FUNCTION - openCovarReorder: This function loads and opens up the covariate
- * reorder panel.
- **********************************************************************************/
-NgChmGui.COV.openCovarReorder = function() {
-	var classes = NgChmGui.mapProperties.classification_files;
-	var reorderColsDiv = document.getElementById("reorderColumnsDiv");
-	var colCovars = document.getElementById("colCovarMove_list");
-	NgChmGui.UTIL.removeOptions(colCovars);
-	var colCovarsCtr = -1;
-	var colCovarOptions = "";
-	var reorderRowsDiv = document.getElementById("reorderRowsDiv");
-	var rowCovars = document.getElementById("rowCovarMove_list");
-	NgChmGui.UTIL.removeOptions(rowCovars);
-	var rowCovarsCtr = -1;
-	var rowCovarOptions = "";
-	for (var i=0;i<classes.length;i++) {
-		var classItem = classes[i];
-		var option = document.createElement("option");
-		option.text = classItem.name;
-		if (classItem.position === 'row') {
-			rowCovarsCtr++;
-			option.value = rowCovarsCtr;
-			if (rowCovarsCtr === 0) {
-				option.selected = true;
-			}
-			rowCovars.add(option); 
-		} else {
-			colCovarsCtr++;
-			option.value = colCovarsCtr;
-			if (colCovarsCtr === 0) {
-				option.selected = true;
-			}
-			colCovars.add(option); 
-		}
-	}
-	if (rowCovarsCtr > 0) {
-		if (rowCovarsCtr > 11) {
-			rowCovars.size = 10;
-		} else {
-			rowCovars.size = rowCovarsCtr + 1;
-		}
-		reorderRowsDiv.style.display = ''
-	} else {
-		colCovars.size = colCovarsCtr + 1;
-		reorderRowsDiv.style.display = 'none'
-	}
-	if (colCovarsCtr > 0) {
-		if (colCovarsCtr > 11) {
-			colCovars.size = 10;
-		} else {
-			colCovars.size = colCovarsCtr + 1;
-		}
-		colCovars.focus();
-		reorderColsDiv.style.display = ''
-	} else {
-		reorderColsDiv.style.display = 'none'
-	}
-	document.getElementById("covarSelection").style.display = 'none';
-	document.getElementById("covarReOrder").style.display = '';
-}
-
-/**********************************************************************************
- * FUNCTION - covarOrderUp: This function moves a selected covariate upward
- * in the list box, for a given axis, when the user presses the up button.
- **********************************************************************************/
-NgChmGui.COV.covarOrderUp = function(type) {
-	var selectList = document.getElementById("colCovarMove_list");
-	if (type === 'row') {
-		selectList = document.getElementById("rowCovarMove_list");
-	}
-	var selectOptions = selectList.getElementsByTagName('option');
-	for (var i = 1; i < selectOptions.length; i++) {
-		var opt = selectOptions[i];
-		if (opt.selected) {
-			selectList.removeChild(opt);
-			selectList.insertBefore(opt, selectOptions[i - 1]);
-		}
-   }
-}
-
-/**********************************************************************************
- * FUNCTION - covarOrderDown: This function moves a selected covariate downward
- * in the list box, for a given axis, when the user presses the down button.
- **********************************************************************************/
-NgChmGui.COV.covarOrderDown = function(type) {
-	var selectList = document.getElementById("colCovarMove_list");
-	if (type === 'row') {
-		selectList = document.getElementById("rowCovarMove_list");
-	}
-	var selectOptions = selectList.getElementsByTagName('option');
-	for (var i = selectOptions.length - 2; i >= 0; i--) {
-		var opt = selectOptions[i];
-		if (opt.selected) {
-		   var nextOpt = selectOptions[i + 1];
-		   opt = selectList.removeChild(opt);
-		   nextOpt = selectList.replaceChild(opt, nextOpt);
-		   selectList.insertBefore(nextOpt, opt);
-		}
-    }
-}
-
-/**********************************************************************************
- * FUNCTION - showReorder: This function determines whether the reorder button should
- * be shown.  There must be at least 2 covariates on at least one axis.
- **********************************************************************************/
-NgChmGui.COV.showReorder = function() {
-	var classes = NgChmGui.mapProperties.classification_files;
-	var rowCovarsCtr = 0;
-	var colCovarsCtr = 0;
-	for (var i=0;i<classes.length;i++) {
-		var classItem = classes[i];
-		if (classItem.position === 'row') {
-			rowCovarsCtr++;
-		} else {
-			colCovarsCtr++;
-		}
-	}
-	if ((rowCovarsCtr > 1) || (colCovarsCtr > 1)) {
-		return true;
-	} else {
-		return false;
-	}
-}
-
-/**********************************************************************************
- * FUNCTION - applyCovarOrder: This function reorders the covariates for a given
- * map according to the order set in the reorder panel.
- **********************************************************************************/
-NgChmGui.COV.applyCovarOrder = function() {
-	var classes = NgChmGui.mapProperties.classification_files;
-	var colCovarList = document.getElementById("colCovar_list");
-	var rowCovarList = document.getElementById("rowCovar_list");
-	var colOptions = colCovarList.getElementsByTagName('option');
-	var newColOrder = [];
-	for (var i = 0; i < colOptions.length; i++) {
-		var opt = colOptions[i];
-		newColOrder.push(opt.text);
-	}
-	var rowOptions = rowCovarList.getElementsByTagName('option');
-	var newRowOrder = [];
-	for (var i = 0; i < rowOptions.length; i++) {
-		var opt = rowOptions[i];
-		newRowOrder.push(opt.text);
-	}
-	var newOrderClasses = [];
-	for (var i=0;i<newColOrder.length;i++) {
-		var newOrderItem = newColOrder[i];
-		for (var j=0;j<classes.length;j++) {
-			var classItem = classes[j];
-			if ((classItem.position === "column") && (classItem.name.toUpperCase() === newOrderItem.toUpperCase())) {
-				newOrderClasses.push(classItem);
-				break;
-			}
-		}
-	}
-	for (var i=0;i<newRowOrder.length;i++) {
-		var newOrderItem = newRowOrder[i];
-		for (var j=0;j<classes.length;j++) {
-			var classItem = classes[j];
-			if ((classItem.position === "row") && (classItem.name.toUpperCase() === newOrderItem.toUpperCase())) {
-				newOrderClasses.push(classItem);
-				break;
-			}
-		}
-	}
-	NgChmGui.mapProperties.classification_files = newOrderClasses;
-	document.getElementById("preferencesPanel").innerHTML = "";
-	NgChmGui.COV.loadData();
-	NgChmGui.UTIL.setBuildProps();
-	NgChmGui.UTIL.applySettings(NgChmGui.COV.applySettings, NgChmGui.UTIL.loadHeatMapView);
-	document.getElementById("covarReOrder").style.display = 'none';
-	document.getElementById("covarSelection").style.display = '';
-}
-
-/**********************************************************************************
- * FUNCTION - closeCovarReorder: This function closes the covariate reorder panel.
- * It fires at the end of applying reorders OR when the user presses the cancel
- * button on the reorder panel.
- **********************************************************************************/
-NgChmGui.COV.closeCovarReorder = function() {
-	 document.getElementById("covarReOrder").style.display = 'none';
-	 document.getElementById("covarSelection").style.display = '';
-}
 
 /**********************************************************************************
  * FUNCTION - getEmptyClassesPanel: This function creates and returns an "EMPTY"
@@ -455,7 +284,10 @@ NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
 	classDiv.className = 'preferencesSubPanel';
 	var classContents = document.createElement("TABLE"); 
 	NgChmGui.UTIL.addBlankRow(classContents);
-	var barTypeOptionsSelect = "<select name='barType_"+key+"' id='barType_"+key+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/cancelButton.png' onchange='NgChmGui.COV.togglePlotTypeProperties(&quot;"+key+"&quot;)'>"; 
+	var colorTypeOptionsSelect = "<select name='colorType_"+key+"' id='colorType_"+key+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();'>"; 
+	var colorTypeOptions = "<option value='continuous'>Continuous</option><option value='discrete'>Discrete</option></select>";
+	colorTypeOptionsSelect = colorTypeOptionsSelect+colorTypeOptions;
+	var barTypeOptionsSelect = "<select name='barType_"+key+"' id='barType_"+key+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.COV.togglePlotTypeProperties(&quot;"+key+"&quot;)'>"; 
 	var barTypeOptions = "<option value='color_plot'>Color Plot</option><option value='bar_plot'>Bar Plot</option><option value='scatter_plot'>Scatter Plot</option></select>";
 	barTypeOptionsSelect = barTypeOptionsSelect+barTypeOptions;
 	var barName = "<input name='covName_"+key+"' id='covName_"+key+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/cancelButton.png' value='"+classItem.name+"' maxlength='30' size='20' onchange='NgChmGui.UTIL.setBuildProps();'>&emsp;";
@@ -466,6 +298,11 @@ NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
 	} else {
 		NgChmGui.UTIL.setTableRow(classContents,["&nbsp;&nbsp;Bar Type: ","<b>"+NgChmGui.UTIL.toTitleCase(classItem.bar_type)+"</b>"]);
 	}
+	if (NgChmGui.COV.colorTypeChangeable(classItem) === true) {
+		NgChmGui.UTIL.setTableRow(classContents, ["&nbsp;&nbsp;Color Type:", colorTypeOptionsSelect]);
+	} else {
+		NgChmGui.UTIL.setTableRow(classContents, ["&nbsp;&nbsp;Color Type:", "<b>"+NgChmGui.UTIL.toTitleCase(classItem.color_map.type)+"</b>"]);
+	}
 	NgChmGui.UTIL.addBlankRow(classContents);
 	var barHeight = "<input name='heightPref_"+key+"' id='heightPref_"+key+"' value='"+classItem.height+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();'  maxlength='2' size='2'>&emsp;";
 	NgChmGui.UTIL.setTableRow(classContents, ["&nbsp;&nbsp;Height:", barHeight]);
@@ -473,8 +310,6 @@ NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
 	var showOptions = "<option value='N'>No</option><option value='Y'>Yes</option></select>";
 	showSelect = showSelect + showOptions;
 	NgChmGui.UTIL.setTableRow(classContents, ["&nbsp;&nbsp;Show:", showSelect]);
-	NgChmGui.UTIL.addBlankRow(classContents, 1);
-	NgChmGui.UTIL.setTableRow(classContents, ["&nbsp;&nbsp;Color Type:", "<b>"+NgChmGui.UTIL.toTitleCase(classItem.color_map.type)+"</b>"]);
 	NgChmGui.UTIL.addBlankRow(classContents, 1);
 
 	//Build color breaks sub panel for color_plot covariates
@@ -548,47 +383,25 @@ NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
 }	
 
 /**********************************************************************************
- * FUNCTION - applySettings: This function applies changes made in the covariate
- * panels to the mapProperties object in advance of saving the properties.
+ * FUNCTION - colorTypeChangeable: Validate the type and threshold values of a 
+ * given covariate bar to validate that the Color Type is editable.  If a true is
+ * returned, a dropdown will be placed on the edit covariate panel to allow a change
+ * in Color Type IF NOT a text item will be displayed.
  **********************************************************************************/
-NgChmGui.COV.applySettings = function() {
-	//Must pre-validate user covariate name entries because field names are
-	//constructed using the name when the screen is loaded.
-	if (NgChmGui.COV.checkCovariateNames() === false) {
-		return;
-	}
-    //reset builder errors
-	NgChmGui.mapProperties.builder_config.buildErrors = "";
-	NgChmGui.mapProperties.builder_config.buildWarnings = [];
-	var classBars = NgChmGui.mapProperties.classification_files;
-	for (var key in classBars) {
-		var classItem = classBars[key];
-		var classKey =  NgChmGui.COV.getClassKey(classItem);
-		var className =  document.getElementById('covName_'+classKey).value;
-		if (className !== classItem.name) {
-			NgChmGui.COV.setNameOnMatrixConfig(classItem, className);
-		}
-		classItem.height = document.getElementById('heightPref_'+classKey).value;
-		classItem.show = document.getElementById('showPref_'+classKey).value;
-		if (classItem.color_map.type === 'continuous') {
-			classItem.bar_type = document.getElementById('barType_'+classKey).value;
-		}
-		classItem.low_bound = document.getElementById('lowBound_'+classKey).value;
-		classItem.high_bound = document.getElementById('highBound_'+classKey).value;
-		classItem.bg_color = document.getElementById('bgColorPref_'+classKey).value;
-		classItem.fg_color = document.getElementById('fgColorPref_'+classKey).value;
-		var colors = classItem.color_map.colors;
-		for (var j = 0; j < colors.length; j++) {
-			classItem.color_map.colors[j] = document.getElementById(j+'_color_'+classKey+'_colorPref').value;   
-			var color = colors[j];
-		} 
-		if (classItem.bar_type !== 'color_plot') {
-			classItem.color_map.missing = document.getElementById('missing_colorPrefBp_'+classKey).value
-		} else {
-			classItem.color_map.missing = document.getElementById('missing_colorPrefCp_'+classKey).value
+NgChmGui.COV.colorTypeChangeable = function (classItem) {
+	var isChangeable = true;
+	var colorMap = classItem.color_map;
+	for (var j=0;j < colorMap.thresholds.length;j++) {
+		var currThresh = colorMap.thresholds[j];
+		if (!NgChmGui.UTIL.isNumeric(currThresh) && (currThresh !== 'NA') && (currThresh !== 'N/A')) {
+			isChangeable = false;
+			break;
 		}
 	}
-	return NgChmGui.COV.validateEntries(false);
+	if (classItem.path === "treecut") {
+		isChangeable = false;
+	}
+	return 	isChangeable;
 }
 
 /**********************************************************************************
@@ -632,6 +445,9 @@ NgChmGui.COV.setClassPrefOptions = function(classes) {
 		document.getElementById('showPref_'+key).value = classItem.show;
 		if (classItem.color_map.type === 'continuous') {
 			document.getElementById('barType_'+key).value = classItem.bar_type;
+		}
+		if (NgChmGui.COV.colorTypeChangeable(classItem) === true) {
+			document.getElementById('colorType_'+key).value = classItem.color_map.type;
 		}
 	}
 	NgChmGui.COV.showClassSelection(0);
@@ -909,6 +725,191 @@ NgChmGui.COV.removeCovariateBarFromScreen = function() {
 }
 
 /**********************************************************************************
+ * FUNCTION - openCovarReorder: This function loads and opens up the covariate
+ * reorder panel.
+ **********************************************************************************/
+NgChmGui.COV.openCovarReorder = function() {
+	var classes = NgChmGui.mapProperties.classification_files;
+	var reorderColsDiv = document.getElementById("reorderColumnsDiv");
+	var colCovars = document.getElementById("colCovarMove_list");
+	NgChmGui.UTIL.removeOptions(colCovars);
+	var colCovarsCtr = -1;
+	var colCovarOptions = "";
+	var reorderRowsDiv = document.getElementById("reorderRowsDiv");
+	var rowCovars = document.getElementById("rowCovarMove_list");
+	NgChmGui.UTIL.removeOptions(rowCovars);
+	var rowCovarsCtr = -1;
+	var rowCovarOptions = "";
+	for (var i=0;i<classes.length;i++) {
+		var classItem = classes[i];
+		var option = document.createElement("option");
+		option.text = classItem.name;
+		if (classItem.position === 'row') {
+			rowCovarsCtr++;
+			option.value = rowCovarsCtr;
+			if (rowCovarsCtr === 0) {
+				option.selected = true;
+			}
+			rowCovars.add(option); 
+		} else {
+			colCovarsCtr++;
+			option.value = colCovarsCtr;
+			if (colCovarsCtr === 0) {
+				option.selected = true;
+			}
+			colCovars.add(option); 
+		}
+	}
+	if (rowCovarsCtr > 0) {
+		if (rowCovarsCtr > 11) {
+			rowCovars.size = 10;
+		} else {
+			rowCovars.size = rowCovarsCtr + 1;
+		}
+		reorderRowsDiv.style.display = ''
+	} else {
+		colCovars.size = colCovarsCtr + 1;
+		reorderRowsDiv.style.display = 'none'
+	}
+	if (colCovarsCtr > 0) {
+		if (colCovarsCtr > 11) {
+			colCovars.size = 10;
+		} else {
+			colCovars.size = colCovarsCtr + 1;
+		}
+		colCovars.focus();
+		reorderColsDiv.style.display = ''
+	} else {
+		reorderColsDiv.style.display = 'none'
+	}
+	document.getElementById("covarSelection").style.display = 'none';
+	document.getElementById("covarReOrder").style.display = '';
+}
+
+/**********************************************************************************
+ * FUNCTION - covarOrderUp: This function moves a selected covariate upward
+ * in the list box, for a given axis, when the user presses the up button.
+ **********************************************************************************/
+NgChmGui.COV.covarOrderUp = function(type) {
+	var selectList = document.getElementById("colCovarMove_list");
+	if (type === 'row') {
+		selectList = document.getElementById("rowCovarMove_list");
+	}
+	var selectOptions = selectList.getElementsByTagName('option');
+	for (var i = 1; i < selectOptions.length; i++) {
+		var opt = selectOptions[i];
+		if (opt.selected) {
+			selectList.removeChild(opt);
+			selectList.insertBefore(opt, selectOptions[i - 1]);
+		}
+   }
+}
+
+/**********************************************************************************
+ * FUNCTION - covarOrderDown: This function moves a selected covariate downward
+ * in the list box, for a given axis, when the user presses the down button.
+ **********************************************************************************/
+NgChmGui.COV.covarOrderDown = function(type) {
+	var selectList = document.getElementById("colCovarMove_list");
+	if (type === 'row') {
+		selectList = document.getElementById("rowCovarMove_list");
+	}
+	var selectOptions = selectList.getElementsByTagName('option');
+	for (var i = selectOptions.length - 2; i >= 0; i--) {
+		var opt = selectOptions[i];
+		if (opt.selected) {
+		   var nextOpt = selectOptions[i + 1];
+		   opt = selectList.removeChild(opt);
+		   nextOpt = selectList.replaceChild(opt, nextOpt);
+		   selectList.insertBefore(nextOpt, opt);
+		}
+    }
+}
+
+/**********************************************************************************
+ * FUNCTION - showReorder: This function determines whether the reorder button should
+ * be shown.  There must be at least 2 covariates on at least one axis.
+ **********************************************************************************/
+NgChmGui.COV.showReorder = function() {
+	var classes = NgChmGui.mapProperties.classification_files;
+	var rowCovarsCtr = 0;
+	var colCovarsCtr = 0;
+	for (var i=0;i<classes.length;i++) {
+		var classItem = classes[i];
+		if (classItem.position === 'row') {
+			rowCovarsCtr++;
+		} else {
+			colCovarsCtr++;
+		}
+	}
+	if ((rowCovarsCtr > 1) || (colCovarsCtr > 1)) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+/**********************************************************************************
+ * FUNCTION - applyCovarOrder: This function reorders the covariates for a given
+ * map according to the order set in the reorder panel.
+ **********************************************************************************/
+NgChmGui.COV.applyCovarOrder = function() {
+	var classes = NgChmGui.mapProperties.classification_files;
+	var colCovarList = document.getElementById("colCovar_list");
+	var rowCovarList = document.getElementById("rowCovar_list");
+	var colOptions = colCovarList.getElementsByTagName('option');
+	var newColOrder = [];
+	for (var i = 0; i < colOptions.length; i++) {
+		var opt = colOptions[i];
+		newColOrder.push(opt.text);
+	}
+	var rowOptions = rowCovarList.getElementsByTagName('option');
+	var newRowOrder = [];
+	for (var i = 0; i < rowOptions.length; i++) {
+		var opt = rowOptions[i];
+		newRowOrder.push(opt.text);
+	}
+	var newOrderClasses = [];
+	for (var i=0;i<newColOrder.length;i++) {
+		var newOrderItem = newColOrder[i];
+		for (var j=0;j<classes.length;j++) {
+			var classItem = classes[j];
+			if ((classItem.position === "column") && (classItem.name.toUpperCase() === newOrderItem.toUpperCase())) {
+				newOrderClasses.push(classItem);
+				break;
+			}
+		}
+	}
+	for (var i=0;i<newRowOrder.length;i++) {
+		var newOrderItem = newRowOrder[i];
+		for (var j=0;j<classes.length;j++) {
+			var classItem = classes[j];
+			if ((classItem.position === "row") && (classItem.name.toUpperCase() === newOrderItem.toUpperCase())) {
+				newOrderClasses.push(classItem);
+				break;
+			}
+		}
+	}
+	NgChmGui.mapProperties.classification_files = newOrderClasses;
+	document.getElementById("preferencesPanel").innerHTML = "";
+	NgChmGui.COV.loadData();
+	NgChmGui.UTIL.setBuildProps();
+	NgChmGui.UTIL.applySettings(NgChmGui.COV.applySettings, NgChmGui.UTIL.loadHeatMapView);
+	document.getElementById("covarReOrder").style.display = 'none';
+	document.getElementById("covarSelection").style.display = '';
+}
+
+/**********************************************************************************
+ * FUNCTION - closeCovarReorder: This function closes the covariate reorder panel.
+ * It fires at the end of applying reorders OR when the user presses the cancel
+ * button on the reorder panel.
+ **********************************************************************************/
+NgChmGui.COV.closeCovarReorder = function() {
+	 document.getElementById("covarReOrder").style.display = 'none';
+	 document.getElementById("covarSelection").style.display = '';
+}
+
+/**********************************************************************************
  * FUNCTION - togglePlotTypeProperties: This function will be executed when the user
  * selects bar type (e.g. color plot, bar plot).  Its purpose is to toggle the 
  * color panel defined for the map depending on the bar type.  
@@ -993,6 +994,58 @@ NgChmGui.COV.hideAllClassDivs = function() {
 		var selectedDivId = classBtn.options[i].value;
 		document.getElementById(selectedDivId).style.display = 'none';
 	}
+}
+
+/**********************************************************************************
+ * FUNCTION - applySettings: This function applies changes made in the covariate
+ * panels to the mapProperties object in advance of saving the properties.
+ **********************************************************************************/
+NgChmGui.COV.applySettings = function() {
+	//Must pre-validate user covariate name entries because field names are
+	//constructed using the name when the screen is loaded.
+	if (NgChmGui.COV.checkCovariateNames() === false) {
+		return;
+	}
+    //reset builder errors
+	NgChmGui.mapProperties.builder_config.buildErrors = "";
+	NgChmGui.mapProperties.builder_config.buildWarnings = [];
+	var classBars = NgChmGui.mapProperties.classification_files;
+	for (var key in classBars) {
+		var classItem = classBars[key];
+		var classKey =  NgChmGui.COV.getClassKey(classItem);
+		var className =  document.getElementById('covName_'+classKey).value;
+		if (className !== classItem.name) {
+			NgChmGui.COV.setNameOnMatrixConfig(classItem, className);
+		}
+		classItem.height = document.getElementById('heightPref_'+classKey).value;
+		classItem.show = document.getElementById('showPref_'+classKey).value;
+		if (NgChmGui.COV.colorTypeChangeable(classItem) === true) {
+			if (classItem.color_map.type !== document.getElementById('colorType_'+classKey).value) {
+				classItem.color_map.type = document.getElementById('colorType_'+classKey).value;
+				classItem.change_type = "Y";
+			}
+		}
+		if (classItem.color_map.type === 'continuous') {
+			if (document.getElementById('barType_'+classKey) !== null) {
+				classItem.bar_type = document.getElementById('barType_'+classKey).value;
+			}
+		}
+		classItem.low_bound = document.getElementById('lowBound_'+classKey).value;
+		classItem.high_bound = document.getElementById('highBound_'+classKey).value;
+		classItem.bg_color = document.getElementById('bgColorPref_'+classKey).value;
+		classItem.fg_color = document.getElementById('fgColorPref_'+classKey).value;
+		var colors = classItem.color_map.colors;
+		for (var j = 0; j < colors.length; j++) {
+			classItem.color_map.colors[j] = document.getElementById(j+'_color_'+classKey+'_colorPref').value;   
+			var color = colors[j];
+		} 
+		if (classItem.bar_type !== 'color_plot') {
+			classItem.color_map.missing = document.getElementById('missing_colorPrefBp_'+classKey).value
+		} else {
+			classItem.color_map.missing = document.getElementById('missing_colorPrefCp_'+classKey).value
+		}
+	}
+	return NgChmGui.COV.validateEntries(false);
 }
 
 /*Run validation to see if we can leave the screen.*/
