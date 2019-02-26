@@ -370,13 +370,17 @@ NgChmGui.UTIL.initMessageBox = function() {
 	
 	document.getElementById('message').style.display = 'none';
 	document.getElementById('messageBtnImg_1').style.display = 'none';
-	document.getElementById('messageBtnImg_2').style.display = 'none';
-	document.getElementById('messageBtnImg_3').style.display = 'none';
-	document.getElementById('messageBtnImg_4').style.display = 'none';
 	document.getElementById('messageBtnImg_1')['onclick'] = null;
+	document.getElementById('messageBtnImg_2').style.display = 'none';
 	document.getElementById('messageBtnImg_2')['onclick'] = null;
-	document.getElementById('messageBtnImg_3')['onclick'] = null;
-	document.getElementById('messageBtnImg_4')['onclick'] = null;
+	if (document.getElementById('messageBtnImg_3') !== null) {
+		document.getElementById('messageBtnImg_3').style.display = 'none';
+		document.getElementById('messageBtnImg_3')['onclick'] = null;
+	}
+	if (document.getElementById('messageBtnImg_4') !== null) {
+		document.getElementById('messageBtnImg_4').style.display = 'none';
+		document.getElementById('messageBtnImg_4')['onclick'] = null;
+	}
 }
 
 NgChmGui.UTIL.setMessageBoxHeader = function(headerText) {
@@ -408,7 +412,7 @@ NgChmGui.UTIL.messageBoxCancel = function() {
 
 NgChmGui.UTIL.messageBoxConfigure = function() {
 	var msgBox = document.getElementById('message');
-	msgBox.innerHTML = "<div class='messageHdr' id='messageHdr'></div><table style='width: 490px'><tbody><tr class='chmTR'><td><div id='messageTxt' width='490px' style='display: inherit;font-size: 12px; background-color: rgb(230, 240, 255);'></div><table><tbody><tr><td align='left'><img id='messageBtnImg_1' align='top' style='display: inherit;'></td><td align='left'><img id='messageBtnImg_2' align='top' style='display: inherit;'></td><td align='right'><img id='messageBtnImg_3' align='top' style='display: inherit;'></td><td align='right'><img id='messageBtnImg_4' align='top' style='display: inherit;'></td></tr></tbody></table></td></tr></tbody></table>";
+	msgBox.innerHTML = "<div class='messageHdr' id='messageHdr'></div><table style='width: 490px'><tbody><tr class='chmTR'><td><div id='messageTxt' width='490px' style='display: inherit;font-size: 12px; background-color: rgb(230, 240, 255);'></div><table><tbody><tr><td align='left'><img id='messageBtnImg_1' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' align='top' style='display: inherit;'></td><td align='left'><img id='messageBtnImg_2' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' align='top' style='display: inherit;'></td><td align='right'><img id='messageBtnImg_3' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' align='top' style='display: inherit;'></td><td align='right'><img id='messageBtnImg_4' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' align='top' style='display: inherit;'></td></tr></tbody></table></td></tr></tbody></table>";
 }
 
 /**********************************************************************************
@@ -896,13 +900,9 @@ NgChmGui.UTIL.helpOpen = function(anchor) {
 NgChmGui.UTIL.hlp = function(e,reverse) {
 	NgChmGui.UTIL.hlpC();
     var helptext = NgChmGui.UTIL.getDivElement("bubbleHelp");
-	NgChmGui.UTIL.detailPoint = setTimeout(function(){
-		var itemId = e.id.indexOf("_") < 0 ? e.id : e.id.substring(0,e.id.indexOf("_"));
-		if (e.id.indexOf("_color_") > 0) {
-			itemId = "covColor";
-		} else if (e.id.startsWith("color")) {
-			itemId = "matrixColor";
-		}
+
+    NgChmGui.UTIL.detailPoint = setTimeout(function(){
+		var itemId = NgChmGui.UTIL.hlpGetItem(e);
 	    var helpItem = NgChmGui.UTIL.hoverGetHelpItem(itemId);
 	    var elemPos = NgChmGui.UTIL.getElemPosition(e);
 	    var bodyElem = document.getElementsByTagName('body')[0];
@@ -920,6 +920,37 @@ NgChmGui.UTIL.hlp = function(e,reverse) {
 		helptext.innerHTML = "<b><font size='2' color='#0843c1'>"+helpItem[0]+"</font></b>";
 		helptext.style.display="inherit"; 
 	},1500);
+}
+
+/**********************************************************************************
+ * FUNCTION - hlpGetItem: This function performs a help text lookup, based upon
+ * a DOM element's Id, and returns the corresponding help text ID.  It handles
+ * special cases where a given element's id is NOT used as the id for its help text.
+ **********************************************************************************/
+NgChmGui.UTIL.hlpGetItem = function (item) {
+	var itemName = item.id.indexOf("_") < 0 ? item.id : item.id.substring(0,item.id.indexOf("_"));
+	if (item.id.indexOf("_color_") > 0) {
+		itemName = "covColor";
+	} else if (item.id.startsWith("color")) {
+		itemName = "matrixColor";
+	} 
+	if (itemName === 'messageBtnImg') {
+	    var eSrc = item.src.toLowerCase();
+		if (eSrc.indexOf('cancel') > 0) {
+			itemName = 'cancelButton';
+		} else if (eSrc.indexOf('select') > 0) {
+			itemName = 'selectButton'
+		} else if (eSrc.indexOf('continue') > 0) {
+			itemName = 'continueButton'
+		} else if (eSrc.indexOf('apply') > 0) {
+			itemName = 'applyButton'
+		} else if (eSrc.indexOf('save') > 0) {
+			itemName = 'saveButton'
+		} else if (eSrc.indexOf('close') > 0) {
+			itemName = 'closeButton'
+		}
+	}
+    return itemName;
 }
 
 /**********************************************************************************
@@ -1124,5 +1155,25 @@ NgChmGui.UTIL.helpItems = [
 	  ["expandMap", "Press this button to expand the size of the heat map view panel to full screen mode.", 300],
 	  ["collapseMap", "Press this button to collapse the size of the heat map view panel back to normal size.", 300],
 	  ["viewHeatMapPrev", "Press this button to return to the Format Heat Map screen.", 300],
-	  ["returnToMatrix", "Press this button to return to the Matrix Selection screen at the beginning of the heat map creation process. All settings for your current heat map will be retained.", 300]
+	  ["returnToMatrix", "Press this button to return to the Matrix Selection screen at the beginning of the heat map creation process. All settings for your current heat map will be retained.", 300],
+
+	  //Custom Palette screens
+	  ["selPaletteBtn", "Choose from the available pre-defined color palettes created for this system.", 250],
+	  ["paletteColor", "Select a color for this position in the color palette.", 250],
+	  ["paletteColorAdd", "Add a new color below this item in the color palette.", 250],
+	  ["paletteColorDel", "Remove this color item from the palette.", 200],
+	  ["customPalette", "Select from this box to pick a custom color palette from the available options on the server.", 300],
+	  ["newPaletteName", "Enter a name for your new color palette.", 200],
+	  ["newPaletteButton", "Press this button to create your own custom color palette.", 300],
+	  ["showCategory", "Select this box to create a reusable custom color palette for this categorical covariate bar with a specific color for each category.", 300],
+	  
+	  //Modal screen buttons
+	  ["cancelButton", "Cancel any changes and close window.", 200],
+	  ["continueButton", "Proceed with this action and close window.", 250],
+	  ["selectButton", "Select the chosen item and close window.", 200],
+	  ["applyButton", "Apply any changes and close window.", 200],
+	  ["saveButton", "Save any changes and close window.", 200],
+	  ["closeButton", "Close window.", 150]
 ];
+
+

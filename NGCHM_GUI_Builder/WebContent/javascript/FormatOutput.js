@@ -1,6 +1,8 @@
 //Define Namespace for NgChmGui Covariate File Page
 NgChmGui.createNS('NgChmGui.FORMAT');
 
+NgChmGui.FORMAT.userPalettes = "";
+
 /**********************************************************************************
  * FUNCTION - loadData: This function will be executed when the format page
  * is opened for the first time.  It loads the header, sets up the left data 
@@ -24,6 +26,7 @@ NgChmGui.FORMAT.loadData =  function() {
 	if (NgChmGui.UTIL.setUpAdvanced() === true) {
 		NgChmGui.FORMAT.setAdvanced();
 	}
+	NgChmGui.PALETTE.getUserPalettes();
 }
 
 /**********************************************************************************
@@ -541,20 +544,10 @@ NgChmGui.FORMAT.getBreaksFromColorMap = function() {
 			NgChmGui.UTIL.setTableRow(breakpts, [breakPtInput,  colorInput+"&nbsp;&nbsp;&nbsp;"+addButton+"&nbsp;"+delButton]);
 		}
 	} 
-	NgChmGui.UTIL.addBlankRow(breakpts)
+	NgChmGui.UTIL.addBlankRow(breakpts);
 	NgChmGui.UTIL.setTableRow(breakpts, ["&nbsp;Missing Color:",  "<input class='spectrumColor' type='color' name='missing_colorPref' id='missing_colorPref' value='"+missing+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();'>"]);
-	NgChmGui.UTIL.addBlankRow(breakpts)
-	NgChmGui.UTIL.setTableRow(breakpts, ["&nbsp;<u>Choose a pre-defined color palette:</u>"],2);
-	var rainbow = "<div id='matrixPalette_r' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' style='display:flex'><div id='setROYGBV' class='preDefPalette' style='background: linear-gradient(to right, red,orange,yellow,green,blue,violet);' onclick='NgChmGui.FORMAT.setBreaksToPreset([\"#FF0000\",\"#FF8000\",\"#FFFF00\",\"#00FF00\",\"#0000FF\",\"#FF00FF\"],\"#000000\")' > </div>" +
-			"<div class='preDefPaletteMissingColor' style='background:black'></div></div>";
-	var redWhiteBlue = "<div id='matrixPalette_rwb' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' style='display:flex'><div id='setRedWhiteBlue' class='preDefPalette' style='background: linear-gradient(to right, blue,white,red);' onclick='NgChmGui.FORMAT.setBreaksToPreset([\"#0000FF\",\"#FFFFFF\",\"#ff0000\"],\"#000000\")'> </div>" +
-			"<div class='preDefPaletteMissingColor' style='background:black'></div></div>";
-	var redBlackGreen = "<div id='matrixPalette_rbg' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' style='display:flex'><div id='setRedBlackGreen' class='preDefPalette' style='background: linear-gradient(to right, green,black,red);' onclick='NgChmGui.FORMAT.setBreaksToPreset([\"#00FF00\",\"#000000\",\"#FF0000\"],\"#ffffff\")'> </div>" +
-			"<div class='preDefPaletteMissingColor' style='background:white'></div></div>"
-	NgChmGui.UTIL.setTableRow(breakpts, ["Blue Red", redWhiteBlue]);
-	NgChmGui.UTIL.setTableRow(breakpts, ["Rainbow", rainbow]);
-	NgChmGui.UTIL.setTableRow(breakpts, ["Green Red", redBlackGreen]);
-	NgChmGui.UTIL.addBlankRow(breakpts)
+	NgChmGui.UTIL.addBlankRow(breakpts);
+	NgChmGui.UTIL.setTableRow(breakpts, ["&nbsp;<b>Pre-defined Colors:</b>","<img id='selPaletteBtn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/getPalettes.png' alt='Select custom palette' onclick='NgChmGui.PALETTE.customColorPalette({type: &quot;matrix&quot;,key: &quot;matrix&quot;, idx: 0});' align='top'/>"]);	NgChmGui.UTIL.addBlankRow(breakpts);
 	var reloadButton = "<img id='reloadButton' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/button_reload.png' alt='Reload Preview' onclick='NgChmGui.FORMAT.loadColorPreviewDiv(0);' align='top'/>"
 	NgChmGui.UTIL.setTableRow(breakpts, ["&nbsp;Color Histogram:", reloadButton]);
 	var previewDiv = "<div id='previewWrapper' style='display:flex; height: 100px; width: 110px;position:relative;' ><canvas id='histo_canvas'></canvas></div>";//NgChm.UHM.loadColorPreviewDiv(mapName,true);
@@ -667,7 +660,6 @@ NgChmGui.FORMAT.loadColorPreviewDiv = function(ctr){
 		}
 		colors[0] = cm.getMissingColor();
 		colors[colors.length-1] = colors[colors.length-2];
-	//	colors.fill('blue',1,colors.length);
 		var breaksLabel = new Array(bins.length+1).join(' ').split('');
 		
 		breaksLabel[0] = "NA";
@@ -723,7 +715,8 @@ NgChmGui.FORMAT.getColorMapFromScreen = function() {
 	for (var j = 0; j < thresholds.length; j++) {
 		var threshId = "breakPt_"+j;
 		var colorId = "color"+j;
-		thresholds[j] = document.getElementById(threshId+"_breakPref").value;
+		var threshValue = document.getElementById(threshId+"_breakPref").value;
+		thresholds[j] = threshValue.substring(0,1) === "." ? "0"+threshValue : threshValue;
 		colors[j] = document.getElementById(colorId+"_colorPref").value;
 	} 
 	colorMap.setMissingColor(document.getElementById("missing_colorPref").value);
@@ -731,7 +724,6 @@ NgChmGui.FORMAT.getColorMapFromScreen = function() {
 	var colorMap = new NgChmGui.CM.ColorMap(colorScheme);
 
 	return colorMap;
-//	NgChmGui.FORMAT.setColorMapToConfig(colorMap);
 }
 	
 /**********************************************************************************

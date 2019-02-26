@@ -86,16 +86,16 @@ NgChmGui.CM.ColorMap = function(colorMapObj) {
 		missingColor = color;
 	}
 	
-	
 	// returns an RGBA value from the given value
-	this.getColor = function(value){
+	this.getColor = function(val){
 		var color;
+		var value = parseFloat(val)
 	
-		if (value >= NgChmGui.UTIL.maxValues || value == "Missing"){
+		if (value >= NgChmGui.UTIL.maxValues || val === "Missing"){
 			color = rgbaMissingColor;
 		}else if(value <= NgChmGui.UTIL.minValues){
 			color = (255, 255, 255, 0);
-		}else if(value <= thresholds[0]){
+		}else if (value <= thresholds[0]){
 			color = rgbaColors[0]; // return color for lowest threshold if value is below range
 		} else if (value >= thresholds[numBreaks-1]){
 			color = rgbaColors[numBreaks-1]; // return color for highest threshold if value is above range
@@ -162,7 +162,51 @@ NgChmGui.CM.ColorMap = function(colorMapObj) {
 	    } : null;
 	}
 
+	this.darkenColor = function (inColor) {
+		var lowerColor = hexToRgb(inColor);
+		var color = {};
+		color["r"] = Math.round(lowerColor["r"] * (.8) + 0);
+	    color["g"] = Math.round(lowerColor["g"] * (.8) + 0);
+	    color["b"] = Math.round(lowerColor["b"] * (.8) + 0);
+	    color["a"] = 255;
+	    var hexVal = rgbToHex(color);
+	    return hexVal;
+	}
 	
+	this.getHexToRgba = function(hex){
+		return hexToRgba(hex);
+	}
+	
+	this.getColorLuminance = function(color) {
+		var rgb = hexToRgb(color);
+	    if (!rgb) {
+	    	return null;
+	    } else {
+	        return 0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b;
+	    }
+	}	
+	
+	this.isColorDark = function(rgb) {
+	    if (!rgb) {
+	    	return false;
+	    } else {
+	    	var luminanceVal = 0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b;
+	       if (luminanceVal < 60) {
+	    	   return false;
+	       } else {
+	    	   return true;
+	       }
+	    }
+	}	
+	
+	this.getRgbToHex = function(rgb) {
+		var a = rgb.a
+		var r = rgb.r
+		var g = rgb.g
+		var b = rgb.b
+	    return ('#' + componentToHex(r) + componentToHex(g) + componentToHex(b));
+	}
+
 	//===========================//
 	// internal helper functions //
 	//===========================//
@@ -212,33 +256,8 @@ NgChmGui.CM.ColorMap = function(colorMapObj) {
 	        b: parseInt(result[3], 16)
 	    } : null;
 	}
-	this.getHexToRgba = function(hex){
-		return hexToRgba(hex);
-	}
-	
-	this.getColorLuminance = function(color) {
-		var rgb = hexToRgb(color);
-	    if (!rgb) {
-	    	return null;
-	    } else {
-	        return 0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b;
-	    }
-	}	
-	
-	this.isColorDark = function(rgb) {
-	    if (!rgb) {
-	    	return false;
-	    } else {
-	    	var luminanceVal = 0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b;
-	       if (luminanceVal < 60) {
-	    	   return false;
-	       } else {
-	    	   return true;
-	       }
-	    }
-	}	
-	
-	this.getRgbToHex = function(rgb) {
+
+	function rgbToHex(rgb) {
 		var a = rgb.a
 		var r = rgb.r
 		var g = rgb.g

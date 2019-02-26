@@ -254,9 +254,10 @@ div.serviceHeaderLogo img
 }
 
 #message {
+	position: absolute;
     margin: 5px !important;
     top: 5%;
-    left: 5%;
+    left: 15%;
     padding: 2px 2px 2px 2px !important;
     border: 1px solid #1a1a1a;
     border-radius: 15px;
@@ -274,13 +275,10 @@ div.serviceHeaderLogo img
     box-sizing: border-box
 }
 
-#messageTxt {
-    box-sizing: border-box;
-    text-align: left;
-}
-
 #messageHdr {
-    display: table;
+    z-index: 10001;
+    cursor: move;
+	display: table;
     font-size: 18px;
     font-weight: bold;
     color: #0843c1;
@@ -292,6 +290,20 @@ div.serviceHeaderLogo img
     background: #CBD1EA;
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
+}
+
+#messageTxt {
+    box-sizing: border-box;
+    text-align: left;
+}
+
+#messageError {
+    box-sizing: border-box;
+    text-align: left;
+    height: 20px;
+    color: red;
+    font-size: 20px;
+    font-weight: bold;
 }
 
 .display_container{
@@ -383,7 +395,7 @@ div.serviceHeaderLogo img
 
 .preDefPalette{
 	height:20px;
-	width:70px;
+	width:100px;
 }
 
 .preDefPaletteMissingColor{
@@ -464,7 +476,7 @@ div.serviceHeaderLogo img
     font-size: 90% !important;
     font-family: Arial;
     font-weight: normal;
-    background: #FFFF99;
+    background: #ffffed;
     color: #000000;
     min-width: 50px;
     z-index: 10000;
@@ -480,6 +492,11 @@ div.serviceHeaderLogo img
 }
 
 
+.catDiv {
+	font-size: 12px;
+    font-family: Arial;
+    font-weight: bold;
+}
 
 
 

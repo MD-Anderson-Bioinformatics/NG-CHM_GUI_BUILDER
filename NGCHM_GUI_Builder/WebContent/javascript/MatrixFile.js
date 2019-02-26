@@ -117,6 +117,7 @@ NgChmGui.FILE.removeCovarDataEntry = function(item, id, itemCtr) {
  * name and displays it on the Matrix screen when the user returns to the screen.
  **********************************************************************************/
 NgChmGui.FILE.displayFileName = function() {
+	
 	var textSpan = document.getElementById('matrixNameText');
 	while( textSpan.firstChild) {
 		textSpan.removeChild( textSpan.firstChild );
@@ -214,7 +215,7 @@ NgChmGui.FILE.MatrixFile = function() {
 			        	dataTable = Object.keys(topMatrixString).map(function(k) { return topMatrixString[k] });
 			        	loadDataFromFile();
 			        	NgChmGui.FILE.validateEntries(false);
-			    		document.getElementById("mapNameValue").value = "";
+			    		document.getElementById("mapNameValue").value = matrixFileName.substring(0,matrixFileName.lastIndexOf('.'));
 			    		document.getElementById("mapDescValue").value = "";
 			    		document.getElementById("matrixSummaryMethod").value = "average";
 		    		}

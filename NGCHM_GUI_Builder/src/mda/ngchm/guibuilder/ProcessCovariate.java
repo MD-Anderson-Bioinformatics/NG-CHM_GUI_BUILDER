@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -174,6 +175,7 @@ public class ProcessCovariate {
 				covBreaks.add(Float.toString(lowVal));
 				covBreaks.add(Float.toString(highVal));
 			}
+			Collections.sort(covBreaks);
 			ArrayList<String> covColors = getDefaultClassColors(covBreaks, type);
 			cm = mgr.new ColorMap(type,covColors, covBreaks,"#B3B3B3");
 		} catch (Exception e) {
