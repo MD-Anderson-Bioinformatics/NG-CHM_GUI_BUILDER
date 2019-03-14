@@ -592,6 +592,11 @@ NgChmGui.UTIL.gotoHeatMapScreen = function() {
 	window.open("View_HeatMap.html?adv="+NgChmGui.UTIL.showAdvanced,"_self");
 }
 
+NgChmGui.UTIL.isClean = function(inStr) {
+	var dirty = inStr.toLowerCase().match(/(shit|piss|cunt|cocksuck|cockhead|fuck|penis|bitch|goddamn|godamm|nigger|twat|prick|blowjob|dickhead|dickweed|pussy|hitler|masterbate|orgasm|rimjob|pussie|scrotum|tittie|turd|whore)/);
+	return dirty === null;
+}
+
 /**********************************************************************************
  * FUNCTION - urlParam: This function is used to retrieve the set the advanced/standard
  * functionality off of the URL param value.

@@ -262,11 +262,17 @@ NgChmGui.PALETTE.paletteSave = function () {
 	var isValid = NgChmGui.PALETTE.validatePaletteName(paletteName);
 	if (isValid === 'duplicate') {
 		msgDiv.innerHTML = "ERROR: Duplicate Palette Name. Please enter a different name for the palette.";
+		document.getElementById('newPaletteName').value = "";
 		return;
 	} else if (isValid === 'empty') {
 		msgDiv.innerHTML = "ERROR: No Palette Name. Please enter a name for the palette.";
+		document.getElementById('newPaletteName').value = "";
 		return;
-	}
+	} else if (isValid === 'profane') {
+		msgDiv.innerHTML = "ERROR: Palette Name contains profanity. Please re-enter a name for the palette.";
+		document.getElementById('newPaletteName').value = "";
+		return;
+	}	
 	NgChmGui.PALETTE.buildPaletteJSON();
 	NgChmGui.PALETTE.saveColorPalette(NgChmGui.UTIL.messageBoxCancel);
 	
@@ -494,6 +500,9 @@ NgChmGui.PALETTE.validatePaletteName = function(name) {
 		if ((name === currPalette.name) && (currPalette.type === NgChmGui.PALETTE.config.type)) {
 			return 'duplicate';
 		}
+	}
+	if (NgChmGui.UTIL.isClean(name) === false) {
+		return 'profane';
 	}
 	return 'valid';
 }
