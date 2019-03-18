@@ -68,6 +68,7 @@
                 <include name="javascript/lib/*.js"/>
                 <include name="images/*.*"/>
                 <include name="css/*.css"/>
+                <include name="custom_palette/*.*"/>
             </fileset>
             <zipfileset dir="${empty.dir}" prefix="MapBuildDir"/>
         </war>

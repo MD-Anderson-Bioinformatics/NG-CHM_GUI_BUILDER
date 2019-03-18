@@ -120,10 +120,10 @@ public class ProcessColorPalette extends HttpServlet {
 	    
 	    try {
 	        //Create a directory using the http session ID
-	   		String paletteFile =  getServletContext().getRealPath("/")+"custom_palette" + "\\" + paletteName + "_"+ paletteType+".json";
+	   		String paletteFile =  getServletContext().getRealPath("/")+"custom_palette" + File.separator + paletteName + "_"+ paletteType+".json";
 	   		InputStream stream = new ByteArrayInputStream(paletteContent.getBytes(StandardCharsets.UTF_8));
 	   		Util.uploadTSV(paletteFile, stream);
-        	String propJSON = "{\"sucess\": 1}";
+        	String propJSON = "{\"success\": 1}";
 	       	response.setContentType("application/json");
 	    	response.getWriter().write(propJSON.toString());
 	    	response.flushBuffer();
