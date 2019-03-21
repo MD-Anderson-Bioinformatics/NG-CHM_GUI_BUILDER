@@ -67,6 +67,7 @@
                 <include name="javascript/*.js"/>
                 <include name="javascript/lib/*.js"/>
                 <include name="images/*.*"/>
+                <include name="images/help/*.*"/>
                 <include name="css/*.css"/>
                 <include name="custom_palette/*.*"/>
             </fileset>
