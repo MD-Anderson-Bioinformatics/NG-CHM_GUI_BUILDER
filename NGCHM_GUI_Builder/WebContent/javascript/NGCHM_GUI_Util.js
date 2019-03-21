@@ -885,7 +885,7 @@ NgChmGui.UTIL.getApproximatedColor = function(hexCode) {
  * called from the  right-justified help icon on the header bar of each screen.
  **********************************************************************************/
 NgChmGui.UTIL.helpOpen = function(anchor) {
-	var shortPath = location.pathname.substring(0,(location.pathname.indexOf("NGCHM_GUI_Builder")+18));
+	var shortPath = location.pathname.substring(0,(location.pathname.lastIndexOf("/")+1));
 	var url = location.origin+shortPath;
 	url += "ngChmBuilderHelp.html";
 	if (anchor !== undefined) {
