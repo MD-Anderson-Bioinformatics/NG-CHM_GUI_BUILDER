@@ -2,6 +2,7 @@ package mda.ngchm.guibuilder;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -9,6 +10,8 @@ import java.util.List;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 
 import javax.servlet.ServletException;
@@ -17,6 +20,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 
 /**
  * Servlet implementation class Upload Data Matrix
@@ -38,7 +42,11 @@ public class ProcessColorPalette extends HttpServlet {
 
 	    try {
 	        //Create a directory using the http session ID
-	   		File paletteDir = new File(getServletContext().getRealPath("/")+"custom_palette");
+	   		File paletteDir = new File(new File(getServletContext().getRealPath("/")).getParent() + File.separator +"NGCHM_color_palettes");
+	   		if (!paletteDir.exists()) {
+		   		File origPalettes = new File(getServletContext().getRealPath("/")+"custom_palette");
+		   		createPaletteDir(origPalettes, paletteDir);
+	   		}
 			List<File> fileList = new ArrayList<File>();
 			getPaletteFiles(paletteDir, fileList);
 			String propJSON = getPaletteContents(fileList);
@@ -51,6 +59,36 @@ public class ProcessColorPalette extends HttpServlet {
 	    	//do something?
 	    }
 	}
+	
+	/*******************************************************************
+	 * METHOD: createPaletteDir
+	 *
+	 * This method is called if the NGCHM_color_palettes (located outside
+	 * of the WAR) does not exist.  It will create the directory and
+	 * copy all color palettes that are within the WAR over to it. 
+	 ******************************************************************/
+	private static void createPaletteDir(File origPalettes , File newPalettes) throws IOException {
+        if (origPalettes.isDirectory()) {
+            if (!newPalettes.exists()) {
+            	newPalettes.mkdir();
+            }
+            String[] children = origPalettes.list();
+            for (int i=0; i<children.length; i++) {
+            	createPaletteDir(new File(origPalettes, children[i]), new File(newPalettes, children[i]));
+            }
+        } else {
+            InputStream in = new FileInputStream(origPalettes);
+            OutputStream out = new FileOutputStream(newPalettes);
+            // Copy the bits from instream to outstream
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+            in.close();
+            out.close();
+        }
+    }	
 	
 	/*******************************************************************
 	 * METHOD: getPaletteFiles
@@ -120,7 +158,8 @@ public class ProcessColorPalette extends HttpServlet {
 	    
 	    try {
 	        //Create a directory using the http session ID
-	   		String paletteFile =  getServletContext().getRealPath("/")+"custom_palette" + File.separator + paletteName + "_"+ paletteType+".json";
+	   		File paletteDir = new File(new File(getServletContext().getRealPath("/")).getParent() + File.separator +"NGCHM_color_palettes");
+	   		String paletteFile =  paletteDir.toString() + File.separator + paletteName + "_"+ paletteType+".json";
 	   		InputStream stream = new ByteArrayInputStream(paletteContent.getBytes(StandardCharsets.UTF_8));
 	   		Util.uploadTSV(paletteFile, stream);
         	String propJSON = "{\"success\": 1}";
