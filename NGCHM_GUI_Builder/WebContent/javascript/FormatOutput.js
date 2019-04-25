@@ -67,7 +67,8 @@ NgChmGui.FORMAT.setAdvanced = function() {
  **********************************************************************************/
 NgChmGui.FORMAT.applyComplete = function() {
 	NgChmGui.FORMAT.validateEntries(false);
-	NgChmGui.FORMAT.loadFormatView();
+    NgChmGui.FORMAT.loadFormatView();
+    NgChmGui.FORMAT.loadColorPreviewDiv(0);
 }
 
 /**********************************************************************************
@@ -116,12 +117,19 @@ NgChmGui.FORMAT.validateEntries = function(leavingPage) {
 NgChmGui.FORMAT.validateMatrixBreaks = function() {
 	var errorMsgs = "";
 	var colorMap = NgChmGui.FORMAT.getColorMapFromConfig();
-	var thresholds = colorMap.getThresholds();
+    var thresholds = colorMap.getThresholds();
+    var prevThresh = -2147483647;
 	for (var i=0;i<thresholds.length;i++) {
 		if (isNaN(thresholds[i])) {
 			errorMsgs = errorMsgs + "<p class='error_message'>" +NgChmGui.UTIL.errorPrefix + "Color Thresholds contain non-numeric entry(s).</p>";
 			break;
-		}
+        }
+        var currThresh = parseFloat(thresholds[i]);
+        if (currThresh <= prevThresh) {
+ 			errorMsgs = errorMsgs + "<p class='error_message'>" +NgChmGui.UTIL.errorPrefix + "Color Thresholds are not entered in ascending order.</p>";
+			break;
+        }
+        prevThresh = currThresh;
 	}
 	return errorMsgs;
 }
@@ -534,11 +542,11 @@ NgChmGui.FORMAT.getBreaksFromColorMap = function() {
 		var color = colors[j];
 		var threshId = "breakPt_"+j;
 		var colorId = "color"+j;
-		var breakPtInput = "&nbsp;&nbsp;<input name='"+threshId+"_breakPref' id='"+threshId+"_breakPref' value='"+threshold+"' maxlength='8' size='8' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();'>";
+		var breakPtInput = "&nbsp;&nbsp;<input name='"+threshId+"_breakPref' id='"+threshId+"_breakPref' value='"+threshold+"' maxlength='8' size='8' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.formatInputNumber(this);NgChmGui.UTIL.setBuildProps();'>";
 		var colorInput = "<input class='spectrumColor' type='color' name='"+colorId+"_colorPref' id='"+colorId+"_colorPref' value='"+color+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();'>"; 
 		var addButton = "<img id='breakAdd_"+threshId+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/plusButton.png' alt='Add Breakpoint' onclick='NgChmGui.FORMAT.processLayerBreak("+j+",\"add\");' align='top'/>"
 		var delButton = "<img id='breakDel_"+threshId+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/minusButton.png' alt='Remove Breakpoint' onclick='NgChmGui.FORMAT.processLayerBreak("+j+",\"delete\");' align='top'/>"
-		if (j === 0) {
+		if (j < 2) {
 			NgChmGui.UTIL.setTableRow(breakpts, [breakPtInput, colorInput+"&nbsp;&nbsp;&nbsp;"+addButton]);
 		} else {
 			NgChmGui.UTIL.setTableRow(breakpts, [breakPtInput,  colorInput+"&nbsp;&nbsp;&nbsp;"+addButton+"&nbsp;"+delButton]);
@@ -715,8 +723,7 @@ NgChmGui.FORMAT.getColorMapFromScreen = function() {
 	for (var j = 0; j < thresholds.length; j++) {
 		var threshId = "breakPt_"+j;
 		var colorId = "color"+j;
-		var threshValue = document.getElementById(threshId+"_breakPref").value;
-		thresholds[j] = threshValue.substring(0,1) === "." ? "0"+threshValue : threshValue;
+		thresholds[j] = document.getElementById(threshId+"_breakPref").value;
 		colors[j] = document.getElementById(colorId+"_colorPref").value;
 	} 
 	colorMap.setMissingColor(document.getElementById("missing_colorPref").value);

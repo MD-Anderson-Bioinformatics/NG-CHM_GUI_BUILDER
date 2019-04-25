@@ -88,6 +88,25 @@ NgChmGui.UTIL.toURIString = function(form) {
 }		
 
 /**********************************************************************************
+ * FUNCTION - formatInputNumber: This function performs a check of the just-entered
+ * numeric input value and adds a leading zero or ending zero if the value 
+ * begins/ends with a decimal point.
+ **********************************************************************************/
+NgChmGui.UTIL.formatInputNumber = function(item) {
+    var itemValue = item.value;
+     itemValue = itemValue.substring(0,1) === "." ? "0"+itemValue : itemValue.substring(itemValue.length-1) === "." ? itemValue+"0" : itemValue;
+     itemValue = itemValue.replace(/,/g, '');
+     item.value = itemValue;
+}
+
+NgChmGui.UTIL.formatInputPct = function(item) {
+    var itemValue = item.value;
+     itemValue = itemValue.replace('.','');
+     itemValue = itemValue.replace(/,/g, '');
+     item.value = itemValue;
+}
+
+/**********************************************************************************
  * FUNCTION - editWidgetForBuilder: The purpose of this function to hide various
  * parts of the embedded heatmap widget for the Cluster screen.
  **********************************************************************************/

@@ -201,7 +201,7 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 	        	graph.width = 450;
 	        	graph.height = 150;
 	        	var histoBins = NgChmGui.TRANS.matrixInfo.histoBins;
-	        	histoBins.unshift("Missing");
+	        	histoBins.unshift("MISS");
 	        	var colors = new Array(histoBins.length);
 	        	colors[0] = 'black';
 	        	colors.fill('blue',1,colors.length);
@@ -405,7 +405,7 @@ NgChmGui.TRANS.hideDivById = function(id) {
 NgChmGui.TRANS.correctMatrixData =  function() {
 	var req = new XMLHttpRequest();
 	var formData = NgChmGui.UTIL.toURIString( document.getElementById("missing_frm") );
-	if (NgChmGui.TRANS.matrixInfo.numInvalid == 0 || NgChmGui.TRANS.matrixInfo.numMissing == 0){
+	if (NgChmGui.TRANS.matrixInfo.numInvalid == 0 || NgChmGui.TRANS.matrixInfo.num == 0){
 		if (document.getElementById('Correction').value == "ReplaceInvalid" && NgChmGui.TRANS.matrixInfo.numInvalid == 0){
 			NgChmGui.TRANS.validateEntries(false,false,false, "No invalid values to correct. Correction not applied");
 			return

@@ -123,9 +123,9 @@
 					 	        	<div class="pref-header2">Method:
 					 	        		<br>
 					 	        		<div class="pref-header3" id='vfiltermethod' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'>
-					  						<input type="radio" name="vfiltermethod" logText="Remove [vrowcol]s with standard deviation less than [std_limit]" value="std_value"" checked> Remove if Standard Deviation &lt;&nbsp; &nbsp;<input type="text" name="std_limit" style="width: 30%"  onclick="NgChmGui.TRANS.setRadio('vfiltermethod',0)"><br>
-					  						<input type="radio" name="vfiltermethod" logText="Keep [std_pct]% of [vrowcol]s with highest standard deviation" value="pct" > Keep <input type="number" name="std_pct" min="0" max="99" style="width: 10%" onclick="NgChmGui.TRANS.setRadio('vfiltermethod',1)">&nbsp;% with highest Standard Deviation  <br>
-					  						<input type="radio" name="vfiltermethod" logText="Keep [std_num_keep] of [vrowcol]s with highest standard deviation" value="fixednum"> Keep <input type="text" name="std_num_keep" style="width: 10%"  onclick="NgChmGui.TRANS.setRadio('vfiltermethod',2)"> rows/cols with highest Standard Deviation  <br>
+					  						<input type="radio" name="vfiltermethod" logText="Remove [vrowcol]s with standard deviation less than [std_limit]" value="std_value"" checked> Remove if Standard Deviation &lt;&nbsp; &nbsp;<input type="text" name="std_limit" style="width: 30%" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('vfiltermethod',0)"><br>
+					  						<input type="radio" name="vfiltermethod" logText="Keep [std_pct]% of [vrowcol]s with highest standard deviation" value="pct" > Keep <input type="text" name="std_pct" maxlength="2" style="width: 10%" onchange='NgChmGui.UTIL.formatInputPct(this);' onclick="NgChmGui.TRANS.setRadio('vfiltermethod',1)">&nbsp;% with highest Standard Deviation  <br>
+					  						<input type="radio" name="vfiltermethod" logText="Keep [std_num_keep] of [vrowcol]s with highest standard deviation" value="fixednum"> Keep <input type="text" name="std_num_keep" style="width: 10%"  onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('vfiltermethod',2)"> rows/cols with highest Standard Deviation  <br>
 					  					</div>
 				  					</div>
 								</div>
@@ -140,11 +140,11 @@
 					 	        	<div class="pref-header2">Method:
 					 	        		<br>
 					 	        		<div class="pref-header3" id='rfiltermethod' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'>
-					  						<input type="radio" name="rfiltermethod" logText="Remove [rrowcol]s with all values less than [arange_min]" value="allless" checked> Remove if All Values &lt;&nbsp;&nbsp;<input type="text" name="arange_min" style="width: 30%" onclick="NgChmGui.TRANS.setRadio('rfiltermethod',0)"><br>
-					  						<input type="radio" name="rfiltermethod" logText="Remove [rrowcol]s with all values greater than [arange_max]" value="allgreater"> Remove if All Values &gt;&nbsp;&nbsp;<input type="text" name="arange_max" style="width: 30%" onclick="NgChmGui.TRANS.setRadio('rfiltermethod',1)"><br>
-					  						<input type="radio" name="rfiltermethod" logText="Remove [rrowcol]s with any value less than [1range_min]" value="oneless"> Remove if One Value &lt;&nbsp;&nbsp;<input type="text" name="1range_min" style="width: 30%" onclick="NgChmGui.TRANS.setRadio('rfiltermethod',2)"><br>
-					  						<input type="radio" name="rfiltermethod" logText="Remove [rrowcol]s with any value greater than [1range_max]" value="onegreater"> Remove if One Value &gt;&nbsp;&nbsp;<input type="text" name="1range_max" style="width: 30%" onclick="NgChmGui.TRANS.setRadio('rfiltermethod',3)"><br>
-					  						<input type="radio" name="rfiltermethod" logText="Keep [vrowcol]s with one or more values greater than [range_max]" value="oneval">   Keep if 1+ Values &gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="range_max" style="width: 30%" onclick="NgChmGui.TRANS.setRadio('rfiltermethod',4)"><br> 
+					  						<input type="radio" name="rfiltermethod" logText="Remove [rrowcol]s with all values less than [arange_min]" value="allless" checked> Remove if All Values &lt;&nbsp;&nbsp;<input type="text" name="arange_min" style="width: 30%" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('rfiltermethod',0)"><br>
+					  						<input type="radio" name="rfiltermethod" logText="Remove [rrowcol]s with all values greater than [arange_max]" value="allgreater"> Remove if All Values &gt;&nbsp;&nbsp;<input type="text" name="arange_max" style="width: 30%" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('rfiltermethod',1)"><br>
+					  						<input type="radio" name="rfiltermethod" logText="Remove [rrowcol]s with any value less than [1range_min]" value="oneless"> Remove if One Value &lt;&nbsp;&nbsp;<input type="text" name="1range_min" style="width: 30%" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('rfiltermethod',2)"><br>
+					  						<input type="radio" name="rfiltermethod" logText="Remove [rrowcol]s with any value greater than [1range_max]" value="onegreater"> Remove if One Value &gt;&nbsp;&nbsp;<input type="text" name="1range_max" style="width: 30%" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('rfiltermethod',3)"><br>
+					  						<input type="radio" name="rfiltermethod" logText="Keep [vrowcol]s with one or more values greater than [range_max]" value="oneval">   Keep if 1+ Values &gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="range_max" style="width: 30%" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('rfiltermethod',4)"><br> 
 					  					</div>
 				  					</div>
 								</div>
@@ -159,8 +159,8 @@
 					 	        	<div class="pref-header2">Method:
 					 	        		<br>
 					 	        		<div class="pref-header3" id="mfiltermethod" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' >
-					  						<input type="radio" name="mfiltermethod" logText="Remove [mrowcol] if over [std_pct_missing]% is missing" value="pctgreater" checked> Remove if &gt;&nbsp; <input type="number" name="std_pct_missing" min="0" max="99" style="width: 10%" onclick="NgChmGui.TRANS.setRadio('mfiltermethod',0)">&nbsp;% Missing Values<br>
-					  						<input type="radio" name="mfiltermethod" logText="Remove [mrowcol] if over [std_num_missing] is missing" value="pctless"> Remove if &gt;&nbsp; <input type="text" name="std_num_missing" style="width: 30%" onclick="NgChmGui.TRANS.setRadio('mfiltermethod',1)"> (number) Missing Values<br>  
+					  						<input type="radio" name="mfiltermethod" logText="Remove [mrowcol] if over [std_pct_missing]% is missing" value="pctgreater" checked> Remove if &gt;&nbsp; <input type="text" name="std_pct_missing" maxlength="2" style="width: 10%" onchange='NgChmGui.UTIL.formatInputPct(this);' onclick="NgChmGui.TRANS.setRadio('mfiltermethod',0)">&nbsp;% Missing Values<br>
+					  						<input type="radio" name="mfiltermethod" logText="Remove [mrowcol] if over [std_num_missing] is missing" value="pctless"> Remove if &gt;&nbsp; <input type="text" name="std_num_missing" style="width: 30%" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('mfiltermethod',1)"> (number) Missing Values<br>  
 					  					</div>
 				  					</div>
 								</div>
@@ -215,10 +215,10 @@
 					 	        	<div class="pref-header2">Method:
 					 	        		<br>
 					 	        		<div class="pref-header3" id="tatransformmethod" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'>
-					 						<input type="radio" name="tatransformmethod" logText="Add [add_value] to all values" value="add" checked> Add &nbsp;<input type="number" name="add_value" style="width: 30%" step="any" onclick="NgChmGui.TRANS.setRadio('tatransformmethod',0)">&nbsp;to All Values<br>
-					 						<input type="radio" name="tatransformmethod" logText="Subtract [subtract_value] from all values" value="subtract"> Subtract &nbsp;<input type="number" name="subtract_value" style="width: 30%" step="any" onclick="NgChmGui.TRANS.setRadio('tatransformmethod',1)">&nbsp;from All Values<br>
-					  						<input type="radio" name="tatransformmethod" logText="Multiply all values by [multiply_value]" value="multiply"> Multiply All Values by &nbsp;<input type="number" name="multiply_value" style="width: 30%" step="any" onclick="NgChmGui.TRANS.setRadio('tatransformmethod',2)"><br>
-					  						<input type="radio" name="tatransformmethod" logText="Divide all values by [divide_value]" value="divide"> Divide All Values by &nbsp;&nbsp;&nbsp;&nbsp;<input type="number" name="divide_value" style="width: 30%" step="any" onclick="NgChmGui.TRANS.setRadio('tatransformmethod',3)"><br>
+					 						<input type="radio" name="tatransformmethod" logText="Add [add_value] to all values" value="add" checked> Add &nbsp;<input type="number" name="add_value" style="width: 30%" step="any" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('tatransformmethod',0)">&nbsp;to All Values<br>
+					 						<input type="radio" name="tatransformmethod" logText="Subtract [subtract_value] from all values" value="subtract"> Subtract &nbsp;<input type="number" name="subtract_value" style="width: 30%" step="any" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('tatransformmethod',1)">&nbsp;from All Values<br>
+					  						<input type="radio" name="tatransformmethod" logText="Multiply all values by [multiply_value]" value="multiply"> Multiply All Values by &nbsp;<input type="number" name="multiply_value" style="width: 30%" step="any" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('tatransformmethod',2)"><br>
+					  						<input type="radio" name="tatransformmethod" logText="Divide all values by [divide_value]" value="divide"> Divide All Values by &nbsp;&nbsp;&nbsp;&nbsp;<input type="number" name="divide_value" style="width: 30%" step="any" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('tatransformmethod',3)"><br>
 					  					</div>
 				  					</div>
 								</div>
@@ -319,7 +319,6 @@
 								</select> 
 						</div>
 				    	<div id="matrix_histo" style="float: right;">
-				    		<!-- <b>Data Distribution:</b><br> -->
 				    		<canvas id="histo_canvas" style="width: 500px; height: 150px;"></canvas>
 				    	</div>    
 				    	<div id="row_sd_matrix_histo" style="float: right; display: none">
