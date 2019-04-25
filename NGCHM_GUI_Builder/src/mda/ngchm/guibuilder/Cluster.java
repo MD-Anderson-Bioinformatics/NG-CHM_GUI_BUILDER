@@ -98,11 +98,17 @@ public class Cluster  {
 		engine.eval("ordering <- NULL; "); 
 		if (orderMethod.equals("Hierarchical")) {
 			if (direction.equals("row")){
-				//Todo  "      if (distanceMeasure == \"correlation\") { geneGeneCor <- cor(t(matrixData), use=\"pairwise\");  distVals <- as.dist((1-geneGeneCor)/2);
-				engine.eval("distVals <- dist(dataMatrix, method=\"" + distanceMeasure + "\");");
+				if (distanceMeasure.equals("correlation")) { 
+					engine.eval("distVals <- as.dist(1-cor(t(dataMatrix), use=\"pairwise.complete.obs\"))");
+				} else {
+					engine.eval("distVals <- dist(dataMatrix, method=\"" + distanceMeasure + "\");");
+				}	
 			} else {
-				//Todo:if (distanceMeasure == \"correlation\") { geneGeneCor <- cor(matrixData, use=\"pairwise\"); distVals <- as.dist((1-geneGeneCor)/2);
-				engine.eval("distVals <- dist(t(dataMatrix), method=\"" + distanceMeasure + "\");");
+				if (distanceMeasure.equals("correlation")) { 
+					engine.eval("distVals <- as.dist(1-cor(dataMatrix, use=\"pairwise.complete.obs\"))");
+				} else {
+					engine.eval("distVals <- dist(t(dataMatrix), method=\"" + distanceMeasure + "\");");
+				}
 			}
 			engine.eval("ordering <- hclust(distVals, method=\"" + agglomerationMethod + "\");");
 			writeHCDataTSVs(engine, "ordering", clusterFile, orderFile);
