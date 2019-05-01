@@ -7,9 +7,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -17,7 +14,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
 
 /**
  * Servlet implementation class CorrectMatrix
@@ -41,10 +37,13 @@ public class ResetMatrix extends HttpServlet {
 		    String propJSON = "{}";
 	        File propFile = new File(workingDir + "/heatmapProperties.json");
 	        if (propFile.exists()) {
-			    String matrixFile = workingDir  + "/workingMatrix.txt";
+		        //Get properties and update them to the new config data
+	        	MapProperties mp = new MapProperties();
+		        HeatmapPropertiesManager.Heatmap mapConfig = mp.getConfigDataFromRequest(request);
+	        	mgr.setMap(mapConfig);
+	        	String matrixFile = workingDir  + "/workingMatrix.txt";
 			    String originalFile = workingDir + "/workingMatrix.txt.sav";
 			    Util.backupWorking(matrixFile);
-	//		    String tmpWorking = Util.copyWorkingToTemp(matrixFile);
 			    rdr = new BufferedReader(new FileReader(originalFile));
 			    out = new BufferedWriter(new FileWriter(matrixFile));
 			    String line = rdr.readLine(); //Just write the header

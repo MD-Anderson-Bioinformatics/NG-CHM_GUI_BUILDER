@@ -159,7 +159,7 @@ public class MapProperties extends HttpServlet {
 	 * This method reads in the JSON string from the request and creates
 	 * a Heatmap object.
 	 ******************************************************************/
-	private HeatmapPropertiesManager.Heatmap getConfigDataFromRequest(HttpServletRequest request) throws Exception {
+	public HeatmapPropertiesManager.Heatmap getConfigDataFromRequest(HttpServletRequest request) throws Exception {
 		StringBuilder buffer = new StringBuilder();
 	    BufferedReader reader = request.getReader();
 	    String line;
