@@ -731,6 +731,8 @@ NgChmGui.TRANS.revertToState =  function() {
 			};
 			req.send(formData);
 			NgChmGui.UTIL.showLoading();
+		} else if (stopPos === -1) {
+            NgChmGui.TRANS.getWorkingMatrix();
 		}
 	}
 }

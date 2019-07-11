@@ -1063,7 +1063,7 @@ NgChmGui.UTIL.helpItems = [
 	  ["Correlations", "Select this button to choose a Correlation type to apply to the matrix.", 300],
 	  ["tctransformmethod", "Select this button to choose a Matrix Operation method from the available options.", 300],
 	  ["trans", "Press this button to apply Transformation selections and reload the matrix.", 300],
-	  ["correlation", "Press this button to apply Correlation Matrix selections and reload the matrix.", 300],
+	  ["correlation", "Press this button to apply Matrix Operation selections and reload the matrix.", 300],
 	  ["filter", "Press this button to apply Filter selections and reload the matrix.", 300],
 	  ["correct", "Press this button to apply Missing/Invalid data correction selections and reload the matrix.", 300],
 	  ["restore", "Press this button to restore the matrix to a previous step, or back to the original version, by selecting a row from the box above.", 400],
