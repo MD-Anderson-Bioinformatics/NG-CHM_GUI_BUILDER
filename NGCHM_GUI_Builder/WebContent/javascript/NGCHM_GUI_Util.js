@@ -220,6 +220,7 @@ NgChmGui.UTIL.applySettings = function(applyFunction, nextFunction) {
 		if (NgChmGui.UTIL.buildProps() === true) {
 			//Reset builder warnings before calling a new build
 			NgChmGui.UTIL.clearBuildErrors();
+			NgChm.SUM.summaryHeatMapCache = {};
 			if (applyFunction()) {
 				NgChmGui.UTIL.setHeatmapProperties(nextFunction);
 			} else {
