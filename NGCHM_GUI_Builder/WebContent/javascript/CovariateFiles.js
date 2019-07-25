@@ -835,8 +835,8 @@ NgChmGui.COV.showReorder = function() {
  **********************************************************************************/
 NgChmGui.COV.applyCovarOrder = function() {
 	var classes = NgChmGui.mapProperties.classification_files;
-	var colCovarList = document.getElementById("colCovar_list");
-	var rowCovarList = document.getElementById("rowCovar_list");
+	var colCovarList = document.getElementById("colCovarMove_list");
+	var rowCovarList = document.getElementById("rowCovarMove_list");
 	var colOptions = colCovarList.getElementsByTagName('option');
 	var newColOrder = [];
 	for (var i = 0; i < colOptions.length; i++) {
