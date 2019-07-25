@@ -34,7 +34,7 @@ public class Util {
 	public static String getTopOfMatrix(String matrixFile, int numRows, int numCols) throws Exception {
 		Gson gson = new GsonBuilder().create();
 		String [][] topMatrix = new String[numRows][numCols];
-		NumberFormat nf = new DecimalFormat("#,##0.000");
+		NumberFormat nf = new DecimalFormat("#,##0.000000000");
 		
 		BufferedReader rdr = new BufferedReader(new FileReader(matrixFile));
 		int rowNum = 0;
@@ -43,8 +43,9 @@ public class Util {
 			String toks[] = line.split("\t");
 			int colNum = 0;
 			while (colNum < toks.length && colNum < numCols) {
+				boolean parseMe = isNumeric(toks[colNum]) && !isInteger(toks[colNum]);
 				//Format value to three decimal places if it is numeric 
-				topMatrix[rowNum][colNum] = isNumeric(toks[colNum]) ? nf.format(Double.parseDouble(toks[colNum])) : toks[colNum];
+				topMatrix[rowNum][colNum] = parseMe ? nf.format(Double.parseDouble(toks[colNum])) : toks[colNum];
 				colNum++;
 			}
 			line = rdr.readLine();
@@ -119,6 +120,15 @@ public class Util {
 	    return false;  
 	  }  
 	  return true;  
+	}
+	
+	public static boolean isInteger(String s) {
+	    try {
+	        Integer.parseInt(s);
+	        return true;
+	    } catch (NumberFormatException ex) {
+	        return false;
+	    }
 	}
 	
 	/*******************************************************************

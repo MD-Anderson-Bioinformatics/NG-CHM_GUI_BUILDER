@@ -354,6 +354,9 @@ public class FilterMatrix extends HttpServlet {
 					numKeep = Integer.parseInt(request.getParameter("std_num_keep"));
 				}
 	    		boolean[] skip = new boolean[deviations.length];
+	    		if (numKeep > deviations.length) {
+	    			numKeep = deviations.length;
+	    		}
 	    		double[] sortDevs = deviations.clone();
 	    		Arrays.sort(sortDevs);
 	    		double threshold = sortDevs[sortDevs.length-numKeep];
@@ -406,6 +409,9 @@ public class FilterMatrix extends HttpServlet {
 				} else {
 					numKeep = Integer.parseInt(request.getParameter("std_num_keep"));
 				}
+	    		if (numKeep > deviations.length) {
+	    			numKeep = deviations.length;
+	    		}
 	    		boolean[] skip = new boolean[deviations.length];
 	    		double[] sortDevs = deviations.clone();
 	    		Arrays.sort(sortDevs);
