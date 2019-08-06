@@ -12,7 +12,7 @@ NgChmGui.FORMAT.userPalettes = "";
 NgChmGui.FORMAT.loadData =  function() {
 	if (NgChmGui.UTIL.loadHeaderData()) {
 		var prefsPanelDiv = document.getElementById("preferencesPanel");
-		prefsPanelDiv.style.left = 0;
+		prefsPanelDiv.style.left = '0px';
 		prefsPanelDiv.style.right = "";
 		var formatPrefsDiv = NgChmGui.FORMAT.setupFormatTasks();
 		NgChmGui.FORMAT.setFormatTaskOptions();

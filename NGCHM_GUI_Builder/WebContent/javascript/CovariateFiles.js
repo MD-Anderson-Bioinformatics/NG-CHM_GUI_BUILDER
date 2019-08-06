@@ -10,7 +10,7 @@ NgChmGui.createNS('NgChmGui.COV');
 NgChmGui.COV.loadData =  function() {
 	if (NgChmGui.UTIL.loadHeaderData()) {
 		var prefsPanelDiv = document.getElementById("preferencesPanel");
-		prefsPanelDiv.style.left = 0;
+		prefsPanelDiv.style.left = '0px';
 		prefsPanelDiv.style.right = "";
 		var classes = NgChmGui.mapProperties.classification_files;
 		NgChmGui.COV.clearPreferencesPanel();
@@ -187,9 +187,9 @@ NgChmGui.COV.setupClassPrefs = function(classes) {
 	var classPrefsDiv = NgChmGui.UTIL.getDivElement("classPrefsDiv");
 	var prefContents = document.createElement("TABLE");
 	var classSelectStr = "<select name='classPref_list' id='classPref_list' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' style='font-size: 12px;' onchange='NgChmGui.COV.showClassSelection();'></select>"
-	var addButton = "<img id='addCovar_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/addButton.png' alt='Add Covariate' style='vertical-align: bottom;' onclick='NgChmGui.COV.openCovarUpload()' />";
-	var removeButton = "<img id='removeCovar_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/removeButton.png' alt='Remove Covariate' style='vertical-align: bottom;display: none' onclick='NgChmGui.COV.openCovarRemoval()' />";
-	var reorderButton = "<img id='reorderCovar_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/reorderButton2.png' alt='Reorder Covariates' style='vertical-align: bottom;display: none' onclick='NgChmGui.COV.openCovarReorder()' />";
+	var addButton = "<img id='addCovar_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/addButton.png' alt='Add Covariate' style='vertical-align: bottom;padding: 2px;' onclick='NgChmGui.COV.openCovarUpload()' />";
+	var removeButton = "<img id='removeCovar_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/removeButton.png' alt='Remove Covariate' style='vertical-align: bottom;display: none;padding: 2px;' onclick='NgChmGui.COV.openCovarRemoval()' />";
+	var reorderButton = "<img id='reorderCovar_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/reorderButton2.png' alt='Reorder Covariates' style='vertical-align: bottom;display: none;padding: 2px;' onclick='NgChmGui.COV.openCovarReorder()' />";
 	NgChmGui.UTIL.setTableRow(prefContents,["Covariates: ", classSelectStr]);
 	NgChmGui.UTIL.addBlankRow(prefContents)
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;",addButton +"&nbsp;"+ removeButton +"&nbsp;"+ reorderButton]);

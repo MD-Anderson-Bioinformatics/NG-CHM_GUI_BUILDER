@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html lang="en">
     <head>
 		<link rel="shortcut icon" href="ngChmIcon.ico">    	
@@ -39,7 +39,7 @@
 	 		<div id="helpDiv"><img id='barHelp_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this,1);' src='images/questionMark.png' alt='Open Help Page' onclick='NgChmGui.UTIL.helpOpen("Transform");' align="top"/></div> 
 	    </div>   
      	<div id="TransformDisplayContainer" class="display_container" style="position: relative">
- 	 		<div id="transforms" class="data_entry_container" style="width: 25%">
+ 	 		<div id="transforms" class="data_entry_container">
 		 		<div id='optionsMode' align='right' class='chmTR'><b>Show Advanced Features:</b><input type='checkbox' id='optionsCheck' name='optionsCheck' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onclick='NgChmGui.UTIL.toggleAdvanced();NgChmGui.TRANS.setAdvanced();'></div>
 				<div id="preferencesPanel"  style="min-height: 400px;">
 						<table>
@@ -289,7 +289,7 @@
 			        	</div>   
 		        	</div>
 			</div>
-	        <div id="trans_data" class="layout_display_container" style="width: 70%;height: 80%">
+	        <div id="trans_data" class="layout_display_container" style="height: 80%">
 	        		<div class="screenNotesLeft">
 	        			<div id="screenNotesDisplay"></div>
 	        		</div>
@@ -299,7 +299,7 @@
 						</div>
 					</div>
 	        	<br>
-	        	<div id="stats_wrapper" style="width:100%;display:inline-flex">
+	        	<div id="stats_wrapper" style="padding:8px;width:100%;display:inline-flex">
 	        	
 			     	<div id="matrix_stats" style="float: left;">
 			        	<b>Number of Rows:</b>  <label id="numRows"></label><br> <br>

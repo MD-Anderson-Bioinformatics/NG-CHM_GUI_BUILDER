@@ -935,9 +935,9 @@ NgChmGui.UTIL.hlp = function(e,reverse) {
 	    	bodyElem.appendChild(helptext);
 	    }
 	    if (reverse !== undefined) {
-	    	helptext.style.left = elemPos.left - 50 - helpItem[1];
+	    	helptext.style.left = elemPos.left - 50 - helpItem[1] + 'px';
 	    } else {
-	    	helptext.style.left = elemPos.left + e.clientWidth + 20;
+	    	helptext.style.left = elemPos.left + e.clientWidth + 20 + 'px';
 	    }
     	helptext.style.top = elemPos.top - 10;
 	    helptext.style.width = helpItem[1];
