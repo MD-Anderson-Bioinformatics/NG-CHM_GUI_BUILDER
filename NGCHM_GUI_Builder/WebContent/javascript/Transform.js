@@ -171,6 +171,7 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 	var req = new XMLHttpRequest();
 	req.open("GET", "GetWorkingMatrix", true);
 	req.onreadystatechange = function () {
+    	numInvalidDisplay = document.getElementById('numInvalid');
 		if (NgChmGui.UTIL.debug) {console.log('state change');}
 		if (req.readyState == req.DONE) {
 			if (NgChmGui.UTIL.debug) {console.log('done');}
@@ -182,7 +183,14 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 				NgChmGui.TRANS.matrixInfo = JSON.parse(req.response);
 	        	document.getElementById('numRows').innerHTML = NgChmGui.TRANS.matrixInfo.numRows;
 	        	document.getElementById('numCols').innerHTML = NgChmGui.TRANS.matrixInfo.numCols;
-	        	document.getElementById('numInvalid').innerHTML = NgChmGui.TRANS.matrixInfo.numInvalid;
+	        	if (NgChmGui.TRANS.matrixInfo.numInvalid > 0) {
+		        	numInvalidDisplay.style.fontWeight = 'bold';
+		        	numInvalidDisplay.style.color = '#FF0000';
+	        	} else {
+	            	numInvalidDisplay.style.fontWeight = 'normal';
+	            	numInvalidDisplay.style.color = '#000000';
+	        	}
+	        	numInvalidDisplay.innerHTML = NgChmGui.TRANS.matrixInfo.numInvalid;
 	        	document.getElementById('numMissing').innerHTML = NgChmGui.TRANS.matrixInfo.numMissing;
 	        	document.getElementById('maxVal').innerHTML = Number.parseFloat(NgChmGui.TRANS.matrixInfo.maxValue).toFixed(3);
 	        	document.getElementById('minVal').innerHTML = Number.parseFloat(NgChmGui.TRANS.matrixInfo.minValue).toFixed(3);
