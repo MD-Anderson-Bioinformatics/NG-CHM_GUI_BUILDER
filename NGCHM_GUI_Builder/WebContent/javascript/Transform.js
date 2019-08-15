@@ -206,10 +206,10 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
     
 	        	var graph = new BarGraph(ctx);
 	        	graph.margin = 2;
-	        	graph.width = 450;
+	        	graph.width = 650;
 	        	graph.height = 150;
 	        	var histoBins = NgChmGui.TRANS.matrixInfo.histoBins;
-	        	histoBins.unshift("MISS");
+	        	histoBins.unshift("Missing");
 	        	var colors = new Array(histoBins.length);
 	        	colors[0] = 'black';
 	        	colors.fill('blue',1,colors.length);

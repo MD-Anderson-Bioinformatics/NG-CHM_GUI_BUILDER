@@ -6,9 +6,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -47,7 +49,8 @@ public class GetWorkingMatrix extends HttpServlet {
 		public double[] col_dev_bins = new double[10];
 		public int[] col_dev_count = new int[10];
 	}
-       
+
+		
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession mySession = request.getSession();
 		response.setContentType("application/json;charset=UTF-8");
@@ -70,7 +73,7 @@ public class GetWorkingMatrix extends HttpServlet {
 		    jsonHisto.append("\"histoBins\": [");
 		    for (int i=0; i<counts.bins.length; i++) {
 		    	if (i>0) jsonHisto.append(",");
-		    	jsonHisto.append("\""+nf.format(counts.bins[i])+"\"");
+		    	jsonHisto.append("\""+ Util.toSignificantFiguresString(counts.bins[i], 3)+"\"");
 		    }
 		    jsonHisto.append("],\"histoCounts\": [");
 		    for (int i=0; i<counts.bin_count.length; i++) {
@@ -84,7 +87,7 @@ public class GetWorkingMatrix extends HttpServlet {
 		    rowStdJsonHisto.append("\"rowStdHistoBins\": [");
 		    for (int i=0; i<counts.row_dev_bins.length; i++) {
 		    	if (i>0) rowStdJsonHisto.append(",");
-		    	rowStdJsonHisto.append("\""+nf.format(counts.row_dev_bins[i])+"\"");
+		    	rowStdJsonHisto.append("\""+ Util.toSignificantFiguresString(counts.row_dev_bins[i], 3)+"\"");
 		    }
 		    rowStdJsonHisto.append("],\"rowStdHistoCounts\": [");
 		    for (int i=0; i<counts.row_dev_count.length; i++) {
@@ -98,7 +101,7 @@ public class GetWorkingMatrix extends HttpServlet {
 		    colStdJsonHisto.append("\"colStdHistoBins\": [");
 		    for (int i=0; i<counts.col_dev_bins.length; i++) {
 		    	if (i>0) colStdJsonHisto.append(",");
-		    	colStdJsonHisto.append("\""+nf.format(counts.col_dev_bins[i])+"\"");
+		    	colStdJsonHisto.append("\""+ Util.toSignificantFiguresString(counts.col_dev_bins[i], 3)+"\"");
 		    }
 		    colStdJsonHisto.append("],\"colStdHistoCounts\": [");
 		    for (int i=0; i<counts.col_dev_count.length; i++) {

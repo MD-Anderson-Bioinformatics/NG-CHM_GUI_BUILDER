@@ -12,11 +12,13 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Iterator;
+import java.util.Locale;
 
 import org.apache.poi.ss.usermodel.*;
 
@@ -24,6 +26,33 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public class Util {
+	
+
+	
+	/*******************************************************************
+	 * METHOD: toSignificantFiguresString
+	 *
+	 * Helper function that takes a double and returns a string version but
+	 * formated to have just 3 significant digits if the number is small.
+	 ******************************************************************/
+	public static String toSignificantFiguresString(double value, int significantFigures ){
+		NumberFormat nf = new DecimalFormat("#,##0");
+		String valueStr = "";
+		if (value < 100) {
+			BigDecimal bd = new BigDecimal(value);
+			valueStr = String.format("%."+significantFigures+"G", bd);
+			
+			//Trim trailing 0s - probably a better way to do this
+			while (valueStr.contains(".") && valueStr.endsWith("0")) {
+				valueStr = valueStr.substring(0, valueStr.length() - 1);
+			}
+		} else {
+			// For large numbers just return them with no decimal places.
+			valueStr = nf.format(value);
+		}
+	    return valueStr;
+	}
+
 
 	/*******************************************************************
 	 * METHOD: getTopOfMatrix
@@ -34,7 +63,6 @@ public class Util {
 	public static String getTopOfMatrix(String matrixFile, int numRows, int numCols) throws Exception {
 		Gson gson = new GsonBuilder().create();
 		String [][] topMatrix = new String[numRows][numCols];
-		NumberFormat nf = new DecimalFormat("#,##0.000000000");
 		
 		BufferedReader rdr = new BufferedReader(new FileReader(matrixFile));
 		int rowNum = 0;
@@ -45,7 +73,7 @@ public class Util {
 			while (colNum < toks.length && colNum < numCols) {
 				boolean parseMe = isNumeric(toks[colNum]) && !isInteger(toks[colNum]);
 				//Format value to three decimal places if it is numeric 
-				topMatrix[rowNum][colNum] = parseMe ? nf.format(Double.parseDouble(toks[colNum])) : toks[colNum];
+				topMatrix[rowNum][colNum] = parseMe ? toSignificantFiguresString(Double.parseDouble(toks[colNum]), 3) : toks[colNum];
 				colNum++;
 			}
 			line = rdr.readLine();
