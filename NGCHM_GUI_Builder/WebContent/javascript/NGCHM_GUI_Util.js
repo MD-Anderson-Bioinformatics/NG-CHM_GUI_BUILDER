@@ -530,7 +530,7 @@ NgChmGui.UTIL.addBlankRow = function(addDiv, rowCnt) {
 	addDiv.insertRow().innerHTML = NgChmGui.UTIL.formatBlankRow();
 	if (typeof rowCnt !== 'undefined') {
 		for (var i=1;i<rowCnt;i++) {
-			Div.insertRow().innerHTML = NgChmGui.UTIL.formatBlankRow();
+			addDiv.insertRow().innerHTML = NgChmGui.UTIL.formatBlankRow();
 		}
 	}
 	return;
