@@ -41,6 +41,7 @@ public class GetWorkingMatrix extends HttpServlet {
 		public int emptyRows = 0;
 		public int emptyCols = 0;
 		public double minVal = Double.POSITIVE_INFINITY;
+		public double minNonZeroVal = Double.POSITIVE_INFINITY;
 		public double maxVal = Double.NEGATIVE_INFINITY;
 		public double[] bins = new double[10];
 		public int[] bin_count = new int[10];
@@ -117,6 +118,7 @@ public class GetWorkingMatrix extends HttpServlet {
 		    						",\"numMissing\": " + counts.numMissing +
 		    						",\"maxValue\": " + "\"" + counts.maxVal + "\""+
 		    						",\"minValue\": " + "\"" + counts.minVal + "\"" +
+		    						",\"minNonZeroValue\": " + "\"" + counts.minNonZeroVal + "\"" +
 		    						"," + jsonHisto.toString() + 
 		    						"," + rowStdJsonHisto.toString() +
 									"," + colStdJsonHisto.toString() + 
@@ -163,6 +165,7 @@ public class GetWorkingMatrix extends HttpServlet {
 					counts.emptyRows = 0;
 					counts.emptyCols = 0;
 					counts.minVal = 0;
+					counts.minNonZeroVal = 0;
 					counts.maxVal = 0;
 					counts.bins = new double[10];
 					counts.bin_count = new int[10];
@@ -191,8 +194,10 @@ public class GetWorkingMatrix extends HttpServlet {
 							String val = toks[i];
 							if (Util.isNumeric(val)) {
 								double dVal = Double.parseDouble(val);
-								if (dVal < counts.minVal)
+								if (dVal < counts.minVal) 
 									counts.minVal = dVal;
+								if ((dVal < counts.minNonZeroVal) && (dVal != 0)) 
+									counts.minNonZeroVal = dVal;
 								if (dVal > counts.maxVal)
 									counts.maxVal = dVal;
 								rowSum += dVal;
@@ -251,6 +256,7 @@ public class GetWorkingMatrix extends HttpServlet {
 					if (counts.minVal == Double.NEGATIVE_INFINITY) {
 						minRound = -Double.MAX_VALUE;
 					}
+
 					//Data Distribution Histogram Bins
 					double binSize = (maxRound - minRound) / 10;
 					for (int i = 0; i < 10; i++){

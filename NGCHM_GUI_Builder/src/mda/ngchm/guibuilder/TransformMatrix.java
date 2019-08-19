@@ -8,7 +8,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -18,9 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.tomcat.util.http.fileupload.FileUtils;
-
-import com.google.gson.Gson;
 
 /**
  * Servlet implementation class CorrectMatrix
@@ -54,6 +50,8 @@ public class TransformMatrix extends HttpServlet {
 			    	zNormTransform(matrixFile, request);
 			    else if (transform.equals("Arithmetic"))
 			    	arithmeticTransform(matrixFile, request);
+			    else if (transform.equals("Threshold"))
+			    	thresholdTransform(matrixFile, request);
 			    else if (transform.equals("Transpose"))
 			    	transposeTransform(matrixFile, request);
 			    else if (transform.equals("Correlations"))
@@ -352,6 +350,63 @@ public class TransformMatrix extends HttpServlet {
 				line = rdr.readLine();
 			}	
 		} 
+		rdr.close();
+		out.close();
+		new File(tmpWorking).delete();
+	}
+	
+	// Servlet method for threshold transforms.  The threshold is either a maximum or minimum value and 
+	// matrix values that are above or below the respective threshold are set to NA or the threshold value.
+	private void thresholdTransform(String matrixFile, HttpServletRequest request) throws Exception {
+		Util.backupWorking(matrixFile);
+		String tmpWorking = Util.copyWorkingToTemp(matrixFile);
+		String operation = request.getParameter("thresholdmethod");
+		BufferedReader rdr = new BufferedReader(new FileReader(tmpWorking));
+	    BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
+		
+		boolean lowThreshold = false;
+		boolean setNA = false;
+	    float threshold = 0F;
+		if (operation.equals("min")) {
+			threshold = Float.parseFloat(request.getParameter("min_value"));
+			lowThreshold = true;
+		} else if (operation.equals("max")) {
+			threshold = Float.parseFloat(request.getParameter("max_value"));
+		} else if (operation.equals("lowcut")) {
+			threshold = Float.parseFloat(request.getParameter("low_value"));
+			lowThreshold = true;
+			setNA = true;
+		} else if (operation.equals("highcut")) {
+			threshold = Float.parseFloat(request.getParameter("high_value"));
+			setNA = true;
+		}
+		String line = rdr.readLine(); //Just write the header
+		out.write(line + "\n");
+		line = rdr.readLine();
+
+		while (line != null ){
+			String toks[] = line.split("\t",-1);
+			out.write(toks[0]);
+			for (int i = 1; i < toks.length; i++) {
+				if (!Util.isNumeric(toks[i])) {
+					//Not a number - just write it out
+					out.write("\t" + toks[i]);
+				} else {
+					//For numbers - check either the high or low threshold based on user selection
+					float val = Float.parseFloat(toks[i]);
+					if ((lowThreshold && val < threshold) || (!lowThreshold && val > threshold))
+						//Value is above or below threshold set it to NA or the threshold based on user selection
+						if (setNA)
+							out.write("\tNA");
+						else
+							out.write("\t" + threshold);
+					else
+						out.write("\t" + val);
+				} 
+			}
+			out.write("\n");
+			line = rdr.readLine();
+		}	
 		rdr.close();
 		out.close();
 		new File(tmpWorking).delete();

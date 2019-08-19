@@ -194,6 +194,7 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 	        	document.getElementById('numMissing').innerHTML = NgChmGui.TRANS.matrixInfo.numMissing;
 	        	document.getElementById('maxVal').innerHTML = Number.parseFloat(NgChmGui.TRANS.matrixInfo.maxValue).toFixed(3);
 	        	document.getElementById('minVal').innerHTML = Number.parseFloat(NgChmGui.TRANS.matrixInfo.minValue).toFixed(3);
+	        	document.getElementById('minNonZeroVal').innerHTML = Number.parseFloat(NgChmGui.TRANS.matrixInfo.minNonZeroValue);
 	        	topMatrixString = NgChmGui.TRANS.matrixInfo.matrixsample;
 	        	var matrixBox = document.getElementById('trans_data');
 	        	var matrixDisplayBox = document.getElementById('transMatrixDisplay');
@@ -351,6 +352,7 @@ NgChmGui.TRANS.selectTransform =  function() {
 	document.getElementById('MeanCenter').style.display = 'none';
 	document.getElementById('Z-Norm').style.display = 'none';
 	document.getElementById('Arithmetic').style.display = 'none';
+	document.getElementById('Threshold').style.display = 'none';
 	var sel = document.getElementById('Transform');
 	var filter = sel.options[sel.selectedIndex].value;
 		

@@ -181,6 +181,7 @@
 						  				<option value="MeanCenter">Mean Center</option>
 						  				<option value="Z-Norm">Z-Norm</option>
 						  				<option value="Arithmetic">Arithmetic</option>
+						  				<option value="Threshold">Threshold</option>
 									</select> 
 								</div>
 								<div id='Log'>
@@ -219,6 +220,17 @@
 					 						<input type="radio" name="tatransformmethod" logText="Subtract [subtract_value] from all values" value="subtract"> Subtract &nbsp;<input type="number" name="subtract_value" style="width: 30%" step="any" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('tatransformmethod',1)">&nbsp;from All Values<br>
 					  						<input type="radio" name="tatransformmethod" logText="Multiply all values by [multiply_value]" value="multiply"> Multiply All Values by &nbsp;<input type="number" name="multiply_value" style="width: 30%" step="any" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('tatransformmethod',2)"><br>
 					  						<input type="radio" name="tatransformmethod" logText="Divide all values by [divide_value]" value="divide"> Divide All Values by &nbsp;&nbsp;&nbsp;&nbsp;<input type="number" name="divide_value" style="width: 30%" step="any" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('tatransformmethod',3)"><br>
+					  					</div>
+				  					</div>
+								</div>
+								<div id='Threshold' style="display: none;">
+					 	        	<div class="pref-header2">Method:
+					 	        		<br>
+					 	        		<div class="pref-header3" id="thresholdmethod" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'>
+					 						<input type="radio" name="thresholdmethod" logText="Raise values to a minimum of [min_value]" value="min" checked> Raise Values to a Minimum of &nbsp;<input type="number" name="min_value" style="width: 30%" step="any" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('thresholdmethod',0)">&nbsp;<br>
+					 						<input type="radio" name="thresholdmethod" logText="Reduce values to a maximum of [max_value]" value="max"> Reduce Values to a Maximum of &nbsp;<input type="number" name="max_value" style="width: 30%" step="any" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('thresholdmethod',1)">&nbsp;<br>
+					  						<input type="radio" name="thresholdmethod" logText="Set values below [low_value] to NA" value="lowcut"> Set Values Below &nbsp;<input type="number" name="low_value" style="width: 30%" step="any" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('thresholdmethod',2)">&nbsp; to NA<br>
+					  						<input type="radio" name="thresholdmethod" logText="Set values above [high_value] to NA" value="highcut"> Set Values Above &nbsp;<input type="number" name="high_value" style="width: 30%" step="any" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('thresholdmethod',3)">&nbsp; to NA<br>
 					  					</div>
 				  					</div>
 								</div>
@@ -306,9 +318,9 @@
 			        	<b>Number of Columns:</b> <label id="numCols"></label><br><br> 
 			        	<b>Missing Values:</b> <label id="numMissing"></label><br><br>
 			        	<b>Invalid Values:</b> <label id="numInvalid"></label><br><br>
-			        	<b>Minimum Value:</b> <label id="minVal"></label><br><br>
 			        	<b>Maximum Value:</b> <label id="maxVal"></label><br><br>
-			        	&nbsp;<br>
+			        	<b>Minimum Value:</b> <label id="minVal"></label><br><br>
+			        	<b>Minimum (Non-Zero):</b> <label id="minNonZeroVal"></label><br><br>
 			    	</div>
 			    	<div style="float:right;padding-left: 10px;">
 				    	<div class=""><b>Distribution:</b>

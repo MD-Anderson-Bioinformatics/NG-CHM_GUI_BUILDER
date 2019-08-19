@@ -530,7 +530,7 @@ NgChmGui.UTIL.addBlankRow = function(addDiv, rowCnt) {
 	addDiv.insertRow().innerHTML = NgChmGui.UTIL.formatBlankRow();
 	if (typeof rowCnt !== 'undefined') {
 		for (var i=1;i<rowCnt;i++) {
-			addDiv.insertRow().innerHTML = NgChmGui.UTIL.formatBlankRow();
+			Div.insertRow().innerHTML = NgChmGui.UTIL.formatBlankRow();
 		}
 	}
 	return;
@@ -1061,6 +1061,7 @@ NgChmGui.UTIL.helpItems = [
 	  ["tmrowcol", "Select this button to choose a Mean Centering transformation method from the available options.", 300],
 	  ["tzrowcol", "Select this button to choose a Z-Normalization transformation method from the available options.", 300],
 	  ["tatransformmethod", "Select this button to choose an Arithmetic transformation method from the available options.", 300],
+	  ["thresholdmethod", "Select a method of applying a upper or lower threshold to the matrix values.", 300],
 	  ["Correlations", "Select this button to choose a Correlation type to apply to the matrix.", 300],
 	  ["tctransformmethod", "Select this button to choose a Matrix Operation method from the available options.", 300],
 	  ["trans", "Press this button to apply Transformation selections and reload the matrix.", 300],
