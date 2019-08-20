@@ -939,8 +939,8 @@ NgChmGui.UTIL.hlp = function(e,reverse) {
 	    } else {
 	    	helptext.style.left = elemPos.left + e.clientWidth + 20 + 'px';
 	    }
-    	helptext.style.top = elemPos.top - 10;
-	    helptext.style.width = helpItem[1];
+    	helptext.style.top = elemPos.top - 10 + 'px';
+	    helptext.style.width = helpItem[1] + 'px';
 		var htmlclose = "</font></b>";
 		helptext.innerHTML = "<b><font size='2' color='#0843c1'>"+helpItem[0]+"</font></b>";
 		helptext.style.display="inherit"; 

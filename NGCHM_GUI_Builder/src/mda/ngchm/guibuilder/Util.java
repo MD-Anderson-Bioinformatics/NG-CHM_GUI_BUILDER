@@ -46,6 +46,9 @@ public class Util {
 			while (valueStr.contains(".") && valueStr.endsWith("0")) {
 				valueStr = valueStr.substring(0, valueStr.length() - 1);
 			}
+			if (valueStr.endsWith(".")) {
+				valueStr = valueStr.substring(0, valueStr.length() - 1);
+			}
 		} else {
 			// For large numbers just return them with no decimal places.
 			valueStr = nf.format(value);

@@ -128,11 +128,6 @@ NgChmGui.TRANS.validateEntries = function(leavingPage, formatError, otherError, 
 	if (otherWarning && otherWarning !== "") {
 		pageText = pageText + NgChmGui.UTIL.warningPrefix + otherWarning + NgChmGui.UTIL.nextLine;
 	}
-	//if (NgChmGui.TRANS.matrixInfo.minValue < 0) {
-	//	pageText = pageText + NgChmGui.UTIL.warningPrefix + "Your matrix has negative values.  A log transform would result in invalid values - use a different transform to remove negative values prior to log transforms." + NgChmGui.UTIL.nextLine;
-	//}	
-	
-		
 	
 	//Add in page instruction text
 	pageText = pageText + "This page provides summary statistics of your matrix data including the distribution of values and row/column standard deviations.  Filters and transforms can be used to manipulate the matrix to produce better heat maps.  For example, a Z-norm transform could be used to normalize rows with values that differ in magnitude and a standard deviation filter could be used to remove rows with values that do not differ much across the columns." ;
@@ -203,50 +198,11 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 	        	dataTable = Object.keys(topMatrixString).map(function(k) { return topMatrixString[k] });
 	        	loadDataFromFile();
 	        	
-	        	var ctx = document.getElementById("histo_canvas").getContext("2d");
-    
-	        	var graph = new BarGraph(ctx);
-	        	graph.margin = 2;
-	        	graph.width = 650;
-	        	graph.height = 150;
-	        	var histoBins = NgChmGui.TRANS.matrixInfo.histoBins;
-	        	histoBins.unshift("Missing");
-	        	var colors = new Array(histoBins.length);
-	        	colors[0] = 'black';
-	        	colors.fill('blue',1,colors.length);
-	        	graph.colors = colors;
-	        	graph.xAxisLabelArr = histoBins;//["Missing Values", NgChmGui.TRANS.matrixInfo.histoBins];
-	        	var histoCounts = NgChmGui.TRANS.matrixInfo.histoCounts; 
-	        	histoCounts.unshift(NgChmGui.TRANS.matrixInfo.numMissing);
-	        	graph.update(histoCounts);//[NgChmGui.TRANS.matrixInfo.numMissing,NgChmGui.TRANS.matrixInfo.histoCounts]);
+	        	//set up histogram graphs	        	
+	        	setHistoGraph(document.getElementById("histo_canvas"), NgChmGui.TRANS.matrixInfo.histoBins, NgChmGui.TRANS.matrixInfo.histoCounts, true);
+	        	setHistoGraph(document.getElementById("row_sd_histo_canvas"), NgChmGui.TRANS.matrixInfo.rowStdHistoBins, NgChmGui.TRANS.matrixInfo.rowStdHistoCounts, false);
+	        	setHistoGraph(document.getElementById("col_sd_histo_canvas"), NgChmGui.TRANS.matrixInfo.colStdHistoBins, NgChmGui.TRANS.matrixInfo.colStdHistoCounts, false);
 	        	
-	        	var rowSDCtx = document.getElementById("row_sd_histo_canvas").getContext("2d");
-	            
-	        	var rowSDGraph = new BarGraph(rowSDCtx);
-	        	rowSDGraph.margin = 2;
-	        	rowSDGraph.width = 450;
-	        	rowSDGraph.height = 150;
-	        	rowSDGraph.colors = ['blue'];
-	        	var histoBins = NgChmGui.TRANS.matrixInfo.rowStdHistoBins;
-//	        	histoBins.unshift("Missing");
-	        	rowSDGraph.xAxisLabelArr = histoBins;//["Missing Values", NgChmGui.TRANS.matrixInfo.histoBins];
-	        	var histoCounts = NgChmGui.TRANS.matrixInfo.rowStdHistoCounts; 
-//	        	histoCounts.unshift(NgChmGui.TRANS.matrixInfo.numMissing);
-	        	rowSDGraph.update(histoCounts);//[NgChmGui.TRANS.matrixInfo.numMissing,NgChmGui.TRANS.matrixInfo.histoCounts]);
-	        	
-	        	var colSDCtx = document.getElementById("col_sd_histo_canvas").getContext("2d");
-	            
-	        	var colSDGraph = new BarGraph(colSDCtx);
-	        	colSDGraph.margin = 2;
-	        	colSDGraph.width = 450;
-	        	colSDGraph.height = 150;
-	        	colSDGraph.colors = ['blue'];
-	        	var histoBins = NgChmGui.TRANS.matrixInfo.colStdHistoBins;
-//	        	histoBins.unshift("Missing");
-	        	colSDGraph.xAxisLabelArr = histoBins;//["Missing Values", NgChmGui.TRANS.matrixInfo.histoBins];
-	        	var histoCounts = NgChmGui.TRANS.matrixInfo.colStdHistoCounts; 
-//	        	histoCounts.unshift(NgChmGui.TRANS.matrixInfo.numMissing);
-	        	colSDGraph.update(histoCounts);//[NgChmGui.TRANS.matrixInfo.numMissing,NgChmGui.TRANS.matrixInfo.histoCounts]);
 	        	NgChmGui.TRANS.validateEntries(false);
 	        	NgChmGui.UTIL.hideLoading();
 		    }
@@ -254,6 +210,27 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 	};
 	req.send();
 	
+	function setHistoGraph(canvas, bins, counts, isMatrixData) {
+    	var ctx = canvas.getContext("2d");
+		var colors = ['blue']; 
+    	var graph = new BarGraph(ctx);
+    	if (isMatrixData === true) {
+    		bins.unshift("Missing");
+        	var colors = new Array(bins.length);
+        	colors[0] = 'black';
+        	colors.fill('blue',1,colors.length);
+        	counts.unshift(NgChmGui.TRANS.matrixInfo.numMissing);
+        	graph.width = 650;
+    	} else {
+        	graph.width = 450;
+    	}
+    	graph.margin = 2;
+    	graph.height = 150;
+    	graph.colors = colors;
+    	graph.xAxisLabelArr = bins; 
+    	graph.update(counts); 
+	}
+
 	function loadDataFromFile() {
 
 		var getData = (function () {
@@ -601,6 +578,10 @@ NgChmGui.TRANS.initSelects = function() {
 	document.getElementsByName('subtract_value')[0].value = '';
 	document.getElementsByName('multiply_value')[0].value = '';
 	document.getElementsByName('divide_value')[0].value = '';
+	document.getElementsByName('min_value')[0].value = '';
+	document.getElementsByName('max_value')[0].value = '';
+	document.getElementsByName('low_value')[0].value = '';
+	document.getElementsByName('high_value')[0].value = '';
 }
 
 NgChmGui.TRANS.populateLog = function(){
