@@ -318,7 +318,8 @@ NgChmGui.MAP.collapseMap = function() {
 	notesPanel.style.display = '';
 	viewPanel.style.width = '75%';
 	viewPanel.style.height = '90%';
-	mapPanel.style.height = '90%';
+	mapPanel.style.height = '72vh';
+	viewPanel.style.width = '72vw';
 	NgChm.SUM.summaryResize();
 	NgChm.DET.detailResize(); 
 }
