@@ -294,8 +294,9 @@ NgChmGui.MAP.expandMap = function() {
 	viewPanel.style.height = '98%';
 	mapPanel.style.width = '92vw';
 	mapPanel.style.height = '88vh';
-	NgChm.SUM.summaryResize();
-	NgChm.DET.detailResize();
+	
+	NgChm.SUM.initSummarySize();
+	NgChm.UTIL.chmResize();
 }
 
 /**********************************************************************************
@@ -320,6 +321,7 @@ NgChmGui.MAP.collapseMap = function() {
 	viewPanel.style.height = '90%';
 	mapPanel.style.height = '69vh';
 	mapPanel.style.width = '72vw';
-	NgChm.SUM.summaryResize();
-	NgChm.DET.detailResize(); 
+	
+	NgChm.SUM.initSummarySize();
+	NgChm.UTIL.chmResize();
 }
