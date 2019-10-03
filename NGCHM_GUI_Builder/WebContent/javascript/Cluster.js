@@ -1,5 +1,6 @@
 //Define Namespace for NgChmGui MatrixFile
 NgChmGui.createNS('NgChmGui.CLUSTER');
+NgChmGui.isHalfScreen = true;
 
 /**********************************************************************************
  * FUNCTION - loadData: This function populates the dropdowns for row

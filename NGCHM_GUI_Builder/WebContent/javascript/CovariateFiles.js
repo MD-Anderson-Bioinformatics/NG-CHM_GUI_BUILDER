@@ -1,5 +1,6 @@
 //Define Namespace for NgChmGui Covariate File Page
 NgChmGui.createNS('NgChmGui.COV');
+NgChmGui.isHalfScreen = true;
 
 /**********************************************************************************
  * FUNCTION - loadData: This function will be executed when the covariates page

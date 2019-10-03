@@ -1,5 +1,6 @@
 //Define Namespace for NgChmGui Covariate File Page
 NgChmGui.createNS('NgChmGui.FORMAT');
+NgChmGui.isHalfScreen = true;
 
 NgChmGui.FORMAT.userPalettes = "";
 
@@ -1041,7 +1042,7 @@ NgChmGui.FORMAT.loadFormatView = function() {
 	var labelPrefDispDIV = document.getElementById('labelPrefExample');
 	var rowText = "<b>Trimmed Row Label Display: </b>&nbsp;&nbsp;" + NgChmGui.UTIL.getLabelText(NgChmGui.mapProperties.builder_config.longRowLabel,"ROW");
 	var colText = "<b>Trimmed Col Label Display: </b>&nbsp;&nbsp;" + NgChmGui.UTIL.getLabelText(NgChmGui.mapProperties.builder_config.longColLabel,"COL");
-	labelPrefDispDIV.innerHTML = rowText+"<BR>"+colText;
+	labelPrefDispDIV.innerHTML = rowText+"&nbsp;&nbsp;&nbsp;&nbsp;"+colText;
 }
 
 /**********************************************************************************

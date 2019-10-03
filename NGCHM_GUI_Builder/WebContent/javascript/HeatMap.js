@@ -290,12 +290,10 @@ NgChmGui.MAP.expandMap = function() {
 	headerPanel.style.display = 'none';
 	leftPanel.style.display = 'none';
 	notesPanel.style.display = 'none';
-	viewPanel.style.width = '98%';
-	viewPanel.style.height = '98%';
-	mapPanel.style.width = '92vw';
-	mapPanel.style.height = '88vh';
-	
-	NgChm.SUM.initSummarySize();
+	viewPanel.style.width = '96vw';
+	viewPanel.style.height = '92vh';
+	mapPanel.style.width = '96vw';
+	mapPanel.style.height = '92vh';
 	NgChm.UTIL.chmResize();
 }
 
@@ -317,11 +315,9 @@ NgChmGui.MAP.collapseMap = function() {
 	headerPanel.style.display = '';
 	leftPanel.style.display = '';
 	notesPanel.style.display = '';
-	viewPanel.style.width = '75%';
-	viewPanel.style.height = '90%';
-	mapPanel.style.height = '69vh';
-	mapPanel.style.width = '72vw';
-	
-	NgChm.SUM.initSummarySize();
+	viewPanel.style.width = '75vw';
+	viewPanel.style.height = '75vh';
+	mapPanel.style.width = '75vw';
+	mapPanel.style.height = '75vh';
 	NgChm.UTIL.chmResize();
 }
