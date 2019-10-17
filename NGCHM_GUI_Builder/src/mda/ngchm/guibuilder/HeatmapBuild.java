@@ -114,6 +114,8 @@ public class HeatmapBuild extends HttpServlet {
 					}
 		        }
 	        }
+	        map.read_matrices = "Y";
+	        map.write_tiles = "Y";
     		mgr.save();
 	    } catch (Exception e) {
 	    	throw e;

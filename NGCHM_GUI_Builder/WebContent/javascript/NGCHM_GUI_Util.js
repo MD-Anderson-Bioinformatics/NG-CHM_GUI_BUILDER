@@ -238,13 +238,16 @@ NgChmGui.UTIL.applySettings = function(applyFunction, nextFunction) {
  * page load but should be cleared prior to a new apply.
  **********************************************************************************/
 NgChmGui.UTIL.clearBuildErrors = function() {
-	NgChmGui.mapProperties.builder_config.buildErrors = "";
-	NgChmGui.mapProperties.builder_config.buildWarnings = [];
+	var props = NgChmGui.mapProperties.builder_config;
+	if (typeof props !== 'undefined') {
+		props.buildErrors = "";
+		props.buildWarnings = [];
+	}
 }
 
 /**********************************************************************************
  * FUNCTION - buildHeatMap: This function runs when any changes are applied and the
- * heatmap needs to be rebuilt for display.  *****NOT CURRENTLY USED*****
+ * heatmap needs to be rebuilt for display.  Only used from transform screen.
  **********************************************************************************/
 NgChmGui.UTIL.buildHeatMap = function(nextFunction) {
 	var req = new XMLHttpRequest();
@@ -318,7 +321,7 @@ NgChmGui.UTIL.loadHeaderData =  function() {
 }
 
 NgChmGui.UTIL.validSession =  function() {
-	if ((NgChmGui.mapProperties.no_file === 1) || (NgChmGui.mapProperties.no_session === 1)) {
+	if ((typeof NgChmGui.mapProperties === 'undefined') || (NgChmGui.mapProperties.no_file === 1) || (NgChmGui.mapProperties.no_session === 1)) {
 		var nameField = document.getElementById("ngchmName");
 		if (nameField !== null) {
 			document.getElementById("ngchmName").innerHTML = "<b>Your Session Has Expired</b>";
@@ -333,10 +336,31 @@ NgChmGui.UTIL.validSession =  function() {
 
 /**********************************************************************************
  * FUNCTION - setPropsChange: The purpose of this function is to mark the properties
- * as "dirty".
+ * as "dirty".  This will invoke a rebuild of the heat map.
  **********************************************************************************/
-NgChmGui.UTIL.setBuildProps =  function() {
-	NgChmGui.mapProperties.builder_config.buildProps = "Y"
+NgChmGui.UTIL.setBuildProps =  function(tileWrite) {
+	var props = NgChmGui.mapProperties;
+	if (typeof NgChmGui.tileWrite !== 'undefined') {
+		if (tileWrite === true) {
+			NgChmGui.tileWrite = tileWrite;
+		}
+	}
+	props.builder_config.buildProps = "Y"
+}
+
+/**********************************************************************************
+ * FUNCTION - setTileWrite: The purpose of this function is to turn off tile writing
+ * and matrix reading for the HeatmapDataGenerator Build Map process. It is called
+ * from screens that perform functions that might not require an entire rebuild
+ * of the heat map.
+ **********************************************************************************/
+NgChmGui.UTIL.setTileWrite =  function() {
+	if (typeof NgChmGui.tileWrite !== 'undefined') {
+		if (NgChmGui.tileWrite === false) {
+			NgChmGui.mapProperties.write_tiles = 'N';
+			NgChmGui.mapProperties.read_matrices = 'N';
+		}
+	}
 }
 
 /**********************************************************************************
@@ -345,7 +369,7 @@ NgChmGui.UTIL.setBuildProps =  function() {
  * process.
  **********************************************************************************/
 NgChmGui.UTIL.setBuildCluster =  function(type) {
-	NgChmGui.UTIL.setBuildProps();
+	NgChmGui.UTIL.setBuildProps(true);
 	var currCluster = NgChmGui.mapProperties.builder_config.buildCluster;
 	if (currCluster !== "B") {
 		if ((type === 'C') && (currCluster === 'R')) {

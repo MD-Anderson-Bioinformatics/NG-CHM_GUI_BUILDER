@@ -1,6 +1,7 @@
 //Define Namespace for NgChmGui Covariate File Page
 NgChmGui.createNS('NgChmGui.COV');
 NgChmGui.isHalfScreen = true;
+NgChmGui.tileWrite = false;
 
 /**********************************************************************************
  * FUNCTION - loadData: This function will be executed when the covariates page
@@ -281,13 +282,13 @@ NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
 	classDiv.className = 'preferencesSubPanel';
 	var classContents = document.createElement("TABLE"); 
 	NgChmGui.UTIL.addBlankRow(classContents);
-	var colorTypeOptionsSelect = "<select name='colorType_"+key+"' id='colorType_"+key+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();'>"; 
+	var colorTypeOptionsSelect = "<select name='colorType_"+key+"' id='colorType_"+key+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(false);'>"; 
 	var colorTypeOptions = "<option value='continuous'>Continuous</option><option value='discrete'>Discrete</option></select>";
 	colorTypeOptionsSelect = colorTypeOptionsSelect+colorTypeOptions;
 	var barTypeOptionsSelect = "<select name='barType_"+key+"' id='barType_"+key+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.COV.togglePlotTypeProperties(&quot;"+key+"&quot;)'>"; 
 	var barTypeOptions = "<option value='color_plot'>Color Plot</option><option value='bar_plot'>Bar Plot</option><option value='scatter_plot'>Scatter Plot</option></select>";
 	barTypeOptionsSelect = barTypeOptionsSelect+barTypeOptions;
-	var barName = "<input name='covName_"+key+"' id='covName_"+key+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/cancelButton.png' value='"+classItem.name+"' maxlength='30' size='20' onchange='NgChmGui.UTIL.setBuildProps();'>&emsp;";
+	var barName = "<input name='covName_"+key+"' id='covName_"+key+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/cancelButton.png' value='"+classItem.name+"' maxlength='30' size='20' onchange='NgChmGui.UTIL.setBuildProps(false);'>&emsp;";
 	NgChmGui.UTIL.setTableRow(classContents, ["&nbsp;&nbsp;Bar Name:", "<b>"+barName+"</b>"]);
 	NgChmGui.UTIL.setTableRow(classContents,["&nbsp;&nbsp;Bar Position: ","<b>"+NgChmGui.UTIL.toTitleCase(classItem.position)+"</b>"]);
 	if (classItem.color_map.type === 'continuous') {
@@ -301,9 +302,9 @@ NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
 		NgChmGui.UTIL.setTableRow(classContents, ["&nbsp;&nbsp;Color Type:", "<b>"+NgChmGui.UTIL.toTitleCase(classItem.color_map.type)+"</b>"]);
 	}
 	NgChmGui.UTIL.addBlankRow(classContents);
-	var barHeight = "<input name='heightPref_"+key+"' id='heightPref_"+key+"' value='"+classItem.height+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();'  maxlength='2' size='2'>&emsp;";
+	var barHeight = "<input name='heightPref_"+key+"' id='heightPref_"+key+"' value='"+classItem.height+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(false);'  maxlength='2' size='2'>&emsp;";
 	NgChmGui.UTIL.setTableRow(classContents, ["&nbsp;&nbsp;Height:", barHeight]);
-	var showSelect = "<select name='showPref_"+key+"' id='showPref_"+key+"' value='"+classItem.show+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();' ;>" // 
+	var showSelect = "<select name='showPref_"+key+"' id='showPref_"+key+"' value='"+classItem.show+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(false);' ;>" // 
 	var showOptions = "<option value='N'>No</option><option value='Y'>Yes</option></select>";
 	showSelect = showSelect + showOptions;
 	NgChmGui.UTIL.setTableRow(classContents, ["&nbsp;&nbsp;Show:", showSelect]);
@@ -322,11 +323,11 @@ NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
 		var color = colors[j];
 		var threshId = j+"_breakPt_"+key;
 		var colorId = j+"_color_"+key;
-		var colorInput = "<input class='spectrumColor' type='color' name='"+colorId+"_colorPref' id='"+colorId+"_colorPref' value='"+color+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();' >"; 
+		var colorInput = "<input class='spectrumColor' type='color' name='"+colorId+"_colorPref' id='"+colorId+"_colorPref' value='"+color+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(false);' >"; 
 		NgChmGui.UTIL.setTableRow(prefContentsCp, ["&nbsp;&nbsp;"+threshold, colorInput]);
 	} 
 	NgChmGui.UTIL.addBlankRow(prefContentsCp);
-	NgChmGui.UTIL.setTableRow(prefContentsCp, ["&nbsp;Missing Color:",  "<input class='spectrumColor' type='color' name='missing_colorPrefCp_"+key+"' id='missing_colorPrefCp_"+key+"' value='"+classItem.color_map.missing+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();' >"]);
+	NgChmGui.UTIL.setTableRow(prefContentsCp, ["&nbsp;Missing Color:",  "<input class='spectrumColor' type='color' name='missing_colorPrefCp_"+key+"' id='missing_colorPrefCp_"+key+"' value='"+classItem.color_map.missing+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(false);' >"]);
 	NgChmGui.UTIL.addBlankRow(prefContentsCp);
 	NgChmGui.UTIL.setTableRow(prefContentsCp, ["&nbsp;<b>Pre-defined Colors:</b>","<img id='selPaletteBtn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/getPalettes.png' alt='Select custom palette' onclick='NgChmGui.PALETTE.customColorPalette({type: &quot;"+classItem.color_map.type+"&quot;,key: &quot;"+key+"&quot;, idx: "+classIdx+"});' align='top'/>"]);
 	NgChmGui.UTIL.addBlankRow(prefContentsCp);
@@ -335,18 +336,18 @@ NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
 	//Build high/low bounds/colors sub panel for bar and scatter plot covariates
 	var helpprefsBp = NgChmGui.UTIL.getDivElement("breakPrefsBp_"+key);
 	var prefContentsBp = document.createElement("TABLE"); 
-	var lowBoundInput = "<input name='lowBound_"+key+"' id='lowBound_"+key+"' value='"+classItem.low_bound+"' maxlength='10' size='5' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();' >&emsp;";
-	var highBoundInput = "<input name='highBound_"+key+"' id='highBound_"+key+"' value='"+classItem.high_bound+"' maxlength='10' size='5' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();' >&emsp;";
+	var lowBoundInput = "<input name='lowBound_"+key+"' id='lowBound_"+key+"' value='"+classItem.low_bound+"' maxlength='10' size='5' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(false);' >&emsp;";
+	var highBoundInput = "<input name='highBound_"+key+"' id='highBound_"+key+"' value='"+classItem.high_bound+"' maxlength='10' size='5' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(false);' >&emsp;";
 	NgChmGui.UTIL.addBlankRow(prefContentsBp);
 	NgChmGui.UTIL.setTableRow(prefContentsBp, ["&nbsp;&nbsp;Lower Bound:", lowBoundInput]);
 	NgChmGui.UTIL.setTableRow(prefContentsBp, ["&nbsp;&nbsp;Upper Bound:", highBoundInput]);
 	NgChmGui.UTIL.addBlankRow(prefContentsBp);
-	var bgColorInput = "<input class='spectrumColor' type='color' name='bgColorPref_"+key+"' id='bgColorPref_"+key+"' value='"+classItem.bg_color+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();' >"; 
-	var fgColorInput = "<input class='spectrumColor' type='color' name='fgColorPref_"+key+"' id='fgColorPref_"+key+"' value='"+classItem.fg_color+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();' >"; 
+	var bgColorInput = "<input class='spectrumColor' type='color' name='bgColorPref_"+key+"' id='bgColorPref_"+key+"' value='"+classItem.bg_color+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(false);' >"; 
+	var fgColorInput = "<input class='spectrumColor' type='color' name='fgColorPref_"+key+"' id='fgColorPref_"+key+"' value='"+classItem.fg_color+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(false);' >"; 
 	NgChmGui.UTIL.setTableRow(prefContentsBp, ["&nbsp;&nbsp;Foreground Color:", fgColorInput]);
 	NgChmGui.UTIL.setTableRow(prefContentsBp, ["&nbsp;&nbsp;Background Color:", bgColorInput]);
 	NgChmGui.UTIL.addBlankRow(prefContentsBp);
-	NgChmGui.UTIL.setTableRow(prefContentsBp, ["&nbsp;Missing Color:",  "<input class='spectrumColor' type='color' name='missing_colorPrefBp_"+key+"' id='missing_colorPrefBp_"+key+"' value='"+classItem.color_map.missing+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();' >"]);
+	NgChmGui.UTIL.setTableRow(prefContentsBp, ["&nbsp;Missing Color:",  "<input class='spectrumColor' type='color' name='missing_colorPrefBp_"+key+"' id='missing_colorPrefBp_"+key+"' value='"+classItem.color_map.missing+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(false);' >"]);
 	helpprefsBp.appendChild(prefContentsBp);
 	if (classItem.bar_type === 'color_plot') {
 		helpprefsBp.style.display="none";
@@ -874,7 +875,7 @@ NgChmGui.COV.applyCovarOrder = function() {
 	NgChmGui.mapProperties.classification_files = newOrderClasses;
 	document.getElementById("preferencesPanel").innerHTML = "";
 	NgChmGui.COV.loadData();
-	NgChmGui.UTIL.setBuildProps();
+	NgChmGui.UTIL.setBuildProps(false);
 	NgChmGui.UTIL.applySettings(NgChmGui.COV.applySettings, NgChmGui.UTIL.loadHeatMapView);
 	document.getElementById("covarReOrder").style.display = 'none';
 	document.getElementById("covarSelection").style.display = '';
@@ -907,7 +908,7 @@ NgChmGui.COV.togglePlotTypeProperties = function(key) {
 		cbDiv.style.display="none";
 		bbDiv.style.display="block";
 	}
-	NgChmGui.UTIL.setBuildProps();
+	NgChmGui.UTIL.setBuildProps(false);
 }
 
 /**********************************************************************************
@@ -917,7 +918,7 @@ NgChmGui.COV.togglePlotTypeProperties = function(key) {
  * "preset" is an array of the colors in HEX of the predefined color scheme
  **********************************************************************************/
 NgChmGui.COV.setBreaksToPalette = function(key, id, preset, missingColor, type) {
-	NgChmGui.UTIL.setBuildProps();
+	NgChmGui.UTIL.setBuildProps(false);
 	var i = 0; // find number of breakpoints in the 
 	while(document.getElementById(++i+"_color_"+key+"_colorPref"));
 	var lastShown = i-1;
@@ -990,7 +991,9 @@ NgChmGui.COV.applySettings = function() {
 	if (NgChmGui.COV.checkCovariateNames() === false) {
 		return;
 	}
-    //reset builder errors
+	NgChmGui.UTIL.setTileWrite();
+	NgChmGui.tileWrite = false;
+	//reset builder errors
 	NgChmGui.mapProperties.builder_config.buildErrors = "";
 	NgChmGui.mapProperties.builder_config.buildWarnings = [];
 	var classBars = NgChmGui.mapProperties.classification_files;

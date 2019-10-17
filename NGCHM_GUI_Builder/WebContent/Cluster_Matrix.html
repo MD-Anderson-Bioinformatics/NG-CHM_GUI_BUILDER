@@ -79,11 +79,11 @@
 						<tr><td>
 							<div class="advancedAction">
 							    <div id='row_treecuts' class='pref-header' style="display: none;">
-									<input id='rowAddCuts'  onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'type="checkbox" name="rowAddCuts" onclick="NgChmGui.UTIL.setBuildCluster('R');NgChmGui.CLUSTER.setRowCutVisibility();">Add Cluster-Based Covariate<br>				           
+									<input id='rowAddCuts'  onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'type="checkbox" name="rowAddCuts" onclick="NgChmGui.UTIL.setBuildProps(false);NgChmGui.CLUSTER.setRowCutVisibility();">Add Cluster-Based Covariate<br>				           
 						    		<div id='row_treecuts_options'  class='pref-header' style="display: none;">&nbsp;Name:
-										<input name='rowCutsName' id='rowCutsName' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'maxlength='30' size='15' onchange="NgChmGui.UTIL.setBuildCluster('R');" style="font-size: 11.5;"></input>
+										<input name='rowCutsName' id='rowCutsName' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'maxlength='30' size='15' onchange="NgChmGui.UTIL.setBuildProps(false);" style="font-size: 11.5;"></input>
 										&nbsp;&nbsp;Clusters:
-										<select name="rowCuts" id="rowCuts" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange="NgChmGui.UTIL.setBuildCluster('R');">
+										<select name="rowCuts" id="rowCuts" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange="NgChmGui.UTIL.setBuildProps(false);">
 										<option value="0">none</option>
 										<option value="2">2</option>
 										<option value="3">3</option>
@@ -139,11 +139,11 @@
 						<tr><td>
 							<div class="advancedAction">
 							    <div id='col_treecuts' class='pref-header' style="display: none;">
-									<input id='colAddCuts' type="checkbox" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' name="colAddCuts" onclick="NgChmGui.UTIL.setBuildCluster('C');NgChmGui.CLUSTER.setColCutVisibility();">Add Cluster-Based Covariate<br>				           
+									<input id='colAddCuts' type="checkbox" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' name="colAddCuts" onclick="NgChmGui.UTIL.setBuildProps(false);NgChmGui.CLUSTER.setColCutVisibility();">Add Cluster-Based Covariate<br>				           
 						    		<div id='col_treecuts_options' class='pref-header' style="display: none;">&nbsp;Name:
-										<input name='colCutsName' id='colCutsName'onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'  maxlength='30' size='15' onchange="NgChmGui.UTIL.setBuildCluster('C');" style="font-size: 11.5;"></input>
+										<input name='colCutsName' id='colCutsName'onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'  maxlength='30' size='15' onchange="NgChmGui.UTIL.setBuildProps(false);" style="font-size: 11.5;"></input>
 										&nbsp;&nbsp;Clusters:
-										<select name="colCuts" id="colCuts" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange="NgChmGui.UTIL.setBuildCluster('C');">
+										<select name="colCuts" id="colCuts" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange="NgChmGui.UTIL.setBuildProps(false);">
 										<option value="0">none</option>
 										<option value="2">2</option>
 										<option value="3">3</option>

@@ -1,6 +1,7 @@
 //Define Namespace for NgChmGui MatrixFile
 NgChmGui.createNS('NgChmGui.CLUSTER');
 NgChmGui.isHalfScreen = true;
+NgChmGui.tileWrite = false;
 
 /**********************************************************************************
  * FUNCTION - loadData: This function populates the dropdowns for row
@@ -181,6 +182,8 @@ NgChmGui.CLUSTER.setRowCutVisibility =  function() {
  * panel to the mapProperties object in advance of saving the properties.
  **********************************************************************************/
 NgChmGui.CLUSTER.applyClusterPrefs = function() {
+	NgChmGui.UTIL.setTileWrite();
+	NgChmGui.tileWrite = false;
 	NgChmGui.mapProperties.row_configuration.order_method = document.getElementById('RowOrder').value;
 	NgChmGui.mapProperties.row_configuration.distance_metric = document.getElementById('RowDistance').value;
 	NgChmGui.mapProperties.row_configuration.agglomeration_method = document.getElementById('RowAgglomeration').value;

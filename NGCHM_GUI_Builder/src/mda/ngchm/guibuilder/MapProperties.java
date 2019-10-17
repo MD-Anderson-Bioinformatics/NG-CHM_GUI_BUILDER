@@ -91,15 +91,16 @@ public class MapProperties extends HttpServlet {
 	        	mgr.setMap(mapConfig);
 		        //Mark properties as "clean" for update.
 	        	mgr.resetBuildConfig();
-	        	
-	    
-			    //Delete pre-existing heatmap prior to fresh build
+		        
 			    HeatmapPropertiesManager.Heatmap map = mgr.getMap();
-			    File mapDir = new File(workingDir+"/" + map.chm_name);
-			    if (mapDir.exists()) {
-			    	FileUtils.cleanDirectory(mapDir); 
-			    	FileUtils.deleteDirectory(mapDir);
-			    }
+		        if (map.read_matrices.equals("Y")) {
+				    //Delete pre-existing heatmap prior to fresh build
+				    File mapDir = new File(workingDir+"/" + map.chm_name);
+				    if (mapDir.exists()) {
+				    	FileUtils.cleanDirectory(mapDir); 
+				    	FileUtils.deleteDirectory(mapDir);
+				    }
+		        }
 
 			    ProcessCovariate cov = new ProcessCovariate();
 	        	for (int i = 0; i < map.classification_files.size(); i++) {
@@ -113,12 +114,12 @@ public class MapProperties extends HttpServlet {
 	        	}
 
 			    //Cluster, if necessary
-				System.out.println("START Clustering Matrix: " + new Date()); 
 			    boolean clusterSuccess = false;
 			    try {
+				    //Add/update any treecut covariate bars
+			        processTreeCutCovariates(mgr, mapConfig);
 				    if (!mapConfig.builder_config.buildCluster.equals("N")) {
-					    //Add/update any treecut covariate bars
-				        processTreeCutCovariates(mgr, mapConfig);
+						System.out.println("START Clustering Matrix: " + new Date()); 
 				        //Re-build the heat map 
 					    Cluster clusterer = new Cluster();
 					    clusterer.clusterHeatMap(workingDir);
@@ -176,35 +177,30 @@ public class MapProperties extends HttpServlet {
 	private void processTreeCutCovariates(HeatmapPropertiesManager mgr, HeatmapPropertiesManager.Heatmap mapConfig) throws Exception {
 	    ProcessCovariate cov = new ProcessCovariate();
 	    ArrayList<Classification> classes = mapConfig.classification_files;
-	    String clusterProp = mapConfig.builder_config.buildCluster;
-	    boolean clusterRows = (clusterProp.equals("R") || clusterProp.equals("B")) ? true : false;
-	    boolean clusterCols = (clusterProp.equals("C") || clusterProp.equals("B")) ? true : false;
-	    if (clusterRows) {
-	        for (int i=0;i<classes.size();i++) {
-	        	Classification cbar = classes.get(i);
-	            if (cbar.position.equals("row") && cbar.path.equals("treecut")) {
-			    	classes.remove(i);	
-	            	break;
-	            }
-	        }
-		    if (!mapConfig.builder_config.rowCuts.equals("0")) {
-	        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructTreeCutCovariate(mgr, mapConfig.builder_config.rowCutsLabel, "treecut", "row", "discrete", mapConfig.builder_config.rowCuts);
-	        	classes.add(classJsonObj);
-		    }
+	    //Remove any existing row tree cut covariate
+	    for (int i=0;i<classes.size();i++) {
+        	Classification cbar = classes.get(i);
+            if (cbar.position.equals("row") && cbar.path.equals("treecut")) {
+		    	classes.remove(i);	
+            	break;
+            }
+        }
+    	//Add a row tree cut covariate bar if cuts requested
+	    if (!mapConfig.builder_config.rowCuts.equals("0")) {
+        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructTreeCutCovariate(mgr, mapConfig.builder_config.rowCutsLabel, "treecut", "row", "discrete", mapConfig.builder_config.rowCuts);
+        	classes.add(classJsonObj);
 	    }
-	    
-	    if (clusterCols) {
-	        for (int i=0;i<classes.size();i++) {
-	        	Classification cbar = classes.get(i);
-	            if (cbar.position.equals("column") && cbar.path.equals("treecut")) {
-			    	classes.remove(i);	
-	            	break;
-	            }
-	        }
-		    if (!mapConfig.builder_config.colCuts.equals("0")) {
-	        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructTreeCutCovariate(mgr, mapConfig.builder_config.colCutsLabel, "treecut", "column", "discrete", mapConfig.builder_config.colCuts);
-	        	classes.add(classJsonObj);	
-		    }
+	    //Remove any existing column tree cut covariate
+        for (int i=0;i<classes.size();i++) {
+        	Classification cbar = classes.get(i);
+            if (cbar.position.equals("column") && cbar.path.equals("treecut")) {
+		    	classes.remove(i);	
+            	break;
+            }
+        }
+	    if (!mapConfig.builder_config.colCuts.equals("0")) {
+        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructTreeCutCovariate(mgr, mapConfig.builder_config.colCutsLabel, "treecut", "column", "discrete", mapConfig.builder_config.colCuts);
+        	classes.add(classJsonObj);	
 	    }
 	    mgr.save();
 	    return; 

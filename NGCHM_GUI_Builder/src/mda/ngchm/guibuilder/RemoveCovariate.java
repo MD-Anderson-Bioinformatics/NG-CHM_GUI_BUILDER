@@ -71,6 +71,8 @@ public class RemoveCovariate extends HttpServlet {
 	        	map.classification_files.remove(indexToRem);
 		        //Mark properties as "clean" for update.
 	        	map.builder_config.buildProps = "N";
+	        	map.write_tiles = "N";
+	        	map.read_matrices = "N";
 	        	mgr.save();
 		        //Re-build the heat map 
 			    HeatmapBuild builder = new HeatmapBuild();

@@ -104,6 +104,8 @@ public class UploadCovariate extends HttpServlet {
 	        	map.classification_files.add(classJsonObj);	 
 		        //Mark properties as "clean" for update.
 	        	map.builder_config.buildProps = "N";
+	        	map.write_tiles = "N";
+	        	map.read_matrices = "N";
 			    mgr.save();
 	        }
 	    } finally {

@@ -1,6 +1,7 @@
 //Define Namespace for NgChmGui Covariate File Page
 NgChmGui.createNS('NgChmGui.FORMAT');
 NgChmGui.isHalfScreen = true;
+NgChmGui.tileWrite = false;
 
 NgChmGui.FORMAT.userPalettes = "";
 
@@ -296,11 +297,11 @@ NgChmGui.FORMAT.formatDisplayPrefs = function() {
 	NgChmGui.UTIL.addBlankRow(prefContents);
 	NgChmGui.UTIL.setTableRow(prefContents,["MATRIX DISPLAY OPTIONS"], 2);
 	NgChmGui.UTIL.addBlankRow(prefContents);
-	var showGrid = "<select name='gridShowPref' id='gridShowPref' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();'><option value='Y'>YES</option><option value='N'>NO</option></select>";
-	var colorGrid = "<input class='spectrumColor' type='color' name='gridColorPref' id='gridColorPref' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();' value='"+matrixConfig.grid_color+"'>"; 
-	var colorGaps = "<div class='advancedAction'><input class='spectrumColor' type='color' name='gapsColorPref' id='gapsColorPref' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();' value='"+matrixConfig.cuts_color+"'></div>"; 
-	var colorSelect = "<input class='spectrumColor' type='color' name='selectionColorPref' id='selectionColorPref'  onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();' value='"+matrixConfig.selection_color+"'>"; 
-	var summaryWidth = "<select name='summaryWidth' id='summaryWidth' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();'><option value='10'>10%</option><option value='20'>20%</option><option value='30'>30%</option><option value='40'>40%</option><option value='50'>50%</option><option value='60'>70%</option><option value='70'>80%</option><option value='80'>60%</option><option value='90'>90%</option></select>";
+	var showGrid = "<select name='gridShowPref' id='gridShowPref' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(false);'><option value='Y'>YES</option><option value='N'>NO</option></select>";
+	var colorGrid = "<input class='spectrumColor' type='color' name='gridColorPref' id='gridColorPref' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(false);' value='"+matrixConfig.grid_color+"'>"; 
+	var colorGaps = "<div class='advancedAction'><input class='spectrumColor' type='color' name='gapsColorPref' id='gapsColorPref' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(false);' value='"+matrixConfig.cuts_color+"'></div>"; 
+	var colorSelect = "<input class='spectrumColor' type='color' name='selectionColorPref' id='selectionColorPref'  onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(false);' value='"+matrixConfig.selection_color+"'>"; 
+	var summaryWidth = "<select name='summaryWidth' id='summaryWidth' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(false);'><option value='10'>10%</option><option value='20'>20%</option><option value='30'>30%</option><option value='40'>40%</option><option value='50'>50%</option><option value='60'>70%</option><option value='70'>80%</option><option value='80'>60%</option><option value='90'>90%</option></select>";
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Selection Color:",colorSelect]);
 	NgChmGui.UTIL.setTableRow(prefContents,["<span class='advancedAction'>&nbsp;&nbsp;Gaps Color:</span>",colorGaps]);
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Grid Color:",colorGrid]);
@@ -311,15 +312,15 @@ NgChmGui.FORMAT.formatDisplayPrefs = function() {
 	if (rowConfig.order_method === "Hierarchical") {
 		var dendroShowOptions = "<option value='ALL'>Summary and Detail</option><option value='SUMMARY'>Summary Only</option><option value='NONE'>Hide</option></select>";
 		var dendroHeightOptions = "<option value='50'>50%</option><option value='75'>75%</option><option value='100'>100%</option><option value='125'>125%</option><option value='150'>150%</option><option value='200'>200%</option></select>";
-		var rowDendroSelect = "<select name='rowDendroShowPref' id='rowDendroShowPref' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();'>"
+		var rowDendroSelect = "<select name='rowDendroShowPref' id='rowDendroShowPref' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(false);'>"
 		rowDendroSelect = rowDendroSelect+dendroShowOptions;
 		NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Show Dendrogram:",rowDendroSelect]);  
-		var rowDendroHeightSelect = "<select name='rowDendroHeightPref' id='rowDendroHeightPref' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();'>"
+		var rowDendroHeightSelect = "<select name='rowDendroHeightPref' id='rowDendroHeightPref' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(false);'>"
 		rowDendroHeightSelect = rowDendroHeightSelect+dendroHeightOptions;
 		NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Dendrogram Height:",rowDendroHeightSelect]); 
 	}  
-	var rowLabelSizeSelect = "<select name='rowLabelSizePref' id='rowLabelSizePref' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();'><option value='10'>10 Characters</option><option value='15'>15 Characters</option><option value='20'>20 Characters</option><option value='25'>25 Characters</option><option value='30'>30 Characters</option><option value='35'>35 Characters</option><option value='40'>40 Characters</option>"
-	var rowLabelAbbrevSelect = "<select name='rowLabelAbbrevPref' id='rowLabelAbbrevPref' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();'><option value='START'>Beginning</option><option value='MIDDLE'>Middle</option><option value='END'>End</option>"
+	var rowLabelSizeSelect = "<select name='rowLabelSizePref' id='rowLabelSizePref' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(false);'><option value='10'>10 Characters</option><option value='15'>15 Characters</option><option value='20'>20 Characters</option><option value='25'>25 Characters</option><option value='30'>30 Characters</option><option value='35'>35 Characters</option><option value='40'>40 Characters</option>"
+	var rowLabelAbbrevSelect = "<select name='rowLabelAbbrevPref' id='rowLabelAbbrevPref' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(false);'><option value='START'>Beginning</option><option value='MIDDLE'>Middle</option><option value='END'>End</option>"
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Maximum Label Length:",rowLabelSizeSelect]);
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Trim Label Text From:",rowLabelAbbrevSelect]);
 	
@@ -330,15 +331,15 @@ NgChmGui.FORMAT.formatDisplayPrefs = function() {
 	if (colConfig.order_method === "Hierarchical") {
 		var dendroShowOptions = "<option value='ALL'>Summary and Detail</option><option value='SUMMARY'>Summary Only</option><option value='NONE'>Hide</option></select>";
 		var dendroHeightOptions = "<option value='50'>50%</option><option value='75'>75%</option><option value='100'>100%</option><option value='125'>125%</option><option value='150'>150%</option><option value='200'>200%</option></select>";
-		var colDendroSelect = "<select name='colDendroShowPref' id='colDendroShowPref' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();'>"
+		var colDendroSelect = "<select name='colDendroShowPref' id='colDendroShowPref' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(false);'>"
 		colDendroSelect = colDendroSelect+dendroShowOptions;
 		NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Show Dendrogram:",colDendroSelect]);  
-		var colDendroHeightSelect = "<select name='colDendroHeightPref' id='colDendroHeightPref' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();'>"
+		var colDendroHeightSelect = "<select name='colDendroHeightPref' id='colDendroHeightPref' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(false);'>"
 		colDendroHeightSelect = colDendroHeightSelect+dendroHeightOptions;
 		NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Dendrogram Height:",colDendroHeightSelect]); 
 	}  
-	var colLabelSizeSelect = "<select name='colLabelSizePref' id='colLabelSizePref' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();'><option value='10'>10 Characters</option><option value='15'>15 Characters</option><option value='20'>20 Characters</option><option value='25'>25 Characters</option><option value='30'>30 Characters</option><option value='35'>35 Characters</option><option value='40'>40 Characters</option>"
-	var colLabelAbbrevSelect = "<select name='colLabelAbbrevPref' id='colLabelAbbrevPref' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();'><option value='START'>Beginning</option><option value='MIDDLE'>Middle</option><option value='END'>End</option>"
+	var colLabelSizeSelect = "<select name='colLabelSizePref' id='colLabelSizePref' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(false);'><option value='10'>10 Characters</option><option value='15'>15 Characters</option><option value='20'>20 Characters</option><option value='25'>25 Characters</option><option value='30'>30 Characters</option><option value='35'>35 Characters</option><option value='40'>40 Characters</option>"
+	var colLabelAbbrevSelect = "<select name='colLabelAbbrevPref' id='colLabelAbbrevPref' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(false);'><option value='START'>Beginning</option><option value='MIDDLE'>Middle</option><option value='END'>End</option>"
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Maximum Label Length:",colLabelSizeSelect]);
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Trim Label Text From:",colLabelAbbrevSelect]);
 
@@ -358,8 +359,8 @@ NgChmGui.FORMAT.setupLabelConfigPrefs = function() {
 	var colorMap = NgChmGui.mapProperties.matrix_files[0].color_map;
 	var rowConfig = NgChmGui.mapProperties.row_configuration;
 	var colConfig = NgChmGui.mapProperties.col_configuration;
-	var rowLabelTypePref = "<select name='rowLabelType' id='rowLabelType' style='font-size: 12px;' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();'>";
-	var colLabelTypePref = "<select name='colLabelType' id='colLabelType' style='font-size: 12px;' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();'>";
+	var rowLabelTypePref = "<select name='rowLabelType' id='rowLabelType' style='font-size: 12px;' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(false);'>";
+	var colLabelTypePref = "<select name='colLabelType' id='colLabelType' style='font-size: 12px;' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(false);'>";
 	var labelTypeOptions = "<option value='none'></option></select>";
 	NgChmGui.UTIL.addBlankRow(prefContents);
 	NgChmGui.UTIL.setTableRow(prefContents,["ROW LABEL CONFIGURATION"], 2);
@@ -367,7 +368,7 @@ NgChmGui.FORMAT.setupLabelConfigPrefs = function() {
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Label Type:  "+rowLabelTypePref+labelTypeOptions], 2);  
 	NgChmGui.UTIL.addBlankRow(prefContents);
 	var topRowItemData = rowConfig.top_items.toString();
-	var topRowItems = "<div class='advancedAction'><textarea name='rowTopItems' id='rowTopItems' style='font-family: sans-serif;font-size: 90%; resize: none;' ' rows='3', cols='50' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();'>"+topRowItemData+"</textarea></div>";
+	var topRowItems = "<div class='advancedAction'><textarea name='rowTopItems' id='rowTopItems' style='font-family: sans-serif;font-size: 90%; resize: none;' ' rows='3', cols='50' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(false);'>"+topRowItemData+"</textarea></div>";
 	NgChmGui.UTIL.setTableRow(prefContents,["<span class='advancedAction'>&nbsp;&nbsp;Top Label Items:</span>"]);
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;"+topRowItems],2);
 	NgChmGui.UTIL.setTableRow(prefContents,["<span class='advancedAction'>&nbsp;&nbsp;<b>Enter comma-separated labels to highlight on map</b></span>"]);
@@ -377,7 +378,7 @@ NgChmGui.FORMAT.setupLabelConfigPrefs = function() {
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Label Type:  "+colLabelTypePref+labelTypeOptions], 2);  
 	NgChmGui.UTIL.addBlankRow(prefContents);
 	var topColItemData = colConfig.top_items.toString();
-	var topColItems = "<div class='advancedAction'><textarea name='colTopItems' id='colTopItems' style='font-family: sans-serif;font-size: 90%;resize: none;' rows='3', cols='50' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();'>"+topColItemData+"</textarea></div>"; 
+	var topColItems = "<div class='advancedAction'><textarea name='colTopItems' id='colTopItems' style='font-family: sans-serif;font-size: 90%;resize: none;' rows='3', cols='50' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(false);'>"+topColItemData+"</textarea></div>"; 
 	NgChmGui.UTIL.setTableRow(prefContents,["<span class='advancedAction'>&nbsp;&nbsp;Top Label Items:</span>"]);
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;"+topColItems],2);
 	NgChmGui.UTIL.setTableRow(prefContents,["<span class='advancedAction'>&nbsp;&nbsp;<b>Enter comma-separated labels to highlight on map</b></span>"]);
@@ -395,7 +396,7 @@ NgChmGui.FORMAT.setupLabelConfigPrefs = function() {
 			}
 		}
 	}
-	var mapAttributes = "<div class='advancedAction'><textarea name='mapAttributes' id='mapAttributes' rows='2', cols='40' style='font-family: sans-serif;font-size: 90%;resize: none' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();'>"+attributesData+"</textarea></div>";
+	var mapAttributes = "<div class='advancedAction'><textarea name='mapAttributes' id='mapAttributes' rows='2', cols='40' style='font-family: sans-serif;font-size: 90%;resize: none' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(false);'>"+attributesData+"</textarea></div>";
 	NgChmGui.UTIL.setTableRow(prefContents,["<span class='advancedAction'>&nbsp;Enter a colon-separated key/value pair (key:value).</span>"]);
 	NgChmGui.UTIL.setTableRow(prefContents,[mapAttributes]);
 	NgChmGui.UTIL.setTableRow(prefContents,["<span class='advancedAction'>&nbsp;Multiple attributes entries may be separated with a comma: </span>"]);
@@ -443,7 +444,7 @@ NgChmGui.FORMAT.setGapTable = function (prefContents, config, type) {
 	if (config.cut_locations.length > 0) {
 		gapLocationsData = config.cut_locations.toString();
 	}
-	var gapLocations = "<textarea name='"+type+"GapLocations' id='"+type+"GapLocations' rows='2', cols='40' style='resize: none' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();'>"+gapLocationsData+"</textarea>";
+	var gapLocations = "<textarea name='"+type+"GapLocations' id='"+type+"GapLocations' rows='2', cols='40' style='resize: none' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(true);'>"+gapLocationsData+"</textarea>";
 	var gapLocationsDiv = NgChmGui.UTIL.getDivElement(type+"ByLocations");
 	var byLocationContents = document.createElement("TABLE");
 	NgChmGui.UTIL.setTableRow(byLocationContents,["&nbsp;Enter comma-separated "+typeDisp+" numbers: "]);
@@ -454,11 +455,11 @@ NgChmGui.FORMAT.setGapTable = function (prefContents, config, type) {
 		var gapMethodDiv = NgChmGui.UTIL.getDivElement(type+"GapMethodDiv");
 		var methodContents = document.createElement("TABLE");
 		NgChmGui.UTIL.addBlankRow(methodContents)
-		var gapMethodStr = "<select name='"+type+"GapMethod_list' id='"+type+"GapMethod_list' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='"+changeMethod+"'><option value='"+type+"ByLocations' onchange='NgChmGui.UTIL.setBuildProps();'>Gaps By Location</option><option value='"+type+"ByTreeCuts'>Gaps By Cluster</option></select>"
+		var gapMethodStr = "<select name='"+type+"GapMethod_list' id='"+type+"GapMethod_list' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='"+changeMethod+"'><option value='"+type+"ByLocations' onchange='NgChmGui.UTIL.setBuildProps(true);'>Gaps By Location</option><option value='"+type+"ByTreeCuts'>Gaps By Cluster</option></select>"
 		NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;Gap Method: ",gapMethodStr]);
 		NgChmGui.UTIL.addBlankRow(prefContents);
 		var treeCutsData = config.tree_cuts.toString();
-		var treeCuts = "<input name='"+type+"TreeCuts'  id='"+type+"TreeCuts' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'  onchange='NgChmGui.UTIL.setBuildProps();' value='"+config.tree_cuts+"' maxlength='3' size='2'>&emsp;";
+		var treeCuts = "<input name='"+type+"TreeCuts'  id='"+type+"TreeCuts' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'  onchange='NgChmGui.UTIL.setBuildProps(true);' value='"+config.tree_cuts+"' maxlength='3' size='2'>&emsp;";
 		var treeCutsDiv = NgChmGui.UTIL.getDivElement(type+"ByTreeCuts");
 		var byTreeCutsContents = document.createElement("TABLE");
 		NgChmGui.UTIL.setTableRow(byTreeCutsContents,["&nbsp;&nbsp;# of Clusters: ", treeCuts]);
@@ -469,7 +470,7 @@ NgChmGui.FORMAT.setGapTable = function (prefContents, config, type) {
 	} else {
 		NgChmGui.UTIL.setTableRow(prefContents,[gapLocationsDiv.outerHTML],2);
 	}
-	var cutWidth = "<input name='"+type+"CutWidth' id='"+type+"CutWidth' value='"+config.cut_width+"' maxlength='2' size='2' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();'>&emsp;";
+	var cutWidth = "<input name='"+type+"CutWidth' id='"+type+"CutWidth' value='"+config.cut_width+"' maxlength='2' size='2' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(true);'>&emsp;";
 	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;&nbsp;Gap Length: ", cutWidth]);
 	if (type === "row") {
 		NgChmGui.UTIL.addBlankRow(prefContents, 4);
@@ -543,8 +544,8 @@ NgChmGui.FORMAT.getBreaksFromColorMap = function() {
 		var color = colors[j];
 		var threshId = "breakPt_"+j;
 		var colorId = "color"+j;
-		var breakPtInput = "&nbsp;&nbsp;<input name='"+threshId+"_breakPref' id='"+threshId+"_breakPref' value='"+threshold+"' maxlength='8' size='8' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.formatInputNumber(this);NgChmGui.UTIL.setBuildProps();'>";
-		var colorInput = "<input class='spectrumColor' type='color' name='"+colorId+"_colorPref' id='"+colorId+"_colorPref' value='"+color+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();'>"; 
+		var breakPtInput = "&nbsp;&nbsp;<input name='"+threshId+"_breakPref' id='"+threshId+"_breakPref' value='"+threshold+"' maxlength='8' size='8' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.formatInputNumber(this);NgChmGui.UTIL.setBuildProps(false);'>";
+		var colorInput = "<input class='spectrumColor' type='color' name='"+colorId+"_colorPref' id='"+colorId+"_colorPref' value='"+color+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(false);'>"; 
 		var addButton = "<img id='breakAdd_"+threshId+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/plusButton.png' alt='Add Breakpoint' onclick='NgChmGui.FORMAT.processLayerBreak("+j+",\"add\");' align='top'/>"
 		var delButton = "<img id='breakDel_"+threshId+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/minusButton.png' alt='Remove Breakpoint' onclick='NgChmGui.FORMAT.processLayerBreak("+j+",\"delete\");' align='top'/>"
 		if (j < 2) {
@@ -554,7 +555,7 @@ NgChmGui.FORMAT.getBreaksFromColorMap = function() {
 		}
 	} 
 	NgChmGui.UTIL.addBlankRow(breakpts);
-	NgChmGui.UTIL.setTableRow(breakpts, ["&nbsp;Missing Color:",  "<input class='spectrumColor' type='color' name='missing_colorPref' id='missing_colorPref' value='"+missing+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps();'>"]);
+	NgChmGui.UTIL.setTableRow(breakpts, ["&nbsp;Missing Color:",  "<input class='spectrumColor' type='color' name='missing_colorPref' id='missing_colorPref' value='"+missing+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(false);'>"]);
 	NgChmGui.UTIL.addBlankRow(breakpts);
 	NgChmGui.UTIL.setTableRow(breakpts, ["&nbsp;<b>Pre-defined Colors:</b>","<img id='selPaletteBtn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/getPalettes.png' alt='Select custom palette' onclick='NgChmGui.PALETTE.customColorPalette({type: &quot;matrix&quot;,key: &quot;matrix&quot;, idx: 0});' align='top'/>"]);	NgChmGui.UTIL.addBlankRow(breakpts);
 	var reloadButton = "<img id='reloadButton' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/button_reload.png' alt='Reload Preview' onclick='NgChmGui.FORMAT.loadColorPreviewDiv(0);' align='top'/>"
@@ -841,7 +842,7 @@ NgChmGui.FORMAT.getMapGapsFromScreen = function() {
  * same as row clicked on).  For deletes, the selected row is removed. 
  **********************************************************************************/
 NgChmGui.FORMAT.processLayerBreak = function(pos, type) {
-	NgChmGui.UTIL.setBuildProps();
+	NgChmGui.UTIL.setBuildProps(false);
 	var colorMap = NgChmGui.FORMAT.getColorMapFromConfig();
 	var newThresholds = NgChmGui.FORMAT.getNewBreakThresholds(colorMap, pos, type);
 	var newColors = NgChmGui.FORMAT.getNewBreakColors(colorMap, pos, type);
@@ -989,7 +990,7 @@ NgChmGui.FORMAT.getNewBreakColors = function(colorMap, pos, action) {
  * "preset" is an array of the colors in HEX of the predefined color scheme
  **********************************************************************************/
 NgChmGui.FORMAT.setBreaksToPreset = function(preset, missingColor) {
-	NgChmGui.UTIL.setBuildProps();
+	NgChmGui.UTIL.setBuildProps(false);
 	var i = 0; // find number of breakpoints in the 
 	while(document.getElementById("color"+ ++i+"_colorPref"));
 	var lastShown = i-1;
@@ -1019,6 +1020,8 @@ NgChmGui.FORMAT.setBreaksToPreset = function(preset, missingColor) {
  * calls the next depending upon the typ parameter passed in.
  **********************************************************************************/
 NgChmGui.FORMAT.applySettings = function(typ) {
+	NgChmGui.UTIL.setTileWrite();
+	NgChmGui.tileWrite = false;
 	var colorMap = NgChmGui.FORMAT.getColorMapFromScreen();
 	NgChmGui.FORMAT.setColorMapToConfig(colorMap);
 	NgChmGui.FORMAT.getFormatDisplayFromScreen();
