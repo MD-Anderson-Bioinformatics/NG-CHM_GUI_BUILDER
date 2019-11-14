@@ -119,7 +119,7 @@ NgChmGui.TRANS.validateEntries = function(leavingPage, formatError, otherError, 
 		if (valid) {
 			var totalVals = NgChmGui.mapProperties.matrixRows+NgChmGui.mapProperties.matrixCols;
 			if (totalVals > 2000) {
-				pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.warningPrefix + "This large matrix (" + NgChmGui.mapProperties.matrixRows + "x" + NgChmGui.mapProperties.matrixCols + ") may take several minutes to cluster. You may wish to use the Filter action to reduce matrix size.</p>";
+				pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.warningPrefix + "This large matrix (" + NgChmGui.mapProperties.matrixRows + "x" + NgChmGui.mapProperties.matrixCols + ") may take a minute or two to cluster. You may wish to use the Filter action to reduce matrix size.</p>";
 			}
 			if (NgChmGui.TRANS.matrixInfo.numRows > parseInt(builderConfig.rowsWarning)) {
 				pageText = pageText + NgChmGui.UTIL.warningPrefix + "Your matrix has a large number of rows consider using the Filter action to remove non-informative rows" + NgChmGui.UTIL.nextLine;

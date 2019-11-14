@@ -607,7 +607,7 @@ NgChmGui.UTIL.showLoading = function() {
 			textbox.id = "loaderMsg";
 			var totalVals = NgChmGui.mapProperties.matrixRows+NgChmGui.mapProperties.matrixCols;
 			if (totalVals > 2000) {
-				textbox.innerHTML = "<b>Matrix may take a minute of two to cluster. Please be patient...</b>";
+				textbox.innerHTML = "<b>Matrix may take a minute or two to cluster. Please be patient...</b>";
 				loadingDiv.appendChild(textbox)
 			} else if (totalVals > 1000){
 				textbox.innerHTML = "<b>Clustering matrix data. Please be patient...</b>";
