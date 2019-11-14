@@ -36,7 +36,7 @@
 		    	<div class="pageTitle">NG-CHM BUILDER: Transform Matrix</div>
      			<div id="ngchmName"  class="inputText" style="font-size: 14px;color: rgb(51, 51, 51);"></div>
 	  		</div>
-	 		<div id="helpDiv"><img id='barHelp_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this,1);' src='images/questionMark.png' alt='Open Help Page' onclick='NgChmGui.UTIL.helpOpen("Transform");' align="top"/></div> 
+	 		<div id="helpDiv"><img id='barHelp_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this,1);' src='images/questionMark.png' alt='Open Help Page' onclick='NgChmGui.UTIL.helpBox("Transform");' align="top"/></div> 
 	    </div>   
      	<div id="TransformDisplayContainer" class="display_container" style="position: relative">
  	 		<div id="transforms" class="data_entry_container">
@@ -55,6 +55,7 @@
 											<option value="filterDiv">Filter Data</option>
 											<option value="transDiv">Transform Data</option>
 											<option value="corrDiv">Matrix Operations</option>
+											<option value="dupeDiv">Duplicates</option>
 										</select>
 									</td>
 								</tr>
@@ -101,7 +102,74 @@
 					        </form>
 					    </div>
 					    
-				    	<div id="filterDiv" class="preferencesSubPanel" style="/* height: 60%; */ display: none;">
+				    	<div id="dupeDiv" class="preferencesSubPanel" style="/* height: 60%; */ display: none;">
+				    		<br>
+				 	        <form id="duplicate_frm" onsubmit="return false;">
+				 	        	<div class="sec-header">Duplicate Data:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 	       
+				 	        	</div>
+				 	        	<div class="pref-header">Select a duplicates process:
+						            <select name="Duplicate" id="Duplicate" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.TRANS.selectDuplicates()'>
+						  				<option value="Remove">Remove</option>
+						  				<option value="Rename">Rename</option>
+						  				<option value="Combine">Combine</option>
+									</select>
+								</div>
+								<div id='Remove'>
+					 	        	<div class="pref-header2">Operate On:
+					 	        		<br>
+					 	        		<div class="pref-header3">
+											<input type="radio" name="drrowcol" value="row"  checked> Row<br>
+					  						<input type="radio" name="drrowcol" value="col"> Column<br>
+					  					</div>
+				  					</div>
+					 	        	<div class="pref-header2">Method:
+					 	        		<br>
+					 	        		<div class="pref-header3" id="rduplicatemethod" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' >
+					  						<input type="radio" name="rduplicatemethod" logText="Keep only first [drrowcol] containing duplicate label" value="first" checked> Keep Only First instance<br>
+					  						<input type="radio" name="rduplicatemethod" logText="Keep only last [drrowcol] containing duplicate label" value="last"> Keep Only Last instance<br>
+					  						<input type="radio" name="rduplicatemethod" logText="Remove all [drrowcol] containing duplicate labels" value="all"> Remove All Instances<br>
+					  					</div>
+				  					</div>
+								</div>
+								<div id='Rename' style="display: none;">
+					 	        	<div class="pref-header2">Operate On:
+					 	        		<br>
+					 	        		<div class="pref-header3">
+											<input type="radio" name="dnrowcol" value="row"  checked> Row<br>
+					  						<input type="radio" name="dnrowcol" value="col"> Column<br>
+					  					</div>
+				  					</div>
+					 	        	<div class="pref-header2">Method:
+					 	        		<br>
+					 	        		<div class="pref-header3" id="nduplicatemethod" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' >
+					  						<input type="radio" name="nduplicatemethod" logText="Rename [dnrowcol] duplicate label with underscore" value="_" checked> Suffix duplicates with underscore and instance number<br>
+					  						<input type="radio" name="nduplicatemethod" logText="Rename [dnrowcol] duplicate label with hypen" value="-"> Suffix duplicates with hyphen and instance number<br>
+					  					</div>
+				  					</div>
+								</div>
+								<div id='Combine' style="display: none;">
+					 	        	<div class="pref-header2">Operate On:
+					 	        		<br>
+					 	        		<div class="pref-header3">
+											<input type="radio" name="dcrowcol" value="row"  checked> Row<br>
+					  						<input type="radio" name="dcrowcol" value="col"> Column<br>
+					  					</div>
+				  					</div>
+					 	        	<div class="pref-header2">Method:
+					 	        		<br>
+					 	        		<div class="pref-header3" id="cduplicatemethod" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' >
+					  						<input type="radio" name="cduplicatemethod" logText="Combine [dcrowcol] duplicates using mean value" value="mean" checked> Combine duplicates using mean value<br>
+					  						<input type="radio" name="cduplicatemethod" logText="Combine [dcrowcol] duplicates using median value" value="median"> Combine duplicates using median value<br>
+					  					</div>
+				  					</div>
+								</div>
+								<br>
+				 	        	<div class="pref-header">
+									<input id='duplicates_btn' type="image" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/applyButton.png' alt='Process Duplicates' onclick="NgChmGui.UTIL.applySettings(NgChmGui.TRANS.validateEntries,NgChmGui.TRANS.duplicateMatrixData)"/>
+								</div>
+					        </form>
+						</div>
+						<div id="filterDiv" class="preferencesSubPanel" style="/* height: 60%; */ display: none;">
 				    		<br>
 				 	        <form id="filter_frm" onsubmit="return false;">
 				 	        	<div class="sec-header">Filter Data:</div>
@@ -317,6 +385,8 @@
 			        	<b>Number of Rows:</b>  <label id="numRows"></label><br> <br>
 			        	<b>Number of Columns:</b> <label id="numCols"></label><br><br> 
 			        	<b>Missing Values:</b> <label id="numMissing"></label><br><br>
+			        	<b>Duplicate Row Labels:</b> <label id="numDupeRows"></label><br><br>
+			        	<b>Duplicate Column Labels:</b> <label id="numDupeCols"></label><br><br>
 			        	<b>Invalid Values:</b> <label id="numInvalid"></label><br><br>
 			        	<b>Maximum Value:</b> <label id="maxVal"></label><br><br>
 			        	<b>Minimum Value:</b> <label id="minVal"></label><br><br>
@@ -348,5 +418,38 @@
 	        </div>
 		</div>
 		<div id="message" style="display: none; position: absolute; background-color: rgb(230, 240, 255);"></div>
+		<div id="helpBox" style="display: none; position: absolute; background-color: rgb(230, 240, 255);">
+			<div class="helpBoxHdr" id="helpBoxHdr"></div>
+			<table>
+				<tbody>
+					<tr class="chmTblRow">
+						<td>
+							<div id="ngchmLogos">
+								<div class="serviceHeaderLogo" style="right:5px;top:40px">
+						        	<a href="https://www.mdanderson.org/education-and-research/departments-programs-and-labs/departments-and-divisions/bioinformatics-and-computational-biology/index.html"  target="_blank">
+								    <img id="msgBoxMdaLogo" src="images/mdabcblogo262x108.png" alt="MD Anderson logo"/>
+								</a>
+						       	</div>
+								<div style="right:5px;top:40px;position:absolute">
+									<a href="http://insilico.us.com/"  target="_blank">
+										<img id='insilicologo' src='images/insilicologo.png' alt='insilico' height=40 />
+									</a>
+								</div>
+						    </div>
+							<div id="helpBoxTxt" style="display: inherit;font-size: 12px; background-color: rgb(230, 240, 255); width: 400px; height: 80px;"></div>
+							<table>
+								<tbody>
+									<tr>
+										<td style="text-align: left;">
+											<input id='helpClose_btn' type="image" src='images/closeButton.png' alt='Close Help' onclick="NgChmGui.UTIL.closeHelp();"/>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
 	</body>
 </html>

@@ -8,8 +8,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -17,7 +15,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
 
 /**
  * Servlet implementation class CorrectMatrix
@@ -482,8 +479,6 @@ public class FilterMatrix extends HttpServlet {
 	    } else if (axis.equals("col")) {
 	    	int[] missingNos = getNumMissingCol(tmpWorking);
 	    	String line = rdr.readLine(); //Just write the header
-//			out.write(line + "\n");
-//			line = rdr.readLine();
 			String headers[] = line.split("\t",-1);
 			int thresh = 0;
 			if (filterMethod.equals("pctgreater")){
@@ -561,32 +556,6 @@ public class FilterMatrix extends HttpServlet {
 		}
 		mrdr.close();
 		return mins;
-	}
-	
-	private static double[] getColMeans(String tmpWorking) throws Exception{ // TODO: may need to profile this for larger matrix sizes
-		BufferedReader mrdr = new BufferedReader(new FileReader(tmpWorking));
-		String mline = mrdr.readLine(); // skip headers
-		mline = mrdr.readLine();
-		int lineLength = mline.split("\t",-1).length;
-		
-		double[] means = new double[lineLength];
-		int[] counts = new int[lineLength];
-		while (mline != null ){
-			String toks[] = mline.split("\t",-1);
-			for (int i = 1; i < toks.length; i++) {
-				if (Util.isNumeric(toks[i])) {
-					means[i] += Double.parseDouble(toks[i]);
-					counts[i]++;
-				}
-			}
-			mline = mrdr.readLine();
-		}
-		mrdr.close();
-		
-		for (int i = 0; i < means.length; i++){
-			means[i] = means[i]/counts[i];
-		}
-		return means;
 	}
 	
 	// Variance is standard deviation^2. Use Variances to save computing time

@@ -602,6 +602,18 @@ NgChmGui.UTIL.showLoading = function() {
 		var spinner = document.createElement("div");
 		spinner.classList.add("loader");
 		loadingDiv.appendChild(spinner);
+		if ((typeof NgChmGui.mapProperties.builder_config !== 'undefined') && (NgChmGui.mapProperties.builder_config.buildCluster !== 'N')) {
+			var textbox = document.createElement("div");
+			textbox.id = "loaderMsg";
+			var totalVals = NgChmGui.mapProperties.matrixRows+NgChmGui.mapProperties.matrixCols;
+			if (totalVals > 2000) {
+				textbox.innerHTML = "<b>Matrix may take a minute of two to cluster. Please be patient...</b>";
+				loadingDiv.appendChild(textbox)
+			} else if (totalVals > 1000){
+				textbox.innerHTML = "<b>Clustering matrix data. Please be patient...</b>";
+				loadingDiv.appendChild(textbox)
+			}
+		}
 		document.body.appendChild(loadingDiv);
 	}
 }
@@ -929,6 +941,7 @@ NgChmGui.UTIL.getApproximatedColor = function(hexCode) {
  * called from the  right-justified help icon on the header bar of each screen.
  **********************************************************************************/
 NgChmGui.UTIL.helpOpen = function(anchor) {
+	document.getElementById('helpBox').style.display = 'none';
 	var shortPath = location.pathname.substring(0,(location.pathname.lastIndexOf("/")+1));
 	var url = location.origin+shortPath;
 	url += "ngChmBuilderHelp.html";
@@ -1048,6 +1061,32 @@ NgChmGui.UTIL.hoverGetHelpItem = function(id) {
 }
 
 /**********************************************************************************
+ * FUNCTION - widgetHelp: This function displays a special help popup box for
+ * the widgetized version of the NG-CHM embedded viewer.  
+ **********************************************************************************/
+NgChmGui.UTIL.helpBox = function(bookMark) {
+	var msgBox = document.getElementById('helpBox');
+	var headerpanel = document.getElementById('serviceHeader');
+	msgBox.style.top = (headerpanel.offsetTop + 15) + 'px';
+	var logos = document.getElementById('ngchmLogos');
+	if (logos !== null) {
+		document.getElementById('ngchmLogos').style.display = '';
+	}
+	var msgBoxHdr = document.getElementById('helpBoxHdr');
+	msgBoxHdr.innerHTML = "About NG-CHM Builder";
+	var text = "<p>The NG-CHM Heat Map Builder provides a graphical user interface for users to easily construct heat maps from their own matrix data. The interface presents a step-by-step process that takes the user from the selection of an input matrix to the presentation of a newly created heat map in an embedded NG-CHM Heat Map Viewer.</p><p><a onclick='NgChmGui.UTIL.helpOpen(\""+bookMark+"\")' href='#'>Additional NG-CHM Builder Information and Help</a></p><p><b>Software Version: </b>" + NgChmGui.mapProperties.builder_version+"</p><p><b>Citation:</b> Bradley M. Broom, Michael C. Ryan, Robert E. Brown, Futa Ikeda, Mark Stucky, David W. Kane, James Melott, Chris Wakefield, Tod D. Casasent, Rehan Akbani and John N. Weinstein, A Galaxy Implementation of Next-Generation Clustered Heatmaps for Interactive Exploration of Molecular Profiling Data. Cancer Research 77(21): e23-e26 (2017): <a href='http://cancerres.aacrjournals.org/content/77/21/e23' target='_blank'>http://cancerres.aacrjournals.org/content/77/21/e23</a></p>";
+	var msgBoxTxt = document.getElementById('helpBoxTxt');
+	msgBoxTxt.innerHTML = text;
+	msgBox.style.display = '';
+}
+
+NgChmGui.UTIL.closeHelp = function() {
+	var msgBox = document.getElementById('helpBox');
+	msgBox.style.display = 'none';
+}
+
+
+/**********************************************************************************
  * ARRAY - helpItems: This 2 dimensional array contains all of the bubble help text 
  * for the NgChm Builder application.  Each array row contains 3 values: The id
  * name of a control; the help text for that control; and the display width for 
@@ -1098,6 +1137,11 @@ NgChmGui.UTIL.helpItems = [
 	  ["transNextButton", "Press this button apply any changes made and proceed to the Cluster Matrix screen.", 220],
 	  ["Histogram", "Select the distribution method for the histogram displayed below.", 180],
 	  ["dowloadMatrix", "Press this button to download a matrix text file containing transformed data matrix.", 230],
+	  ["Duplicate", "Select a duplicate correction type to apply to the matrix.", 220],
+	  ["rduplicatemethod", "Select this button to choose the duplicate removal method from the available options.", 300],
+	  ["nduplicatemethod", "Select this button to choose the duplicate rename method from the available options.", 300],
+	  ["cduplicatemethod", "Select this button to choose the duplicate combination method from the available options.", 300],
+	  ["duplicates", "Press this button to apply duplicate processing selections and reload the matrix.", 300],
 	  
 	  //Cluster Screen
 	  ["RowOrder", "Select the row Ordering Method to be applied to the heat map.", 300],

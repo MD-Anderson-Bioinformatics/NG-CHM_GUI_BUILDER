@@ -11,6 +11,8 @@ import com.google.gson.Gson;
 public class HeatmapPropertiesManager {
     //Data Holder Classes
 	public class Heatmap {
+		public int matrixRows = 0;
+		public int matrixCols = 0;
 		public String chm_name;
 		public String chm_description;
 		public String write_tiles = "Y";
@@ -21,7 +23,7 @@ public class HeatmapPropertiesManager {
 		public Order col_configuration;
 		public Order row_configuration;
 		public String output_location;
-		public String builder_version = "NG-CHM GUI 2.15.3";
+		public String builder_version = "NG-CHM GUI 2.15.4";
 		public String summary_width = "40";
 		public BuilderConfig builder_config;
 	}
@@ -53,8 +55,8 @@ public class HeatmapPropertiesManager {
 		public String rowCutsLabel = "Clusters";
 		public String colCuts = "0";
 		public String colCutsLabel = "Clusters";
-		public String rowsWarning = "1000";
-		public String colsWarning = "1000";
+		public String rowsWarning = "1500";
+		public String colsWarning = "1500";
 		public String colsMaximum = "3500";
 		public String rowsMaximum = "3500";
 		public String rowsColsMaximum = "4000";    
@@ -102,6 +104,8 @@ public class HeatmapPropertiesManager {
 		public ArrayList<String> logText;
 		public ArrayList<String> Uri;
 		public ArrayList<String> formId;
+//		public ArrayList<String> row_exclusions = new ArrayList<String>();
+//		public ArrayList<String> col_exclusions = new ArrayList<String>();
 		public TransformConfig () {
 		}
 		public TransformConfig (boolean correlationDone, ArrayList<String> logText, ArrayList<String> Uri, ArrayList<String> formId) {

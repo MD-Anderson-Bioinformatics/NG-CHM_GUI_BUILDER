@@ -39,7 +39,7 @@
 		    	<div class="pageTitle">NG-CHM BUILDER: Process Covariates</div>
      			<div id="ngchmName"  class="inputText" style="font-size: 14px;color: rgb(51, 51, 51);"></div>
 	  		</div>
-	 		<div id="helpDiv"><img id='barHelp_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this,1);' src='images/questionMark.png' alt='Open Help Page' onclick='NgChmGui.UTIL.helpOpen("Covariates");' align="top"/></div> 
+	 		<div id="helpDiv"><img id='barHelp_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this,1);' src='images/questionMark.png' alt='Open Help Page' onclick='NgChmGui.UTIL.helpBox("Covariates");' align="top"/></div> 
 	    </div>   
        	<div id="DisplayContainer" class="display_container" style="position: relative;">
 	 		<div id="covarReOrder" class="data_entry_container" style="position: relative;display: none;width: 25%;">   
@@ -256,5 +256,37 @@
 			</div>
 		</div>
 		<div id="message" style="display: none; position: absolute; background-color: rgb(230, 240, 255);"></div>
-	</body>
+		<div id="helpBox" style="display: none; position: absolute; background-color: rgb(230, 240, 255);">
+			<div class="helpBoxHdr" id="helpBoxHdr"></div>
+			<table>
+				<tbody>
+					<tr class="chmTblRow">
+						<td>
+							<div id="ngchmLogos">
+								<div class="serviceHeaderLogo" style="right:5px;top:40px">
+						        	<a href="https://www.mdanderson.org/education-and-research/departments-programs-and-labs/departments-and-divisions/bioinformatics-and-computational-biology/index.html"  target="_blank">
+								    <img id="msgBoxMdaLogo" src="images/mdabcblogo262x108.png" alt="MD Anderson logo"/>
+								</a>
+						       	</div>
+								<div style="right:5px;top:40px;position:absolute">
+									<a href="http://insilico.us.com/"  target="_blank">
+										<img id='insilicologo' src='images/insilicologo.png' alt='insilico' height=40 />
+									</a>
+								</div>
+						    </div>
+							<div id="helpBoxTxt" style="display: inherit;font-size: 12px; background-color: rgb(230, 240, 255); width: 400px; height: 80px;"></div>
+							<table>
+								<tbody>
+									<tr>
+										<td style="text-align: left;">
+											<input id='helpClose_btn' type="image" src='images/closeButton.png' alt='Close Help' onclick="NgChmGui.UTIL.closeHelp();"/>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>	</body>
 </html>

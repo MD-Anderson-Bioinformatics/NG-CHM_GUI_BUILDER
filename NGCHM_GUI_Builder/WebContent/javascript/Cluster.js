@@ -207,9 +207,3 @@ NgChmGui.CLUSTER.applyClusterPrefs = function() {
 	return true;
 }
 
-/* Validate and go to next screen if everything is good */
-NgChmGui.CLUSTER.gotoCovariatesScreen = function() {
-	if (NgChmGui.CLUSTER.validateEntries(true)){
-		NgChmGui.UTIL.gotoCovariatesScreen();
-	}
-}

@@ -76,8 +76,8 @@ public class TransformMatrix extends HttpServlet {
 		doGet(request, response);
 	}
 
-   
 
+	
 	private void logTransform(String matrixFile, HttpServletRequest request) throws Exception {
 		Util.backupWorking(matrixFile);
 		String tmpWorking = Util.copyWorkingToTemp(matrixFile);
@@ -743,7 +743,7 @@ public class TransformMatrix extends HttpServlet {
 	// Assumption: given matrix will not have any excess rows or columns before/after 
 	//				the data matrix, aside from labels
 	//				ie: the data begins at 1,1
-	private static double[][] getFileAsMatrix(String matrixFile) throws Exception{ 
+	public static double[][] getFileAsMatrix(String matrixFile) throws Exception{ 
 		BufferedReader rdr = new BufferedReader(new FileReader(matrixFile));
 		String line = rdr.readLine(); // skip headers
 		line = rdr.readLine();

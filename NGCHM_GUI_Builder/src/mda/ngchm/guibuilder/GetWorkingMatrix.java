@@ -6,11 +6,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Locale;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -40,6 +38,8 @@ public class GetWorkingMatrix extends HttpServlet {
 		public int numMissing = 0;
 		public int emptyRows = 0;
 		public int emptyCols = 0;
+		public int dupeRowLabels = 0;
+		public int dupeColLabels = 0;
 		public double minVal = Double.POSITIVE_INFINITY;
 		public double minNonZeroVal = Double.POSITIVE_INFINITY;
 		public double maxVal = Double.NEGATIVE_INFINITY;
@@ -116,6 +116,8 @@ public class GetWorkingMatrix extends HttpServlet {
 		    						",\"numCols\": " + counts.numCols  +
 		    						",\"numInvalid\": " + counts.numInvalid  +
 		    						",\"numMissing\": " + counts.numMissing +
+		    						",\"numDupeRowLabels\": " + counts.dupeRowLabels  +
+		    						",\"numDupeColLabels\": " + counts.dupeColLabels +
 		    						",\"maxValue\": " + "\"" + counts.maxVal + "\""+
 		    						",\"minValue\": " + "\"" + counts.minVal + "\"" +
 		    						",\"minNonZeroValue\": " + "\"" + counts.minNonZeroVal + "\"" +
@@ -153,6 +155,10 @@ public class GetWorkingMatrix extends HttpServlet {
 		BufferedReader rdr = new BufferedReader(new FileReader(matrixFile));
 		try {
 			String line = rdr.readLine(); //skip the header
+			String labelToks[] = line.split("\t",-1);
+			ArrayList<String> dupeRowLabelValues = new ArrayList<String>();
+			ArrayList<String> dupColLabelValues = getDuplicateColLabels(labelToks);
+			counts.dupeColLabels = dupColLabelValues.size();
 			line = rdr.readLine();
 			
 			if (line != null) {
@@ -181,6 +187,7 @@ public class GetWorkingMatrix extends HttpServlet {
 					//Array for storing column pos of each col with missing values in first row of matrix.
 				    ArrayList<Integer> missingCols = new ArrayList<Integer>();
 					int rowCtr = 1;
+					ArrayList<String> readLabels = new ArrayList<String>();
 					while (line != null ){
 						counts.numRows++;
 						double rowSum = 0;
@@ -190,35 +197,42 @@ public class GetWorkingMatrix extends HttpServlet {
 						if (counts.numRows == 1)
 							counts.numCols = toks.length - 1;
 						//skip the first column with row labels
-						for (int i = 1; i < toks.length; i++) {
+						for (int i = 0; i < toks.length; i++) {
 							String val = toks[i];
-							if (Util.isNumeric(val)) {
-								double dVal = Double.parseDouble(val);
-								if (dVal < counts.minVal) 
-									counts.minVal = dVal;
-								if ((dVal < counts.minNonZeroVal) && (dVal != 0)) 
-									counts.minNonZeroVal = dVal;
-								if (dVal > counts.maxVal)
-									counts.maxVal = dVal;
-								rowSum += dVal;
-								numRowValues++;
-								colMean[i] += dVal;
-								colCount[i] += 1;
-								//remove any column from missingCols array if a value is found in another row at that column
-								int iPos = missingCols.indexOf(i);
-								if (iPos >= 0) {
-									missingCols.remove(iPos);
+							if (i == 0) {
+								if (readLabels.contains(val)) {
+									dupeRowLabelValues.add(val);
 								}
-							} else if (Util.isMissing(val)) {
-								counts.numMissing++;
-								missingPerRow++;
-								//record all columns with missing value in row 1.
-								//will be used to check if ALL cols have missing value.
-								if (rowCtr == 1) {
-									missingCols.add(i);
-								}
+								readLabels.add(val);
 							} else {
-								counts.numInvalid++;
+								if (Util.isNumeric(val)) {
+									double dVal = Double.parseDouble(val);
+									if (dVal < counts.minVal) 
+										counts.minVal = dVal;
+									if ((dVal < counts.minNonZeroVal) && (dVal != 0)) 
+										counts.minNonZeroVal = dVal;
+									if (dVal > counts.maxVal)
+										counts.maxVal = dVal;
+									rowSum += dVal;
+									numRowValues++;
+									colMean[i] += dVal;
+									colCount[i] += 1;
+									//remove any column from missingCols array if a value is found in another row at that column
+									int iPos = missingCols.indexOf(i);
+									if (iPos >= 0) {
+										missingCols.remove(iPos);
+									}
+								} else if (Util.isMissing(val)) {
+									counts.numMissing++;
+									missingPerRow++;
+									//record all columns with missing value in row 1.
+									//will be used to check if ALL cols have missing value.
+									if (rowCtr == 1) {
+										missingCols.add(i);
+									}
+								} else {
+									counts.numInvalid++;
+								}
 							}
 						}
 						//If missing values in row equals the row length, count as empty
@@ -234,6 +248,7 @@ public class GetWorkingMatrix extends HttpServlet {
 						line = rdr.readLine();
 						rowCtr++;
 					}	
+					counts.dupeRowLabels = dupeRowLabelValues.size();
 					//If columns array has a value, count as empty
 					counts.emptyCols = missingCols.size();
 					rdr.close();
@@ -362,6 +377,18 @@ public class GetWorkingMatrix extends HttpServlet {
 		return counts;
 	}
 	
+	private ArrayList<String> getDuplicateColLabels(String toks[]) throws Exception {
+		ArrayList<String> readLabels = new ArrayList<String>();
+		ArrayList<String> dupeColLabels = new ArrayList<String>();
+		for (int i = 0; i < toks.length; i++) {
+			String currLabel = toks[i];
+			if (readLabels.contains(currLabel)) {
+				dupeColLabels.add(currLabel);
+			}
+			readLabels.add(currLabel);
+		}
+		return dupeColLabels;
+	}
 
 }
 

@@ -3,6 +3,7 @@
 NgChmGui.createNS('NgChmGui.TRANS');
 
 NgChmGui.TRANS.matrixInfo = null; /* Will get loaded with statistics about the matrix */
+NgChmGui.TRANS.changeApplied = false;  
 
 /**********************************************************************************
  * FUNCTION - loadData: This function will be executed when the transform page
@@ -72,19 +73,10 @@ NgChmGui.TRANS.validateEntries = function(leavingPage, formatError, otherError, 
 		pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + buildErrors + "</font></b></p>";
 		valid = false;
 	}
-	if ((numRows > parseInt(NgChmGui.mapProperties.builder_config.rowsMaximum)) || (numCols > parseInt(NgChmGui.mapProperties.builder_config.rowsMaximum))) {
-		if (numRows > parseInt(builderConfig.rowsMaximum)) {
-			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Matrix has too many Rows (>3500) for this builder. Use Filters to remove some Rows.</p>";
-			valid = false;
-		} 
-		if (numCols > parseInt(builderConfig.colsMaximum)) {
-			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Matrix has too many Columns (>3500) for this builder. Use Filters to remove some Columns.</p>";
-			valid = false;
-		}
-	} else if ((numRows + numCols) > parseInt(builderConfig.rowsColsMaximum)) {
-		pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Matrix with " + numRows + " rows and " + numCols + " columns exceeds the maximum number of rows and cols for this builder.  Use Filters to remove rows or columns so that their sum does not exceed 4000.</p>";
+	if ((numRows + numCols) > parseInt(builderConfig.rowsColsMaximum)) {
+		pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Matrix with " + numRows + " rows and " + numCols + " columns exceeds the maximum matrix size for this builder (" + builderConfig.rowsColsMaximum + ").  Use the Filter action to remove rows or columns so that their sum does not exceed this number.</p>";
 		valid = false;
-	}
+	} 
 	if (otherError && otherError !== "") {
 		pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + otherError + "</font></b></p>";
 		valid = false;
@@ -92,7 +84,15 @@ NgChmGui.TRANS.validateEntries = function(leavingPage, formatError, otherError, 
 	//Generate error messages
 	if (leavingPage) {
 		if (NgChmGui.TRANS.matrixInfo.numInvalid > 0) {
-			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "All Invalid values must be corrected.</p>";
+			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Matrix contains invalid values. Use the Missing/Invalid action to replace or fill these invalid values.</p>";
+			valid = false;
+		}	
+		if (NgChmGui.TRANS.matrixInfo.numDupeRowLabels > 0) {
+			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Matrix contains duplicate row labels. Use the Duplicate action to remove, rename, or combine these duplicates.</p>";
+			valid = false;
+		}	
+		if (NgChmGui.TRANS.matrixInfo.numDupeColLabels > 0) {
+			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Matrix contains duplicate column labels. Use the Duplicate action to remove, rename, or combine these duplicates.</p>";
 			valid = false;
 		}	
 		if (NgChmGui.TRANS.matrixInfo.numRows < 1) {
@@ -104,11 +104,11 @@ NgChmGui.TRANS.validateEntries = function(leavingPage, formatError, otherError, 
 			valid = false;
 		}	
 		if(NgChmGui.TRANS.matrixInfo.emptyRows > 0) {
-			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Matrix contains " + NgChmGui.TRANS.matrixInfo.emptyRows + " entirely empty data Row(s). All values missing. Use Filter to remove rows or replace missing values.</p>";
+			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Matrix contains " + NgChmGui.TRANS.matrixInfo.emptyRows + " entirely empty data Row(s). All values missing. Use the Filter action to remove rows or replace missing values.</p>";
 			valid = false;
 		}	
 		if(NgChmGui.TRANS.matrixInfo.emptyCols > 0) {
-			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Matrix contains " + NgChmGui.TRANS.matrixInfo.emptyCols + " entirely empty data Column(s). All values missing. Use Filter to remove Columns or replace missing values.</p>";
+			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Matrix contains " + NgChmGui.TRANS.matrixInfo.emptyCols + " entirely empty data Column(s). All values missing. Use the Filter action to remove Columns or replace missing values.</p>";
 			valid = false;
 		}	
 	} else if (formatError){
@@ -117,12 +117,16 @@ NgChmGui.TRANS.validateEntries = function(leavingPage, formatError, otherError, 
 	} else {
 		//Generate warning messages
 		if (valid) {
+			var totalVals = NgChmGui.mapProperties.matrixRows+NgChmGui.mapProperties.matrixCols;
+			if (totalVals > 2000) {
+				pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.warningPrefix + "This large matrix (" + NgChmGui.mapProperties.matrixRows + "x" + NgChmGui.mapProperties.matrixCols + ") may take several minutes to cluster. You may wish to use the Filter action to reduce matrix size.</p>";
+			}
 			if (NgChmGui.TRANS.matrixInfo.numRows > parseInt(builderConfig.rowsWarning)) {
-				pageText = pageText + NgChmGui.UTIL.warningPrefix + "Your matrix has a large number of rows consider using the Filter Data transform to remove non-informative rows" + NgChmGui.UTIL.nextLine;
+				pageText = pageText + NgChmGui.UTIL.warningPrefix + "Your matrix has a large number of rows consider using the Filter action to remove non-informative rows" + NgChmGui.UTIL.nextLine;
 			}	
 	
 			if (NgChmGui.TRANS.matrixInfo.numCols > parseInt(builderConfig.colsWarning)) {
-				pageText = pageText + NgChmGui.UTIL.warningPrefix + "Your matrix has a large number of columns consider using the Filter Data transform to remove non-informative rows" + NgChmGui.UTIL.nextLine;
+				pageText = pageText + NgChmGui.UTIL.warningPrefix + "Your matrix has a large number of columns consider using the Filter action to remove non-informative rows" + NgChmGui.UTIL.nextLine;
 			}	
 		}
 	}
@@ -133,6 +137,10 @@ NgChmGui.TRANS.validateEntries = function(leavingPage, formatError, otherError, 
 	//Add in page instruction text
 	pageText = pageText + "This page provides summary statistics of your matrix data including the distribution of values and row/column standard deviations.  Filters and transforms can be used to manipulate the matrix to produce better heat maps.  For example, a Z-norm transform could be used to normalize rows with values that differ in magnitude and a standard deviation filter could be used to remove rows with values that do not differ much across the columns." ;
 	NgChmGui.UTIL.setScreenNotes(pageText, true);
+	
+	if (valid === false) {
+		NgChmGui.UTIL.hideLoading();
+	}
 	
 	return valid;
 }
@@ -146,6 +154,7 @@ NgChmGui.TRANS.hideAllTransDivs =  function() {
 	document.getElementById('filterDiv').style.display = 'none';
 	document.getElementById('transDiv').style.display = 'none';
 	document.getElementById('corrDiv').style.display = 'none';
+	document.getElementById('dupeDiv').style.display = 'none';
 }
 
 /**********************************************************************************
@@ -168,6 +177,8 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 	req.open("GET", "GetWorkingMatrix", true);
 	req.onreadystatechange = function () {
     	numInvalidDisplay = document.getElementById('numInvalid');
+    	numDupeRows = document.getElementById('numDupeRows');
+    	numDupeCols = document.getElementById('numDupeCols');
 		if (NgChmGui.UTIL.debug) {console.log('state change');}
 		if (req.readyState == req.DONE) {
 			if (NgChmGui.UTIL.debug) {console.log('done');}
@@ -177,6 +188,9 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 	        } else {
 				if (NgChmGui.UTIL.debug) {console.log('200');}
 				NgChmGui.TRANS.matrixInfo = JSON.parse(req.response);
+				var props = NgChmGui.mapProperties;
+				props.matrixRows = NgChmGui.TRANS.matrixInfo.numRows;
+				props.matrixCols = NgChmGui.TRANS.matrixInfo.numCols;
 	        	document.getElementById('numRows').innerHTML = NgChmGui.TRANS.matrixInfo.numRows;
 	        	document.getElementById('numCols').innerHTML = NgChmGui.TRANS.matrixInfo.numCols;
 	        	if (NgChmGui.TRANS.matrixInfo.numInvalid > 0) {
@@ -188,6 +202,26 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 	        	}
 	        	numInvalidDisplay.innerHTML = NgChmGui.TRANS.matrixInfo.numInvalid;
 	        	document.getElementById('numMissing').innerHTML = NgChmGui.TRANS.matrixInfo.numMissing;
+	        	if (NgChmGui.TRANS.matrixInfo.numDupeRowLabels > 0) {
+	        		numDupeRows.style.fontWeight = 'bold';
+	        		numDupeRows.style.color = '#FF0000';
+	        	} else {
+	        		numDupeRows.style.fontWeight = 'normal';
+	        		numDupeRows.style.color = '#000000';
+	        	}
+	        	numDupeRows.innerHTML = NgChmGui.TRANS.matrixInfo.numDupeRowLabels;
+	        	if (NgChmGui.TRANS.matrixInfo.numDupeColLabels > 0) {
+	        		numDupeCols.style.fontWeight = 'bold';
+		        	numDupeCols.style.color = '#FF0000';
+	        	} else {
+	        		numDupeCols.style.fontWeight = 'normal';
+	            	numDupeCols.style.color = '#000000';
+	        	}
+	        	numDupeCols.innerHTML = NgChmGui.TRANS.matrixInfo.numDupeColLabels;
+        	
+	        	
+	        	
+	        	
 	        	document.getElementById('maxVal').innerHTML = Number.parseFloat(NgChmGui.TRANS.matrixInfo.maxValue).toFixed(3);
 	        	document.getElementById('minVal').innerHTML = Number.parseFloat(NgChmGui.TRANS.matrixInfo.minValue).toFixed(3);
 	        	document.getElementById('minNonZeroVal').innerHTML = Number.parseFloat(NgChmGui.TRANS.matrixInfo.minNonZeroValue);
@@ -308,6 +342,21 @@ NgChmGui.TRANS.selectCorrection =  function() {
 	}
 }
 
+NgChmGui.TRANS.selectDuplicates =  function() {
+	document.getElementById('Remove').style.display = 'none';
+	document.getElementById('Rename').style.display = 'none';
+	document.getElementById('Combine').style.display = 'none';
+	var sel = document.getElementById('Duplicate');
+	var filter = sel.options[sel.selectedIndex].value;
+	var div = document.getElementById(filter);
+	if (div !== undefined && div !== null) {
+		div.style.display = '';
+		document.getElementById('duplicates_btn').style.display = '';
+	}	else {
+		document.getElementById('duplicates_btn').style.display = 'none';
+	}
+}
+
 NgChmGui.TRANS.selectFilter =  function() {
 	document.getElementById('Variation').style.display = 'none';
 	document.getElementById('Range').style.display = 'none';
@@ -391,6 +440,7 @@ NgChmGui.TRANS.hideDivById = function(id) {
 }
 
 NgChmGui.TRANS.correctMatrixData =  function() {
+	NgChmGui.TRANS.changeApplied = true;
 	var req = new XMLHttpRequest();
 	var formData = NgChmGui.UTIL.toURIString( document.getElementById("missing_frm") );
 	if (NgChmGui.TRANS.matrixInfo.numInvalid == 0 || NgChmGui.TRANS.matrixInfo.num == 0){
@@ -431,6 +481,7 @@ NgChmGui.TRANS.correctMatrixData =  function() {
 }
 
 NgChmGui.TRANS.filterMatrixData =  function() {
+	NgChmGui.TRANS.changeApplied = true;
 	var req = new XMLHttpRequest();
 	var formData = NgChmGui.UTIL.toURIString( document.getElementById("filter_frm") );
 	if (formData){
@@ -461,7 +512,40 @@ NgChmGui.TRANS.filterMatrixData =  function() {
 	}
 }
 
+NgChmGui.TRANS.duplicateMatrixData =  function() {
+	NgChmGui.TRANS.changeApplied = true;
+	var req = new XMLHttpRequest();
+	var formData = NgChmGui.UTIL.toURIString( document.getElementById("duplicate_frm") );
+	if (formData){
+		req.open("POST", "DuplicateMatrix", true);
+		req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		req.onreadystatechange = function () {
+			if (NgChmGui.UTIL.debug) {console.log('state change');}
+			if (req.readyState == req.DONE) {
+				if (NgChmGui.UTIL.debug) {console.log('done');}
+		        if (req.status != 200) {
+		        	NgChmGui.UTIL.hideLoading();
+		            console.log('Failed to process matrix duplicates. '  + req.status);
+		        } else {
+					if (NgChmGui.UTIL.debug) {console.log('200');}
+		        	NgChmGui.mapProperties = JSON.parse(req.response);
+		        	if (NgChmGui.UTIL.validSession()) {
+			        	NgChmGui.TRANS.updateLog(document.getElementById("duplicate_frm") );
+			        	NgChmGui.TRANS.processTransforms(NgChmGui.TRANS.getWorkingMatrix);
+			        	NgChmGui.TRANS.initSelects();
+		        	}
+			    }
+			}
+		};
+		req.send(formData);
+		NgChmGui.UTIL.showLoading();
+	} else {
+		NgChmGui.TRANS.validateEntries(false, true);
+	}
+}
+
 NgChmGui.TRANS.transformMatrixData =  function() {
+	NgChmGui.TRANS.changeApplied = true;
 	var req = new XMLHttpRequest();
 	var formData = NgChmGui.UTIL.toURIString( document.getElementById("trans_frm") );
 	if (formData){
@@ -498,6 +582,7 @@ NgChmGui.TRANS.transformMatrixData =  function() {
 
 
 NgChmGui.TRANS.correlateMatrixData =  function() {
+	NgChmGui.TRANS.changeApplied = true;
 	var req = new XMLHttpRequest();
 	var formData = NgChmGui.UTIL.toURIString( document.getElementById("corr_frm") );
 	if (formData){
@@ -611,7 +696,7 @@ NgChmGui.TRANS.updateLog =  function(form){//formData) {
 		var updateDiv = document.createElement("option");
 		updateDiv.classList.add("change_option");
 		var updateText = "";
-		updateDiv.attributes.formID = form.id == "trans_frm" ? "Transform" : form.id == "missing_frm" ? "Correct" : form.id == "filter_frm" ? "Filter" : "";
+		updateDiv.attributes.formID = form.id == "trans_frm" ? "Transform" : form.id == "missing_frm" ? "Correct" : form.id == "filter_frm" ? "Filter" : form.id == "duplicate_frm" ? "Duplicate" : "";
 		updateDiv.attributes.URI = NgChmGui.UTIL.toURIString(form);
 		updateDiv.value = document.getElementsByClassName("change_option").length;
 		var urlString = "";
@@ -660,6 +745,7 @@ NgChmGui.TRANS.updateLog =  function(form){//formData) {
 }
 
 NgChmGui.TRANS.revertToState =  function() {
+	NgChmGui.TRANS.changeApplied = true;
 	var els = document.getElementsByClassName("change_option");
 	var value = document.getElementById("changeSelect").value;
 	
@@ -736,11 +822,25 @@ NgChmGui.TRANS.done =  function() {
 		return;
 	
 	var callbackFunc = function(){
+		if (NgChmGui.TRANS.changeApplied === true) {
+			NgChmGui.TRANS.setCluster();
+		}
 		NgChmGui.UTIL.showLoading();
-		NgChmGui.UTIL.buildHeatMap(NgChmGui.TRANS.update); 
+		NgChmGui.UTIL.setHeatmapProperties(NgChmGui.TRANS.update); 
+	//	NgChmGui.UTIL.buildHeatMap(NgChmGui.TRANS.update); 
 	}
 	NgChmGui.TRANS.processTransforms(callbackFunc);
 
+}
+
+NgChmGui.TRANS.setCluster = function() {
+	var props = NgChmGui.mapProperties;
+	if (props.col_configuration.order_method === 'Hierarchical') {
+		NgChmGui.UTIL.setBuildCluster('C');
+	}
+	if (props.row_configuration.order_method === 'Hierarchical') {
+		NgChmGui.UTIL.setBuildCluster('R');
+	}
 }
 
 NgChmGui.TRANS.processTransforms = function(callback){

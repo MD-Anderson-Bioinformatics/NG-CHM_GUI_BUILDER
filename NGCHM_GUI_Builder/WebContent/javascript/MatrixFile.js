@@ -256,11 +256,13 @@ NgChmGui.FILE.MatrixFile = function() {
 				        		hasChanged = true;
 				        		NgChmGui.FILE.invalidMatrix(retVal.return_code);
 				        	} else {
+								NgChmGui.UTIL.hideLoading();
 								NgChmGui.UTIL.gotoTransformScreen();
 				        	}
 						}
 					}
 				};
+				NgChmGui.UTIL.showLoading();
 				req.send(matrixJson);
 			} else {
 				NgChmGui.UTIL.gotoTransformScreen();
