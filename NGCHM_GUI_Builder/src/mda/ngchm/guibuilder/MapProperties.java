@@ -123,6 +123,7 @@ public class MapProperties extends HttpServlet {
 				        //Re-build the heat map 
 					    Cluster clusterer = new Cluster();
 					    clusterer.clusterHeatMap(workingDir);
+						System.out.println("END Clustering Matrix: " + new Date()); 
 				    }
 				    clusterSuccess = true;
 			    } catch (Exception e) {

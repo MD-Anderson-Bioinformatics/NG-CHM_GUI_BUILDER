@@ -1,13 +1,72 @@
 package mda.ngchm.guibuilder;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
+
 import javax.script.ScriptEngine;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.renjin.script.RenjinScriptEngineFactory;
 
 /**
  * Servlet implementation class Upload Data Matrix
  */
-public class Cluster  {
+@WebServlet("/Cluster")
+public class Cluster extends HttpServlet {
+	private static final long serialVersionUID = 1L;
 	private static final ThreadLocal<ScriptEngine> ENGINE = new ThreadLocal<>();
+	
+	public void clusterHeatMap(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		HttpSession mySession = request.getSession(false);
+		response.setContentType("application/json;charset=UTF-8");
+	    try {
+			//Get heat map construction directory from session
+	    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
+		    String propJSON = "{}";
+	    	if (mySession == null) {
+	        	propJSON = "{\"no_session\": 1}";
+		       	response.setContentType("application/json");
+		    	response.getWriter().write(propJSON.toString());
+		    	return;
+	    	}
+	        //Get properties and update them to the new config data
+	        workingDir = workingDir + "/" + mySession.getId();
+	        if (new File(workingDir).exists()) {
+		        HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
+	        	MapProperties mp = new MapProperties();
+		        HeatmapPropertiesManager.Heatmap mapConfig = mp.getConfigDataFromRequest(request);
+		        //Get properties and update them to the new config data
+	        	mgr.setMap(mapConfig);
+			    HeatmapPropertiesManager.Heatmap map = mgr.getMap();
+			    mgr.save();
+			    try {
+					System.out.println("START Clustering Matrix: " + new Date()); 
+			        //Re-build the heat map 
+				    clusterHeatMap(workingDir);
+					System.out.println("END Clustering Matrix: " + new Date()); 
+				    //Return edited props
+		        	propJSON = mgr.load();
+			       	response.setContentType("application/json");
+			    	response.getWriter().write(propJSON.toString());
+			    } catch (Exception e) {
+			    	map.builder_config.buildErrors = "ERROR occurred while clustering matrix. Please try again.";
+		        	propJSON = "{\"no_session\": 1}";
+			       	response.setContentType("application/json");
+			    	response.getWriter().write(propJSON.toString());
+			    }
+	        }
+		} catch (Exception e) {
+			response.setStatus(0);
+	    	System.out.println("ERROR Clustering large matrix: "+ e.getMessage());
+	    } finally {
+	    }		
+	}
 	
 	public void clusterHeatMap(String workingDir) throws Exception {
 		// Obtain R script engine for this thread
@@ -101,17 +160,28 @@ public class Cluster  {
 				if (distanceMeasure.equals("correlation")) { 
 					engine.eval("distVals <- as.dist(1-cor(t(dataMatrix), use=\"pairwise.complete.obs\"))");
 				} else {
+					System.out.println("Preparing to compute row distance @" + new Date()); 
 					engine.eval("distVals <- dist(dataMatrix, method=\"" + distanceMeasure + "\");");
+					System.out.println("Completed computation of row distance @" + new Date()); 
 				}	
+				System.out.println("Clustering rows @" + new Date()); 
+				engine.eval("ordering <- hclust(distVals, method=\"" + agglomerationMethod + "\");");
+				System.out.println("Writing row order file @" + new Date()); 
+				writeHCDataTSVs(engine, "ordering", clusterFile, orderFile);
+				System.out.println("Done clustering rows @" + new Date()); 
 			} else {
 				if (distanceMeasure.equals("correlation")) { 
 					engine.eval("distVals <- as.dist(1-cor(dataMatrix, use=\"pairwise.complete.obs\"))");
 				} else {
+					System.out.println("Preparing to compute column distance @" + new Date()); 
 					engine.eval("distVals <- dist(t(dataMatrix), method=\"" + distanceMeasure + "\");");
 				}
+				System.out.println("Clustering columns @" + new Date()); 
+				engine.eval("ordering <- hclust(distVals, method=\"" + agglomerationMethod + "\");");
+				System.out.println("Writing column order file @" + new Date()); 
+				writeHCDataTSVs(engine, "ordering", clusterFile, orderFile);
+				System.out.println("Done clustering columns @" + new Date()); 
 			}
-			engine.eval("ordering <- hclust(distVals, method=\"" + agglomerationMethod + "\");");
-			writeHCDataTSVs(engine, "ordering", clusterFile, orderFile);
 		}  else if (orderMethod.equals("Random")){
 			if (direction.equals("row")){
 				engine.eval("headerList <- rownames(dataMatrix);");
@@ -143,6 +213,22 @@ public class Cluster  {
 		engine.eval("write.table(data, file = \"" + orderFile + "\", append = FALSE, quote = FALSE, sep = \"\t\", row.names=FALSE); ");
 	}	
 
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		try {
+			doPost(request, response);
+		} catch (Exception e) {
+	        e.printStackTrace();
+		}
+	}
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		try {
+			clusterHeatMap(request, response);
+		} catch (Exception e) {
+	        e.printStackTrace();
+		}
+	}
+	
 }
 
 
