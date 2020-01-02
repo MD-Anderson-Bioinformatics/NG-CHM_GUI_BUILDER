@@ -17,6 +17,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 
 import org.apache.poi.ss.usermodel.*;
@@ -26,7 +28,7 @@ import com.google.gson.GsonBuilder;
 
 public class Util {
 	
-
+	public static boolean logSysMessages = true;
 	
 	/*******************************************************************
 	 * METHOD: toSignificantFiguresString
@@ -289,6 +291,37 @@ public class Util {
 			if (out != null) {out.close();out = null;}
 		}
 	}
+	
+	/*******************************************************************
+	 * METHOD: logStatus
+	 *
+	 * This sysouts status with date time if logging turned on.
+	 ******************************************************************/
+	public static void logStatus(String message) throws Exception {
+		/* Returns the maximum amount of memory available to 
+		   the Java Virtual Machine set by the '-mx' or '-Xmx' flags. */
+		long availableMemory = Runtime.getRuntime().maxMemory();
+
+		/* Returns the total memory allocated from the system 
+		   (which can at most reach the maximum memory value 
+		   returned by the previous function). */
+		long allocatedMemory = Runtime.getRuntime().totalMemory();
+
+		/* Returns the free memory *within* the total memory 
+		   returned by the previous function. */
+		long freeMemory = Runtime.getRuntime().freeMemory();
+		String memoryInfo = "   *** JVM Memory Stats - Available: " + availableMemory + " Allocated: " + allocatedMemory + " Free: " + freeMemory;
+		
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String eventDate = simpleDateFormat.format(new Date());
+		
+		if (logSysMessages) {
+			System.out.println(eventDate + ": " + message + memoryInfo);
+		}
+		return;
+	}
+	
+
 	
 	
 }

@@ -81,6 +81,7 @@ public class HeatmapBuild extends HttpServlet {
 	        String errMsg = null;
 	        mgr.load();
 	        HeatmapPropertiesManager.Heatmap map = mgr.getMap();
+			Util.logStatus("Begin Heat Map Build chm(" + map.chm_name + ").");
 	        //Check for pre-existence of properties file.  If exists, load from properties manager
 	        if (propFile.exists()) {
 			    //Call HeatmapDataGenerator to generate final heat map .ngchm file
@@ -116,7 +117,9 @@ public class HeatmapBuild extends HttpServlet {
 	        }
 	        map.read_matrices = "Y";
 	        map.write_tiles = "Y";
+		    map.builder_config.clusterStatus = 0;
     		mgr.save();
+			Util.logStatus("End Heat Map Build chm(" + map.chm_name + ").");
 	    } catch (Exception e) {
 	    	throw e;
 	    }			

@@ -84,6 +84,8 @@ public class DuplicateMatrix extends HttpServlet {
 		String filterMethod = request.getParameter("rduplicatemethod");
 		BufferedReader rdr = new BufferedReader(new FileReader(tmpWorking));
 	    BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
+		Util.logStatus("DuplicateMatrix - Begin Remove Duplicates Transform for (" + axis + ") axis. ");
+
 	    try {
 			if (axis.equals("row")) { // row filters
 				//Retrieve a list containing all duplicate row labels and their position in the data matrix.
@@ -147,6 +149,8 @@ public class DuplicateMatrix extends HttpServlet {
 		BufferedReader rdr = new BufferedReader(new FileReader(tmpWorking));
 	    BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
 		
+		Util.logStatus("DuplicateMatrix - Begin Rename Duplicates Transform for (" + axis + ") axis. ");
+
 		if (axis.equals("row")) {
 			//Retrieve a list containing all duplicate row labels and their position in the data matrix.
 			ArrayList<String> dupeRowLabelValues = getDuplicateRowsList(tmpWorking);
@@ -239,6 +243,8 @@ public class DuplicateMatrix extends HttpServlet {
 	    BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
 		double[][] matrix = TransformMatrix.getFileAsMatrix(tmpWorking);
 		
+		Util.logStatus("DuplicateMatrix - Begin Combine Duplicates Transform for (" + axis + ") axis. ");
+
 		if (axis.equals("row")) {
 			//Retrieve a list containing all duplicate row labels and their position in the data matrix.
 			ArrayList<String> dupeRowLabelValues = getDuplicateRowsList(tmpWorking);

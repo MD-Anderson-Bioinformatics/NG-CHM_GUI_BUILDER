@@ -93,10 +93,16 @@ public class UploadMatrix extends HttpServlet {
 		}
 
 	    try {
-	    	if (filePart.getSize() > 0) {
-	    		uploadMatrixFile(workingDir, writer, filecontent, inType);
+	    	//Throttle file upload at 1Gb
+	    	if (filePart.getSize() > 1000000000) {
+		        writer.println("ERROR: This matrix file (" + inFile + ") exceeds the maximum 500mb file size for the builder.");
 	    	} else {
-		        writer.println("NOFILE");
+		    	Util.logStatus("UploadMatrix - Begin matrix file upload (" + inFile + ") File Size: " + filePart.getSize());
+		    	if (filePart.getSize() > 0) {
+		    		uploadMatrixFile(workingDir, writer, filecontent, inType);
+		    	} else {
+			        writer.println("NOFILE");
+		    	}
 	    	}
 	    } catch (Exception e) {
 	        writer.println("Error uploading matrix.");

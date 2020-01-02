@@ -77,6 +77,8 @@ public class CorrelateMatrix extends HttpServlet {
 		Util.backupWorking(matrixFile);
 		String tmpWorking = Util.copyWorkingToTemp(matrixFile);
 		String operation = request.getParameter("tttransformmethod");
+		Util.logStatus("CorrelateMatrix - Begin Transpose Transform for (" + operation + "). ");
+
 		BufferedReader rdr = new BufferedReader(new FileReader(tmpWorking));
 		BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
 		String[][] matrix1 = getFileAsStringMatrix(tmpWorking);
@@ -103,6 +105,8 @@ public class CorrelateMatrix extends HttpServlet {
 		String tmpWorking = Util.copyWorkingToTemp(matrixFile);
 		String operation = request.getParameter("tctransformmethod");
 		
+		Util.logStatus("CorrelateMatrix - Begin Correlation Transform for (" + operation + "). ");
+
 		BufferedReader rdr = new BufferedReader(new FileReader(tmpWorking));
 		String line = rdr.readLine();
 		List<String> rowLabels = getRowLabels(tmpWorking);
@@ -242,80 +246,6 @@ public class CorrelateMatrix extends HttpServlet {
 	   
 	}
 	
-	
-	private static double getRowMean(String[] toks) throws Exception{
-		double tot = 0;
-		int count = 0;  // exclude the empty cells from the average
-		for (int i = 1; i < toks.length; i++) {
-			if (Util.isNumeric(toks[i])){
-				tot += Double.parseDouble(toks[i]);
-				count++;
-			}
-		}
-		double mean = tot/count;
-		return mean;
-	}
-	
-	
-	private static double[] getColMeans(String tmpWorking) throws Exception{ // TODO: may need to profile this for larger matrix sizes
-		BufferedReader mrdr = new BufferedReader(new FileReader(tmpWorking));
-		String mline = mrdr.readLine(); // skip headers
-		mline = mrdr.readLine();
-		int lineLength = mline.split("\t",-1).length;
-		
-		double[] means = new double[lineLength];
-		int[] counts = new int[lineLength];
-		while (mline != null ){
-			String toks[] = mline.split("\t",-1);
-			for (int i = 1; i < toks.length; i++) {
-				if (Util.isNumeric(toks[i])) {
-					means[i] += Double.parseDouble(toks[i]);
-					counts[i]++;
-				}
-			}
-			mline = mrdr.readLine();
-		}
-		mrdr.close();
-		
-		for (int i = 0; i < means.length; i++){
-			means[i] = means[i]/counts[i];
-		}
-		return means;
-	}
-	
-	private static float getRowMin(String[] toks) throws Exception{
-		float min = Float.MAX_VALUE;
-		for (int i = 1; i < toks.length; i++) {
-			if (Util.isNumeric(toks[i]) && Float.parseFloat(toks[i]) < min){
-				min = Float.parseFloat(toks[i]);
-			}
-		}
-		return min;
-	}
-	
-	private static float[] getColMins(String tmpWorking) throws Exception{ // TODO: may need to profile this for larger matrix sizes
-		BufferedReader mrdr = new BufferedReader(new FileReader(tmpWorking));
-		String mline = mrdr.readLine(); // skip headers
-		mline = mrdr.readLine();
-		int lineLength = mline.split("\t",-1).length;
-		
-		float[] mins = new float[lineLength];
-		for (int i = 1; i < mins.length; i++) {
-			mins[i] = Float.MAX_VALUE;
-		}
-		while (mline != null ){
-			String toks[] = mline.split("\t",-1);
-			for (int i = 1; i < toks.length; i++) {
-				if (Util.isNumeric(toks[i]) && Float.parseFloat(toks[i]) < mins[i]) {
-					mins[i] = Float.parseFloat(toks[i]);
-				}
-			}
-			mline = mrdr.readLine();
-		}
-		mrdr.close();
-		return mins;
-	}
-	
 	// num rows without the header
 	private static int getNumRows(String tmpWorking) throws Exception{ // TODO: may need to profile this for larger matrix sizes
 		BufferedReader mrdr = new BufferedReader(new FileReader(tmpWorking));
@@ -328,74 +258,6 @@ public class CorrelateMatrix extends HttpServlet {
 		}
 		mrdr.close();
 		return numRows;
-	}
-	
-	// Variance is standard deviation^2. Use Variances to save computing time
-		private static double getRowVariance(String line) throws Exception{ 
-			String toks[] = line.split("\t",-1);
-			double tot = 0;
-			int count = 0;  // exclude the empty cells from the average
-			for (int i = 1; i < toks.length; i++) {
-				if (Util.isNumeric(toks[i])){
-					tot += Double.parseDouble(toks[i]);
-					count++;
-				}
-			}
-			double mean = tot/count;
-			
-			double variance = 0;
-			for (int i = 1; i < toks.length; i++) {
-				if (Util.isNumeric(toks[i])) {
-					double diff = Double.parseDouble(toks[i]) - mean;
-					variance += diff*diff/count;
-				}
-			}
-			return variance;
-		}
-	
-	private static double[] getColVariances(String tmpWorking) throws Exception{ // TODO: may need to profile this for larger matrix sizes
-		BufferedReader mrdr = new BufferedReader(new FileReader(tmpWorking));
-		String mline = mrdr.readLine(); // skip headers
-		mline = mrdr.readLine();
-		int lineLength = mline.split("\t",-1).length;
-		
-		//get the means
-		float[] means = new float[lineLength];
-		int[] counts = new int[lineLength];
-		while (mline != null ){
-			String toks[] = mline.split("\t",-1);
-			for (int i = 1; i < toks.length; i++) {
-//				counts[i]++;
-				if (Util.isNumeric(toks[i])) {
-					means[i] += Double.parseDouble(toks[i]);
-					counts[i]++;
-				}
-			}
-			mline = mrdr.readLine();
-		}
-		mrdr.close();
-		
-		for (int i = 0; i < means.length; i++){
-			means[i] = means[i]/counts[i];
-		}
-		
-		// get the variances
-		BufferedReader srdr = new BufferedReader(new FileReader(tmpWorking));
-		String sline = srdr.readLine(); // skip headers
-		sline = srdr.readLine();
-		double[] variances = new double[lineLength];
-		while (sline != null ){
-			String toks[] = sline.split("\t",-1);
-			for (int i = 1; i < toks.length; i++) {
-				if (Util.isNumeric(toks[i])) {
-					double diff = Double.parseDouble(toks[i]) - means[i];
-					variances[i] += diff*diff/counts[i];
-				}
-			}
-			sline = srdr.readLine();
-		}
-		srdr.close();
-		return variances;
 	}
 	
 	// This function will return the given file as a data matrix. 
@@ -533,7 +395,6 @@ public class CorrelateMatrix extends HttpServlet {
 		int numCols = matrix[0].length;
 		double[][] transpose = new double[numCols][numRows];
 		for (int i = 0; i < numRows; i++) {
-			String ts = "";
 			for (int j = 0; j < numCols; j++) {
 				transpose[j][i] = matrix[i][j];
 			}
@@ -546,7 +407,6 @@ public class CorrelateMatrix extends HttpServlet {
 		int numCols = matrix[0].length;
 		String[][] transpose = new String[numCols][numRows];
 		for (int i = 0; i < numRows; i++) {
-			String ts = "";
 			for (int j = 0; j < numCols; j++) {
 				transpose[j][i] = matrix[i][j];
 			}

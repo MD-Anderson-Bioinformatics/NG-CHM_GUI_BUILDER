@@ -39,6 +39,7 @@ public class UploadCovariate extends HttpServlet {
 	    final PrintWriter writer = response.getWriter();
 	    
 	    try {
+	    	String covariateName = covName.replaceAll("[^a-zA-Z0-9-_& ]","");
 	        //Create a directory using the http session ID
 	    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
 	    	workingDir = workingDir + "/" + mySession.getId();
@@ -50,7 +51,7 @@ public class UploadCovariate extends HttpServlet {
 	        if (propFile.exists()) {
 	        	mgr.load();
 	        	mgr.resetBuildConfig();
-	        	processCovariateUpload(workingDir, filePart, covName, colorType, axisType);
+	        	processCovariateUpload(workingDir, filePart, covariateName, colorType, axisType);
 		        //Re-build the heat map 
 			    HeatmapBuild builder = new HeatmapBuild();
 			    builder.buildHeatMap(workingDir);
@@ -72,7 +73,7 @@ public class UploadCovariate extends HttpServlet {
 	    }
 	}
 	
-	public void processCovariateUpload(String workingDir, Part filePart, String covName, String colorType, String axisType) throws Exception {
+	public void processCovariateUpload(String workingDir, Part filePart, String covariateName, String colorType, String axisType) throws Exception {
 	  
 	    OutputStream out = null;
 	    InputStream filecontent = null;
@@ -84,12 +85,13 @@ public class UploadCovariate extends HttpServlet {
 	        if (propFile.exists()) {
 	        	mgr.load();
 		        HeatmapPropertiesManager.Heatmap map = mgr.getMap();
-	        	String covFileName = workingDir + "/covariate_"+ axisType+"_"+covName + ".txt";
+	        	String covFileName = workingDir + "/covariate_"+ axisType+"_"+covariateName + ".txt";
 	        	File covFile = new File(covFileName);
 	        	if (covFile.exists()) {
 	        		covFile.delete();
 	        	}
 	    	    String inFile = filePart.getSubmittedFileName();
+		    	Util.logStatus("UploadCovariate - Begin Covariate File upload (" + inFile + ") File Size: " + filePart.getSize());
 	    	    String inType = inFile.substring(inFile.lastIndexOf(".")+1, inFile.length()).toUpperCase();
 		        filecontent = filePart.getInputStream();
 			    if (EXCEL_FILES.contains(inType)) {
@@ -100,7 +102,7 @@ public class UploadCovariate extends HttpServlet {
 			        Util.uploadTSV(covFileName, filecontent);
 			    }
 			    ProcessCovariate cov = new ProcessCovariate();
-	        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructDefaultCovariate(mgr, inFile, covName, covFileName, axisType, colorType,"0");
+	        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructDefaultCovariate(mgr, inFile, covariateName, covFileName, axisType, colorType,"0");
 	        	map.classification_files.add(classJsonObj);	 
 		        //Mark properties as "clean" for update.
 	        	map.builder_config.buildProps = "N";

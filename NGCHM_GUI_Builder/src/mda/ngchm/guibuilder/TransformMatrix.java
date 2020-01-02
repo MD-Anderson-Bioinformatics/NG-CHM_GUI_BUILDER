@@ -85,7 +85,9 @@ public class TransformMatrix extends HttpServlet {
 		BufferedReader rdr = new BufferedReader(new FileReader(tmpWorking));
 	    BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
 		
-	    // TODO : need to correct negative values before log
+    	Util.logStatus("TransformMatrix - Begin Log Transform for (" + logBase + ") ");
+
+    	// TODO : need to correct negative values before log
 		if (logBase.equals("log10")) {
 			String line = rdr.readLine(); //Just write the header
 			out.write(line + "\n");
@@ -155,6 +157,8 @@ public class TransformMatrix extends HttpServlet {
 		BufferedReader rdr = new BufferedReader(new FileReader(tmpWorking));
 	    BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
 		
+    	Util.logStatus("TransformMatrix - Begin Mean Center Transform for (" + axis + ") axis. ");
+
 		if (axis.equals("row")) {
 			String line = rdr.readLine(); //Just write the header
 			out.write(line + "\n");
@@ -210,6 +214,8 @@ public class TransformMatrix extends HttpServlet {
 		BufferedReader rdr = new BufferedReader(new FileReader(tmpWorking));
 	    BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
 		
+    	Util.logStatus("TransformMatrix - Begin Z-Normalize Transform for (" + axis + ") axis. ");
+
 		if (axis.equals("row")) {
 			String line = rdr.readLine(); //Just write the header
 			out.write(line + "\n");
@@ -268,6 +274,8 @@ public class TransformMatrix extends HttpServlet {
 		BufferedReader rdr = new BufferedReader(new FileReader(tmpWorking));
 	    BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
 		
+    	Util.logStatus("TransformMatrix - Begin Arithmetic Transform for (" + operation + ") axis. ");
+
 	    // TODO : need to correct negative values before log
 		if (operation.equals("add")) {
 			float addVal = Float.parseFloat(request.getParameter("add_value"));
@@ -364,6 +372,8 @@ public class TransformMatrix extends HttpServlet {
 		BufferedReader rdr = new BufferedReader(new FileReader(tmpWorking));
 	    BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
 		
+    	Util.logStatus("TransformMatrix - Begin Threshold Transform for (" + operation + ") axis. ");
+
 		boolean lowThreshold = false;
 		boolean setNA = false;
 	    float threshold = 0F;
@@ -417,6 +427,9 @@ public class TransformMatrix extends HttpServlet {
 		Util.backupWorking(matrixFile);
 		String tmpWorking = Util.copyWorkingToTemp(matrixFile);
 		String operation = request.getParameter("tttransformmethod");
+
+		Util.logStatus("TransformMatrix - Begin Transpose Transform for (" + operation + ") axis. ");
+
 		BufferedReader rdr = new BufferedReader(new FileReader(tmpWorking));
 		BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
 		String[][] matrix1 = getFileAsStringMatrix(tmpWorking);
@@ -443,6 +456,8 @@ public class TransformMatrix extends HttpServlet {
 		String tmpWorking = Util.copyWorkingToTemp(matrixFile);
 		String operation = request.getParameter("tctransformmethod");
 		
+		Util.logStatus("TransformMatrix - Begin Correlation Transform for (" + operation + ") axis. ");
+
 		BufferedReader rdr = new BufferedReader(new FileReader(tmpWorking));
 		String line = rdr.readLine();
 		List<String> rowLabels = getRowLabels(tmpWorking);
@@ -621,39 +636,6 @@ public class TransformMatrix extends HttpServlet {
 			means[i] = means[i]/counts[i];
 		}
 		return means;
-	}
-	
-	private static float getRowMin(String[] toks) throws Exception{
-		float min = Float.MAX_VALUE;
-		for (int i = 1; i < toks.length; i++) {
-			if (Util.isNumeric(toks[i]) && Float.parseFloat(toks[i]) < min){
-				min = Float.parseFloat(toks[i]);
-			}
-		}
-		return min;
-	}
-	
-	private static float[] getColMins(String tmpWorking) throws Exception{ // TODO: may need to profile this for larger matrix sizes
-		BufferedReader mrdr = new BufferedReader(new FileReader(tmpWorking));
-		String mline = mrdr.readLine(); // skip headers
-		mline = mrdr.readLine();
-		int lineLength = mline.split("\t",-1).length;
-		
-		float[] mins = new float[lineLength];
-		for (int i = 1; i < mins.length; i++) {
-			mins[i] = Float.MAX_VALUE;
-		}
-		while (mline != null ){
-			String toks[] = mline.split("\t",-1);
-			for (int i = 1; i < toks.length; i++) {
-				if (Util.isNumeric(toks[i]) && Float.parseFloat(toks[i]) < mins[i]) {
-					mins[i] = Float.parseFloat(toks[i]);
-				}
-			}
-			mline = mrdr.readLine();
-		}
-		mrdr.close();
-		return mins;
 	}
 	
 	// num rows without the header
@@ -873,7 +855,6 @@ public class TransformMatrix extends HttpServlet {
 		int numCols = matrix[0].length;
 		double[][] transpose = new double[numCols][numRows];
 		for (int i = 0; i < numRows; i++) {
-			String ts = "";
 			for (int j = 0; j < numCols; j++) {
 				transpose[j][i] = matrix[i][j];
 			}
@@ -886,7 +867,6 @@ public class TransformMatrix extends HttpServlet {
 		int numCols = matrix[0].length;
 		String[][] transpose = new String[numCols][numRows];
 		for (int i = 0; i < numRows; i++) {
-			String ts = "";
 			for (int j = 0; j < numCols; j++) {
 				transpose[j][i] = matrix[i][j];
 			}

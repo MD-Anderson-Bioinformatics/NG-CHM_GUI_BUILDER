@@ -49,8 +49,7 @@ public class ProcessMatrix extends HttpServlet {
 	    final PrintWriter writer = response.getWriter();
 
 	    try {
-			System.out.println("START Processing Matrix: " + new Date()); 
-			
+
 			//Get heat map construction directory from session
 	    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
 	        workingDir = workingDir + "/" + mySession.getId();
@@ -60,6 +59,7 @@ public class ProcessMatrix extends HttpServlet {
 			//Get/set matrix configuration data from request
 	        HeatmapPropertiesManager.MatrixGridConfig matrixConfig = getMatrixConfigData(request);
 	    	
+			Util.logStatus("ProcessMatrix - Begin Processing Matrix chm(" + matrixConfig.mapName + ").");
 			//Construct and write out a working matrix file that has been filtered of covariate and whitespace rows/columns.
 		    String matrixFile = workingDir + "/workingMatrix.txt";
 		    ArrayList<String> matrixErrors = new ArrayList<String>();
@@ -141,7 +141,7 @@ public class ProcessMatrix extends HttpServlet {
 	       	response.setContentType("application/json");
 	    	response.getWriter().write(propJSON.toString());
 	    	response.flushBuffer();
-			System.out.println("END Processing Matrix: " + new Date()); 
+			Util.logStatus("ProcessMatrix - End Processing Matrix chm(" + map.chm_name + ").");
 	    } catch (Exception e) {
 	        writer.println("Error creating initial heat map properties.");
 	        writer.println("<br/> ERROR: " + e.getMessage());

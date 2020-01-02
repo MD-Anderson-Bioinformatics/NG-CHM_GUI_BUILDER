@@ -23,7 +23,7 @@ public class HeatmapPropertiesManager {
 		public Order col_configuration;
 		public Order row_configuration;
 		public String output_location;
-		public String builder_version = "NG-CHM GUI 2.15.4";
+		public String builder_version = "NG-CHM GUI 2.15.5";
 		public String summary_width = "40";
 		public BuilderConfig builder_config;
 	}
@@ -57,9 +57,10 @@ public class HeatmapPropertiesManager {
 		public String colCutsLabel = "Clusters";
 		public String rowsWarning = "1500";
 		public String colsWarning = "1500";
-		public String colsMaximum = "8000";
-		public String rowsMaximum = "8000";
-		public String rowsColsMaximum = "16000";    
+		public String colsMaximum = "5000";
+		public String rowsMaximum = "5000";
+		public String rowsColsMaximum = "5000";    
+		public int clusterStatus = 0;    
 		public ArrayList<String> buildWarnings = new ArrayList<String>();
 		public MatrixGridConfig matrix_grid_config;
 		public TransformConfig transform_config;

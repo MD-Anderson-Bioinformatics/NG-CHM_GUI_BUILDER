@@ -78,6 +78,7 @@ public class UploadCorrelationMatrix extends HttpServlet {
 
 	    try {
 	    	if (filePart.getSize() > 0) {
+		    	Util.logStatus("UploadCorrelationMatrix - Begin Correlation Matrix file upload (" + inFile + ") File Size: " + filePart.getSize());
 	    		uploadMatrixFile(request, writer, filecontent, inType);
 	    	} else {
 		        writer.println("NOFILE");

@@ -24,6 +24,7 @@ public class ProcessCovariate {
 	public HeatmapPropertiesManager.Classification constructTreeCutCovariate(HeatmapPropertiesManager mgr, String covName, String covFilePath, String covPos, String colorType, String treeCuts) throws Exception {
 		HeatmapPropertiesManager.Classification covar = mgr.new Classification(covName, "Generated Cluster-Based File", covFilePath, covPos, "Y", "15", "color_plot", "#000000", "#FFFFFF", "0", "99", null, treeCuts);
 		try {
+			Util.logStatus("ProcessCovariate - Construct tree cut covariate for (" + covFilePath.substring(covFilePath.lastIndexOf( '/') + 1, covFilePath.length()) + ").");
 			String type = colorType;
 			int cutNbr = Integer.parseInt(treeCuts);		
 			ArrayList<String> covBreaks = new ArrayList<String>();
@@ -41,69 +42,6 @@ public class ProcessCovariate {
 		return covar;
 	}
 	
-	public HeatmapPropertiesManager.Classification constructDefaultCovariate2(HeatmapPropertiesManager mgr, String fileName, String covName, String covFilePath, String covPos, String colorType, String treeCuts) throws Exception {
-	    String covariateFile = covFilePath;
-		BufferedReader reader = new BufferedReader(new FileReader(covariateFile));
-		HeatmapPropertiesManager.Classification covar = mgr.new Classification(covName, fileName, covFilePath, covPos, "Y", "15", "color_plot", "#000000", "#FFFFFF", "0", "99", null, treeCuts);
-		try {
-			String line = reader.readLine();
-			ArrayList<String> covBreaks = new ArrayList<String>();
-			Boolean allNumeric = true;
-			float highVal = -99999;
-			float lowVal = 99999;
-			while (line != null) {
-				String toks[] = line.split("\t");
-				if (toks.length > 1) {
-					String cat = toks[1];
-					if (allNumeric) {
-						if (!Util.isNumeric(cat)) {
-							allNumeric = false;
-						} else {
-							if (!NA_VALUES.contains(cat)) {
-								float catVal = Float.valueOf(cat);
-								if (catVal > highVal) {
-									highVal = catVal;
-								}
-								if (catVal < lowVal) {
-									lowVal = catVal;
-								}
-							}
-						}
-					}
-					if (!covBreaks.contains(cat)) {
-					    covBreaks.add(cat);
-					}
-				}
-				line = reader.readLine(); 
-			}
-			String type = colorType;
-			if (type == null) {
-				type = "discrete";
-				if (allNumeric && (covBreaks.size() > 5)) {
-					type = "continuous";
-				}
-			}
-			if (type.equals("continuous")) {
-				covBreaks.clear();
-				covar.low_bound = Float.toString(lowVal);
-				covar.orig_low_bound = Float.toString(lowVal);
-				covar.high_bound = Float.toString(highVal);
-				covar.orig_high_bound = Float.toString(highVal);
-				covBreaks.add(Float.toString(lowVal));
-				covBreaks.add(Float.toString(highVal));
-			}
-			ArrayList<String> covColors = getDefaultClassColors(covBreaks, type);
-			HeatmapPropertiesManager.ColorMap cm = mgr.new ColorMap(type,covColors, covBreaks,"#B3B3B3");
-			covar.color_map = cm;
-		} catch (Exception e) {
-			// do something here
-			System.out.println(e.toString());
-		} finally {
-			reader.close();
-		}
-		return covar;
-	}
-	
 	/*******************************************************************
 	 * METHOD: constructDefaultCovariate
 	 *
@@ -112,6 +50,7 @@ public class ProcessCovariate {
 	 * bar.
 	 ******************************************************************/
 	public HeatmapPropertiesManager.Classification constructDefaultCovariate(HeatmapPropertiesManager mgr, String fileName, String covName, String covFilePath, String covPos, String colorType, String treeCuts) throws Exception {
+		Util.logStatus("ProcessCovariate - Construct default covariate for (" + covName + ").");
 		HeatmapPropertiesManager.Classification covar = mgr.new Classification(covName, fileName, covFilePath, covPos, "Y", "15", "color_plot", "#000000", "#FFFFFF", "0", "99", null, treeCuts);
 		HeatmapPropertiesManager.ColorMap cm = constructDefaultColorMap(mgr, covar, colorType);
 		covar.color_map = cm;

@@ -2,7 +2,6 @@ package mda.ngchm.guibuilder;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
 
 import javax.script.ScriptEngine;
 import javax.servlet.ServletException;
@@ -43,13 +42,17 @@ public class Cluster extends HttpServlet {
 		        HeatmapPropertiesManager.Heatmap mapConfig = mp.getConfigDataFromRequest(request);
 		        //Get properties and update them to the new config data
 	        	mgr.setMap(mapConfig);
+		        //Mark properties as "clean" for update.
+	        	mgr.resetBuildConfig();
 			    HeatmapPropertiesManager.Heatmap map = mgr.getMap();
 			    mgr.save();
 			    try {
-					System.out.println("START Clustering Matrix: " + new Date()); 
-			        //Re-build the heat map 
+			        mp.processTreeCutCovariates(mgr, mapConfig);
+			        //Cluster the heat map 
 				    clusterHeatMap(workingDir);
-					System.out.println("END Clustering Matrix: " + new Date()); 
+			        //Re-build the heat map 
+				    HeatmapBuild builder = new HeatmapBuild();
+				    builder.buildHeatMap(workingDir);
 				    //Return edited props
 		        	propJSON = mgr.load();
 			       	response.setContentType("application/json");
@@ -82,7 +85,9 @@ public class Cluster extends HttpServlet {
 	    String clusterProp = map.builder_config.buildCluster;
 	    boolean clusterRows = (clusterProp.equals("R") || clusterProp.equals("B")) ? true : false;
 	    boolean clusterCols = (clusterProp.equals("C") || clusterProp.equals("B")) ? true : false;
-	    
+	    if (clusterRows || clusterCols) {
+			Util.logStatus("Cluster - Begin Clustering Matrix chm(" + map.chm_name + ").");
+	    }
 	    if (clusterRows) {
 		    //Create paths for clustering output files
 		    String rowOrder = workingDir  + "/rowOrder.txt";  
@@ -90,7 +95,7 @@ public class Cluster extends HttpServlet {
 		    String rowOrderMethod = map.row_configuration.order_method;
 		    if (rowOrderMethod.equals("Hierarchical")) {   
 		    	try {
-				    performOrdering(engine, matrixFile, rowOrderMethod, "row", map.row_configuration.distance_metric, map.row_configuration.agglomeration_method, rowOrder, rowDendro);  //Get from props
+				    performOrdering(engine, matrixFile, rowOrderMethod, "row", map.row_configuration.distance_metric, map.row_configuration.agglomeration_method, rowOrder, rowDendro, mgr);  //Get from props
 			    	map.row_configuration.order_file = rowOrder;  
 			    	map.row_configuration.dendro_file = rowDendro; 
 			    	if (map.row_configuration.dendro_show.equals("NA"))	{	 	    	
@@ -114,7 +119,7 @@ public class Cluster extends HttpServlet {
 			String colOrderMethod = map.col_configuration.order_method;
 		    if (colOrderMethod.equals("Hierarchical")) {   
 		    	try {
-		    		performOrdering(engine, matrixFile, colOrderMethod, "column", map.col_configuration.distance_metric, map.col_configuration.agglomeration_method, colOrder, colDendro);  //Get from props
+		    		performOrdering(engine, matrixFile, colOrderMethod, "column", map.col_configuration.distance_metric, map.col_configuration.agglomeration_method, colOrder, colDendro, mgr);  //Get from props
 			    	map.col_configuration.order_file = colOrder;  
 			    	map.col_configuration.dendro_file = colDendro; 
 			    	if (map.col_configuration.dendro_show.equals("NA"))	{	 	    	
@@ -135,7 +140,11 @@ public class Cluster extends HttpServlet {
 		    	map.col_configuration.dendro_height = "10";
 		    }
 	    }
+	    if (clusterRows || clusterCols) {
+			Util.logStatus("Cluster - End Clustering Matrix chm(" + map.chm_name + ").");
+	    }
 	    map.builder_config.buildCluster = "N";
+	    map.builder_config.clusterStatus = 0;
 	    //Save changes to heatmapProperties file
 	    mgr.save();
 	}
@@ -152,35 +161,33 @@ public class Cluster extends HttpServlet {
     }
 	
 	
-	private void performOrdering(ScriptEngine engine, String matrixFile, String orderMethod, String direction, String distanceMeasure, String agglomerationMethod, String orderFile, String clusterFile) throws Exception {
+	private void performOrdering(ScriptEngine engine, String matrixFile, String orderMethod, String direction, String distanceMeasure, String agglomerationMethod, String orderFile, String clusterFile, HeatmapPropertiesManager mgr) throws Exception {
+	    HeatmapPropertiesManager.Heatmap map = mgr.getMap();
 		engine.eval("dataMatrix = read.table(\"" + matrixFile + "\", header=TRUE, sep = \"\t\", check.names=FALSE, row.names = 1, as.is=TRUE, na.strings=c(\"NA\",\"N/A\",\"-\",\"?\"));");
 		engine.eval("ordering <- NULL; "); 
 		if (orderMethod.equals("Hierarchical")) {
 			if (direction.equals("row")){
+				writeClusterStatus(mgr, 1);
 				if (distanceMeasure.equals("correlation")) { 
 					engine.eval("distVals <- as.dist(1-cor(t(dataMatrix), use=\"pairwise.complete.obs\"))");
 				} else {
-					System.out.println("Preparing to compute row distance @" + new Date()); 
 					engine.eval("distVals <- dist(dataMatrix, method=\"" + distanceMeasure + "\");");
-					System.out.println("Completed computation of row distance @" + new Date()); 
 				}	
-				System.out.println("Clustering rows @" + new Date()); 
+				writeClusterStatus(mgr, 2);
 				engine.eval("ordering <- hclust(distVals, method=\"" + agglomerationMethod + "\");");
-				System.out.println("Writing row order file @" + new Date()); 
 				writeHCDataTSVs(engine, "ordering", clusterFile, orderFile);
-				System.out.println("Done clustering rows @" + new Date()); 
+				writeClusterStatus(mgr, 3);
 			} else {
+				writeClusterStatus(mgr, 4);
 				if (distanceMeasure.equals("correlation")) { 
 					engine.eval("distVals <- as.dist(1-cor(dataMatrix, use=\"pairwise.complete.obs\"))");
 				} else {
-					System.out.println("Preparing to compute column distance @" + new Date()); 
 					engine.eval("distVals <- dist(t(dataMatrix), method=\"" + distanceMeasure + "\");");
 				}
-				System.out.println("Clustering columns @" + new Date()); 
+				writeClusterStatus(mgr, 5);
 				engine.eval("ordering <- hclust(distVals, method=\"" + agglomerationMethod + "\");");
-				System.out.println("Writing column order file @" + new Date()); 
 				writeHCDataTSVs(engine, "ordering", clusterFile, orderFile);
-				System.out.println("Done clustering columns @" + new Date()); 
+				writeClusterStatus(mgr, 6);
 			}
 		}  else if (orderMethod.equals("Random")){
 			if (direction.equals("row")){
@@ -194,6 +201,13 @@ public class Cluster extends HttpServlet {
 			engine.eval("headerList <- colnames(dataMatrix);");
 			writeOrderTSVs(engine, "headerList", "headerList", orderFile);		
 		}
+	}
+	
+	private void writeClusterStatus(HeatmapPropertiesManager mgr, int status) throws Exception {
+	    HeatmapPropertiesManager.Heatmap map = mgr.getMap();
+	    map.builder_config.clusterStatus = status;
+	    mgr.save();
+	    return;
 	}
 
 	private void writeHCDataTSVs(ScriptEngine engine, String hclustOrder, String clusterFile, String orderFile) throws Exception {

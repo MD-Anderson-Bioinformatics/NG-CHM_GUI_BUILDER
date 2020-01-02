@@ -55,6 +55,8 @@ NgChmGui.UTIL.debug = false;
 NgChmGui.UTIL.errorPrefix = "<b class='error_message'>ERROR: </b>&nbsp;&nbsp;";
 NgChmGui.UTIL.warningPrefix = "<b class='warning_message'>Warning: </b>&nbsp;&nbsp;";
 NgChmGui.UTIL.nextLine = "<br>";
+NgChmGui.UTIL.clusterStatus = 0;
+
 
 /**********************************************************************************
  * FUNCTION - toURIString: The purpose of this function to convert a URI to a string.
@@ -492,6 +494,15 @@ NgChmGui.UTIL.newHeatMapNotice = function() {
 	document.getElementById('message').style.display = '';
 }
 
+NgChmGui.UTIL.reClusterError = function() {
+	NgChmGui.UTIL.initMessageBox();
+	NgChmGui.UTIL.setMessageBoxHeader("Already Clustering Matrix");
+	NgChmGui.UTIL.setMessageBoxText("<br>Unable to apply clustering. It is likely that the screen has been refreshed after requesting a cluster operation<br>that must finish. Please wait several moments and then reload the screen (repeat if necessary).<br>", 2);
+	NgChmGui.UTIL.setMessageBoxButton(3, "images/cancelButton.png", "", "NgChmGui.UTIL.messageBoxCancel");
+	document.getElementById('message').style.display = '';
+}
+
+
 /**********************************************************************************
  * FUNCTION - elemExist: The purpose of this function is evaluate the existence
  * of a given JS object and return true/false.
@@ -573,6 +584,10 @@ NgChmGui.UTIL.toTitleCase = function(string) {
     });
 }
 
+/**********************************************************************************
+ * FUNCTION - getLabelText: The purpose of this function is to return properly 
+ * truncated label text based upon heatmapProperties entries.
+ **********************************************************************************/
 NgChmGui.UTIL.getLabelText = function(text,type) { 
 	var rowConfig = NgChmGui.mapProperties.row_configuration;
 	var colConfig = NgChmGui.mapProperties.col_configuration;
@@ -594,28 +609,67 @@ NgChmGui.UTIL.getLabelText = function(text,type) {
 	return text;
 }
 
+/**********************************************************************************
+ * FUNCTION - getTotalClusterValues: The purpose of this function is to calculate
+ * the total size of the data to be clustered.  It is used to determine clustering
+ * messages and whether a large clustering process is being requested.
+ **********************************************************************************/
+NgChmGui.UTIL.getTotalClusterValues = function() { 
+	var totalVals = NgChmGui.mapProperties.matrixRows+NgChmGui.mapProperties.matrixCols;
+	var clusterProp = NgChmGui.mapProperties.builder_config.buildCluster;
+	if (clusterProp === "R") {
+		totalVals = NgChmGui.mapProperties.matrixRows;
+	} else if (clusterProp === "C") {
+		totalVals = NgChmGui.mapProperties.matrixCols;
+	}
+	return totalVals;
+}
+
+/**********************************************************************************
+ * FUNCTION - showLoading: The purpose of this function is to construct a loading
+ * overlay for when processing is going on in the background. On many screens it 
+ * is as simple as a rotating circlet.  However when clustering is being requested,
+ * further information is presented.
+ **********************************************************************************/
 NgChmGui.UTIL.showLoading = function() { 
 	var loadingDiv = document.getElementById("loadOverlay");
 	if (loadingDiv === null) {
 		loadingDiv = document.createElement("div");
 		loadingDiv.id = "loadOverlay";
-		var spinner = document.createElement("div");
-		spinner.classList.add("loader");
-		loadingDiv.appendChild(spinner);
 		if ((typeof NgChmGui.mapProperties.builder_config !== 'undefined') && (NgChmGui.mapProperties.builder_config.buildCluster !== 'N')) {
 			var textbox = document.createElement("div");
 			textbox.id = "loaderMsg";
-			var totalVals = NgChmGui.mapProperties.matrixRows+NgChmGui.mapProperties.matrixCols;
-			if (totalVals > 2000) {
-				textbox.innerHTML = "<b>Matrix may take a minute or two to cluster. Please be patient...</b>";
-				loadingDiv.appendChild(textbox)
-			} else if (totalVals > 1000){
-				textbox.innerHTML = "<b>Clustering matrix data. Please be patient...</b>";
-				loadingDiv.appendChild(textbox)
+			textbox.style.height = '19px';
+			textbox.style.top = '40%';
+			var msg = NgChmGui.UTIL.getClusterLoadMessage();
+			var totalVals = NgChmGui.UTIL.getTotalClusterValues();
+			if (totalVals >= 1000) {
+				textbox.style.height = '280px';
+				textbox.style.top = '30%';
+			    textbox.style.textAlign = "left";
+				if (NgChmGui.mapProperties.builder_config.buildCluster !== 'B') {
+					textbox.style.height = '240px';
+				}
+				var clusterDiv = NgChmGui.UTIL.buildClusterDiv(msg);
+				clusterDiv.style.display = '';
+				clusterDiv.setAttribute("align", "center");
+				textbox.appendChild(clusterDiv);
+			} else {
+				NgChmGui.UTIL.addSpinner(loadingDiv);
+				textbox.innerHTML = msg;
 			}
+			loadingDiv.appendChild(textbox);
+		} else {
+			NgChmGui.UTIL.addSpinner(loadingDiv);
 		}
 		document.body.appendChild(loadingDiv);
 	}
+}
+
+NgChmGui.UTIL.addSpinner = function(loadingDiv) { 
+	var spinner = document.createElement("div");
+	spinner.classList.add("loader");
+	loadingDiv.appendChild(spinner);
 }
 
 NgChmGui.UTIL.hideLoading = function() { 
@@ -623,6 +677,346 @@ NgChmGui.UTIL.hideLoading = function() {
 	if (loadingDiv !== null) {
 		loadingDiv.parentElement.removeChild(loadingDiv);
 	}
+}
+
+/**********************************************************************************
+ * FUNCTION - getClusterLoadMessage: The purpose of this function is to query the
+ * size of the values to be clustered to determine the message to be presented 
+ * to the user in the loader message box.
+ **********************************************************************************/
+NgChmGui.UTIL.getClusterLoadMessage = function() { 
+	var totalVals = NgChmGui.UTIL.getTotalClusterValues();
+	var clusterMsg = "";
+	if (totalVals >= 3000) {
+		clusterMsg = "&nbsp;&nbsp;<b>THE MATRIX MAY TAKE SEVERAL MINUTES TO CLUSTER</b>";
+	} else if (totalVals >= 1000) {
+		clusterMsg = "&nbsp;&nbsp;<b>THE MATRIX MAY TAKE A MINUTE OR TWO TO CLUSTER</b>";
+	} else if (totalVals < 1000){
+		clusterMsg = "<b>Clustering matrix data. Please be patient...</b>";
+	}
+	return clusterMsg;
+}
+
+/**********************************************************************************
+ * FUNCTION - buildClusterDiv: The purpose of this function is to build the cluster
+ * status dialog for clustering large data sets.  Timers are set up for each step
+ * so that they may be tracked as the clustering process proceeds.
+ **********************************************************************************/
+NgChmGui.UTIL.buildClusterDiv = function(msg) { 
+	var clusterProp = NgChmGui.mapProperties.builder_config.buildCluster;
+	var clusterDiv = NgChmGui.UTIL.getDivElement("clusterStatus");
+	var clusterContents = document.createElement("TABLE"); 
+	var rDistSpan = "<span id='rDistSpan' style='color:red'><b>NOT STARTED</span>";
+	var rDistTimer = "<div id='rDistTimer' style='display:none'>00&nbsp;:&nbsp;<span id='rDistMins'>00</span>&nbsp;:&nbsp;<span id='rDistSecs'>00</span></b></div>";
+	var rClustSpan = "<span id='rClustSpan' style='color:red'><b>NOT STARTED</span>";
+	var rClustTimer = "<div id='rClustTimer' style='display:none'>00&nbsp;:&nbsp;<span id='rClustMins'>00</span>&nbsp;:&nbsp;<span id='rClustSecs'>00</span></b></div>";
+	var rCompSpan = "<span id='rCompSpan' style='color:red'><b>NOT STARTED</span>";
+	var rCompTimer = "<div id='rCompTimer' style='display:none'>00&nbsp;:&nbsp;<span id='rCompMins'>00</span>&nbsp;:&nbsp;<span id='rCompSecs'>00</span></b></div>";
+	var cDistSpan = "<span id='cDistSpan' style='color:red'><b>NOT STARTED</span>";
+	var cDistTimer = "<div id='cDistTimer' style='display:none'>00&nbsp;:&nbsp;<span id='cDistMins'>00</span>&nbsp;:&nbsp;<span id='cDistSecs'>00</span></b></div>";
+	var cClustSpan = "<span id='cClustSpan' style='color:red'><b>NOT STARTED</span>";
+	var cClustTimer = "<div id='cClustTimer' style='display:none'>00&nbsp;:&nbsp;<span id='cClustMins'>00</span>&nbsp;:&nbsp;<span id='cClustSecs'>00</span></b></div>";
+	var cCompSpan = "<span id='cCompSpan' style='color:red'><b>NOT STARTED</span>";
+	var cCompTimer = "<div id='cCompTimer' style='display:none'>00&nbsp;:&nbsp;<span id='cCompMins'>00</span>&nbsp;:&nbsp;<span id='cCompSecs'>00</span></b></div>";
+	NgChmGui.UTIL.setTableRow(clusterContents,[msg],2);
+	NgChmGui.UTIL.addBlankRow(clusterContents);
+	NgChmGui.UTIL.setTableRow(clusterContents,["Please be patient and do NOT refresh this page..."],2);
+	NgChmGui.UTIL.addBlankRow(clusterContents);
+	if ((clusterProp === "R") || (clusterProp === "B")) {
+		NgChmGui.UTIL.setTableRow(clusterContents,["&nbsp;&nbsp;CLUSTERING ROWS: ","&nbsp;&nbsp;"]);
+		NgChmGui.UTIL.setTableRow(clusterContents,["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Computing Distance: ",rDistSpan+rDistTimer]);
+		NgChmGui.UTIL.setTableRow(clusterContents,["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Clustering Axis: ",rClustSpan+rClustTimer]);
+		NgChmGui.UTIL.setTableRow(clusterContents,["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Row Clustering: ",rCompSpan+rCompTimer]);
+	}
+	if (clusterProp === "B") {
+		NgChmGui.UTIL.addBlankRow(clusterContents);
+	}
+	if ((clusterProp === "C") || (clusterProp === "B")) {
+		NgChmGui.UTIL.setTableRow(clusterContents,["&nbsp;&nbsp;CLUSTERING COLUMNS: ","&nbsp;&nbsp;"]);
+		NgChmGui.UTIL.setTableRow(clusterContents,["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Computing Distance: ",cDistSpan+cDistTimer]);
+		NgChmGui.UTIL.setTableRow(clusterContents,["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Clustering Axis: ",cClustSpan+cClustTimer]);
+		NgChmGui.UTIL.setTableRow(clusterContents,["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Column Clustering: ",cCompSpan+cCompTimer]);
+	}
+	NgChmGui.UTIL.addBlankRow(clusterContents);
+	var durationTimer = "<div id='durationTimer'><b>00&nbsp;:&nbsp;</span><span id='durationMins'>00</span>&nbsp;:&nbsp;<span id='durationSecs'>00</span></b></div>";
+	NgChmGui.UTIL.setTableRow(clusterContents,["&nbsp;&nbsp;CLUSTERING DURATION: ","<b>"+durationTimer+"</b>"]);
+	clusterDiv.appendChild(clusterContents);
+	return clusterDiv
+}
+
+NgChmGui.UTIL.destroyOverlay = function() {
+	if (document.getElementById('rDistSpan') !== null) { document.getElementById('rDistSpan').remove();console.log("IN IT rDistSpan");};
+	if (document.getElementById('rDistTimer') !== null) { document.getElementById('rDistTimer').remove();console.log("IN IT rDistTimer");};
+	if (document.getElementById('rClustSpan') !== null) { document.getElementById('rClustSpan').remove();console.log("IN IT rClustSpan");};
+	if (document.getElementById('rClustTimer') !== null) { document.getElementById('rClustTimer').remove();console.log("IN IT rClustTimer");};
+	if (document.getElementById('rCompSpan') !== null) { document.getElementById('rCompSpan').remove();console.log("IN IT rCompSpan");};
+	if (document.getElementById('rCompTimer') !== null) { document.getElementById('rCompTimer').remove();console.log("IN IT rCompTimer");};
+	if (document.getElementById('cDistSpan') !== null) { document.getElementById('cDistSpan').remove();console.log("IN IT cDistSpan");};
+	if (document.getElementById('cDistTimer') !== null) { document.getElementById('cDistTimer').remove();console.log("IN IT cDistTimer");};
+	if (document.getElementById('cClustSpan') !== null) { document.getElementById('cClustSpan').remove();console.log("IN IT cClustSpan");};
+	if (document.getElementById('cClustTimer') !== null) { document.getElementById('cClustTimer').remove();console.log("IN IT cClustTimer");};
+	if (document.getElementById('cCompSpan') !== null) { document.getElementById('cCompSpan').remove();console.log("IN IT cCompSpan");};
+	if (document.getElementById('cCompTimer') !== null) { document.getElementById('cCompTimer').remove();console.log("IN IT cCompTimer");};
+	if (document.getElementById('clusterStatus') !== null) { document.getElementById('clusterStatus').remove();console.log("IN IT clusterStatus");};
+}
+
+
+/**********************************************************************************
+ * FUNCTION - isLongBuild: The purpose of this function check to see if 
+ * clustering will be performed and if that clustering will require a progress 
+ * screen.
+ **********************************************************************************/
+NgChmGui.UTIL.isLongBuild = function() {
+	var props = NgChmGui.mapProperties;
+	var longBuild = false;
+	var buildCluster = props.builder_config.buildCluster
+	if (buildCluster === "B") {
+		if ((props.matrixRows + props.matrixCols) >= 1000) {
+			longBuild = true;
+		}
+	} else if (buildCluster === "C") {	
+		if (props.matrixCols >= 1000) {
+			longBuild = true;
+		}
+	} else if (buildCluster === "R"){
+		if (props.matrixRows >= 1000) {
+			longBuild = true;
+		}
+	}
+	return longBuild;
+}
+
+/**********************************************************************************
+ * FUNCTION - clusterBuildHeatMap: The purpose of this function is to determine
+ * the appropriate approach to clustering/building a heat map.  It is called from
+ * the Transform and Cluster screens.
+ **********************************************************************************/
+NgChmGui.UTIL.clusterBuildHeatMap = function(nextFunction) {
+	if (NgChmGui.UTIL.isLongBuild() === true) {
+		NgChmGui.UTIL.clusterHeatMap(nextFunction);
+	} else {
+		NgChmGui.UTIL.setHeatmapProperties(nextFunction);
+	}
+}
+
+/**********************************************************************************
+ * FUNCTION - clusterHeatMap: The purpose of this function is to perform the 
+ * clustering of the heatmap and then call the setHeatmapProperties function to 
+ * build the heatmap. It contains a special call at the bottom FOR large heatmaps 
+ * that will take a long time to cluster. In these cases, a clustering status
+ * monitoring function is invoked.
+ **********************************************************************************/
+NgChmGui.UTIL.clusterHeatMap = function(nextFunction) {
+	var checkStatus = NgChmGui.mapProperties.builder_config.clusterStatus;
+	if (checkStatus === 0) {
+		var statusDiv = document.getElementById('clusterStatus');
+		var embedDiv = document.getElementById('NGCHMEmbed');
+		var req = new XMLHttpRequest();
+		var formData = JSON.stringify(NgChmGui.mapProperties);  
+		req.open("POST", "Cluster", true);
+		req.setRequestHeader("Content-Type", "application/json");
+		req.onreadystatechange = function () {
+			if (NgChmGui.UTIL.debug) {console.log('state change');}
+			if (req.readyState == req.DONE) {
+				NgChmGui.UTIL.clusterStatus = 0;
+				if (NgChmGui.UTIL.debug) {console.log('done');}
+		        if (req.status != 200) {
+		        	NgChmGui.UTIL.hideLoading();
+		            console.log('Failed to process properties changes '  + req.status);
+		        } else {
+					if (NgChmGui.UTIL.debug) {console.log('200');}
+					NgChmGui.UTIL.stopTimer(document.getElementById('durationTimer'));
+		        	NgChmGui.mapProperties = JSON.parse(req.response);
+					NgChmGui.mapProperties.builder_config.buildCluster = "N";
+		        	if (NgChmGui.UTIL.validSession()) {
+						nextFunction();
+		        	}
+				}
+			};
+		}
+		NgChmGui.UTIL.showLoading();
+		req.send(formData);
+		var totalVals = NgChmGui.UTIL.getTotalClusterValues();
+		if (totalVals >= 1000) {
+			NgChmGui.UTIL.startTimer(document.getElementById('durationTimer'),document.getElementById('durationMins'),document.getElementById('durationSecs'))
+			setTimeout(NgChmGui.UTIL.getClusterStatus, 3000);
+		}
+	} else {
+		NgChmGui.UTIL.reClusterError();
+	}	
+}
+
+/**********************************************************************************
+ * FUNCTION - getClusterStatus: The purpose of this function is to call a servlet
+ * that checks on the status of an ongoing asynchronous clustering process.
+ **********************************************************************************/
+NgChmGui.UTIL.getClusterStatus = function() {
+	var statusDiv = document.getElementById('clusterStatus');
+	var req = new XMLHttpRequest();
+	req.open("GET", "ClusterStatus", true);
+	req.setRequestHeader("Content-Type", "application/json");
+	req.onreadystatechange = function () {
+		if (NgChmGui.UTIL.debug) {console.log('state change');}
+		if (req.readyState == req.DONE) {
+			if (NgChmGui.UTIL.debug) {console.log('done');}
+	        if (req.status != 200) {
+	        	NgChmGui.UTIL.hideLoading();
+	            console.log('Failed to process properties changes '  + req.status);
+	        } else {
+				if (NgChmGui.UTIL.debug) {console.log('200');}
+	        	var clusterReply = JSON.parse(req.response);
+	        	var loaderMsg = document.getElementById("loaderMsg");
+	        	var statusVal = clusterReply.cluster_status;
+	        	NgChmGui.UTIL.processClusterStatus(statusVal)
+	        	if ((statusVal !== 0) || (NgChmGui.UTIL.clusterStatus === 0)) {
+//	        	if (statusVal !== 0) {
+	        		setTimeout(NgChmGui.UTIL.getClusterStatus, 2000);
+	        	}
+			}
+		};
+	}
+	req.send();
+}
+
+/**********************************************************************************
+ * FUNCTION - processClusterStatus: The purpose of this function is to handle the
+ * processing of the cluster status returned from the ClusterStatus servlet. It will
+ * mark steps as completed on the cluster status panel and start/end timers on the
+ * steps layed out in the panel as they change.
+ **********************************************************************************/
+NgChmGui.UTIL.processClusterStatus = function(statusVal) {
+	var rCompSpan = document.getElementById('rCompSpan');
+	var rCompTimer = document.getElementById('rCompTimer');
+	var cCompSpan = document.getElementById('cCompSpan');
+	var completedVal = "<b>COMPLETED</b>";
+	var statusChange = statusVal !== NgChmGui.UTIL.clusterStatus ? true : false;
+	if (statusChange === true) {
+		switch(statusVal) {
+		  case 1:
+			  if (statusChange === true) {
+				  NgChmGui.UTIL.startClusterStep('rComp');
+				  NgChmGui.UTIL.startClusterStep('rDist');
+			  }
+		    break;
+		  case 2:
+			  if (statusChange === true) {
+				  NgChmGui.UTIL.endClusterSteps(['rDist']);
+				  NgChmGui.UTIL.startClusterStep('rClust');
+			  }
+		    break;
+		  case 3:
+			  if (statusChange === true) {
+				  NgChmGui.UTIL.endClusterSteps(['rDist','rClust']);
+				  rCompSpan.innerHTML = completedVal;
+				  rCompSpan.style.color ='green';
+			  }
+			break;
+		  case 4:
+			  if (statusChange === true) {
+				  if (typeof rDistSpan !== 'undefined') {
+					  NgChmGui.UTIL.endClusterSteps(['rDist','rClust','rComp']);
+					  rCompSpan.innerHTML = completedVal;
+					  rCompSpan.style.color ='green';
+				  }
+				  NgChmGui.UTIL.startClusterStep('cComp');
+				  NgChmGui.UTIL.startClusterStep('cDist');
+			  }
+			    break;
+		  case 5:
+			  if (statusChange === true) {
+				  if (typeof rDistSpan !== 'undefined') {
+					  NgChmGui.UTIL.endClusterSteps(['rDist','rClust','rComp']);
+					  rCompSpan.innerHTML = completedVal;
+					  rCompSpan.style.color ='green';
+				  }
+				  NgChmGui.UTIL.endClusterSteps(['cDist']);
+				  NgChmGui.UTIL.startClusterStep('cClust');
+			  }
+			    break;
+		  case 6:
+			  if (statusChange === true) {
+				  if (typeof rDistSpan !== 'undefined') {
+					  NgChmGui.UTIL.endClusterSteps(['rDist','rClust','rComp']);
+					  rCompSpan.innerHTML = completedVal;
+					  rCompSpan.style.color ='green';
+				  }
+				  NgChmGui.UTIL.endClusterSteps(['cDist','cClust','cComp']);
+				  if (cCompSpan !== null) {
+					  cCompSpan.innerHTML = completedVal;
+					  cCompSpan.style.color ='green';
+				  }
+			  }
+			    break;
+		  default:
+		    // do nothing
+		} 	
+	}
+	NgChmGui.UTIL.clusterStatus = statusVal;
+}
+
+/**********************************************************************************
+ * FUNCTION - startClusterStep: The purpose of this function is to start up a 
+ * timer in the cluster status panel as a given step is initiated.
+ **********************************************************************************/
+NgChmGui.UTIL.startClusterStep = function(stepName) {
+	var stepTimer = document.getElementById(stepName+'Timer');
+	document.getElementById(stepName+'Span').style.display ='none';
+	stepTimer.style.display = '';
+	NgChmGui.UTIL.startTimer(stepTimer,document.getElementById(stepName+'Mins'),document.getElementById(stepName+'Secs'));
+}
+
+/**********************************************************************************
+ * FUNCTION - endClusterSteps: The purpose of this function is to end the timer
+ * on any of the array of cluster steps passed in and set their value to FINISHED
+ * colored in green.  Multiple steps are passed in as an array because it is possible
+ * for the status to go several steps between checks (e.g. from 1 to 4) and we want
+ * to close out all finished steps.
+ **********************************************************************************/
+NgChmGui.UTIL.endClusterSteps = function(steps) {
+	for (var i=0; i< steps.length; i++) {
+		var stepName = steps[i];
+		var stepTimer = document.getElementById(stepName+'Timer');
+		if (stepTimer !== null) {
+			NgChmGui.UTIL.stopTimer(stepTimer);
+			stepTimer.style.display ='none';
+		}
+		var stepSpan = document.getElementById(stepName+'Span');
+		if (stepSpan !== null) {
+			var finishedVal = "<b>FINISHED</b>";
+			stepSpan.innerHTML = finishedVal;
+			stepSpan.style.display ='';
+			stepSpan.style.color ='green';
+		}
+	}
+}
+
+/**********************************************************************************
+ * FUNCTION - startTimer: The purpose of this function is to start a timer that 
+ * is displayed on the cluster status panel.
+ **********************************************************************************/
+NgChmGui.UTIL.startTimer = function(timer,mins,secs) {
+	var seconds = 0;
+	timer = setInterval(function() {
+		seconds ++;
+		var secondsDisp = seconds % 60;
+		var minsDisp = parseInt(seconds / 60);
+		if (secondsDisp < 10) {
+			secondsDisp = "0"+secondsDisp;
+		}
+		if (minsDisp < 10) {
+			minsDisp = "0"+minsDisp;
+		}
+		secs.innerText = secondsDisp;
+		mins.innerText = minsDisp;
+	}, 1000);
+}
+
+/**********************************************************************************
+ * FUNCTION - startTimer: The purpose of this function is to stop a timer that 
+ * is displayed on the cluster status panel.
+ **********************************************************************************/
+NgChmGui.UTIL.stopTimer = function (timer) {
+	clearInterval(timer);
 }
 
 /**********************************************************************************

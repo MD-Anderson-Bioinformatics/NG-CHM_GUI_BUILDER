@@ -76,6 +76,8 @@ public class FilterMatrix extends HttpServlet {
 		BufferedReader rdr = new BufferedReader(new FileReader(tmpWorking));
 	    BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
 		
+		Util.logStatus("FilterMatrix - Begin Filter Range Transform for (" + axis + ") axis. ");
+
 	    if (axis.equals("row")) { // row filters
 	    	if (filterMethod.equals("onegreater")) {
 
@@ -327,6 +329,8 @@ public class FilterMatrix extends HttpServlet {
 		BufferedReader rdr = new BufferedReader(new FileReader(tmpWorking));
 	    BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
 		
+		Util.logStatus("FilterMatrix - Begin Filter Variation Transform for (" + axis + ") axis. ");
+
 	    if (axis.equals("row")) { // row filters
 	    	if (filterMethod.equals("std_value")) {
 	    		double threshold = Double.parseDouble(request.getParameter("std_limit"));
@@ -449,6 +453,8 @@ public class FilterMatrix extends HttpServlet {
 		BufferedReader rdr = new BufferedReader(new FileReader(tmpWorking));
 	    BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
 	    
+		Util.logStatus("FilterMatrix - Begin Filter Missing Transform for (" + axis + ") axis. ");
+
 		if (axis.equals("row")) { // row filters
 			String line = rdr.readLine(); //Just write the header
 			out.write(line + "\n");

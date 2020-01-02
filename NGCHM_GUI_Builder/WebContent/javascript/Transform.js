@@ -117,9 +117,11 @@ NgChmGui.TRANS.validateEntries = function(leavingPage, formatError, otherError, 
 	} else {
 		//Generate warning messages
 		if (valid) {
-			var totalVals = NgChmGui.mapProperties.matrixRows+NgChmGui.mapProperties.matrixCols;
-			if (totalVals > 2000) {
-				pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.warningPrefix + "This large matrix (" + NgChmGui.mapProperties.matrixRows + "x" + NgChmGui.mapProperties.matrixCols + ") may take a minute or two to cluster. You may wish to use the Filter action to reduce matrix size.</p>";
+			var totalVals = NgChmGui.UTIL.getTotalClusterValues();
+			if (totalVals >= 3000) {
+				pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.warningPrefix + "This large matrix (" + NgChmGui.mapProperties.matrixRows + "x" + NgChmGui.mapProperties.matrixCols + ") may take a several minutes to cluster. You may wish to use the Filter action to reduce matrix size.</p>";
+			} else if (totalVals >= 1500) {
+				pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.warningPrefix + "This matrix (" + NgChmGui.mapProperties.matrixRows + "x" + NgChmGui.mapProperties.matrixCols + ") may take a minute or two to cluster. You may wish to use the Filter action to reduce matrix size.</p>";
 			}
 			if (NgChmGui.TRANS.matrixInfo.numRows > parseInt(builderConfig.rowsWarning)) {
 				pageText = pageText + NgChmGui.UTIL.warningPrefix + "Your matrix has a large number of rows consider using the Filter action to remove non-informative rows" + NgChmGui.UTIL.nextLine;
@@ -826,8 +828,7 @@ NgChmGui.TRANS.done =  function() {
 			NgChmGui.TRANS.setCluster();
 		}
 		NgChmGui.UTIL.showLoading();
-		NgChmGui.UTIL.setHeatmapProperties(NgChmGui.TRANS.update); 
-	//	NgChmGui.UTIL.buildHeatMap(NgChmGui.TRANS.update); 
+		NgChmGui.UTIL.clusterBuildHeatMap(NgChmGui.TRANS.update);
 	}
 	NgChmGui.TRANS.processTransforms(callbackFunc);
 

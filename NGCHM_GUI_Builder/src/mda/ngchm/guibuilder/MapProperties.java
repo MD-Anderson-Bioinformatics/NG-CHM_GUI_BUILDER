@@ -87,6 +87,7 @@ public class MapProperties extends HttpServlet {
 	        if (new File(workingDir).exists()) {
 		        HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
 		        HeatmapPropertiesManager.Heatmap mapConfig = getConfigDataFromRequest(request);
+				Util.logStatus("MapProperties - Begin setting properties for (" + mapConfig.chm_name + ").");
 		        //Get properties and update them to the new config data
 	        	mgr.setMap(mapConfig);
 		        //Mark properties as "clean" for update.
@@ -119,11 +120,9 @@ public class MapProperties extends HttpServlet {
 				    //Add/update any treecut covariate bars
 			        processTreeCutCovariates(mgr, mapConfig);
 				    if (!mapConfig.builder_config.buildCluster.equals("N")) {
-						System.out.println("START Clustering Matrix: " + new Date()); 
 				        //Re-build the heat map 
 					    Cluster clusterer = new Cluster();
 					    clusterer.clusterHeatMap(workingDir);
-						System.out.println("END Clustering Matrix: " + new Date()); 
 				    }
 				    clusterSuccess = true;
 			    } catch (Exception e) {
@@ -137,6 +136,7 @@ public class MapProperties extends HttpServlet {
 				    builder.buildHeatMap(workingDir);
 			    }
 
+				Util.logStatus("MapProperties - End setting properties for (" + mapConfig.chm_name + ").");
 			    //Return edited props
 	        	propJSON = mgr.load();
 		       	response.setContentType("application/json");
@@ -175,7 +175,7 @@ public class MapProperties extends HttpServlet {
 	    return covarConfig; 
 	}
 
-	private void processTreeCutCovariates(HeatmapPropertiesManager mgr, HeatmapPropertiesManager.Heatmap mapConfig) throws Exception {
+	public void processTreeCutCovariates(HeatmapPropertiesManager mgr, HeatmapPropertiesManager.Heatmap mapConfig) throws Exception {
 	    ProcessCovariate cov = new ProcessCovariate();
 	    ArrayList<Classification> classes = mapConfig.classification_files;
 	    //Remove any existing row tree cut covariate

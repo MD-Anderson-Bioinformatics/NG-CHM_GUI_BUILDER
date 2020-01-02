@@ -3,6 +3,7 @@ NgChmGui.createNS('NgChmGui.CLUSTER');
 NgChmGui.isHalfScreen = true;
 NgChmGui.tileWrite = false;
 
+
 /**********************************************************************************
  * FUNCTION - loadData: This function populates the dropdowns for row
  * and column ordering on the cluster screen.
@@ -207,19 +208,19 @@ NgChmGui.CLUSTER.applyClusterPrefs = function() {
 	return true;
 }
 
-NgChmGui.CLUSTER.applySettings = function(applyFunction, nextFunction) {
+/**********************************************************************************
+ * FUNCTION - applyClusterSettings: This function invokes the application of user
+ * screen preference changes to the heatmapProperties and calls the appropriate
+ * build/cluster function.
+ **********************************************************************************/
+NgChmGui.CLUSTER.applyClusterSettings = function(applyFunction, nextFunction) {
 	if (NgChmGui.UTIL.validSession()) {
 		if (NgChmGui.UTIL.buildProps() === true) {
 			//Reset builder warnings before calling a new build
 			NgChmGui.UTIL.clearBuildErrors();
 			NgChm.SUM.summaryHeatMapCache = {};
 			if (applyFunction()) {
-				if (NgChmGui.CLUSTER.isLongBuild() === true) {
-					NgChmGui.UTIL.clusterHeatMap(nextFunction);
-					console.log("We fired away");
-				} else {
-					NgChmGui.UTIL.setHeatmapProperties(nextFunction);
-				}
+				NgChmGui.UTIL.clusterBuildHeatMap(nextFunction);
 			} else {
 				return;
 			};
@@ -229,81 +230,7 @@ NgChmGui.CLUSTER.applySettings = function(applyFunction, nextFunction) {
 	}
 }
 
-/**********************************************************************************
- * FUNCTION - performLongBuild: The purpose of this function check to see if 
- * clustering will be performed and if that clustering will require a progress 
- * screen.
- **********************************************************************************/
-NgChmGui.CLUSTER.isLongBuild = function() {
-	var props = NgChmGui.mapProperties;
-	var longBuild = false;
-	var buildCluster = props.builder_config.buildCluster
-	if (buildCluster === "B") {
-		if ((props.matrixRows + props.matrixCols) > 1000) {
-			longBuild = true;
-		}
-	} else if (buildCluster === "C") {	
-		if (props.matrixCols > 1000) {
-			longBuild = true;
-		}
-	} else {
-		if (props.matrixRows > 1000) {
-			longBuild = true;
-		}
-	}
-	return longBuild;
-}
 
-NgChmGui.UTIL.clusterHeatMap = function(nextFunction) {
-	var statusDiv = document.getElementById('clusterStatus');
-	var embedDiv = document.getElementById('NGCHMEmbed');
-	var req = new XMLHttpRequest();
-	var formData = JSON.stringify(NgChmGui.mapProperties);  
-	req.open("POST", "Cluster", true);
-	req.setRequestHeader("Content-Type", "application/json");
-	req.onreadystatechange = function () {
-		if (NgChmGui.UTIL.debug) {console.log('state change');}
-		if (req.readyState == req.DONE) {
-//			statusDiv.style.display = 'none';
-//			embedDiv.style.display = 'flex';
-			if (NgChmGui.UTIL.debug) {console.log('done');}
-	        if (req.status != 200) {
-	        	NgChmGui.UTIL.hideLoading();
-	            console.log('Failed to process properties changes '  + req.status);
-	        } else {
-				if (NgChmGui.UTIL.debug) {console.log('200');}
-	        	NgChmGui.mapProperties = JSON.parse(req.response);
-				NgChmGui.mapProperties.builder_config.buildCluster = "N";
-				NgChmGui.UTIL.setHeatmapProperties(nextFunction);
-			}
-		};
-	}
-	NgChmGui.UTIL.showLoading();
-	//statusDiv.style.display = '';
-	//embedDiv.style.display = 'none';
-	req.send(formData);
-}
-/*
-NgChmGui.UTIL.getClusterStatus = function(nextFunction) {
-	var statusDiv = document.getElementById('clusterStatus');
-	var req = new XMLHttpRequest();
-	var formData = JSON.stringify(NgChmGui.mapProperties);  
-	req.open("GET", "ClusterStatus", true);
-	req.setRequestHeader("Content-Type", "application/json");
-	req.onreadystatechange = function () {
-		if (NgChmGui.UTIL.debug) {console.log('state change');}
-		if (req.readyState == req.DONE) {
-			if (NgChmGui.UTIL.debug) {console.log('done');}
-	        if (req.status != 200) {
-	        	NgChmGui.UTIL.hideLoading();
-	            console.log('Failed to process properties changes '  + req.status);
-	        } else {
-				if (NgChmGui.UTIL.debug) {console.log('200');}
-	        	NgChmGui.mapProperties = JSON.parse(req.response);
-			}
-		};
-	}
-	req.send(formData);
-}
-*/
+
+
 
