@@ -816,8 +816,7 @@ NgChmGui.FILE.MatrixFile = function() {
 			        	dataTable = Object.keys(topMatrixString).map(function(k) { return topMatrixString[k] });
 			        	reloadGridFromConfig();
 			        	NgChmGui.FILE.validateEntries(false);
-			        	loadDataFromFile();
-						NgChmGui.UTIL.hideLoading();
+					NgChmGui.UTIL.hideLoading();
 		    		}
 			    }
 			}
