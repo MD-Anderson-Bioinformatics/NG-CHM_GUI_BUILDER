@@ -38,6 +38,7 @@
 	  		</div>
 	 		<div id="helpDiv"><img id='barHelp_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this,1);' src='images/questionMark.png' alt='Open Help Page' onclick='NgChmGui.UTIL.helpBox("Transform");' align="top"/></div> 
 	    </div>   
+	<div style="flex: 1 1; min-height: 0px;">
      	<div id="TransformDisplayContainer" class="display_container" style="position: relative">
  	 		<div id="transforms" class="data_entry_container">
 		 		<div id='optionsMode' align='right' class='chmTR'><b>Show Advanced Features:</b><input type='checkbox' id='optionsCheck' name='optionsCheck' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onclick='NgChmGui.UTIL.toggleAdvanced();NgChmGui.TRANS.setAdvanced();'></div>
@@ -369,7 +370,8 @@
 			        	</div>   
 		        	</div>
 			</div>
-	        <div id="trans_data" class="layout_display_container" style="height: 80%">
+	        <div id="trans_data" class="layout_display_container">
+			<div class="screenNotesContainer">
 	        		<div class="screenNotesLeft">
 	        			<div id="screenNotesDisplay"></div>
 	        		</div>
@@ -378,7 +380,7 @@
 							<img id='dowloadMatrix_btn' src='images/buttonGetMatrix.png' alt='Download Edited Matrix' onclick='NgChmGui.TRANS.downloadMatrix();' />
 						</div>
 					</div>
-	        	<br>
+			</div>
 	        	<div id="stats_wrapper" style="padding:8px;width:100%;display:inline-flex">
 	        	
 			     	<div id="matrix_stats" style="float: left;">
@@ -414,8 +416,11 @@
 			    	</div>
 			    	
 		    	</div>
+			<div id="matrixDisplayContainer" style="flex: 1 1; min-height: 0px; padding: 8px;">
 		        <div id="transMatrixDisplay" style="display: none; "></div>		    
+			</div>
 	        </div>
+		</div>
 		</div>
 		<div id="message" style="display: none; position: absolute; background-color: rgb(230, 240, 255);"></div>
 		<div id="helpBox" style="display: none; position: absolute; background-color: rgb(230, 240, 255);">

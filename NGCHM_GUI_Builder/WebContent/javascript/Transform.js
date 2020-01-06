@@ -228,7 +228,7 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 	        	matrixBox.style.display = '';
 	        	matrixDisplayBox.style.display = '';
 	        	dataTable = Object.keys(topMatrixString).map(function(k) { return topMatrixString[k] });
-	        	loadDataFromFile();
+			var resizeHotTable = loadDataFromFile();
 	        	
 	        	//set up histogram graphs	        	
 	        	setHistoGraph(document.getElementById("histo_canvas"), NgChmGui.TRANS.matrixInfo.histoBins, NgChmGui.TRANS.matrixInfo.histoCounts, true);
@@ -237,6 +237,7 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 	        	
 	        	NgChmGui.TRANS.validateEntries(false);
 	        	NgChmGui.UTIL.hideLoading();
+			resizeHotTable();
 		    }
 		}
 	};
@@ -292,6 +293,8 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 			        return cellProperties;
 			      }
 		    });
+		    Handsontable.dom.removeEvent (window, 'resize', resizeHotTable);
+		    Handsontable.dom.addEvent (window, 'resize', resizeHotTable);
 		    //This statement fills the table view with colors (blue for labels/green for data)
     	    for(var i = 0; i < hot.countRows(); i++){
     		    for(var j = 0; j < hot.countCols(); j++){
@@ -307,6 +310,16 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
     			}
     	    }
 	        hot.render();
+		return resizeHotTable;
+
+		    function resizeHotTable () {
+			const mdc = document.getElementById ("matrixDisplayContainer");
+			const wth = document.querySelector ("#matrixDisplayContainer .ht_master .wtHider");
+			hot.updateSettings ({
+			    width: Math.min(wth.clientWidth + 20, mdc.clientWidth - 16),
+			    height: Math.min(wth.clientHeight + 20, mdc.clientHeight - 16)
+			});
+		    }
 	}
 }
 

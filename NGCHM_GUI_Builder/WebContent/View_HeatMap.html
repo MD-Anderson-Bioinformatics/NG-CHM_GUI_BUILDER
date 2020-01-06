@@ -38,8 +38,9 @@
 	  		</div>
 	 		<div id="helpDiv"><img id='barHelp_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this,1);' src='images/questionMark.png' alt='Open Help Page' onclick='NgChmGui.UTIL.helpBox("Heatmap");' align="top"/></div> 
 	    </div>   
-       	<div id="FormatDisplayContainer" class="display_container" style="position: relative">
-	 		<div id="formatSelection" class="data_entry_container" style="width: 15%">
+	<div style="flex: 1 1; min-height: 0px;">
+	    <div id="FormatDisplayContainer" class="display_container" style="position: relative">
+		<div id="formatSelection" class="data_entry_container" style="width: 15%">
 	 			<br>
         		<div class="image-container">
 					<img id='downloadMap_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/getNgchmFileButton.png' alt='Download the heat map to NG-CHM file' onclick='NgChmGui.MAP.downloadMap();' />
@@ -75,26 +76,28 @@
 			        </div>  
 		        </div>
  		    </div>			
-	        <div id="heatMapView" class="layout_display_container" style="width: 85%;">
+	        <div id="heatMapView" class="layout_display_container collapsed" style="overflow:hidden;">
  			<div class="screenNotesContainer">
 	        		<div class="screenNotesLeft">
 	        			<div id="screenNotesDisplay"></div>
 	        		</div>
-				    <div class="screenNotesRight">
-				   		<div id='expandMap' class="image-container" style="right: 0px">
-							<img id='expandMap_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this,1);' src='images/buttonExpandMap.png' alt='Enlarge Heat Map to Full Screen' onclick='NgChmGui.MAP.expandMap();' />
-						</div>
+				<div class="screenNotesRight">
+					<div style="flex: 1 1; min-height: 0px;"></div>
+					<div id='expandMap' class="image-container" style="right: 0px">
+						<img id='expandMap_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this,1);' src='images/buttonExpandMap.png' alt='Enlarge Heat Map to Full Screen' onclick='NgChmGui.MAP.expandMap();' />
 					</div>
-				</div>   
-	      		<div id='collapseMap' class="image-container" style="display: none">
-					<img id='collapseMap_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this,1);' src='images/buttonCollapseMap.png' alt='Return Heat Map to Original Size' onclick='NgChmGui.MAP.collapseMap();' />
+					<div id='collapseMap' class="image-container" style="display: none">
+						<img id='collapseMap_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this,1);' src='images/buttonCollapseMap.png' alt='Return Heat Map to Original Size' onclick='NgChmGui.MAP.collapseMap();' />
+					</div>
 				</div>
-				<div id='NGCHMEmbed' style="display: flex; flex-direction: column; background-color: white; height: 88%; width: 95%; padding-left: 20px"></div>
-				<script src='javascript/ngchmWidget-min.js'></script>
 			</div>
+			<div id='NGCHMEmbed' class="collapsed"></div>
+			<script src='javascript/ngchmWidget-min.js'></script>
+		</div>
 		</div>   		
-		<div id="message" style="display: none; position: absolute; background-color: rgb(230, 240, 255);"></div>
-		<div id="helpBox" style="display: none; position: absolute; background-color: rgb(230, 240, 255);">
+	</div>
+	<div id="message" style="display: none; position: absolute; background-color: rgb(230, 240, 255);"></div>
+	<div id="helpBox" style="display: none; position: absolute; background-color: rgb(230, 240, 255);">
 			<div class="helpBoxHdr" id="helpBoxHdr"></div>
 			<table>
 				<tbody>

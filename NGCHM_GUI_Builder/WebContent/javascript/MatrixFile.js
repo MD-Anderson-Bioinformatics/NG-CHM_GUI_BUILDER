@@ -396,6 +396,7 @@ NgChmGui.FILE.MatrixFile = function() {
 		    var hot = new Handsontable(container, {
 				data: getData(),
 				stretchH: 'all',
+				maxRows: 21,
 			    cells: function(row, col, prop) {
 			        var cellProperties = {};
 			        cellProperties.editor = false; 
@@ -470,16 +471,29 @@ NgChmGui.FILE.MatrixFile = function() {
 				clearAllSelections(hot);
 				NgChmGui.matrixFile.setChangedState(true);
 				setAllSelections(hot,changeType);
+			resizeHotTable();
 		        hot.render();
 		      },hot);
 
+		    Handsontable.dom.removeEvent (window, 'resize', resizeHotTable);
+		    Handsontable.dom.addEvent (window, 'resize', resizeHotTable);
 		    Handsontable.dom.addEvent(window, 'hashchange', function(event){
 			hot.loadData(getData());
 			
 	    });
 		setAllSelections(hot,'lab');
+	resizeHotTable();
         hot.render();
 		return hot;
+
+		    function resizeHotTable () {
+			const mdc = document.getElementById ("matrixDisplayContainer");
+			const wth = document.querySelector ("#matrixDisplayContainer .ht_master .wtHider");
+			hot.updateSettings ({
+			    width: Math.min(wth.clientWidth + 20, mdc.clientWidth - 16),
+			    height: Math.min(wth.clientHeight + 20, mdc.clientHeight - 16)
+			});
+		    }
 	}
 
 	/**********************************************************************************
