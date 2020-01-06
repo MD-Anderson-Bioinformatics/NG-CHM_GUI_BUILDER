@@ -617,7 +617,7 @@ NgChmGui.FORMAT.loadColorPreviewDiv = function(ctr){
 		gradient += ")";
 		var wrapper = document.getElementById("previewWrapper");
 		var bins = new Array(10+1).join('0').split('').map(parseFloat); // make array of 0's to start the counters
-		var breaks = new Array(9+1).join('0').split('').map(parseFloat);
+		var breaks = new Array(10+1).join('0').split('').map(parseFloat);
 		for (var i=0; i <breaks.length;i++){
 			breaks[i]+=lowBP+diff/(breaks.length-1)*i; // array of the breakpoints shown in the preview div
 		}
@@ -665,11 +665,10 @@ NgChmGui.FORMAT.loadColorPreviewDiv = function(ctr){
 		graph.gradient = false;
 		bins.unshift(nan);
 		var colors = new Array(bins.length);
-		for (var i = 0; i < breaks.length; i++){
-			colors[i+1] = cm.getRgbToHex(cm.getColor(breaks[i]));
+		for (var i = 1; i < breaks.length+1; i++){
+			colors[i] = cm.getRgbToHex(cm.getColor(breaks[i-1]));
 		}
 		colors[0] = cm.getMissingColor();
-		colors[colors.length-1] = colors[colors.length-2];
 		var breaksLabel = new Array(bins.length+1).join(' ').split('');
 		
 		breaksLabel[0] = "NA";
