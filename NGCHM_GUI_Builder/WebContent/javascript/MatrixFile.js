@@ -836,6 +836,7 @@ NgChmGui.FILE.pageText1 = "NG-CHM heat maps require a tab delimited text file wi
 NgChmGui.FILE.pageText2 = "The builder needs to know where the row labels, column labels, matrix data, and covariate data (if included) are located in the uploaded file.  The labels should be blue and data should be green.  If not select from the following controls and click on the grid to indicate the location of labels, covariate bars, and the location at which the matrix data begins in the imported file.";
 
 NgChmGui.FILE.invalidMatrix = function(errMsg) {
+	NgChmGui.UTIL.hideLoading();
 	var pageText = "";
 	pageText = pageText + "<b><font color='red'>" + errMsg + "</font></b>" + NgChmGui.UTIL.nextLine;
 	if (NgChmGui.matrixFile.isLoaded()){

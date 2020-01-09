@@ -273,6 +273,9 @@ public class ProcessMatrix extends HttpServlet {
 					int startPoint = matrixConfig.dataStartCol;
 					if (rowNum == matrixConfig.rowLabelRow) {
 						int stopPoint = toks.length;
+						if (rowNum == 0) {
+							stopPoint = (toks[toks.length - 1].trim().equals("")) ? toks.length - 1 : toks.length;
+						}
 						longLabels[1] = getLongestColLabel(matrixConfig, toks);
 						lengthValidator = toks.length; 
 						if (((toks.length + 1) == endPoint) || (toks[(toks.length-1)].equals(""))) {
@@ -280,7 +283,6 @@ public class ProcessMatrix extends HttpServlet {
 								lengthValidator++;
 							}
 							startPoint = startPoint - 1;
-							stopPoint = stopPoint - 1;
 							writer.write(" " + "\t");
 						}
 						writeOutMatrixRow(startPoint, stopPoint, matrixConfig.colLabelCol, writer, toks, matrixErrors, true); 
