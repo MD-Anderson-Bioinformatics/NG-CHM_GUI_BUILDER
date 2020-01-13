@@ -64,6 +64,9 @@ public class ProcessTransforms extends HttpServlet {
 	        HeatmapPropertiesManager.BuilderConfig builder_config = map.builder_config;
 	        builder_config.transform_config = transformConfig;
 			mgr.save();
+		    String propJSON = "{}";
+		    propJSON = mgr.load();
+		    response.getWriter().write(propJSON.toString());
 
 	    } catch (Exception e) {
 	        writer.println("Error creating initial heat map properties.");

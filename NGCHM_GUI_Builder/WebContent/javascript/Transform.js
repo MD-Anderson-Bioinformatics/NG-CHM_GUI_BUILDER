@@ -123,13 +123,6 @@ NgChmGui.TRANS.validateEntries = function(leavingPage, formatError, otherError, 
 			} else if (totalVals >= 1500) {
 				pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.warningPrefix + "This matrix (" + NgChmGui.mapProperties.matrixRows + "x" + NgChmGui.mapProperties.matrixCols + ") may take a minute or two to cluster. You may wish to use the Filter action to reduce matrix size.</p>";
 			}
-			if (NgChmGui.TRANS.matrixInfo.numRows > parseInt(builderConfig.rowsWarning)) {
-				pageText = pageText + NgChmGui.UTIL.warningPrefix + "Your matrix has a large number of rows consider using the Filter action to remove non-informative rows" + NgChmGui.UTIL.nextLine;
-			}	
-	
-			if (NgChmGui.TRANS.matrixInfo.numCols > parseInt(builderConfig.colsWarning)) {
-				pageText = pageText + NgChmGui.UTIL.warningPrefix + "Your matrix has a large number of columns consider using the Filter action to remove non-informative rows" + NgChmGui.UTIL.nextLine;
-			}	
 		}
 	}
 	if (otherWarning && otherWarning !== "") {
@@ -823,15 +816,11 @@ NgChmGui.TRANS.done =  function() {
 	if (!NgChmGui.TRANS.validateEntries(true))
 		return;
 	
-	var callbackFunc = function(){
-		if (NgChmGui.TRANS.changeApplied === true) {
-			NgChmGui.TRANS.setCluster();
-		}
-		NgChmGui.UTIL.showLoading();
-		NgChmGui.UTIL.clusterBuildHeatMap(NgChmGui.TRANS.update);
+	if (NgChmGui.TRANS.changeApplied === true) {
+		NgChmGui.TRANS.setCluster();
 	}
-	NgChmGui.TRANS.processTransforms(callbackFunc);
-
+	NgChmGui.UTIL.showLoading();
+	NgChmGui.UTIL.clusterBuildHeatMap(NgChmGui.TRANS.update);
 }
 
 NgChmGui.TRANS.setCluster = function() {
@@ -868,6 +857,7 @@ NgChmGui.TRANS.processTransforms = function(callback){
 	        	NgChmGui.UTIL.hideLoading();
 	            console.log('Failed to process matrix '  + req.status);
 	        } else {
+	        	NgChmGui.mapProperties = JSON.parse(req.response);
 				if (NgChmGui.UTIL.debug) {console.log('200');}
 				if (callback){
 					callback();

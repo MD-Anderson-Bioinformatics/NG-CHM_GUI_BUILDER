@@ -723,7 +723,7 @@ NgChmGui.UTIL.buildClusterDiv = function(msg) {
 	NgChmGui.UTIL.setTableRow(clusterContents,["Please be patient and do NOT refresh this page..."],2);
 	NgChmGui.UTIL.addBlankRow(clusterContents);
 	if ((clusterProp === "R") || (clusterProp === "B")) {
-		NgChmGui.UTIL.setTableRow(clusterContents,["&nbsp;&nbsp;CLUSTERING ROWS: ","&nbsp;&nbsp;"]);
+		NgChmGui.UTIL.setTableRow(clusterContents,["&nbsp;&nbsp;CLUSTERING " + NgChmGui.mapProperties.matrixRows + " ROWS: ","&nbsp;&nbsp;"]);
 		NgChmGui.UTIL.setTableRow(clusterContents,["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Computing Distance: ",rDistSpan+rDistTimer]);
 		NgChmGui.UTIL.setTableRow(clusterContents,["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Clustering Axis: ",rClustSpan+rClustTimer]);
 		NgChmGui.UTIL.setTableRow(clusterContents,["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Row Clustering: ",rCompSpan+rCompTimer]);
@@ -732,7 +732,7 @@ NgChmGui.UTIL.buildClusterDiv = function(msg) {
 		NgChmGui.UTIL.addBlankRow(clusterContents);
 	}
 	if ((clusterProp === "C") || (clusterProp === "B")) {
-		NgChmGui.UTIL.setTableRow(clusterContents,["&nbsp;&nbsp;CLUSTERING COLUMNS: ","&nbsp;&nbsp;"]);
+		NgChmGui.UTIL.setTableRow(clusterContents,["&nbsp;&nbsp;CLUSTERING " + NgChmGui.mapProperties.matrixCols + " COLUMNS: ","&nbsp;&nbsp;"]);
 		NgChmGui.UTIL.setTableRow(clusterContents,["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Computing Distance: ",cDistSpan+cDistTimer]);
 		NgChmGui.UTIL.setTableRow(clusterContents,["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Clustering Axis: ",cClustSpan+cClustTimer]);
 		NgChmGui.UTIL.setTableRow(clusterContents,["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Column Clustering: ",cCompSpan+cCompTimer]);
