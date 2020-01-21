@@ -282,7 +282,7 @@ NgChmGui.COV.setupCovariatePanel = function(classItem,classIdx) {
 	classDiv.className = 'preferencesSubPanel';
 	var classContents = document.createElement("TABLE"); 
 	NgChmGui.UTIL.addBlankRow(classContents);
-	var colorTypeOptionsSelect = "<select name='colorType_"+key+"' id='colorType_"+key+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.UTIL.setBuildProps(false);'>"; 
+	var colorTypeOptionsSelect = "<select name='colorType_"+key+"' id='colorType_"+key+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.COV.toggleColorTypeProperties(&quot;"+key+"&quot;);'>"; 
 	var colorTypeOptions = "<option value='continuous'>Continuous</option><option value='discrete'>Discrete</option></select>";
 	colorTypeOptionsSelect = colorTypeOptionsSelect+colorTypeOptions;
 	var barTypeOptionsSelect = "<select name='barType_"+key+"' id='barType_"+key+"' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.COV.togglePlotTypeProperties(&quot;"+key+"&quot;)'>"; 
@@ -496,6 +496,7 @@ NgChmGui.COV.addCovariateBar = function(nextFunction) {
 		NgChmGui.COV.validateEntries(false, "Missing Color Type entry for new covariate: "+covNameValue+". Please select a color type (discrete/continuous).<br>");
 		return;
 	}
+	document.getElementById('covUploadApply_btn').style.display = 'none';
 	//Proceed
 	var formData = new FormData( document.getElementById("covar_add") );
 	req.open("POST", "UploadCovariate", true);
@@ -907,6 +908,36 @@ NgChmGui.COV.togglePlotTypeProperties = function(key) {
 	} else {
 		cbDiv.style.display="none";
 		bbDiv.style.display="block";
+	}
+	NgChmGui.UTIL.setBuildProps(false);
+}
+
+/**********************************************************************************
+ * FUNCTION - toggleColorTypeProperties: This function will be executed when the user
+ * selects color type (e.g. discrete or continuous).  Its purpose is to handle the 
+ * scenario where a user changes a continuous bar to discrete. It will toggle any
+ * continuous specific panels off and set the bar type value to color_plot.  This 
+ * is done because discrete bars cannot have any other bar type.
+ **********************************************************************************/
+NgChmGui.COV.toggleColorTypeProperties = function(keyItem) {
+	var colorType = document.getElementById("colorType_"+keyItem);
+	var colorTypeVal = colorType.value;
+	var bbDiv = document.getElementById("breakPrefsBp_"+keyItem);
+	var cbDiv = document.getElementById("breakPrefsCp_"+keyItem);
+	if (colorTypeVal === 'discrete') {
+		var classBars = NgChmGui.mapProperties.classification_files;
+		for (var key in classBars) {
+			var classItem = classBars[key];
+			var classKey =  NgChmGui.COV.getClassKey(classItem);
+			if (classKey === keyItem) {
+				classItem.bar_type = "color_plot";
+			}
+		}
+		var barType = document.getElementById("barType_"+keyItem);
+		barType.value = "color_plot";
+		barType.disabled = true;
+		bbDiv.style.display="none";
+		cbDiv.style.display="block";
 	}
 	NgChmGui.UTIL.setBuildProps(false);
 }

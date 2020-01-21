@@ -28,15 +28,16 @@ public class FilterMatrix extends HttpServlet {
 		response.setContentType("application/json;charset=UTF-8");
 		
 	    final PrintWriter writer = response.getWriter();
+    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
+    	workingDir = workingDir + "/" + mySession.getId();
+	    String matrixFile = workingDir  + "/workingMatrix.txt";
 
 	    try {
-	    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
-	    	workingDir = workingDir + "/" + mySession.getId();
 	        HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
 		    String propJSON = "{}";
 	        File propFile = new File(workingDir + "/heatmapProperties.json");
 	        if (propFile.exists()) {
-			    String matrixFile = workingDir  + "/workingMatrix.txt";
+				Util.backupWorking(matrixFile);
 			    String filter = request.getParameter("Filter");
 			    if (filter.equals("Range")){
 			    	filterRange(matrixFile, request);
@@ -52,9 +53,15 @@ public class FilterMatrix extends HttpServlet {
 	    	response.getWriter().write(propJSON.toString());
 	    	response.flushBuffer();
 	    } catch (Exception e) {
-	        writer.println("Error correcting matrix.");
-	        writer.println("<br/> ERROR: " + e.getMessage());
-
+	    	try {
+	    		Util.restoreWorking(matrixFile);
+	    	} catch (Exception f) {
+	    		//do nothing
+	    	}
+	    	String errmsg = e.getMessage().trim();
+	    	if (errmsg.length() < 3 ) { errmsg ="";} else {errmsg = errmsg + ".";}
+        	String errJSON = "{\"error\": \"The selected filter could not be applied to your matrix. "+ errmsg +"\"}";
+	        writer.println(errJSON);
 	    } finally {
 	        if (writer != null) {
 	            writer.close();
@@ -66,10 +73,7 @@ public class FilterMatrix extends HttpServlet {
 		doGet(request, response);
 	}
 
-   
-
 	private void filterRange(String matrixFile, HttpServletRequest request) throws Exception {
-		Util.backupWorking(matrixFile);
 		String tmpWorking = Util.copyWorkingToTemp(matrixFile);
 		String axis = request.getParameter("rrowcol");
 		String filterMethod = request.getParameter("rfiltermethod");
@@ -77,252 +81,257 @@ public class FilterMatrix extends HttpServlet {
 	    BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
 		
 		Util.logStatus("FilterMatrix - Begin Filter Range Transform for (" + axis + ") axis. ");
-
-	    if (axis.equals("row")) { // row filters
-	    	if (filterMethod.equals("onegreater")) {
-
-				String line = rdr.readLine(); //Just write the header
-				out.write(line + "\n");
-				line = rdr.readLine();
-				double threshold = Double.parseDouble(request.getParameter("1range_max"));
-				while (line != null ){
-					String toks[] = line.split("\t",-1);
-					StringBuffer outLine = new StringBuffer();
-					outLine.append(toks[0]);
-					boolean skip = false;
-					for (int i = 1; i < toks.length; i++) {
-						if (Util.isNumeric(toks[i])) {
-							if (Double.parseDouble(toks[i]) > threshold){
-								skip = true;
-								break;
-							}	
+		try {
+		    if (axis.equals("row")) { // row filters
+		    	if (filterMethod.equals("onegreater")) {
+	
+					String line = rdr.readLine(); //Just write the header
+					out.write(line + "\n");
+					line = rdr.readLine();
+					double threshold = Double.parseDouble(request.getParameter("1range_max"));
+					while (line != null ){
+						String toks[] = line.split("\t",-1);
+						StringBuffer outLine = new StringBuffer();
+						outLine.append(toks[0]);
+						boolean skip = false;
+						for (int i = 1; i < toks.length; i++) {
+							if (Util.isNumeric(toks[i])) {
+								if (Double.parseDouble(toks[i]) > threshold){
+									skip = true;
+									break;
+								}	
+							}
+							outLine.append("\t" + toks[i]);
 						}
-						outLine.append("\t" + toks[i]);
+						if (!skip){
+							out.write(outLine.toString() + "\n");
+						}
+						line = rdr.readLine();
+					}	
+				} else if (filterMethod.equals("oneless")) {
+	
+					String line = rdr.readLine(); //Just write the header
+					out.write(line + "\n");
+					line = rdr.readLine();
+					double threshold = Double.parseDouble(request.getParameter("1range_min"));
+					while (line != null ){
+						String toks[] = line.split("\t",-1);
+						StringBuffer outLine = new StringBuffer();
+						outLine.append(toks[0]);
+						boolean skip = false;
+						for (int i = 1; i < toks.length; i++) {
+							if (Util.isNumeric(toks[i])) {
+								if (Double.parseDouble(toks[i]) < threshold){
+									skip = true;
+									break;
+								}	
+							}
+							outLine.append("\t" + toks[i]);
+						}
+						if (!skip){
+							out.write(outLine.toString() + "\n");
+						}
+						line = rdr.readLine();
+					}	
+				} else if (filterMethod.equals("allgreater")) {
+	
+					String line = rdr.readLine(); //Just write the header
+					out.write(line + "\n");
+					line = rdr.readLine();
+					double threshold = Double.parseDouble(request.getParameter("arange_max"));
+					while (line != null ){
+						String toks[] = line.split("\t",-1);
+						StringBuffer outLine = new StringBuffer();
+						outLine.append(toks[0]);
+						boolean skip = true;
+						for (int i = 1; i < toks.length; i++) {
+							if (Util.isNumeric(toks[i])) {
+								if (Double.parseDouble(toks[i]) < threshold){
+									skip = false;
+									break;
+								}	
+							}
+						}
+						if (!skip){
+							out.write(line.toString() + "\n");
+						}
+						line = rdr.readLine();
+					}	
+				} else if (filterMethod.equals("allless")) {
+	
+					String line = rdr.readLine(); //Just write the header
+					out.write(line + "\n");
+					line = rdr.readLine();
+					double threshold = Double.parseDouble(request.getParameter("arange_min"));
+					while (line != null ){
+						String toks[] = line.split("\t",-1);
+						StringBuffer outLine = new StringBuffer();
+						outLine.append(toks[0]);
+						boolean skip = true;
+						for (int i = 1; i < toks.length; i++) {
+							if (Util.isNumeric(toks[i])) {
+								if (Double.parseDouble(toks[i]) > threshold){
+									skip = false;
+									break;
+								}	
+							}
+						}
+						if (!skip){
+							out.write(line.toString() + "\n");
+						}
+						line = rdr.readLine();
 					}
-					if (!skip){
+				} else if (filterMethod.equals("oneval")) {
+	
+					String line = rdr.readLine(); //Just write the header
+					out.write(line + "\n");
+					line = rdr.readLine();
+					double threshold = Double.parseDouble(request.getParameter("range_max"));
+					while (line != null ){
+						String toks[] = line.split("\t",-1);
+						StringBuffer outLine = new StringBuffer();
+						outLine.append(toks[0]);
+						boolean skip = true;
+						for (int i = 1; i < toks.length; i++) {
+							if (Util.isNumeric(toks[i])) {
+								if (Double.parseDouble(toks[i]) > threshold){
+									skip = false;
+									break;
+								}	
+							}
+						}
+						if (!skip){
+							out.write(line.toString() + "\n");
+						}
+						line = rdr.readLine();
+					}
+				}
+		    } else if (axis.equals("col")) {
+		    	if (filterMethod.equals("onegreater")) {
+		    		float[] maxs = getColMaxs(tmpWorking);
+		    		double threshold = Double.parseDouble(request.getParameter("1range_max"));
+		    		boolean[] skip = new boolean[maxs.length];
+		    		for (int i = 1; i < maxs.length; i++){
+		    			if (maxs[i] > threshold){
+		    				skip[i] = true;
+		    			}
+		    		}
+		    		String line = rdr.readLine();
+					while (line != null ){
+						String toks[] = line.split("\t",-1);
+						StringBuffer outLine = new StringBuffer();
+						outLine.append(toks[0]);
+						for (int i = 1; i < toks.length; i++) {
+							if (!skip[i]){ 
+								outLine.append("\t" + toks[i]);
+							}
+						}
 						out.write(outLine.toString() + "\n");
-					}
-					line = rdr.readLine();
-				}	
-			} else if (filterMethod.equals("oneless")) {
-
-				String line = rdr.readLine(); //Just write the header
-				out.write(line + "\n");
-				line = rdr.readLine();
-				double threshold = Double.parseDouble(request.getParameter("1range_min"));
-				while (line != null ){
-					String toks[] = line.split("\t",-1);
-					StringBuffer outLine = new StringBuffer();
-					outLine.append(toks[0]);
-					boolean skip = false;
-					for (int i = 1; i < toks.length; i++) {
-						if (Util.isNumeric(toks[i])) {
-							if (Double.parseDouble(toks[i]) < threshold){
-								skip = true;
-								break;
-							}	
+						line = rdr.readLine();
+					}	
+				} else if (filterMethod.equals("oneless")) {
+					float[] mins = getColMins(tmpWorking);
+		    		double threshold = Double.parseDouble(request.getParameter("1range_min"));
+		    		boolean[] skip = new boolean[mins.length];
+		    		for (int i = 1; i < mins.length; i++){
+		    			if (mins[i] < threshold){
+		    				skip[i] = true;
+		    			}
+		    		}
+		    		String line = rdr.readLine();
+					while (line != null ){
+						String toks[] = line.split("\t",-1);
+						StringBuffer outLine = new StringBuffer();
+						outLine.append(toks[0]);
+						for (int i = 1; i < toks.length; i++) {
+							if (!skip[i]){ 
+								outLine.append("\t" + toks[i]);
+							}
 						}
-						outLine.append("\t" + toks[i]);
-					}
-					if (!skip){
 						out.write(outLine.toString() + "\n");
+						line = rdr.readLine();
 					}
-					line = rdr.readLine();
-				}	
-			} else if (filterMethod.equals("allgreater")) {
-
-				String line = rdr.readLine(); //Just write the header
-				out.write(line + "\n");
-				line = rdr.readLine();
-				double threshold = Double.parseDouble(request.getParameter("arange_max"));
-				while (line != null ){
-					String toks[] = line.split("\t",-1);
-					StringBuffer outLine = new StringBuffer();
-					outLine.append(toks[0]);
-					boolean skip = true;
-					for (int i = 1; i < toks.length; i++) {
-						if (Util.isNumeric(toks[i])) {
-							if (Double.parseDouble(toks[i]) < threshold){
-								skip = false;
-								break;
-							}	
+				} else if (filterMethod.equals("allgreater")) {
+					float[] mins = getColMins(tmpWorking);
+		    		double threshold = Double.parseDouble(request.getParameter("arange_max"));
+		    		boolean[] skip = new boolean[mins.length];
+		    		for (int i = 1; i < mins.length; i++){
+		    			if (mins[i] > threshold){
+		    				skip[i] = true;
+		    			}
+		    		}
+		    		String line = rdr.readLine();
+					while (line != null ){
+						String toks[] = line.split("\t",-1);
+						StringBuffer outLine = new StringBuffer();
+						outLine.append(toks[0]);
+						for (int i = 1; i < toks.length; i++) {
+							if (!skip[i]){ 
+								outLine.append("\t" + toks[i]);
+							}
 						}
+						out.write(outLine.toString() + "\n");
+						line = rdr.readLine();
 					}
-					if (!skip){
-						out.write(line.toString() + "\n");
-					}
-					line = rdr.readLine();
-				}	
-			} else if (filterMethod.equals("allless")) {
-
-				String line = rdr.readLine(); //Just write the header
-				out.write(line + "\n");
-				line = rdr.readLine();
-				double threshold = Double.parseDouble(request.getParameter("arange_min"));
-				while (line != null ){
-					String toks[] = line.split("\t",-1);
-					StringBuffer outLine = new StringBuffer();
-					outLine.append(toks[0]);
-					boolean skip = true;
-					for (int i = 1; i < toks.length; i++) {
-						if (Util.isNumeric(toks[i])) {
-							if (Double.parseDouble(toks[i]) > threshold){
-								skip = false;
-								break;
-							}	
+				} else if (filterMethod.equals("allless")) {
+					float[] maxs = getColMaxs(tmpWorking);
+		    		double threshold = Double.parseDouble(request.getParameter("arange_min"));
+		    		boolean[] skip = new boolean[maxs.length];
+		    		for (int i = 1; i < maxs.length; i++){
+		    			if (maxs[i] < threshold){
+		    				skip[i] = true;
+		    			}
+		    		}
+		    		String line = rdr.readLine();
+					while (line != null ){
+						String toks[] = line.split("\t",-1);
+						StringBuffer outLine = new StringBuffer();
+						outLine.append(toks[0]);
+						for (int i = 1; i < toks.length; i++) {
+							if (!skip[i]){ 
+								outLine.append("\t" + toks[i]);
+							}
 						}
+						out.write(outLine.toString() + "\n");
+						line = rdr.readLine();
 					}
-					if (!skip){
-						out.write(line.toString() + "\n");
-					}
-					line = rdr.readLine();
+				} else if (filterMethod.equals("oneval")) {
+					float[] maxs = getColMaxs(tmpWorking);
+		    		double threshold = Double.parseDouble(request.getParameter("range_max"));
+		    		boolean[] skip = new boolean[maxs.length];
+		    		for (int i = 1; i < maxs.length; i++){
+		    			if (maxs[i] < threshold){
+		    				skip[i] = true;
+		    			}
+		    		}
+		    		String line = rdr.readLine();
+					while (line != null ){
+						String toks[] = line.split("\t",-1);
+						StringBuffer outLine = new StringBuffer();
+						outLine.append(toks[0]);
+						for (int i = 1; i < toks.length; i++) {
+							if (!skip[i]){ 
+								outLine.append("\t" + toks[i]);
+							}
+						}
+						out.write(outLine.toString() + "\n");
+						line = rdr.readLine();
+					}	
 				}
-			} else if (filterMethod.equals("oneval")) {
-
-				String line = rdr.readLine(); //Just write the header
-				out.write(line + "\n");
-				line = rdr.readLine();
-				double threshold = Double.parseDouble(request.getParameter("range_max"));
-				while (line != null ){
-					String toks[] = line.split("\t",-1);
-					StringBuffer outLine = new StringBuffer();
-					outLine.append(toks[0]);
-					boolean skip = true;
-					for (int i = 1; i < toks.length; i++) {
-						if (Util.isNumeric(toks[i])) {
-							if (Double.parseDouble(toks[i]) > threshold){
-								skip = false;
-								break;
-							}	
-						}
-					}
-					if (!skip){
-						out.write(line.toString() + "\n");
-					}
-					line = rdr.readLine();
-				}
-			}
-	    } else if (axis.equals("col")) {
-	    	if (filterMethod.equals("onegreater")) {
-	    		float[] maxs = getColMaxs(tmpWorking);
-	    		double threshold = Double.parseDouble(request.getParameter("1range_max"));
-	    		boolean[] skip = new boolean[maxs.length];
-	    		for (int i = 1; i < maxs.length; i++){
-	    			if (maxs[i] > threshold){
-	    				skip[i] = true;
-	    			}
-	    		}
-	    		String line = rdr.readLine();
-				while (line != null ){
-					String toks[] = line.split("\t",-1);
-					StringBuffer outLine = new StringBuffer();
-					outLine.append(toks[0]);
-					for (int i = 1; i < toks.length; i++) {
-						if (!skip[i]){ 
-							outLine.append("\t" + toks[i]);
-						}
-					}
-					out.write(outLine.toString() + "\n");
-					line = rdr.readLine();
-				}	
-			} else if (filterMethod.equals("oneless")) {
-				float[] mins = getColMins(tmpWorking);
-	    		double threshold = Double.parseDouble(request.getParameter("1range_min"));
-	    		boolean[] skip = new boolean[mins.length];
-	    		for (int i = 1; i < mins.length; i++){
-	    			if (mins[i] < threshold){
-	    				skip[i] = true;
-	    			}
-	    		}
-	    		String line = rdr.readLine();
-				while (line != null ){
-					String toks[] = line.split("\t",-1);
-					StringBuffer outLine = new StringBuffer();
-					outLine.append(toks[0]);
-					for (int i = 1; i < toks.length; i++) {
-						if (!skip[i]){ 
-							outLine.append("\t" + toks[i]);
-						}
-					}
-					out.write(outLine.toString() + "\n");
-					line = rdr.readLine();
-				}
-			} else if (filterMethod.equals("allgreater")) {
-				float[] mins = getColMins(tmpWorking);
-	    		double threshold = Double.parseDouble(request.getParameter("arange_max"));
-	    		boolean[] skip = new boolean[mins.length];
-	    		for (int i = 1; i < mins.length; i++){
-	    			if (mins[i] > threshold){
-	    				skip[i] = true;
-	    			}
-	    		}
-	    		String line = rdr.readLine();
-				while (line != null ){
-					String toks[] = line.split("\t",-1);
-					StringBuffer outLine = new StringBuffer();
-					outLine.append(toks[0]);
-					for (int i = 1; i < toks.length; i++) {
-						if (!skip[i]){ 
-							outLine.append("\t" + toks[i]);
-						}
-					}
-					out.write(outLine.toString() + "\n");
-					line = rdr.readLine();
-				}
-			} else if (filterMethod.equals("allless")) {
-				float[] maxs = getColMaxs(tmpWorking);
-	    		double threshold = Double.parseDouble(request.getParameter("arange_min"));
-	    		boolean[] skip = new boolean[maxs.length];
-	    		for (int i = 1; i < maxs.length; i++){
-	    			if (maxs[i] < threshold){
-	    				skip[i] = true;
-	    			}
-	    		}
-	    		String line = rdr.readLine();
-				while (line != null ){
-					String toks[] = line.split("\t",-1);
-					StringBuffer outLine = new StringBuffer();
-					outLine.append(toks[0]);
-					for (int i = 1; i < toks.length; i++) {
-						if (!skip[i]){ 
-							outLine.append("\t" + toks[i]);
-						}
-					}
-					out.write(outLine.toString() + "\n");
-					line = rdr.readLine();
-				}
-			} else if (filterMethod.equals("oneval")) {
-				float[] maxs = getColMaxs(tmpWorking);
-	    		double threshold = Double.parseDouble(request.getParameter("range_max"));
-	    		boolean[] skip = new boolean[maxs.length];
-	    		for (int i = 1; i < maxs.length; i++){
-	    			if (maxs[i] < threshold){
-	    				skip[i] = true;
-	    			}
-	    		}
-	    		String line = rdr.readLine();
-				while (line != null ){
-					String toks[] = line.split("\t",-1);
-					StringBuffer outLine = new StringBuffer();
-					outLine.append(toks[0]);
-					for (int i = 1; i < toks.length; i++) {
-						if (!skip[i]){ 
-							outLine.append("\t" + toks[i]);
-						}
-					}
-					out.write(outLine.toString() + "\n");
-					line = rdr.readLine();
-				}	
-			}
-	    }
+		    }
+		} catch (Exception e) {
+			rdr.close();
+			out.close();
+			throw e;
+		} finally {
+			rdr.close();
+			out.close();
+			new File(tmpWorking).delete();
+		}
 		
-		rdr.close();
-		out.close();
-		new File(tmpWorking).delete();
 	}
 	
 	private void filterVariation(String matrixFile, HttpServletRequest request) throws Exception {
-		Util.backupWorking(matrixFile);
 		String tmpWorking = Util.copyWorkingToTemp(matrixFile);
 		String axis = request.getParameter("vrowcol");
 		String filterMethod = request.getParameter("vfiltermethod");
@@ -330,123 +339,130 @@ public class FilterMatrix extends HttpServlet {
 	    BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
 		
 		Util.logStatus("FilterMatrix - Begin Filter Variation Transform for (" + axis + ") axis. ");
-
-	    if (axis.equals("row")) { // row filters
-	    	if (filterMethod.equals("std_value")) {
-	    		double threshold = Double.parseDouble(request.getParameter("std_limit"));
-//	    		threshold = threshold*threshold; // we compare variances to cut down computation time
-	    		String line = rdr.readLine(); //Just write the header
-				out.write(line + "\n");
-				line = rdr.readLine();
-				while (line != null ){
-					double variance = getRowDeviation(line);
-					if (variance > threshold){
-						out.write(line.toString() + "\n");
-					}
-					line = rdr.readLine();
-				}	
-			} else if (filterMethod.equals("pct") || filterMethod.equals("fixednum")) {
-	    		double[] deviations = getAllRowDeviations(tmpWorking);
-	    		int numKeep = 0;
-				if (filterMethod.equals("pct")){
-					double numKeepD = (deviations.length-1) * Double.parseDouble(request.getParameter("std_pct"))/100;
-					numKeep = (int)numKeepD;
-				} else {
-					numKeep = Integer.parseInt(request.getParameter("std_num_keep"));
-				}
-	    		boolean[] skip = new boolean[deviations.length];
-	    		if (numKeep > deviations.length) {
-	    			numKeep = deviations.length;
-	    		}
-	    		double[] sortDevs = deviations.clone();
-	    		Arrays.sort(sortDevs);
-	    		double threshold = sortDevs[sortDevs.length-numKeep];
-	    		
-	    		String line = rdr.readLine();
-	    		out.write(line + "\n");
-				line = rdr.readLine();
-				int index = 0;
-				while (line != null ){
-					if (deviations[index] >= threshold) {
-						out.write(line.toString() + "\n");
-					}
-					index++;
-
-					line = rdr.readLine();
-				}	
-			}
-	    } else if (axis.equals("col")) {
-	    	if (filterMethod.equals("std_value")) {
-	    		double threshold = Double.parseDouble(request.getParameter("std_limit"));
-//	    		threshold = threshold*threshold; // we compare variances to cut down computation time
-	    		double[] variances = getColDeviations(tmpWorking);
-	    		boolean[] skip = new boolean[variances.length];
-	    		
-	    		for (int i = 1; i < variances.length; i++){
-	    			if (variances[i] < threshold){
-	    				skip[i] = true;
-	    			}
-	    		}
-	    		
-	    		String line = rdr.readLine();
-				while (line != null ){
-					String toks[] = line.split("\t",-1);
-					StringBuffer outLine = new StringBuffer();
-					outLine.append(toks[0]);
-					for (int i = 1; i < toks.length; i++) {
-						if (!skip[i]){ 
-							outLine.append("\t" + toks[i]);
-						}
-					}
-					out.write(outLine.toString() + "\n");
-					line = rdr.readLine();
-				}	
-			} else if (filterMethod.equals("pct") || filterMethod.equals("fixednum")) {
-	    		double[] deviations = getColDeviations(tmpWorking);
-	    		int numKeep = 0;
-				if (filterMethod.equals("pct")){
-					double numKeepD = (deviations.length-1) * Double.parseDouble(request.getParameter("std_pct"))/100;
-					numKeep = (int)numKeepD;
-				} else {
-					numKeep = Integer.parseInt(request.getParameter("std_num_keep"));
-				}
-	    		if (numKeep > deviations.length) {
-	    			numKeep = deviations.length;
-	    		}
-	    		boolean[] skip = new boolean[deviations.length];
-	    		double[] sortDevs = deviations.clone();
-	    		Arrays.sort(sortDevs);
-	    		double threshold = sortDevs[sortDevs.length-numKeep];
-	    		
-	    		for (int i = 1; i < deviations.length; i++){
-	    			if (deviations[i] < threshold){
-	    				skip[i] = true;
-	    			}
-	    		}
-	    		
-	    		String line = rdr.readLine();
-				while (line != null ){
-					String toks[] = line.split("\t",-1);
-					StringBuffer outLine = new StringBuffer();
-					outLine.append(toks[0]);
-					for (int i = 1; i < toks.length; i++) {
-						if (!skip[i]){ 
-							outLine.append("\t" + toks[i]);
-						}
-					}
-					out.write(outLine.toString() + "\n");
-					line = rdr.readLine();
-				}	
-			} 
-	    }
 		
-		rdr.close();
-		out.close();
-		new File(tmpWorking).delete();
+		try {
+
+		    if (axis.equals("row")) { // row filters
+		    	if (filterMethod.equals("std_value")) {
+		    		double threshold = Double.parseDouble(request.getParameter("std_limit"));
+	//	    		threshold = threshold*threshold; // we compare variances to cut down computation time
+		    		String line = rdr.readLine(); //Just write the header
+					out.write(line + "\n");
+					line = rdr.readLine();
+					while (line != null ){
+						double variance = getRowDeviation(line);
+						if (variance > threshold){
+							out.write(line.toString() + "\n");
+						}
+						line = rdr.readLine();
+					}	
+				} else if (filterMethod.equals("pct") || filterMethod.equals("fixednum")) {
+		    		double[] deviations = getAllRowDeviations(tmpWorking);
+		    		int numKeep = 0;
+					if (filterMethod.equals("pct")){
+						double numKeepD = Math.ceil((deviations.length-1) * Double.parseDouble(request.getParameter("std_pct"))/100);
+						numKeep = (int)numKeepD;
+					} else {
+						numKeep = Integer.parseInt(request.getParameter("std_num_keep"));
+					}
+		    		boolean[] skip = new boolean[deviations.length];
+		    		if (numKeep > deviations.length) {
+		    			numKeep = deviations.length;
+		    		}
+		    		double[] sortDevs = deviations.clone();
+		    		Arrays.sort(sortDevs);
+		    		double threshold = sortDevs[sortDevs.length-numKeep];
+		    		
+		    		String line = rdr.readLine();
+		    		out.write(line + "\n");
+					line = rdr.readLine();
+					int index = 0;
+					while (line != null ){
+						if (deviations[index] >= threshold) {
+							out.write(line.toString() + "\n");
+						}
+						index++;
+	
+						line = rdr.readLine();
+					}	
+				}
+		    } else if (axis.equals("col")) {
+		    	if (filterMethod.equals("std_value")) {
+		    		double threshold = Double.parseDouble(request.getParameter("std_limit"));
+	//	    		threshold = threshold*threshold; // we compare variances to cut down computation time
+		    		double[] variances = getColDeviations(tmpWorking);
+		    		boolean[] skip = new boolean[variances.length];
+		    		
+		    		for (int i = 1; i < variances.length; i++){
+		    			if (variances[i] < threshold){
+		    				skip[i] = true;
+		    			}
+		    		}
+		    		
+		    		String line = rdr.readLine();
+					while (line != null ){
+						String toks[] = line.split("\t",-1);
+						StringBuffer outLine = new StringBuffer();
+						outLine.append(toks[0]);
+						for (int i = 1; i < toks.length; i++) {
+							if (!skip[i]){ 
+								outLine.append("\t" + toks[i]);
+							}
+						}
+						out.write(outLine.toString() + "\n");
+						line = rdr.readLine();
+					}	
+				} else if (filterMethod.equals("pct") || filterMethod.equals("fixednum")) {
+		    		double[] deviations = getColDeviations(tmpWorking);
+		    		int numKeep = 0;
+					if (filterMethod.equals("pct")){
+						double numKeepD = Math.ceil((deviations.length-1) * Double.parseDouble(request.getParameter("std_pct"))/100);
+						numKeep = (int)numKeepD;
+					} else {
+						numKeep = Integer.parseInt(request.getParameter("std_num_keep"));
+					}
+		    		if (numKeep > deviations.length) {
+		    			numKeep = deviations.length;
+		    		}
+		    		boolean[] skip = new boolean[deviations.length];
+		    		double[] sortDevs = deviations.clone();
+		    		Arrays.sort(sortDevs);
+		    		double threshold = sortDevs[sortDevs.length-numKeep];
+		    		
+		    		for (int i = 1; i < deviations.length; i++){
+		    			if (deviations[i] < threshold){
+		    				skip[i] = true;
+		    			}
+		    		}
+		    		
+		    		String line = rdr.readLine();
+					while (line != null ){
+						String toks[] = line.split("\t",-1);
+						StringBuffer outLine = new StringBuffer();
+						outLine.append(toks[0]);
+						for (int i = 1; i < toks.length; i++) {
+							if (!skip[i]){ 
+								outLine.append("\t" + toks[i]);
+							}
+						}
+						out.write(outLine.toString() + "\n");
+						line = rdr.readLine();
+					}	
+				} 
+		    }
+		} catch (Exception e) {
+			rdr.close();
+			out.close();
+			throw e;
+		} finally {
+			rdr.close();
+			out.close();
+			new File(tmpWorking).delete();
+		}
+		
 	}
 	
 	private void filterMissing(String matrixFile, HttpServletRequest request) throws Exception {
-		Util.backupWorking(matrixFile);
 		String tmpWorking = Util.copyWorkingToTemp(matrixFile);
 		String axis = request.getParameter("mrowcol");
 		String filterMethod = request.getParameter("mfiltermethod");
@@ -454,68 +470,73 @@ public class FilterMatrix extends HttpServlet {
 	    BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
 	    
 		Util.logStatus("FilterMatrix - Begin Filter Missing Transform for (" + axis + ") axis. ");
-
-		if (axis.equals("row")) { // row filters
-			String line = rdr.readLine(); //Just write the header
-			out.write(line + "\n");
-			line = rdr.readLine();
-			String headers[] = line.split("\t",-1);
-			int thresh = 0;
-			if (filterMethod.equals("pctgreater")){
-				double numKeepD = (headers.length-1) * Double.parseDouble(request.getParameter("std_pct_missing"))/100;
-				thresh = (int)numKeepD;
-			} else {
-				thresh = Integer.parseInt(request.getParameter("std_num_missing"));
-			}
-			while (line != null ){
-				String toks[] = line.split("\t",-1);
-				StringBuffer outLine = new StringBuffer();
-				outLine.append(toks[0]);
-				int missingNo = 0;
-				for (int i = 1; i < toks.length; i++) {
-					if (Util.isMissing(toks[i])) {
-						missingNo++;
+		try {
+			if (axis.equals("row")) { // row filters
+				String line = rdr.readLine(); //Just write the header
+				out.write(line + "\n");
+				line = rdr.readLine();
+				String headers[] = line.split("\t",-1);
+				int thresh = 0;
+				if (filterMethod.equals("pctgreater")){
+					double numKeepD = Math.ceil((headers.length-1) * Double.parseDouble(request.getParameter("std_pct_missing"))/100);
+					thresh = (int)numKeepD;
+				} else {
+					thresh = Integer.parseInt(request.getParameter("std_num_missing"));
+				}
+				while (line != null ){
+					String toks[] = line.split("\t",-1);
+					StringBuffer outLine = new StringBuffer();
+					outLine.append(toks[0]);
+					int missingNo = 0;
+					for (int i = 1; i < toks.length; i++) {
+						if (Util.isMissing(toks[i])) {
+							missingNo++;
+						}
+					}
+					if (missingNo <= thresh) {
+						out.write(line.toString() + "\n");
+					}
+					line = rdr.readLine();
+				}
+		    } else if (axis.equals("col")) {
+		    	int[] missingNos = getNumMissingCol(tmpWorking);
+		    	String line = rdr.readLine(); //Just write the header
+				String headers[] = line.split("\t",-1);
+				int thresh = 0;
+				if (filterMethod.equals("pctgreater")){
+					double numKeepD = Math.ceil((headers.length-1) * Double.parseDouble(request.getParameter("std_pct_missing"))/100);
+					thresh = (int)numKeepD;
+				} else {
+					thresh = Integer.parseInt(request.getParameter("std_num_missing"));
+				}
+				boolean[] skip = new boolean[missingNos.length];
+				for (int i = 1; i < missingNos.length; i++) {
+					if (missingNos[i] > thresh) {
+						skip[i] = true;
 					}
 				}
-				if (missingNo <= thresh) {
-					out.write(line.toString() + "\n");
-				}
-				line = rdr.readLine();
-			}
-	    } else if (axis.equals("col")) {
-	    	int[] missingNos = getNumMissingCol(tmpWorking);
-	    	String line = rdr.readLine(); //Just write the header
-			String headers[] = line.split("\t",-1);
-			int thresh = 0;
-			if (filterMethod.equals("pctgreater")){
-				double numKeepD = (headers.length-1) * Double.parseDouble(request.getParameter("std_pct_missing"))/100;
-				thresh = (int)numKeepD;
-			} else {
-				thresh = Integer.parseInt(request.getParameter("std_num_missing"));
-			}
-			boolean[] skip = new boolean[missingNos.length];
-			for (int i = 1; i < missingNos.length; i++) {
-				if (missingNos[i] > thresh) {
-					skip[i] = true;
-				}
-			}
-			while (line != null ){
-				String toks[] = line.split("\t",-1);
-				StringBuffer outLine = new StringBuffer();
-				outLine.append(toks[0]);
-				for (int i = 1; i < toks.length; i++) {
-					if (!skip[i]) {
-						outLine.append("\t" + toks[i]);
+				while (line != null ){
+					String toks[] = line.split("\t",-1);
+					StringBuffer outLine = new StringBuffer();
+					outLine.append(toks[0]);
+					for (int i = 1; i < toks.length; i++) {
+						if (!skip[i]) {
+							outLine.append("\t" + toks[i]);
+						}
 					}
+					out.write(outLine.toString() + "\n");
+					line = rdr.readLine();
 				}
-				out.write(outLine.toString() + "\n");
-				line = rdr.readLine();
-			}
-	    }
-		
-		rdr.close();
-		out.close();
-		new File(tmpWorking).delete();
+		    }
+		} catch (Exception e) {
+			rdr.close();
+			out.close();
+			throw e;
+		} finally {
+			rdr.close();
+			out.close();
+			new File(tmpWorking).delete();
+		}
 	}
 	
 	private static float[] getColMins(String tmpWorking) throws Exception{ // TODO: may need to profile this for larger matrix sizes

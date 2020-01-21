@@ -31,15 +31,16 @@ public class DuplicateMatrix extends HttpServlet {
 		response.setContentType("application/json;charset=UTF-8");
 		
 	    final PrintWriter writer = response.getWriter();
+    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
+        workingDir = workingDir + "/" + mySession.getId();
+	    String matrixFile = workingDir  + "/workingMatrix.txt";
 
 	    try {
-	    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
-	    	workingDir = workingDir + "/" + mySession.getId();
 	        HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
 		    String propJSON = "{}";
 	        File propFile = new File(workingDir + "/heatmapProperties.json");
 	        if (propFile.exists()) {
-			    String matrixFile = workingDir  + "/workingMatrix.txt";
+				Util.backupWorking(matrixFile);
 			    String filter = request.getParameter("Duplicate");
 			    if (filter.equals("Remove")){
 			    	removeDuplicates(matrixFile, request);
@@ -55,9 +56,15 @@ public class DuplicateMatrix extends HttpServlet {
 	    	response.getWriter().write(propJSON.toString());
 	    	response.flushBuffer();
 	    } catch (Exception e) {
-	        writer.println("Error correcting matrix.");
-	        writer.println("<br/> ERROR: " + e.getMessage());
-
+	    	try {
+	    		Util.restoreWorking(matrixFile);
+	    	} catch (Exception f) {
+	    		//do nothing
+	    	}
+	    	String errmsg = e.getMessage().trim();
+	    	if (errmsg.length() < 3 ) { errmsg ="";} else {errmsg = errmsg + ".";}
+        	String errJSON = "{\"error\": \"The selected duplicates process could not be applied to your matrix. "+ errmsg +"\"}";
+	        writer.println(errJSON);
 	    } finally {
 	        if (writer != null) {
 	            writer.close();
@@ -78,7 +85,6 @@ public class DuplicateMatrix extends HttpServlet {
 	 * from the data matrix.
 	 ******************************************************************/
 	private void removeDuplicates(String matrixFile, HttpServletRequest request) throws Exception {
-		Util.backupWorking(matrixFile);
 		String tmpWorking = Util.copyWorkingToTemp(matrixFile);
 		String axis = request.getParameter("drrowcol");
 		String filterMethod = request.getParameter("rduplicatemethod");
@@ -122,10 +128,10 @@ public class DuplicateMatrix extends HttpServlet {
 					line = rdr.readLine();
 				}
 		    }
-			
+	    } catch (Exception e) {
 			rdr.close();
 			out.close();
-			new File(tmpWorking).delete();
+			throw e;
 	    } finally {
 			rdr.close();
 			out.close();
@@ -142,7 +148,6 @@ public class DuplicateMatrix extends HttpServlet {
 	 * will be renamed with an underscore/hyphen and a subscript number.
 	 ******************************************************************/
  	private void renameDuplicates(String matrixFile, HttpServletRequest request) throws Exception {
-		Util.backupWorking(matrixFile);
 		String tmpWorking = Util.copyWorkingToTemp(matrixFile);
 		String axis = request.getParameter("dnrowcol");
 		String method = request.getParameter("nduplicatemethod");
@@ -150,80 +155,85 @@ public class DuplicateMatrix extends HttpServlet {
 	    BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
 		
 		Util.logStatus("DuplicateMatrix - Begin Rename Duplicates Transform for (" + axis + ") axis. ");
-
-		if (axis.equals("row")) {
-			//Retrieve a list containing all duplicate row labels and their position in the data matrix.
-			ArrayList<String> dupeRowLabelValues = getDuplicateRowsList(tmpWorking);
-			//Retrieve a list containing all duplicate row labels, their position in the data matrix, 
-			//and the suffix to be used in renaming them.
-			ArrayList<String> renameList = getRenameCombineList(dupeRowLabelValues, method);
-			String line = rdr.readLine(); //Just write the header
-			out.write(line + "\n");
-			line = rdr.readLine();
-			int rowNbr = 1;
-			while (line != null ) {
-				String toks[] = line.split("\t",-1);
-				boolean found = false;
-				for (int j=0;j<renameList.size();j++) {
-					String renItem[] = renameList.get(j).split(":",-1);
-					if (toks[0].contentEquals(renItem[0])) {
-						found = true;
-						break;
-					}
-				}
-				if (found) {
-					for (int i=0;i < renameList.size();i++) {
-						String item = renameList.get(i);
-						String renToks[] = item.split(":",-1);
-						if (rowNbr == Integer.parseInt(renToks[1])) {
-							toks[0] = renToks[0]+renToks[2];
+		try {
+			if (axis.equals("row")) {
+				//Retrieve a list containing all duplicate row labels and their position in the data matrix.
+				ArrayList<String> dupeRowLabelValues = getDuplicateRowsList(tmpWorking);
+				//Retrieve a list containing all duplicate row labels, their position in the data matrix, 
+				//and the suffix to be used in renaming them.
+				ArrayList<String> renameList = getRenameCombineList(dupeRowLabelValues, method);
+				String line = rdr.readLine(); //Just write the header
+				out.write(line + "\n");
+				line = rdr.readLine();
+				int rowNbr = 1;
+				while (line != null ) {
+					String toks[] = line.split("\t",-1);
+					boolean found = false;
+					for (int j=0;j<renameList.size();j++) {
+						String renItem[] = renameList.get(j).split(":",-1);
+						if (toks[0].contentEquals(renItem[0])) {
+							found = true;
 							break;
 						}
 					}
-					StringBuffer outLine = new StringBuffer();
-					outLine.append(toks[0]);
-					for (int i = 1; i < toks.length; i++) {
+					if (found) {
+						for (int i=0;i < renameList.size();i++) {
+							String item = renameList.get(i);
+							String renToks[] = item.split(":",-1);
+							if (rowNbr == Integer.parseInt(renToks[1])) {
+								toks[0] = renToks[0]+renToks[2];
+								break;
+							}
+						}
+						StringBuffer outLine = new StringBuffer();
+						outLine.append(toks[0]);
+						for (int i = 1; i < toks.length; i++) {
+							outLine.append("\t" + toks[i]);
+						}
+						out.write(outLine.toString() + "\n");
+					} else {
+						out.write(line + "\n");
+					}
+					line = rdr.readLine();
+					rowNbr++;
+				}
+			} else if (axis.equals("col")) {
+				//Retrieve a list containing all duplicate column labels and their position in the data matrix.
+				ArrayList<String> dupeColLabelValues = getDuplicateColsList(tmpWorking);
+				//Retrieve a list containing all duplicate column labels, their position in the data matrix, 
+				//and the suffix to be used in renaming them.
+				ArrayList<String> renameList = getRenameCombineList(dupeColLabelValues, method);
+				String line = rdr.readLine();
+				String toks[] = line.split("\t",-1);
+				for (int i=0;i<toks.length;i++) {
+					for (int j=0;j<renameList.size();j++) {
+						String renItem[] = renameList.get(j).split(":",-1);
+						if (i == Integer.parseInt(renItem[1])) {
+							toks[i] =  renItem[0]+renItem[2];
+						}
+					}
+				}
+				StringBuffer outLine = new StringBuffer();
+				outLine.append(toks[0]);
+				for (int i = 1; i < toks.length; i++) {
 						outLine.append("\t" + toks[i]);
-					}
-					out.write(outLine.toString() + "\n");
-				} else {
+				}
+				out.write(outLine.toString() + "\n");
+				line = rdr.readLine();
+				while (line != null ) {
 					out.write(line + "\n");
+					line = rdr.readLine();
 				}
-				line = rdr.readLine();
-				rowNbr++;
-			}
-		} else if (axis.equals("col")) {
-			//Retrieve a list containing all duplicate column labels and their position in the data matrix.
-			ArrayList<String> dupeColLabelValues = getDuplicateColsList(tmpWorking);
-			//Retrieve a list containing all duplicate column labels, their position in the data matrix, 
-			//and the suffix to be used in renaming them.
-			ArrayList<String> renameList = getRenameCombineList(dupeColLabelValues, method);
-			String line = rdr.readLine();
-			String toks[] = line.split("\t",-1);
-			for (int i=0;i<toks.length;i++) {
-				for (int j=0;j<renameList.size();j++) {
-					String renItem[] = renameList.get(j).split(":",-1);
-					if (i == Integer.parseInt(renItem[1])) {
-						toks[i] =  renItem[0]+renItem[2];
-					}
-				}
-			}
-			StringBuffer outLine = new StringBuffer();
-			outLine.append(toks[0]);
-			for (int i = 1; i < toks.length; i++) {
-					outLine.append("\t" + toks[i]);
-			}
-			out.write(outLine.toString() + "\n");
-			line = rdr.readLine();
-			while (line != null ) {
-				out.write(line + "\n");
-				line = rdr.readLine();
-			}
-		} 
-		
-		rdr.close();
-		out.close();
-		new File(tmpWorking).delete();
+			} 
+	    } catch (Exception e) {
+			rdr.close();
+			out.close();
+			throw e;
+	    } finally {
+			rdr.close();
+			out.close();
+			new File(tmpWorking).delete();
+	    }
 	}
  	
 	/*******************************************************************
@@ -235,7 +245,6 @@ public class DuplicateMatrix extends HttpServlet {
 	 * all instances of that row/col OR the median value.
 	 ******************************************************************/
  	private void combineDuplicates(String matrixFile, HttpServletRequest request) throws Exception {
-		Util.backupWorking(matrixFile);
 		String tmpWorking = Util.copyWorkingToTemp(matrixFile);
 		String axis = request.getParameter("dcrowcol");
 		String method = request.getParameter("cduplicatemethod");
@@ -244,146 +253,152 @@ public class DuplicateMatrix extends HttpServlet {
 		double[][] matrix = TransformMatrix.getFileAsMatrix(tmpWorking);
 		
 		Util.logStatus("DuplicateMatrix - Begin Combine Duplicates Transform for (" + axis + ") axis. ");
-
-		if (axis.equals("row")) {
-			//Retrieve a list containing all duplicate row labels and their position in the data matrix.
-			ArrayList<String> dupeRowLabelValues = getDuplicateRowsList(tmpWorking);
-			//Retrieve a list containing all duplicate row labels and their position in the data matrix.
-			ArrayList<String> combineList = getRenameCombineList(dupeRowLabelValues, null);
-			String prevLabel = "";
-			ArrayList<Integer> intRay = new ArrayList<Integer>();
-			ArrayList<double[]> changeArray = new ArrayList<double[]>();
-			//Retrieve a list containing all duplicate columns combined into a single array with their values 
-			//either summarized by the mean or the median.
-			for (int i=0;i<combineList.size();i++) {
-				String currItem = combineList.get(i);
-				String toks[] = currItem.split(":",-1);
-				if (((!toks[0].contentEquals(prevLabel)) && (i != 0)) || (i == combineList.size()-1)) {
-					//add if last item in list
-					if (i == combineList.size()-1) {
+		try {
+			if (axis.equals("row")) {
+				//Retrieve a list containing all duplicate row labels and their position in the data matrix.
+				ArrayList<String> dupeRowLabelValues = getDuplicateRowsList(tmpWorking);
+				//Retrieve a list containing all duplicate row labels and their position in the data matrix.
+				ArrayList<String> combineList = getRenameCombineList(dupeRowLabelValues, null);
+				String prevLabel = "";
+				ArrayList<Integer> intRay = new ArrayList<Integer>();
+				ArrayList<double[]> changeArray = new ArrayList<double[]>();
+				//Retrieve a list containing all duplicate columns combined into a single array with their values 
+				//either summarized by the mean or the median.
+				for (int i=0;i<combineList.size();i++) {
+					String currItem = combineList.get(i);
+					String toks[] = currItem.split(":",-1);
+					if (((!toks[0].contentEquals(prevLabel)) && (i != 0)) || (i == combineList.size()-1)) {
+						//add if last item in list
+						if (i == combineList.size()-1) {
+							intRay.add(Integer.valueOf(toks[1])-1);
+						}
+						double[] colMeanMed = null;
+						if (method.contentEquals("mean")) {
+							colMeanMed = getColMeansFromMatrix(matrix, intRay);
+						} else {
+							colMeanMed = getColMediansFromMatrix(matrix, intRay);
+						}
+						changeArray.add(colMeanMed);
+						intRay = new ArrayList<Integer>();
+						intRay.add(Integer.valueOf(toks[1])-1);
+					} else {
 						intRay.add(Integer.valueOf(toks[1])-1);
 					}
-					double[] colMeanMed = null;
-					if (method.contentEquals("mean")) {
-						colMeanMed = getColMeansFromMatrix(matrix, intRay);
-					} else {
-						colMeanMed = getColMediansFromMatrix(matrix, intRay);
-					}
-					changeArray.add(colMeanMed);
-					intRay = new ArrayList<Integer>();
-					intRay.add(Integer.valueOf(toks[1])-1);
-				} else {
-					intRay.add(Integer.valueOf(toks[1])-1);
+					prevLabel = toks[0];
 				}
-				prevLabel = toks[0];
-			}
-			//Write out new working matrix with first duplicate row replaced with mean/median values and 
-			//all other rows removed.
-			String line = rdr.readLine(); //Just write the header
-			out.write(line + "\n");
-			line = rdr.readLine();
-			Integer rowNbr = 1;
-			ArrayList<String> remItems = new ArrayList<String>();
-			while (line != null ) {
-				boolean found = false;
-				String toks[] = line.split("\t",-1);
-				for (int j=0;j<changeArray.size();j++) {
-					double[] changeItem = changeArray.get(j);
-					if (rowNbr.doubleValue() == changeItem[0]) {
-						remItems.add(toks[0]);
-						found = true;
-						StringBuffer outLine = new StringBuffer();
-						outLine.append(toks[0]);
-						for (int k = 1; k < changeItem.length; k++) {
-							outLine.append("\t" + String.valueOf(changeItem[k]));
-						}
-						out.write(outLine.toString() + "\n");
-					}
-				}
-				if (found == false) {
-					if (!remItems.contains(toks[0])) {
-						out.write(line + "\n");
-					}
-				}
+				//Write out new working matrix with first duplicate row replaced with mean/median values and 
+				//all other rows removed.
+				String line = rdr.readLine(); //Just write the header
+				out.write(line + "\n");
 				line = rdr.readLine();
-				rowNbr++;
-			}
-		} else if (axis.equals("col")) {
-			//Retrieve a list containing all duplicate column labels and their position in the data matrix.
-			ArrayList<String> dupeColLabelValues = getDuplicateColsList(tmpWorking);
-			//Retrieve a list containing all duplicate column labels and their position in the data matrix.
-			ArrayList<String> combineList = getRenameCombineList(dupeColLabelValues, null);
-			//Retrieve a list containing all duplicate columns to be deleted.
-			ArrayList<String> delCols = deleteList(dupeColLabelValues, "first");
-			String prevLabel = "";
-			ArrayList<Integer> intRay = new ArrayList<Integer>();
-			ArrayList<double[]> changeArray = new ArrayList<double[]>();
-			//Retrieve a list containing all duplicate columns combined into a single array with their values 
-			//either summarized by the mean or the median.
-			for (int i=0;i<combineList.size();i++) {
-				String currItem = combineList.get(i);
-				String toks[] = currItem.split(":",-1);
-				if (((!toks[0].contentEquals(prevLabel)) && (i != 0)) || (i == combineList.size()-1)) {
-					//add if last item in list
-					if (i == combineList.size()-1) {
-						intRay.add(Integer.valueOf(toks[1])-1);
-					}
-					double[] colMeanMed = null;
-					if (method.contentEquals("mean")) {
-						colMeanMed = getRowMeansFromMatrix(matrix, intRay);
-					} else {
-						colMeanMed = getRowMediansFromMatrix(matrix, intRay);
-					}
-					changeArray.add(colMeanMed);
-					intRay = new ArrayList<Integer>();
-					intRay.add(Integer.valueOf(toks[1])-1);
-				} else {
-					intRay.add(Integer.valueOf(toks[1])-1);
-				}
-				prevLabel = toks[0];
-			}
-			//Write out new working matrix with first duplicate column replaced with mean/median values and 
-			//all other columns removed.
-			String line = rdr.readLine(); //Just write the header
-			String hdrToks[] = line.split("\t",-1);
-			StringBuffer outLine = new StringBuffer();
-			outLine.append(hdrToks[0]);
-			for (int i=1;i<hdrToks.length;i++) {
-				if (!delCols.contains(Integer.toString(i))) {
-					outLine.append("\t" + hdrToks[i]);
-				}
-			}
-			out.write(outLine.toString() + "\n");
-			line = rdr.readLine();
-			int rowNbr = 1;
-			while (line != null ) {
-				String toks[] = line.split("\t",-1);
-				boolean found = false;
-				outLine = new StringBuffer();
-				outLine.append(toks[0]);
-				for (int i=1;i<toks.length;i++) {
+				Integer rowNbr = 1;
+				ArrayList<String> remItems = new ArrayList<String>();
+				while (line != null ) {
+					boolean found = false;
+					String toks[] = line.split("\t",-1);
 					for (int j=0;j<changeArray.size();j++) {
-						Integer intObj = new Integer(i);
 						double[] changeItem = changeArray.get(j);
-						if (intObj.doubleValue() == changeItem[0]) {
-							outLine.append("\t" + String.valueOf(changeItem[rowNbr]));
+						if (rowNbr.doubleValue() == changeItem[0]) {
+							remItems.add(toks[0]);
 							found = true;
-							break;
+							StringBuffer outLine = new StringBuffer();
+							outLine.append(toks[0]);
+							for (int k = 1; k < changeItem.length; k++) {
+								outLine.append("\t" + String.valueOf(changeItem[k]));
+							}
+							out.write(outLine.toString() + "\n");
 						}
 					}
-					if ((!found) && (!delCols.contains(Integer.toString(i)))) {
-						outLine.append("\t" + toks[i]);
+					if (found == false) {
+						if (!remItems.contains(toks[0])) {
+							out.write(line + "\n");
+						}
 					}
-					found = false;
+					line = rdr.readLine();
+					rowNbr++;
+				}
+			} else if (axis.equals("col")) {
+				//Retrieve a list containing all duplicate column labels and their position in the data matrix.
+				ArrayList<String> dupeColLabelValues = getDuplicateColsList(tmpWorking);
+				//Retrieve a list containing all duplicate column labels and their position in the data matrix.
+				ArrayList<String> combineList = getRenameCombineList(dupeColLabelValues, null);
+				//Retrieve a list containing all duplicate columns to be deleted.
+				ArrayList<String> delCols = deleteList(dupeColLabelValues, "first");
+				String prevLabel = "";
+				ArrayList<Integer> intRay = new ArrayList<Integer>();
+				ArrayList<double[]> changeArray = new ArrayList<double[]>();
+				//Retrieve a list containing all duplicate columns combined into a single array with their values 
+				//either summarized by the mean or the median.
+				for (int i=0;i<combineList.size();i++) {
+					String currItem = combineList.get(i);
+					String toks[] = currItem.split(":",-1);
+					if (((!toks[0].contentEquals(prevLabel)) && (i != 0)) || (i == combineList.size()-1)) {
+						//add if last item in list
+						if (i == combineList.size()-1) {
+							intRay.add(Integer.valueOf(toks[1])-1);
+						}
+						double[] colMeanMed = null;
+						if (method.contentEquals("mean")) {
+							colMeanMed = getRowMeansFromMatrix(matrix, intRay);
+						} else {
+							colMeanMed = getRowMediansFromMatrix(matrix, intRay);
+						}
+						changeArray.add(colMeanMed);
+						intRay = new ArrayList<Integer>();
+						intRay.add(Integer.valueOf(toks[1])-1);
+					} else {
+						intRay.add(Integer.valueOf(toks[1])-1);
+					}
+					prevLabel = toks[0];
+				}
+				//Write out new working matrix with first duplicate column replaced with mean/median values and 
+				//all other columns removed.
+				String line = rdr.readLine(); //Just write the header
+				String hdrToks[] = line.split("\t",-1);
+				StringBuffer outLine = new StringBuffer();
+				outLine.append(hdrToks[0]);
+				for (int i=1;i<hdrToks.length;i++) {
+					if (!delCols.contains(Integer.toString(i))) {
+						outLine.append("\t" + hdrToks[i]);
+					}
 				}
 				out.write(outLine.toString() + "\n");
 				line = rdr.readLine();
-				rowNbr++;
-			}
-		} 
-		rdr.close();
-		out.close();
-		new File(tmpWorking).delete();
+				int rowNbr = 1;
+				while (line != null ) {
+					String toks[] = line.split("\t",-1);
+					boolean found = false;
+					outLine = new StringBuffer();
+					outLine.append(toks[0]);
+					for (int i=1;i<toks.length;i++) {
+						for (int j=0;j<changeArray.size();j++) {
+							Integer intObj = new Integer(i);
+							double[] changeItem = changeArray.get(j);
+							if (intObj.doubleValue() == changeItem[0]) {
+								outLine.append("\t" + String.valueOf(changeItem[rowNbr]));
+								found = true;
+								break;
+							}
+						}
+						if ((!found) && (!delCols.contains(Integer.toString(i)))) {
+							outLine.append("\t" + toks[i]);
+						}
+						found = false;
+					}
+					out.write(outLine.toString() + "\n");
+					line = rdr.readLine();
+					rowNbr++;
+				}
+			} 
+	    } catch (Exception e) {
+			rdr.close();
+			out.close();
+			throw e;
+	    } finally {
+			rdr.close();
+			out.close();
+			new File(tmpWorking).delete();
+	    }
 	}
 	
 	//=============================

@@ -97,6 +97,7 @@ NgChmGui.UTIL.toURIString = function(form) {
 NgChmGui.UTIL.formatInputNumber = function(item) {
     var itemValue = item.value;
      itemValue = itemValue.substring(0,1) === "." ? "0"+itemValue : itemValue.substring(itemValue.length-1) === "." ? itemValue+"0" : itemValue;
+     itemValue = itemValue.substring(0,2) === "-." ? "-0"+itemValue.substring(1, itemValue.length) : itemValue.substring(itemValue.length-1) === "." ? itemValue+"0" : itemValue;
      itemValue = itemValue.replace(/,/g, '');
      item.value = itemValue;
 }
@@ -350,6 +351,11 @@ NgChmGui.UTIL.setBuildProps =  function(tileWrite) {
 	props.builder_config.buildProps = "Y"
 }
 
+NgChmGui.UTIL.setTreeCutProps =  function() {
+	var props = NgChmGui.mapProperties;
+	props.builder_config.buildProps = "T";
+}
+
 /**********************************************************************************
  * FUNCTION - setTileWrite: The purpose of this function is to turn off tile writing
  * and matrix reading for the HeatmapDataGenerator Build Map process. It is called
@@ -390,7 +396,7 @@ NgChmGui.UTIL.setBuildCluster =  function(type) {
  **********************************************************************************/
 NgChmGui.UTIL.buildProps =  function() {
 	var buildPropsInd = NgChmGui.mapProperties.builder_config.buildProps;
-	if ((typeof buildPropsInd === 'undefined') || (buildPropsInd === "Y")) {
+	if ((typeof buildPropsInd === 'undefined') || (buildPropsInd === "Y") || (buildPropsInd === "T")) {
 		return true;
 	} else {
 		return false;

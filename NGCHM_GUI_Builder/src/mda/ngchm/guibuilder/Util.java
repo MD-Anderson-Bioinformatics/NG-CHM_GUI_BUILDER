@@ -108,7 +108,14 @@ public class Util {
 	 ******************************************************************/
 	public static void restoreWorking(String workingMatrix) throws Exception {
 		String saveWorking = workingMatrix + ".sav";
-		new File(workingMatrix).delete();
+		File workingFile = new File(workingMatrix);
+		if (workingFile.exists()) {
+			try {
+				workingFile.delete();
+			} catch (Exception e) {
+				//do nothing
+			}
+		}
 		Files.copy(Paths.get(saveWorking), Paths.get(workingMatrix));
 	}
 	

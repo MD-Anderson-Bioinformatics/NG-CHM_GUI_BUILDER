@@ -1,1 +1,1 @@
-{ "name": "GreenRed", "type": "continuous","colors": ["#00FF00","#0000FF"], "missing": "#B3B3B3"}
+{ "name": "GreenRed", "type": "continuous","colors": ["#00FF00","#FF0000"], "missing": "#B3B3B3"}

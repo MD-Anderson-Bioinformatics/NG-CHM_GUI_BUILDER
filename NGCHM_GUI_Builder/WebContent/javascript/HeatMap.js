@@ -32,7 +32,11 @@ NgChmGui.MAP.getChangeLog = function() {
 	var logText = "NG-CHM BUILDER HEAT MAP CREATION LOG\n\n";
 	logText += "MATRIX SCREEN ENTRIES:\n";
 	logText += "*  Heat Map Name: " + props.chm_name + "\n";
-	logText += "*  Heat Map Description: " + props.chm_description + "\n";
+	var desc = props.chm_description;
+	if (desc.length > 70) {
+		desc = desc.substr(0,67)+"...";
+	}
+	logText += "*  Heat Map Description: " + desc + "\n";
 	logText += "*  Matrix File Name: " + props.builder_config.matrix_grid_config.matrixFileName + "\n";
 	var changed = props.matrix_files[0].summary_method !== "average" ? "*" : ""; 
 	logText += changed + "  Pixel Summary Method: " + props.matrix_files[0].summary_method + "\n";

@@ -637,7 +637,7 @@ NgChmGui.FORMAT.loadColorPreviewDiv = function(ctr){
 				if (val <= lowBP){
 					bins[0]++;
 					continue;
-				} else if (highBP < val){
+				} else if (highBP <= val){
 					bins[bins.length-1]++;
 					continue;
 				}

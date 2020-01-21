@@ -67,16 +67,18 @@ NgChmGui.TRANS.validateEntries = function(leavingPage, formatError, otherError, 
 	var numCols = NgChmGui.TRANS.matrixInfo.numCols;
 	
 	//Generate build error messages
-	var builderConfig = NgChmGui.mapProperties.builder_config
-	var buildErrors = builderConfig.buildErrors;
-	if (buildErrors !== "") {
-		pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + buildErrors + "</font></b></p>";
-		valid = false;
+	if (typeof NgChmGui.mapProperties.builder_config !== 'undefined') {
+		var builderConfig = NgChmGui.mapProperties.builder_config
+		var buildErrors = builderConfig.buildErrors;
+		if (buildErrors !== "") {
+			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + buildErrors + "</font></b></p>";
+			valid = false;
+		}
+		if ((numRows + numCols) > parseInt(builderConfig.rowsColsMaximum)) {
+			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Matrix with " + numRows + " rows and " + numCols + " columns exceeds the maximum matrix size for this builder (" + builderConfig.rowsColsMaximum + ").  Use the Filter action to remove rows or columns so that their sum does not exceed this number.</p>";
+			valid = false;
+		} 
 	}
-	if ((numRows + numCols) > parseInt(builderConfig.rowsColsMaximum)) {
-		pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Matrix with " + numRows + " rows and " + numCols + " columns exceeds the maximum matrix size for this builder (" + builderConfig.rowsColsMaximum + ").  Use the Filter action to remove rows or columns so that their sum does not exceed this number.</p>";
-		valid = false;
-	} 
 	if (otherError && otherError !== "") {
 		pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + otherError + "</font></b></p>";
 		valid = false;
@@ -238,6 +240,7 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 		    }
 		}
 	};
+	NgChmGui.UTIL.showLoading();
 	req.send();
 	
 	function setHistoGraph(canvas, bins, counts, isMatrixData) {
@@ -460,10 +463,14 @@ NgChmGui.TRANS.correctMatrixData =  function() {
 		            console.log('Failed to correct matrix '  + req.status);
 		        } else {
 					if (NgChmGui.UTIL.debug) {console.log('200');}
-		        	NgChmGui.mapProperties = JSON.parse(req.response);
-		        	if (NgChmGui.UTIL.validSession()) {
-			        	NgChmGui.TRANS.updateLog(document.getElementById("missing_frm"));
-			        	NgChmGui.TRANS.processTransforms(NgChmGui.TRANS.getWorkingMatrix);
+		        	if (typeof response.error !== 'undefined') {
+		        		NgChmGui.TRANS.validateEntries(false,false,response.error,false);
+		        	} else {
+			        	NgChmGui.mapProperties = JSON.parse(req.response);
+			        	if (NgChmGui.UTIL.validSession()) {
+				        	NgChmGui.TRANS.updateLog(document.getElementById("missing_frm"));
+				        	NgChmGui.TRANS.processTransforms(NgChmGui.TRANS.getWorkingMatrix);
+			        	}
 		        	}
 			    }
 			}
@@ -491,11 +498,16 @@ NgChmGui.TRANS.filterMatrixData =  function() {
 		            console.log('Failed to filter matrix '  + req.status);
 		        } else {
 					if (NgChmGui.UTIL.debug) {console.log('200');}
-		        	NgChmGui.mapProperties = JSON.parse(req.response);
-		        	if (NgChmGui.UTIL.validSession()) {
-			        	NgChmGui.TRANS.updateLog(document.getElementById("filter_frm") );
-			        	NgChmGui.TRANS.processTransforms(NgChmGui.TRANS.getWorkingMatrix);
-			        	NgChmGui.TRANS.initSelects();
+					var response = JSON.parse(req.response);
+		        	if (typeof response.error !== 'undefined') {
+		        		NgChmGui.TRANS.validateEntries(false,false,response.error,false);
+		        	} else {
+			        	NgChmGui.mapProperties = JSON.parse(req.response);
+			        	if (NgChmGui.UTIL.validSession()) {
+				        	NgChmGui.TRANS.updateLog(document.getElementById("filter_frm") );
+				        	NgChmGui.TRANS.processTransforms(NgChmGui.TRANS.getWorkingMatrix);
+				        	NgChmGui.TRANS.initSelects();
+			        	}
 		        	}
 			    }
 			}
@@ -564,7 +576,6 @@ NgChmGui.TRANS.transformMatrixData =  function() {
 		        	} else {
 		        		NgChmGui.TRANS.validateEntries(false);
 		        	}
-		        	NgChmGui.UTIL.hideLoading();
 			    }
 			}
 		};
@@ -765,14 +776,13 @@ NgChmGui.TRANS.revertToState =  function() {
 		        		els[delIndex].remove();
 		        	}
                     NgChmGui.TRANS.processTransforms();
-	        	    NgChmGui.UTIL.hideLoading();
 	        	}
 		    }
 		}
 	};
 	req.send(formData);
 	NgChmGui.UTIL.showLoading();
-//	
+	
 	function nextFunc(index, stop) {
         var stopPos = parseInt(stop);
 		if (index <= stopPos){

@@ -87,6 +87,7 @@ public class MapProperties extends HttpServlet {
 	        if (new File(workingDir).exists()) {
 		        HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
 		        HeatmapPropertiesManager.Heatmap mapConfig = getConfigDataFromRequest(request);
+	        	String doClusterTree = mapConfig.builder_config.buildProps;
 				Util.logStatus("MapProperties - Begin setting properties for (" + mapConfig.chm_name + ").");
 		        //Get properties and update them to the new config data
 	        	mgr.setMap(mapConfig);
@@ -106,19 +107,22 @@ public class MapProperties extends HttpServlet {
 			    ProcessCovariate cov = new ProcessCovariate();
 	        	for (int i = 0; i < map.classification_files.size(); i++) {
 	        		HeatmapPropertiesManager.Classification currClass = map.classification_files.get(i);
+	        		currClass.name = currClass.name.replaceAll("[^a-zA-Z0-9-_& ]","");
 	        		if (currClass.change_type.equals("Y")) {
 	        			HeatmapPropertiesManager.ColorMap cm = cov.constructDefaultColorMap(mgr, currClass, currClass.color_map.type);
 	        			currClass.color_map = cm;
 	        			currClass.change_type = "N";
-					    mgr.save();
-	        		}
+	        		} 
+				    mgr.save();
 	        	}
 
 			    //Cluster, if necessary
 			    boolean clusterSuccess = false;
 			    try {
 				    //Add/update any treecut covariate bars
-			        processTreeCutCovariates(mgr, mapConfig);
+			    	if (doClusterTree.equals("T")) {
+				        processTreeCutCovariates(mgr, mapConfig);
+			    	}
 				    if (!mapConfig.builder_config.buildCluster.equals("N")) {
 				        //Re-build the heat map 
 					    Cluster clusterer = new Cluster();
@@ -130,7 +134,7 @@ public class MapProperties extends HttpServlet {
 				    mgr.save();
 			    }
 			    
-			    if (clusterSuccess) {
+	        	if (clusterSuccess) {
 				    //Re-build the heat map 
 				    HeatmapBuild builder = new HeatmapBuild();
 				    builder.buildHeatMap(workingDir);

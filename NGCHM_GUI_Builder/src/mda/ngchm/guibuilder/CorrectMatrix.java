@@ -27,15 +27,16 @@ public class CorrectMatrix extends HttpServlet {
 		response.setContentType("application/json;charset=UTF-8");
 		
 	    final PrintWriter writer = response.getWriter();
+    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
+        workingDir = workingDir + "/" + mySession.getId();
+	    String matrixFile = workingDir  + "/workingMatrix.txt";
 
 	    try {
-	    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
-	        workingDir = workingDir + "/" + mySession.getId();
 	        HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
 		    String propJSON = "{}";
 	        File propFile = new File(workingDir + "/heatmapProperties.json");
 	        if (propFile.exists()) {
-			    String matrixFile = workingDir  + "/workingMatrix.txt";
+				Util.backupWorking(matrixFile);
 			    String correction = request.getParameter("Correction");
 			    if (correction.equals("ReplaceInvalid"))
 			    	replaceNonNumeric(matrixFile, request);
@@ -48,9 +49,15 @@ public class CorrectMatrix extends HttpServlet {
 	    	response.getWriter().write(propJSON.toString());
 	    	response.flushBuffer();
 	    } catch (Exception e) {
-	        writer.println("Error correcting matrix.");
-	        writer.println("<br/> ERROR: " + e.getMessage());
-
+	    	try {
+	    		Util.restoreWorking(matrixFile);
+	    	} catch (Exception f) {
+	    		//do nothing
+	    	}
+	    	String errmsg = e.getMessage().trim();
+	    	if (errmsg.length() < 3 ) { errmsg ="";} else {errmsg = errmsg + ".";}
+        	String errJSON = "{\"error\": \"The selected correction could not be applied to your matrix. "+ errmsg +"\"}";
+	        writer.println(errJSON);
 	    } finally {
 	        if (writer != null) {
 	            writer.close();
@@ -62,201 +69,209 @@ public class CorrectMatrix extends HttpServlet {
 		doGet(request, response);
 	}
 
-   
-
 	private void replaceNonNumeric(String matrixFile, HttpServletRequest request) throws Exception {
-		Util.backupWorking(matrixFile);
 		String tmpWorking = Util.copyWorkingToTemp(matrixFile);
 		String replaceMethod = request.getParameter("nreplace");
 		BufferedReader rdr = new BufferedReader(new FileReader(tmpWorking));
 	    BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
-		
-		Util.logStatus("CorrectMatrix - Begin Replace Non Numeric Transform for (" + replaceMethod + "). ");
-
-		if (replaceMethod.equals("N/A") || replaceMethod.equals("zero")) {
-			String line = rdr.readLine(); //Just write the header
-			out.write(line + "\n");
-			line = rdr.readLine();
-			String replacement = replaceMethod.equals("zero") ? "0" : "N/A";
-			
-			while (line != null ){
-				String toks[] = line.split("\t",-1);
-				out.write(toks[0]);
-				for (int i = 1; i < toks.length; i++) {
-					if (Util.isNumeric(toks[i])) {
-						out.write("\t" + toks[i]);
-					} else if (Util.isMissing(toks[i])) {
-						out.write("\t" + toks[i]);
-					} else {
-						out.write("\t" + replacement);
-					}
-				}
-				out.write("\n");
+	    
+	    try {
+			Util.logStatus("CorrectMatrix - Begin Replace Non Numeric Transform for (" + replaceMethod + "). ");
+	
+			if (replaceMethod.equals("N/A") || replaceMethod.equals("zero")) {
+				String line = rdr.readLine(); //Just write the header
+				out.write(line + "\n");
 				line = rdr.readLine();
-			}	
-		} else if (replaceMethod.equals("rowmean")) {
-
-			String line = rdr.readLine(); //Just write the header
-			out.write(line + "\n");
-			line = rdr.readLine();
-			
-			while (line != null ){
-				String toks[] = line.split("\t",-1);
-				out.write(toks[0]);
-				float mean = getRowMean(toks);
+				String replacement = replaceMethod.equals("zero") ? "0" : "N/A";
 				
-				for (int i = 1; i < toks.length; i++) {
-					if (Util.isNumeric(toks[i])) {
-						out.write("\t" + toks[i]);
-					} else if (Util.isMissing(toks[i])) {
-						out.write("\t" + toks[i]);
-					} else {
-						out.write("\t" + mean);
+				while (line != null ){
+					String toks[] = line.split("\t",-1);
+					out.write(toks[0]);
+					for (int i = 1; i < toks.length; i++) {
+						if (Util.isNumeric(toks[i])) {
+							out.write("\t" + toks[i]);
+						} else if (Util.isMissing(toks[i])) {
+							out.write("\t" + toks[i]);
+						} else {
+							out.write("\t" + replacement);
+						}
 					}
-				}
-				out.write("\n");
+					out.write("\n");
+					line = rdr.readLine();
+				}	
+			} else if (replaceMethod.equals("rowmean")) {
+	
+				String line = rdr.readLine(); //Just write the header
+				out.write(line + "\n");
 				line = rdr.readLine();
-			}	
-		} else if (replaceMethod.equals("colmean")) {
-
-			String line = rdr.readLine(); //Just write the header
-			out.write(line + "\n");
-			line = rdr.readLine();
-			float[] means = getColMeans(tmpWorking);
-			
-			while (line != null ){
-				String toks[] = line.split("\t",-1);
-				out.write(toks[0]);
-				for (int i = 1; i < toks.length; i++) {
-					if (Util.isNumeric(toks[i])) {
-						out.write("\t" + toks[i]);
-					} else if (Util.isMissing(toks[i])) {
-						out.write("\t" + toks[i]);
-					} else {
-						out.write("\t" + means[i]);
+				
+				while (line != null ){
+					String toks[] = line.split("\t",-1);
+					out.write(toks[0]);
+					float mean = getRowMean(toks);
+					
+					for (int i = 1; i < toks.length; i++) {
+						if (Util.isNumeric(toks[i])) {
+							out.write("\t" + toks[i]);
+						} else if (Util.isMissing(toks[i])) {
+							out.write("\t" + toks[i]);
+						} else {
+							out.write("\t" + mean);
+						}
 					}
-				}
-				out.write("\n");
+					out.write("\n");
+					line = rdr.readLine();
+				}	
+			} else if (replaceMethod.equals("colmean")) {
+	
+				String line = rdr.readLine(); //Just write the header
+				out.write(line + "\n");
 				line = rdr.readLine();
-			}	
-		}
-		
-		rdr.close();
-		out.close();
-		new File(tmpWorking).delete();
+				float[] means = getColMeans(tmpWorking);
+				
+				while (line != null ){
+					String toks[] = line.split("\t",-1);
+					out.write(toks[0]);
+					for (int i = 1; i < toks.length; i++) {
+						if (Util.isNumeric(toks[i])) {
+							out.write("\t" + toks[i]);
+						} else if (Util.isMissing(toks[i])) {
+							out.write("\t" + toks[i]);
+						} else {
+							out.write("\t" + means[i]);
+						}
+					}
+					out.write("\n");
+					line = rdr.readLine();
+				}	
+			}
+	    } catch (Exception e) {
+			rdr.close();
+			out.close();
+			throw e;
+	    } finally {
+			rdr.close();
+			out.close();
+			new File(tmpWorking).delete();
+	    }
 	}
 	
 	private void fillMissing(String matrixFile, HttpServletRequest request) throws Exception {
-		Util.backupWorking(matrixFile);
 		String tmpWorking = Util.copyWorkingToTemp(matrixFile);
 		String replaceMethod = request.getParameter("mreplace");
 		BufferedReader rdr = new BufferedReader(new FileReader(tmpWorking));
 	    BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
 		
 		Util.logStatus("CorrectMatrix - Begin Fill Missing Transform for (" + replaceMethod + "). ");
+		try {
 
-		if (replaceMethod.equals("zero") || replaceMethod.equals("N/A")) {
-			String replacement = replaceMethod.equals("zero") ? "0" : "N/A";
-			String line = rdr.readLine(); //Just write the header
-			out.write(line + "\n");
-			line = rdr.readLine();
-			
-			while (line != null ){
-				String toks[] = line.split("\t",-1);
-				out.write(toks[0]);
-				for (int i = 1; i < toks.length; i++) {
-					if (Util.isMissing(toks[i])) {
-						out.write("\t" + replacement);
-					} else {
-						out.write("\t" + toks[i]);
-					}
-				}
-				out.write("\n");
+			if (replaceMethod.equals("zero") || replaceMethod.equals("N/A")) {
+				String replacement = replaceMethod.equals("zero") ? "0" : "N/A";
+				String line = rdr.readLine(); //Just write the header
+				out.write(line + "\n");
 				line = rdr.readLine();
-			}	
-		} else if (replaceMethod.equals("rowmean")) {
-			String line = rdr.readLine(); //Just write the header
-			out.write(line + "\n");
-			line = rdr.readLine();
-			
-			while (line != null ){
-				String toks[] = line.split("\t",-1);
-				out.write(toks[0]);
-				float mean = getRowMean(toks);
 				
-				for (int i = 1; i < toks.length; i++) {
-					if (Util.isMissing(toks[i])) {
-						out.write("\t" + mean);
-					} else {
-						out.write("\t" + toks[i]);
+				while (line != null ){
+					String toks[] = line.split("\t",-1);
+					out.write(toks[0]);
+					for (int i = 1; i < toks.length; i++) {
+						if (Util.isMissing(toks[i])) {
+							out.write("\t" + replacement);
+						} else {
+							out.write("\t" + toks[i]);
+						}
 					}
-				}
-				out.write("\n");
+					out.write("\n");
+					line = rdr.readLine();
+				}	
+			} else if (replaceMethod.equals("rowmean")) {
+				String line = rdr.readLine(); //Just write the header
+				out.write(line + "\n");
 				line = rdr.readLine();
-			}	
-		} else if (replaceMethod.equals("colmean")) {
-			String line = rdr.readLine(); //Just write the header
-			out.write(line + "\n");
-			line = rdr.readLine();
-			float[] means = getColMeans(tmpWorking);
-			
-			while (line != null ){
-				String toks[] = line.split("\t",-1);
-				out.write(toks[0]);
-				for (int i = 1; i < toks.length; i++) {
-					if (Util.isMissing(toks[i])) {
-						out.write("\t" + means[i]);
-					} else {
-						out.write("\t" + toks[i]);
-					}
-				}
-				out.write("\n");
-				line = rdr.readLine();
-			}
-		} else if (replaceMethod.equals("rowmin")) {
-			String line = rdr.readLine(); //Just write the header
-			out.write(line + "\n");
-			line = rdr.readLine();
-			
-			while (line != null ){
-				String toks[] = line.split("\t",-1);
-				out.write(toks[0]);
-				float min = getRowMin(toks);
 				
-				for (int i = 1; i < toks.length; i++) {
-					if (Util.isMissing(toks[i])) {
-						out.write("\t" + min);
-					} else {
-						out.write("\t" + toks[i]);
+				while (line != null ){
+					String toks[] = line.split("\t",-1);
+					out.write(toks[0]);
+					float mean = getRowMean(toks);
+					
+					for (int i = 1; i < toks.length; i++) {
+						if (Util.isMissing(toks[i])) {
+							out.write("\t" + mean);
+						} else {
+							out.write("\t" + toks[i]);
+						}
 					}
-				}
-				out.write("\n");
+					out.write("\n");
+					line = rdr.readLine();
+				}	
+			} else if (replaceMethod.equals("colmean")) {
+				String line = rdr.readLine(); //Just write the header
+				out.write(line + "\n");
 				line = rdr.readLine();
-			}	
-		} else if (replaceMethod.equals("colmin")) {
-			String line = rdr.readLine(); //Just write the header
-			out.write(line + "\n");
-			line = rdr.readLine();
-			float[] mins = getColMins(tmpWorking);
-			
-			while (line != null ){
-				String toks[] = line.split("\t",-1);
-				out.write(toks[0]);
-				for (int i = 1; i < toks.length; i++) {
-					if (Util.isMissing(toks[i])) {
-						out.write("\t" + mins[i]);
-					} else {
-						out.write("\t" + toks[i]);
+				float[] means = getColMeans(tmpWorking);
+				
+				while (line != null ){
+					String toks[] = line.split("\t",-1);
+					out.write(toks[0]);
+					for (int i = 1; i < toks.length; i++) {
+						if (Util.isMissing(toks[i])) {
+							out.write("\t" + means[i]);
+						} else {
+							out.write("\t" + toks[i]);
+						}
 					}
+					out.write("\n");
+					line = rdr.readLine();
 				}
-				out.write("\n");
+			} else if (replaceMethod.equals("rowmin")) {
+				String line = rdr.readLine(); //Just write the header
+				out.write(line + "\n");
 				line = rdr.readLine();
-			}	
-		} 
-		
-		rdr.close();
-		out.close();
-		new File(tmpWorking).delete();
+				
+				while (line != null ){
+					String toks[] = line.split("\t",-1);
+					out.write(toks[0]);
+					float min = getRowMin(toks);
+					
+					for (int i = 1; i < toks.length; i++) {
+						if (Util.isMissing(toks[i])) {
+							out.write("\t" + min);
+						} else {
+							out.write("\t" + toks[i]);
+						}
+					}
+					out.write("\n");
+					line = rdr.readLine();
+				}	
+			} else if (replaceMethod.equals("colmin")) {
+				String line = rdr.readLine(); //Just write the header
+				out.write(line + "\n");
+				line = rdr.readLine();
+				float[] mins = getColMins(tmpWorking);
+				
+				while (line != null ){
+					String toks[] = line.split("\t",-1);
+					out.write(toks[0]);
+					for (int i = 1; i < toks.length; i++) {
+						if (Util.isMissing(toks[i])) {
+							out.write("\t" + mins[i]);
+						} else {
+							out.write("\t" + toks[i]);
+						}
+					}
+					out.write("\n");
+					line = rdr.readLine();
+				}	
+			} 
+	    } catch (Exception e) {
+			rdr.close();
+			out.close();
+			throw e;
+	    } finally {
+			rdr.close();
+			out.close();
+			new File(tmpWorking).delete();
+	    }
 	}
 	
 	private static float getRowMean(String[] toks) throws Exception{
@@ -271,7 +286,6 @@ public class CorrectMatrix extends HttpServlet {
 		float mean = tot/count;
 		return mean;
 	}
-	
 	
 	private static float[] getColMeans(String tmpWorking) throws Exception{ // TODO: may need to profile this for larger matrix sizes
 		BufferedReader mrdr = new BufferedReader(new FileReader(tmpWorking));
