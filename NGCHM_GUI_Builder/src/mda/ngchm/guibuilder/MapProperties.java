@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.File; 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -41,7 +40,10 @@ public class MapProperties extends HttpServlet {
 	    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
 	        String propJSON = "{}";
 	    	if (mySession == null) {
-		        propJSON = "{\"no_session\": 1}";
+		        HeatmapPropertiesManager tempMgr = new HeatmapPropertiesManager(workingDir);
+		        HeatmapPropertiesManager.Heatmap map = tempMgr.getMap();
+		        propJSON = "{\"no_session\": 1, \"builder_version\": \""+ map.builder_version + "\"}";
+		        tempMgr = null;
 	    	} else {
 		        workingDir = workingDir + "/" + mySession.getId();
 	
@@ -51,7 +53,8 @@ public class MapProperties extends HttpServlet {
 		        if (propFile.exists()) {
 		        	propJSON = mgr.load();
 		        } else {
-		        	propJSON = "{\"no_file\": 1}";
+			        HeatmapPropertiesManager.Heatmap map = mgr.getMap();
+			        propJSON = "{\"no_file\": 1, \"builder_version\": \""+ map.builder_version + "\"}";
 		        }
 	    	}
 	       	response.setContentType("application/json");
