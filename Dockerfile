@@ -31,6 +31,9 @@ ARG TOMCAT_UID=1000
 ARG TOMCAT_GID=1000
 ARG TOMCAT_USER=tomcat
 ARG TOMCAT_GROUP=tomcat
+
+COPY setenv.sh /usr/local/tomcat/bin/setenv.sh
+
 RUN set -x ; \
     addgroup -g ${TOMCAT_GID} -S ${TOMCAT_GROUP} ; \
     adduser -u ${TOMCAT_UID} -S -G ${TOMCAT_GROUP} ${TOMCAT_USER} && exit 0; exit 1
