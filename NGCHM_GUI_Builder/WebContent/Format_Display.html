@@ -40,6 +40,7 @@
 	  		</div>
 	 		<div id="helpDiv"><img id='barHelp_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this,1);' src='images/questionMark.png' alt='Open Help Page' onclick='NgChmGui.UTIL.helpBox("Format");' align="top"/></div> 
 	    </div>   
+	<div style="flex: 1 1; min-height: 0px;">
        	<div id="FormatDisplayContainer" class="display_container" style="position: relative">
 		    <div id="formatSelection" class="data_entry_container" style="width: 25%">
 		 		<div id='optionsMode' align='right' class='chmTR'><b>Show Advanced Features:</b><input type='checkbox' id='optionsCheck' name='optionsCheck' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this)' onclick='NgChmGui.UTIL.toggleAdvanced();NgChmGui.FORMAT.setAdvanced();'></div>
@@ -55,15 +56,16 @@
 			        	<img id='covarNext_btn' src='images/nextButton.png' alt='Go to next step' onclick='NgChmGui.UTIL.applySettings(NgChmGui.FORMAT.applySettings, NgChmGui.FORMAT.gotoHeatMapScreen);' />		
 			        </div>
 		        </div>   
-			</div>
-	        <div id="heatMapView" class="layout_display_container" style="width: 75%;">
+		    </div>
+	            <div id="heatMapView" class="layout_display_container" style="width: 75%;">
 	        	<div id="screenNotesDisplay"></div>
-				<div id='labelPrefExample' class='chmDIV'></div>
-				<div id='NGCHMEmbed' style="display: flex; flex-direction: column; background-color: white; height: 80%; width: 90%;"></div>
-				<script src='javascript/ngchmWidget-min.js'></script>
-	  			 <script> NgChmGui.UTIL.editWidgetForBuilder();</script>  
-			</div>
+			<div id='labelPrefExample' class='chmDIV' style="padding-top: 0px;"></div>
+			<div id='NGCHMEmbed'></div>
+			<script src='javascript/ngchmWidget-min.js'></script>
+			<script>NgChmGui.UTIL.editWidgetForBuilder();</script>
+		    </div>
 		</div>   		
+	</div>
 		<div id="message" style="display: none; position: absolute; background-color: rgb(230, 240, 255);"></div>
 		<div id="helpBox" style="display: none; position: absolute; background-color: rgb(230, 240, 255);">
 			<div class="helpBoxHdr" id="helpBoxHdr"></div>
@@ -97,5 +99,6 @@
 					</tr>
 				</tbody>
 			</table>
-		</div>   </body>
+		</div>
+	</body>
 </html>

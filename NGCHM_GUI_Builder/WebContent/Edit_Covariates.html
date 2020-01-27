@@ -41,6 +41,7 @@
 	  		</div>
 	 		<div id="helpDiv"><img id='barHelp_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this,1);' src='images/questionMark.png' alt='Open Help Page' onclick='NgChmGui.UTIL.helpBox("Covariates");' align="top"/></div> 
 	    </div>   
+	    <div style="flex: 1 1; min-height: 0px;">
        	<div id="DisplayContainer" class="display_container" style="position: relative;">
 	 		<div id="covarReOrder" class="data_entry_container" style="position: relative;display: none;width: 25%;">   
  				<div id="reOrderPanel">
@@ -247,13 +248,13 @@
 			        </div>   
 		        </div>
 			</div>
-	        <div id="heatMapView" class="layout_display_container">
+	            <div id="heatMapView" class="layout_display_container">
 	        	<div id=screenNotesDisplay></div>
-	        	<br>
-				<div id='NGCHMEmbed' style="display: flex; flex-direction: column; background-color: white; height: 80%; width: 90%;"></div>
-				<script src='javascript/ngchmWidget-min.js'></script>
- 				 <script> NgChmGui.UTIL.editWidgetForBuilder();</script>   
-			</div>
+			<div id='NGCHMEmbed'></div>
+			<script src='javascript/ngchmWidget-min.js'></script>
+			<script>NgChmGui.UTIL.editWidgetForBuilder();</script>
+		    </div>
+		</div>
 		</div>
 		<div id="message" style="display: none; position: absolute; background-color: rgb(230, 240, 255);"></div>
 		<div id="helpBox" style="display: none; position: absolute; background-color: rgb(230, 240, 255);">
@@ -288,5 +289,6 @@
 					</tr>
 				</tbody>
 			</table>
-		</div>	</body>
+		</div>
+	</body>
 </html>
