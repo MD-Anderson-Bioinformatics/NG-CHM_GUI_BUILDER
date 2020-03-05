@@ -225,9 +225,9 @@ NgChmGui.UTIL.cleanSession = function(loadFunction) {
  **********************************************************************************/
 NgChmGui.UTIL.applySettings = function(applyFunction, nextFunction) {
 	if (NgChmGui.UTIL.validSession()) {
+		NgChmGui.UTIL.clearBuildErrors();
 		if (NgChmGui.UTIL.buildProps() === true) {
 			//Reset builder warnings before calling a new build
-			NgChmGui.UTIL.clearBuildErrors();
 			NgChm.SUM.summaryHeatMapCache = {};
 			if (applyFunction()) {
 				NgChmGui.UTIL.setHeatmapProperties(nextFunction);
@@ -666,6 +666,7 @@ NgChmGui.UTIL.showLoading = function() {
 				clusterDiv.setAttribute("align", "center");
 				textbox.appendChild(clusterDiv);
 			} else {
+				textbox.style.height = '25px';
 				NgChmGui.UTIL.addSpinner(loadingDiv);
 				textbox.innerHTML = msg;
 			}

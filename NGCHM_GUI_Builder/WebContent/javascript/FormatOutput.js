@@ -12,6 +12,7 @@ NgChmGui.FORMAT.userPalettes = "";
  * entry panels.  
  **********************************************************************************/
 NgChmGui.FORMAT.loadData =  function() {
+	NgChm.SUM.flagDrawClassBarLabels = true;
 	if (NgChmGui.UTIL.loadHeaderData()) {
 		var prefsPanelDiv = document.getElementById("preferencesPanel");
 		prefsPanelDiv.style.left = '0px';
@@ -643,7 +644,7 @@ NgChmGui.FORMAT.loadColorPreviewDiv = function(ctr){
 				}
 				for (var k=0;k<breaks.length;k++){
 					if (breaks[k]<=val && val < breaks[k+1]){
-						bins[k+1]++;
+						bins[k]++;
 						break;
 					}
 				}
@@ -660,7 +661,7 @@ NgChmGui.FORMAT.loadColorPreviewDiv = function(ctr){
 		var ctx = document.getElementById("histo_canvas").getContext("2d");
 		var graph = new BarGraph(ctx);
 		graph.margin = 2;
-		graph.width = 250;
+		graph.width = 300;
 		graph.height = 150;
 		graph.gradient = false;
 		bins.unshift(nan);
@@ -672,9 +673,9 @@ NgChmGui.FORMAT.loadColorPreviewDiv = function(ctr){
 		var breaksLabel = new Array(bins.length+1).join(' ').split('');
 		
 		breaksLabel[0] = "NA";
-		breaksLabel[1] = "<" + breaks[0].toFixed(2);
+		breaksLabel[1] = "<" + Number(Math.round(breaks[0]+'e2')+'e-2')
 		breaksLabel[Math.floor(breaksLabel.length/2)] = breaks[4].toFixed(2);
-		breaksLabel[breaksLabel.length - 1] = breaks[breaks.length-1].toFixed(2) + "<";
+		breaksLabel[breaksLabel.length - 1] = ">" + Number(Math.round(breaks[breaks.length-1]+'e2')+'e-2');
 		graph.colors = colors;
 		graph.xAxisLabelArr = breaksLabel;//["Missing Values", NgChmGui.TRANS.matrixInfo.histoBins];
 		graph.update(bins);//[NgChmGui.TRANS.matrixInfo.numMissing,NgChmGui.TRANS.matrixInfo.histoCounts]);

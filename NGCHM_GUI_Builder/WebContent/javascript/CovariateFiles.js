@@ -10,6 +10,7 @@ NgChmGui.tileWrite = false;
  * entry panels.  
  **********************************************************************************/
 NgChmGui.COV.loadData =  function() {
+	  NgChm.SUM.flagDrawClassBarLabels = true;
 	if (NgChmGui.UTIL.loadHeaderData()) {
 		var prefsPanelDiv = document.getElementById("preferencesPanel");
 		prefsPanelDiv.style.left = '0px';

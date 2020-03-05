@@ -37,6 +37,7 @@ public class CorrelateMatrix extends HttpServlet {
     	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
         workingDir = workingDir + "/" + mySession.getId();
 	    String matrixFile = workingDir  + "/workingMatrix.txt";
+	    String errMsg = "";
 
 	    try {
 	        HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
@@ -45,13 +46,25 @@ public class CorrelateMatrix extends HttpServlet {
 	        if (propFile.exists()) {
 				Util.backupWorking(matrixFile);
 	        	propJSON = mgr.load();
+	        	mgr.resetBuildConfig();
 	        	mgr.save();
 			    String transform = request.getParameter("Correlation");
-			    if (transform.equals("Transpose"))
+			    if (transform.equals("Transpose")) {
 			    	transposeTransform(matrixFile, request);
-			    else if (transform.equals("Correlation"))
-			    	correlationTransform(matrixFile, request, mgr);
-			    propJSON = mgr.load();
+			    } else if (transform.equals("Correlation")) {
+			    	errMsg = correlationTransform(matrixFile, request, mgr);
+			    }
+			    if (!errMsg.contentEquals("")) {
+				    try {
+			    		Util.restoreWorking(matrixFile);
+			       		String errJSON = "{\"error\": \""+errMsg+"\"}";
+			    		propJSON = errJSON;
+			    	} catch (Exception f) {
+			    		//do nothing
+			    	}
+			    } else {
+				    propJSON = mgr.load();
+			    }
 	        } else {
 	        	propJSON = "{\"no_file\": 1}";
 	        }
@@ -63,9 +76,9 @@ public class CorrelateMatrix extends HttpServlet {
 	    	} catch (Exception f) {
 	    		//do nothing
 	    	}
-	    	String errmsg = e.getMessage().trim();
-	    	if (errmsg.length() < 3 ) { errmsg ="";} else {errmsg = errmsg + ".";}
-        	String errJSON = "{\"error\": \"The selected correlation could not be applied to your matrix. "+ errmsg +"\"}";
+	    	errMsg = e.getMessage().trim();
+	    	if (errMsg.length() < 3 ) { errMsg ="";} else {errMsg = errMsg + ".";}
+	    	String errJSON = "{\"error\": \"The selected correlation could not be applied to your matrix. " + errMsg + "\"}";
 	        writer.println(errJSON);
 	    } finally {
 	        if (writer != null) {
@@ -111,9 +124,10 @@ public class CorrelateMatrix extends HttpServlet {
 	    }
 	}
 	
-	private void correlationTransform(String matrixFile, HttpServletRequest request, HeatmapPropertiesManager mgr) throws Exception {
+	private String correlationTransform(String matrixFile, HttpServletRequest request, HeatmapPropertiesManager mgr) throws Exception {
 		String tmpWorking = Util.copyWorkingToTemp(matrixFile);
 		String operation = request.getParameter("tctransformmethod");
+		String errMsg = "";
 		
 		Util.logStatus("CorrelateMatrix - Begin Correlation Transform for (" + operation + "). ");
 
@@ -129,7 +143,6 @@ public class CorrelateMatrix extends HttpServlet {
 				rowLabels = getColLabels(tmpWorking);
 			}
 			int numRows1 = matrix1.length;
-			int numCols1 = matrix1[0].length;
 			double[] rowMeans1 = getRowMeansFromMatrix(matrix1);
 			double[] rowStdDevs1 = getRowStdDevsFromMatrix(matrix1);
 			
@@ -137,7 +150,6 @@ public class CorrelateMatrix extends HttpServlet {
 			double[][] matrix2 = null;
 			String compatible = "";
 			String appropriateSize = "";
-			String errMsg = "Correlation against selected file not done. ";
 			String corrMatrix;
 			if (operation.equals("row_self") || operation.equals("col_self")) {
 				matrix2 = getTranspose(matrix1);
@@ -150,26 +162,10 @@ public class CorrelateMatrix extends HttpServlet {
 				}
 			}
 			
-			// currently not checking size. logic retained in case size becomes issue.
-	//			if (operation.equals("self")) {
-	//				if (numRows1 > 2000 || numCols1 > 2000) {
-	//					appropriateSize = "Dimensions of the matrix are too large.";
-	//				}
-	//			} else {// if (operation.equals("matrix")){
-	//				if (numRows1 > 2000 || numCols1 > 2000){ 
-	//					appropriateSize = "Dimensions of the original matrix are too large.";
-	//				} else if (numRows2 > 2000 || numCols2 > 2000) {
-	//					appropriateSize = "Dimensions of the selected matrix are too large.";
-	//				}
-	//			}
 			if (!appropriateSize.equals("") || !compatible.equals("")) {
-				errMsg += compatible;
+				errMsg += "Correlation against selected file not done. " + compatible;
 				System.out.println(errMsg);
-				mgr.getMap().builder_config.buildProps = "Y";
-				mgr.getMap().builder_config.buildErrors = errMsg;
-				mgr.save();
-				Util.restoreWorkingFromTemp(matrixFile);
-				return;
+				return errMsg;
 			}
 			
 			int numRows2 = matrix2.length;
@@ -241,18 +237,18 @@ public class CorrelateMatrix extends HttpServlet {
 				line = rdr.readLine();
 			}
 			if (operation.equals("row_matrix") || operation.equals("col_matrix")) {
-				
-				mgr.getMap().builder_config.buildProps = "Y";
 				if (mgr.getMap().builder_config.transform_config == null) {
 						mgr.getMap().builder_config.transform_config = mgr.new TransformConfig(false, null, null, null);
 				}
 				mgr.getMap().builder_config.transform_config.correlationDone = true;
 				mgr.save();
 			}
+			return errMsg;
 	    } catch (Exception e) {
 			rdr.close();
 			out.close();
-			throw e;
+			errMsg += "Correlation against selected file not done. " + e.getMessage();
+			return errMsg;
 	    } finally {
 			rdr.close();
 			out.close();

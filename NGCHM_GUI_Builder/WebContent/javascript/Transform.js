@@ -28,7 +28,7 @@ NgChmGui.TRANS.loadData =  function() {
 NgChmGui.TRANS.setAdvanced = function() {
 	var taskList = document.getElementById('transPref_list');
 	if (NgChmGui.UTIL.showAdvanced === 'N') {
-		if (taskList.selectedIndex === 3) {
+		if (taskList.selectedIndex === 4) {
 			taskList.selectedIndex = 0;
 			NgChmGui.TRANS.showTransSelection();
 		}
@@ -476,13 +476,19 @@ NgChmGui.TRANS.correctMatrixData =  function() {
 		            console.log('Failed to correct matrix '  + req.status);
 		        } else {
 					if (NgChmGui.UTIL.debug) {console.log('200');}
+					var response = JSON.parse(req.response);
 		        	if (typeof response.error !== 'undefined') {
 		        		NgChmGui.TRANS.validateEntries(false,false,response.error,false);
 		        	} else {
-			        	NgChmGui.mapProperties = JSON.parse(req.response);
-			        	if (NgChmGui.UTIL.validSession()) {
-				        	NgChmGui.TRANS.updateLog(document.getElementById("missing_frm"));
-				        	NgChmGui.TRANS.processTransforms(NgChmGui.TRANS.getWorkingMatrix);
+						var response = JSON.parse(req.response);
+			        	if (typeof response.error !== 'undefined') {
+			        		NgChmGui.TRANS.validateEntries(false,false,response.error,false);
+			        	} else {
+				        	NgChmGui.mapProperties = response;
+				        	if (NgChmGui.UTIL.validSession()) {
+					        	NgChmGui.TRANS.updateLog(document.getElementById("missing_frm"));
+					        	NgChmGui.TRANS.processTransforms(NgChmGui.TRANS.getWorkingMatrix);
+				        	}
 			        	}
 		        	}
 			    }
@@ -515,7 +521,7 @@ NgChmGui.TRANS.filterMatrixData =  function() {
 		        	if (typeof response.error !== 'undefined') {
 		        		NgChmGui.TRANS.validateEntries(false,false,response.error,false);
 		        	} else {
-			        	NgChmGui.mapProperties = JSON.parse(req.response);
+			        	NgChmGui.mapProperties = response;
 			        	if (NgChmGui.UTIL.validSession()) {
 				        	NgChmGui.TRANS.updateLog(document.getElementById("filter_frm") );
 				        	NgChmGui.TRANS.processTransforms(NgChmGui.TRANS.getWorkingMatrix);
@@ -548,11 +554,16 @@ NgChmGui.TRANS.duplicateMatrixData =  function() {
 		            console.log('Failed to process matrix duplicates. '  + req.status);
 		        } else {
 					if (NgChmGui.UTIL.debug) {console.log('200');}
-		        	NgChmGui.mapProperties = JSON.parse(req.response);
-		        	if (NgChmGui.UTIL.validSession()) {
-			        	NgChmGui.TRANS.updateLog(document.getElementById("duplicate_frm") );
-			        	NgChmGui.TRANS.processTransforms(NgChmGui.TRANS.getWorkingMatrix);
-			        	NgChmGui.TRANS.initSelects();
+		        	var response = JSON.parse(req.response);
+		        	if (typeof response.error !== 'undefined') {
+		        		NgChmGui.TRANS.validateEntries(false,false,response.error,false);
+		        	} else {
+			        	NgChmGui.mapProperties = response;
+			        	if (NgChmGui.UTIL.validSession()) {
+				        	NgChmGui.TRANS.updateLog(document.getElementById("duplicate_frm") );
+				        	NgChmGui.TRANS.processTransforms(NgChmGui.TRANS.getWorkingMatrix);
+				        	NgChmGui.TRANS.initSelects();
+			        	}
 		        	}
 			    }
 			}
@@ -580,14 +591,19 @@ NgChmGui.TRANS.transformMatrixData =  function() {
 		            console.log('Failed to filter matrix '  + req.status);
 		        } else {
 					if (NgChmGui.UTIL.debug) {console.log('200');}
-		        	NgChmGui.mapProperties = JSON.parse(req.response);
- 		        	NgChmGui.TRANS.getWorkingMatrix();
-		        	if (NgChmGui.mapProperties.builder_config.buildErrors == "" && NgChmGui.UTIL.validSession()){
-		        		NgChmGui.TRANS.updateLog(document.getElementById("trans_frm"));
-			        	NgChmGui.TRANS.processTransforms();
-			        	NgChmGui.TRANS.initSelects();
+		        	var response = JSON.parse(req.response);
+		        	if (typeof response.error !== 'undefined') {
+		        		NgChmGui.TRANS.validateEntries(false,false,response.error,false);
 		        	} else {
-		        		NgChmGui.TRANS.validateEntries(false);
+						NgChmGui.mapProperties = response;
+						NgChmGui.TRANS.getWorkingMatrix();
+						if (NgChmGui.mapProperties.builder_config.buildErrors == "" && NgChmGui.UTIL.validSession()){
+							NgChmGui.TRANS.updateLog(document.getElementById("trans_frm"));
+							NgChmGui.TRANS.processTransforms();
+							NgChmGui.TRANS.initSelects();
+						} else {
+							NgChmGui.TRANS.validateEntries(false);
+						}
 		        	}
 			    }
 			}
@@ -616,13 +632,18 @@ NgChmGui.TRANS.correlateMatrixData =  function() {
 		            console.log('Failed to correlate matrix '  + req.status);
 		        } else {
 					if (NgChmGui.UTIL.debug) {console.log('200');}
-		        	NgChmGui.mapProperties = JSON.parse(req.response);
- 		        	NgChmGui.TRANS.getWorkingMatrix();
-		        	if (NgChmGui.mapProperties.builder_config.buildErrors == "" && NgChmGui.UTIL.validSession()){
-		        		NgChmGui.TRANS.updateLog(document.getElementById("corr_frm"));
-			        	NgChmGui.TRANS.processTransforms();
+		        	var response = JSON.parse(req.response);
+		        	if (typeof response.error !== 'undefined') {
+		        		NgChmGui.TRANS.validateEntries(false,false,response.error,false);
 		        	} else {
-		        		NgChmGui.TRANS.validateEntries(false);
+			        	NgChmGui.mapProperties = response;
+	 		        	NgChmGui.TRANS.getWorkingMatrix();
+			        	if (NgChmGui.mapProperties.builder_config.buildErrors == "" && NgChmGui.UTIL.validSession()){
+			        		NgChmGui.TRANS.updateLog(document.getElementById("corr_frm"));
+				        	NgChmGui.TRANS.processTransforms();
+			        	} else {
+			        		NgChmGui.TRANS.validateEntries(false);
+			        	}
 		        	}
 		        	NgChmGui.UTIL.hideLoading();
 			    }
