@@ -283,9 +283,8 @@ public class ProcessMatrix extends HttpServlet {
 								lengthValidator++;
 							}
 							startPoint = startPoint - 1;
-							writer.write(" " + "\t");
 						}
-						writeOutMatrixRow(startPoint, stopPoint, matrixConfig.colLabelCol, writer, toks, matrixErrors, true); 
+						writeOutMatrixLabelRow(startPoint, stopPoint, matrixConfig.colLabelCol, writer, toks, matrixErrors); 
 						writer.write("\n");
 					} else if (rowNum >= matrixConfig.dataStartRow) {
 						if (toks.length != lengthValidator) {
@@ -295,7 +294,7 @@ public class ProcessMatrix extends HttpServlet {
 						if (toks[matrixConfig.colLabelCol].length() > longRowLabel.length()) {
 							longRowLabel = toks[matrixConfig.colLabelCol];
 						}
-						writeOutMatrixRow(startPoint, endPoint, matrixConfig.colLabelCol, writer, toks, matrixErrors, false); 
+						writeOutMatrixRow(startPoint, endPoint, matrixConfig.colLabelCol, writer, toks, matrixErrors); 
 						writer.write("\n");
 					}
 				}
@@ -336,13 +335,33 @@ public class ProcessMatrix extends HttpServlet {
 	}
    
 	/*******************************************************************
+	 * METHOD: writeOutMatrixLabelRow
+	 *
+	 * This method writes out an entire label line from the incoming matrix
+	 * file to the workingMatrix.txt file.
+	 ******************************************************************/
+	private void writeOutMatrixLabelRow(int startPoint, int endPoint, int labelCol, BufferedWriter writer, String toks[], ArrayList<String> matrixErrors) throws Exception {
+		writer.write(" " + "\t");
+		for (int i = startPoint; i < endPoint; i++) {
+			if (toks[i].trim().equals("")) {
+				matrixErrors.add("MATRIX INVALID: Matrix contains at least one blank Column Label. Please inspect matrix to ensure that all column labels are populated with data.");
+				break;
+			}
+			writer.write(toks[i]);
+			if (i < endPoint-1) {
+				writer.write("\t");
+			} 
+		}
+	}
+	
+	/*******************************************************************
 	 * METHOD: writeOutMatrixRow
 	 *
 	 * This method writes out an entire line from the incoming matrix
 	 * file to the workingMatrix.txt file.
 	 ******************************************************************/
-	private void writeOutMatrixRow(int startPoint, int endPoint, int labelCol, BufferedWriter writer, String toks[], ArrayList<String> matrixErrors, boolean isLabelRow) throws Exception {
-		if ((!isLabelRow) && (toks[labelCol].trim().equals(""))) {
+	private void writeOutMatrixRow(int startPoint, int endPoint, int labelCol, BufferedWriter writer, String toks[], ArrayList<String> matrixErrors) throws Exception {
+		if (toks[labelCol].trim().equals("")) {
 			matrixErrors.add("MATRIX INVALID: Matrix contains at least one blank Row Label. Please inspect matrix to ensure that all row labels are populated with data.");
 			return;
 		}
@@ -350,10 +369,6 @@ public class ProcessMatrix extends HttpServlet {
 			writer.write(toks[labelCol] + "\t"); 
 		}
 		for (int i = startPoint; i < endPoint; i++) {
-			if ((isLabelRow) && toks[i].trim().equals("")) {
-				matrixErrors.add("MATRIX INVALID: Matrix contains at least one blank Column Label. Please inspect matrix to ensure that all column labels are populated with data.");
-				break;
-			}
 			writer.write(toks[i]);
 			if (i < endPoint-1) {
 				writer.write("\t");
