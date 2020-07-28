@@ -317,7 +317,7 @@ NgChmGui.MAP.collapseMap = function() {
 	headerPanel.style.display = '';
 	leftPanel.style.display = '';
 	notesPanel.style.display = '';
-	viewPanel.classList.replace('expanded', 'collapsed');
-	mapPanel.classList.replace('expanded', 'collapsed');
+//	viewPanel.classList.replace('expanded', 'collapsed');
+//	mapPanel.classList.replace('expanded', 'collapsed');
 	NgChm.UTIL.chmResize();
 }

@@ -302,7 +302,12 @@ NgChmGui.UTIL.loadHeatMapView = function(hideDetail) {
 				if (NgChmGui.UTIL.debug) {console.log('200');}
 	        	result = req.response;
 	        	pieces = result.trim().split("|");
-	        	NgChm.UTIL.embedCHM(pieces[1], pieces[0], hideDetail); NgChmGui.UTIL.hideLoading();
+	        	NgChm.UTIL.embedCHM(pieces[1], pieces[0], hideDetail); 
+	        	NgChmGui.UTIL.hideLoading();
+	        	if (document.getElementById('NGCHMEmbed') !== null) {
+	        		document.getElementById('heatMapView').classList.replace('collapsed', 'expanded');
+        			document.getElementById('NGCHMEmbed').classList.replace('collapsed', 'expanded');
+        		}
 		    }
 		}
 	};
