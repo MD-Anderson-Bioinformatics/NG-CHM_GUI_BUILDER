@@ -114,7 +114,8 @@ NgChmGui.TRANS.validateEntries = function(leavingPage, formatError, otherError, 
 			valid = false;
 		}	
 	} else if (formatError){
-		pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Please enter a valid value for transform.</p>";
+		let otherMsg = (typeof otherWarning !== 'undefined') ? otherWarning : "";
+		pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Please enter a valid value for transform. " + otherMsg + "</p>";
 		valid = false;
 	} else {
 		//Generate warning messages
@@ -127,7 +128,7 @@ NgChmGui.TRANS.validateEntries = function(leavingPage, formatError, otherError, 
 			}
 		}
 	}
-	if (otherWarning && otherWarning !== "") {
+	if ((!formatError) && (otherWarning && otherWarning !== "")) {
 		pageText = pageText + NgChmGui.UTIL.warningPrefix + otherWarning + NgChmGui.UTIL.nextLine;
 	}
 	
@@ -504,6 +505,18 @@ NgChmGui.TRANS.correctMatrixData =  function() {
 NgChmGui.TRANS.filterMatrixData =  function() {
 	NgChmGui.TRANS.changeApplied = true;
 	var req = new XMLHttpRequest();
+	if (document.getElementById('std_pct').value !== '') {
+		if (NgChmGui.UTIL.isPositiveInteger(document.getElementById('std_pct').value) === false) {
+			NgChmGui.TRANS.validateEntries(false,true,false, "Keep % with highest std deviation value must be a positive integer.");
+			return
+		}
+	}
+	if (document.getElementById('std_num_keep').value !== '') {
+		if (NgChmGui.UTIL.isPositiveInteger(document.getElementById('std_num_keep').value) === false) {
+			NgChmGui.TRANS.validateEntries(false,true,false, "Keep rows/cols with highest std deviation value must be a positive integer.");
+			return
+		}
+	} 
 	var formData = NgChmGui.UTIL.toURIString( document.getElementById("filter_frm") );
 	if (formData){
 		req.open("POST", "FilterMatrix", true);

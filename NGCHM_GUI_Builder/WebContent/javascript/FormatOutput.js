@@ -30,6 +30,8 @@ NgChmGui.FORMAT.loadData =  function() {
 		NgChmGui.FORMAT.setAdvanced();
 	}
 	NgChmGui.PALETTE.getUserPalettes();
+	NgChmGui.UTIL.setBuildProps();
+	NgChmGui.UTIL.setFullPdfProps();
 }
 
 /**********************************************************************************

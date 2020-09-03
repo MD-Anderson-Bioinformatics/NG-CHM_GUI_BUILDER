@@ -85,7 +85,12 @@ public class HeatmapBuild extends HttpServlet {
 	        //Check for pre-existence of properties file.  If exists, load from properties manager
 	        if (propFile.exists()) {
 			    //Call HeatmapDataGenerator to generate final heat map .ngchm file
-			    String genArgs[] = new String[] {propsPath, "-NGCHM"};
+			    String genArgs[] = null;
+	        	if (map.full_pdf.equals("N")) {
+	        		genArgs = new String[] {propsPath, "-NGCHM"};
+	        	} else {
+	        		genArgs = new String[] {propsPath, "-NGCHM", "-FULLPDF"};
+	        	}
 				errMsg = HeatmapDataGenerator.processHeatMap(genArgs);
 	        }
 	        
@@ -117,6 +122,7 @@ public class HeatmapBuild extends HttpServlet {
 	        }
 	        map.read_matrices = "Y";
 	        map.write_tiles = "Y";
+	        map.full_pdf = "N";
 		    map.builder_config.clusterStatus = 0;
     		mgr.save();
 			Util.logStatus("End Heat Map Build chm(" + map.chm_name + ").");

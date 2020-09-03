@@ -23,6 +23,13 @@ NgChmGui.MAP.downloadMap = function() {
 } 
 
 /**********************************************************************************
+ * FUNCTION - getFullPDF: This function downloads the NG-CHM full pdf heat map.
+ **********************************************************************************/
+NgChmGui.MAP.getFullPDF = function() {
+	window.open(NgChmGui.mapProperties.output_location.substring(NgChmGui.mapProperties.output_location.indexOf("MapBuildDir")) + "/" + NgChmGui.mapProperties.chm_name + "_exp.pdf");
+} 
+
+/**********************************************************************************
  * FUNCTION - getChangeLog: This function downloads change log (user's selections
  * based upon transform log and heatmapProperties file) as a text file to the 
  * desktop.

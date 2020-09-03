@@ -590,13 +590,11 @@ public class FilterMatrix extends HttpServlet {
 		String toks[] = line.split("\t",-1);
 		double tot = 0;
 		int count = 0;  // exclude the empty cells from the average
-		int total = 0;
 		for (int i = 1; i < toks.length; i++) {
 			if (Util.isNumeric(toks[i])){
 				tot += Double.parseDouble(toks[i]);
 				count++;
 			}
-			total++;
 		}
 		double mean = tot/count;
 		
@@ -620,7 +618,6 @@ public class FilterMatrix extends HttpServlet {
 		//get the means
 		double[] means = new double[lineLength];
 		int[] counts = new int[lineLength];
-		int total = 0;
 		while (mline != null ){
 			String toks[] = mline.split("\t",-1);
 			for (int i = 1; i < toks.length; i++) {
@@ -629,7 +626,6 @@ public class FilterMatrix extends HttpServlet {
 					counts[i]++;
 				}
 			}
-			total++;
 			mline = mrdr.readLine();
 		}
 		mrdr.close();

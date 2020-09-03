@@ -366,6 +366,14 @@ NgChmGui.UTIL.setTreeCutProps =  function() {
 	props.builder_config.buildProps = "T";
 }
 
+NgChmGui.UTIL.setFullPdfProps =  function() {
+	var props = NgChmGui.mapProperties;
+	props.read_matrices = "Y";
+	props.full_pdf = "Y";
+}
+
+
+
 /**********************************************************************************
  * FUNCTION - setTileWrite: The purpose of this function is to turn off tile writing
  * and matrix reading for the HeatmapDataGenerator Build Map process. It is called
@@ -376,7 +384,6 @@ NgChmGui.UTIL.setTileWrite =  function() {
 	if (typeof NgChmGui.tileWrite !== 'undefined') {
 		if (NgChmGui.tileWrite === false) {
 			NgChmGui.mapProperties.write_tiles = 'N';
-			NgChmGui.mapProperties.read_matrices = 'N';
 		}
 	}
 }
@@ -1159,6 +1166,15 @@ NgChmGui.UTIL.isNumeric = function(n) {
 	return !isNaN(parseFloat(n)) && isFinite(n);
 }
 
+
+NgChmGui.UTIL.isPositiveInteger = function(n) {
+	if ((parseFloat(n) < 0) || (Number.isInteger(parseFloat(n)) !== true) || (NgChmGui.UTIL.isNumeric(n) !== true)) {
+		return false
+	} else {
+		return true
+	}
+}
+
 /**********************************************************************************
  * FUNCTION - download: This function downloads a given file (downloadPath) to a 
  * given output file name (fileName).
@@ -1653,6 +1669,7 @@ NgChmGui.UTIL.helpItems = [
 	  // Interactive Heat Map Screen
 	  ["downloadMap", "Press this button to download a portable (.NGCHM) file containing this heat map.  This file may be opened in the stand-alone NG-CHM File Viewer application which may also be downloaded from this screen.", 400],
 	  ["downloadPdf", "Press this button to create a configurable PDF document for this heat map. This PDF is the best source for publication quality images of the heat map.", 400],
+	  ["downloadFullPdf", "Press this button to download the expanded format heat map pdf. This file contains a PDF that is large enough to show all row and column labels at one time. It contains a single image for the entire heat map, along with all labels and legends. It is likely too large to print but useful for visual display and investigation.", 400],
 	  ["downloadViewer", "Press this button to download a .HTML file containing the NG-CHM File Viewer application. This application may be used to open saved .NGCHM files containing heat maps.", 400],
 	  ["downloadChangeLog", "Press this button to generate a PDF document containing the creation log for this heat map.  This log contains a listing of all of the configuration setting changes that were made during the creation of the heat map and may be used to recreate the map at a later date.", 400],
 	  ["downloadThumb", "Press this button to download a small .PNG image of the summary side of this heat map. This image may be used as a small 'overview' image for the map in publications or as a click-able thumbnail to be displayed on pages with embedded heat maps.", 400],

@@ -16,6 +16,7 @@ public class HeatmapPropertiesManager {
 		public String chm_name;
 		public String chm_description;
 		public String write_tiles = "Y";
+		public String full_pdf = "N";
 		public String read_matrices = "Y";
 		public ArrayList<MatrixFile> matrix_files = new ArrayList<MatrixFile>();
 		public ArrayList<Map<String,String>> chm_attributes = new ArrayList<Map<String,String>>();
@@ -23,7 +24,7 @@ public class HeatmapPropertiesManager {
 		public Order col_configuration;
 		public Order row_configuration;
 		public String output_location;
-		public String builder_version = "NG-CHM GUI 2.18.1";
+		public String builder_version = "NG-CHM GUI 2.18.2";
 		public String summary_width = "40";
 		public BuilderConfig builder_config;
 	}

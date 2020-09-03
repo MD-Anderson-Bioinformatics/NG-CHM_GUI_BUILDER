@@ -98,7 +98,7 @@ public class MapProperties extends HttpServlet {
 	        	mgr.resetBuildConfig();
 		        
 			    HeatmapPropertiesManager.Heatmap map = mgr.getMap();
-		        if (map.read_matrices.equals("Y")) {
+		        if (map.write_tiles.equals("Y")) {
 				    //Delete pre-existing heatmap prior to fresh build
 				    File mapDir = new File(workingDir+"/" + map.chm_name);
 				    if (mapDir.exists()) {

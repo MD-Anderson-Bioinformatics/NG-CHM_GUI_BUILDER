@@ -68,7 +68,7 @@
 			<a name="Matrix"></a>
 		    <h2>Step 1:  NG-CHM BUILDER: Select Matrix </h2>
 	
-			<p style="text-align:center;"><img src='images/help/screenMatrix.png' height="452" width="800"></p>
+			<p style="text-align:center;"><img src='images/help/screenMatrix.png' height="450" width="800"></p>
 			
 			<p>The first step in building a heat map with the NG-CHM Builder is to select a matrix file for the heat map. On this screen the user can 
 			open their own file or choose to use a sample file provided with the application. Users may select a matrix and enter
@@ -164,7 +164,7 @@
 			<a name="Transform"></a>
 		    <h2>Step 2:  NG-CHM BUILDER: Transform Matrix </h2>
 	
-			<p style="text-align:center;"><img src='images/help/screenTransform.png' height="452" width="800"></p>
+			<p style="text-align:center;"><img src='images/help/screenTransform.png' height="450" width="800"></p>
 	
 			<p>	Once a matrix has been selected, the user may perform a number of different operations to transform and filter the data in the matrix prior to heat map construction. 
 			Filters and transforms can be used to manipulate the matrix to produce better heat maps. For example, a Z-norm transform could be used to normalize rows with values 
@@ -180,7 +180,16 @@
 			<p>The Results panel on the Transform Matrix screen presents an image of the top left corner of the matrix as changes are being applied. This panel also provides summary statistics 
 			of your matrix data including the distribution of values and row/column standard deviations. In this way, the user may visually confirm that the transforms and filters being applied
 			are producing the expected results.</p>
-		
+			<h2> Transform Screen Sub-Panels</h2>
+			<table width="90%" align="center"> 
+				<tr>
+					<td><p style="text-align:center;"><img src='images/help/transformScreenMissing.png' height="400" width="300"></p></td>
+					<td><p style="text-align:center;"><img src='images/help/transformScreenFilter.png' height="400" width="300"></p></td>
+					<td><p style="text-align:center;"><img src='images/help/transformScreenTransform.png' height="400" width="300"></p></td>
+					<td><p style="text-align:center;"><img src='images/help/transformScreenMatrix.png' height="400" width="300"></p></td>
+					<td><p style="text-align:center;"><img src='images/help/transformScreenDuplicates.png' height="400" width="300"></p></td>
+				</tr>
+			</table>
 		    <h2>Configuration Controls</h2>
 			<table class="helpTable" align="center"> 
 		    	<colgroup>
@@ -259,8 +268,20 @@
 					<td>Select this button to choose a Correlation method from the available options. These include: Correlate by row with self; Correlate by column with self; Correlate by row with a selected matrix; Correlate by column with a selected matrix.</td>
 				</tr>
 				<tr>
-					<td align="left" class="chmTR"><b>Apply Button</b></td>
-					<td>Press this button to apply all transformation selections and reload the matrix.</td>
+					<td align="left" class="chmTR"><b>Select a Duplicate Process</b></td>
+					<td>Select this button to choose a duplicate label entry processing operation type to apply to the matrix. Available duplicates processing operations include: Remove, Rename, and Combine.</td>
+				</tr>
+				<tr>
+					<td align="left" class="chmTR"><b>Remove Method</b></td>
+					<td>Select this button to remove duplicate label entries from rows and/or columns in the matrix. The user may choose to keep the: first duplicate instance, last duplicate instance, or remove all duplicate instances</td>
+				</tr>
+				<tr>
+					<td align="left" class="chmTR"><b>Rename Method</b></td>
+					<td>Select this button to rename duplicate label entries for rows and/or columns in the matrix. These user may choose to rename duplicates with either an underscore character and a numerical suffix or use a hyphen character to do the same.</td>
+				</tr>
+				<tr>
+					<td align="left" class="chmTR"><b>Combine Method Button</b></td>
+					<td>Select this button to combine duplicate label entries for rows and/or columns in the matrix. The user may choose to combine duplicates using either the mean value or median value for the combined duplicate values.</td>
 				</tr>
 				<tr>
 					<td align="left" class="chmTR"><b>Matrix Change History</b></td>
@@ -293,7 +314,7 @@
 			<a name="Cluster"></a>
 			<h2>Step 3:  NG-CHM BUILDER: Cluster Matrix </h2>
 	
-			<p style="text-align:center;"><img src='images/help/screenCluster.png' height="452" width="800"></p>
+			<p style="text-align:center;"><img src='images/help/screenCluster.png' height="450" width="800"></p>
 	
 			<p>Once a matrix has been selected and transformed, the user may begin building the heat map. Indeed, the initial version of the heat map is built and displayed 
 			when the Cluster Matrix screen is loaded. The next step in the construction process is to apply an ordering method and cluster the matrix data. A user may choose
@@ -371,7 +392,7 @@
 			<a name="Covariates"></a>
 			<h2>Step 4:  NG-CHM BUILDER: Process Covariates </h2>
 	
-			<p style="text-align:center;"><img src='images/help/screenCovariates.png' height="452" width="800"></p>
+			<p style="text-align:center;"><img src='images/help/screenCovariates.png' height="450" width="800"></p>
 	
 			<p>Covariate bars are generated by applying a covariate file to the heat map. They can contain information related to either rows or columns in the data 
 			matrix. Covariate bars contain discreet classification data (e.g. sub-type) or continuous data (e.g. age). Column covariate bars, appear in the 
@@ -459,8 +480,8 @@
 					<td>Select a color, using a color picker dialog, for missing values on the covariate bar.</td>
 				</tr>
 				<tr>
-					<td align="left" class="chmTR"><b>Pre-defined Color Palette</b></td>
-					<td>Choose from 3 pre-defined color palettes for the covariate bar.</td>
+					<td align="left" class="chmTR"><b>Pre-defined Palettes</b></td>
+					<td>The See Palettes button displays a pop up dialog (see below) where the user may select from pre-defined color palettes for their covariate bar or create new ones.</td>
 				</tr>
 				<tr>
 					<td align="left" class="chmTR"><b>Lower Bound *</b></td>
@@ -495,12 +516,19 @@
 				</tr>
 			</table>
 			<br/>
+			<h2> Select Custom Color Palette</h2>
+			<p> This popup window opens when the user selects the See Palettes button on the Covariate screen. It allows the user to select from any pre-defined color palettes that have been set up for covariate bars in the system. The user may pick from the available palettes by selecting from the box and pressing "select" or may choose to create their own custom palette using the "Create New Palette" button. Options on this panel will vary depending upon the Color Type of the covariate.</p>
+			<p style="text-align:center;"><img src='images/help/covariateColorPalette1.png' height="200" width="400"></p>
+			<h2> Create Custom Color Palette</h2>
+			<p> This popup window opens when the user opts to create their own color palette.  It allows the user to create their own color palette by adding/removing breakpoints and colors. Newly created palettes will then be available in the Select Custom Palette popup window. Options on this panel will vary depending upon the Color Type of the covariate.</p>
+			<p style="text-align:center;"><img src='images/help/covariateColorPalette2.png' height="200" width="400"></p>
+			<br/>
 			<p>Once all covariate processing has been performed, the user may move on to the next step in the NG-CHM Builder heat map creation process: Format Heat Map.</p>
 	
 			<a name="Format"></a>
 		    <h2>Step 5:  NG-CHM BUILDER: Format Heat Map </h2>
 	
-			<p style="text-align:center;"><img src='images/help/screenFormat.png' height="452" width="800"></p>
+			<p style="text-align:center;"><img src='images/help/screenFormat.png' height="450" width="800"></p>
 		
 			<p>The purpose of the Format Heat Map screen is to provide users with a set of tools, displayed in different sub-panels within the configuration panel,
 			for formatting various aspects of heat map display.  These tools include: Matrix Colors/Breaks, Heat Map Display, Labels and Attributes, and Heat Map Gaps.
@@ -513,7 +541,15 @@
 			
 			<p>The results panel of this screen contains a rendering of the Summary side of the actual NG-CHM Viewer application page. The summary heat map is visible along with any applied
 			covariate bars, top items, gaps, and hierarchical dendrograms.</p>
-	
+			<h2> Format Screen Sub-Panels</h2>
+			<table width="90%" align="center"> 
+				<tr>
+					<td><p style="text-align:center;"><img src='images/help/formatScreenColorsBreaks.png' height="400" width="300"></p></td>
+					<td><p style="text-align:center;"><img src='images/help/formatScreenHMDisplay.png' height="400" width="300"></p></td>
+					<td><p style="text-align:center;"><img src='images/help/formatScreenLabelsAttrs.png' height="400" width="300"></p></td>
+					<td><p style="text-align:center;"><img src='images/help/formatScreenGaps.png' height="400" width="300"></p></td>
+				</tr>
+			</table>
 		    <h2>Configuration Controls</h2>
 			<table class="helpTable" align="center"> 
 		    	<colgroup>
@@ -553,8 +589,8 @@
 					<td>This red "minus" button can be pressed to remove an existing threshold. Sub-panel location: Matrix Colors/Breaks.</td>
 				</tr>
 				<tr>
-					<td align="left" class="chmTR"><b>Pre-defined Color Palette</b></td>
-					<td>Choose from 3 pre-defined color palettes for the matrix data display. Sub-panel location: Matrix Colors/Breaks.</td>
+					<td align="left" class="chmTR"><b>Pre-defined Palettes</b></td>
+					<td>The See Palettes button displays a pop up dialog (see description in Covariate screen section above) where the user may select from pre-defined color palettes for their matrix bar or create new ones.</td>
 				</tr>
 				<tr>
 					<td align="left" class="chmTR"><b>Selection Color</b></td>
@@ -676,6 +712,10 @@
 				<tr>
 					<td align="left" class="chmTR"><b>Get Heat Map PDF</b></td>
 					<td>Press this button to create a configurable PDF document for the heat map. This PDF is the best source for publication quality images of the heat map.</td>
+				</tr>
+				<tr>
+					<td align="left" class="chmTR"><b>Get Expanded PDF</b></td>
+					<td>Press this button to download the Expanded PDF for your heat map. This file contains a PDF that is large enough to show all row and column labels at one time. It contains a single image for the entire heat map, along with all labels and legends. It is likely too large to print but useful for visual display and investigation.</td>
 				</tr>
 				<tr>
 					<td align="left" class="chmTR"><b>Get Heat Map Viewer</b></td>

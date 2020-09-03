@@ -631,6 +631,7 @@ NgChmGui.COV.hideCovarUpload = function() {
 	document.getElementById("covarSelection").style.display = '';
 	document.getElementById("covarAdd").style.display = 'none';
 	document.getElementById("covarAddSample").style.display = 'none';
+	document.getElementById('covUploadApply_btn').style.display = 'none';
 	document.getElementById("covar").value = "";
 	NgChmGui.COV.validateEntries(false);
 }

@@ -193,8 +193,8 @@
 					 	        		<br>
 					 	        		<div class="pref-header3" id='vfiltermethod' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'>
 					  						<input type="radio" name="vfiltermethod" logText="Remove [vrowcol]s with standard deviation less than [std_limit]" value="std_value"" checked> Remove if Standard Deviation &lt;&nbsp; &nbsp;<input type="text" name="std_limit" style="width: 30%" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('vfiltermethod',0)"><br>
-					  						<input type="radio" name="vfiltermethod" logText="Keep [std_pct]% of [vrowcol]s with highest standard deviation" value="pct" > Keep <input type="text" name="std_pct" maxlength="2" style="width: 10%" onchange='NgChmGui.UTIL.formatInputPct(this);' onclick="NgChmGui.TRANS.setRadio('vfiltermethod',1)">&nbsp;% with highest Standard Deviation  <br>
-					  						<input type="radio" name="vfiltermethod" logText="Keep [std_num_keep] of [vrowcol]s with highest standard deviation" value="fixednum"> Keep <input type="text" name="std_num_keep" style="width: 10%"  onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('vfiltermethod',2)"> rows/cols with highest Standard Deviation  <br>
+					  						<input type="radio" name="vfiltermethod" logText="Keep [std_pct]% of [vrowcol]s with highest standard deviation" value="pct" > Keep <input type="text" id="std_pct" name="std_pct" maxlength="2" style="width: 10%" onchange='NgChmGui.UTIL.formatInputPct(this);' onclick="NgChmGui.TRANS.setRadio('vfiltermethod',1)">&nbsp;% with highest Standard Deviation  <br>
+					  						<input type="radio" name="vfiltermethod" logText="Keep [std_num_keep] of [vrowcol]s with highest standard deviation" value="fixednum"> Keep <input type="text" id="std_num_keep" name="std_num_keep" style="width: 10%"  onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('vfiltermethod',2)"> rows/cols with highest Standard Deviation  <br>
 					  					</div>
 				  					</div>
 								</div>
