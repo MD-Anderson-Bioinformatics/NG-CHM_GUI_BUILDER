@@ -830,6 +830,7 @@ NgChmGui.UTIL.clusterBuildHeatMap = function(nextFunction) {
  * that will take a long time to cluster. In these cases, a clustering status
  * monitoring function is invoked.
  **********************************************************************************/
+NgChmGui.UTIL.clusterError = false;
 NgChmGui.UTIL.clusterHeatMap = function(nextFunction) {
 	var checkStatus = NgChmGui.mapProperties.builder_config.clusterStatus;
 	if (checkStatus === 0) {
@@ -839,22 +840,17 @@ NgChmGui.UTIL.clusterHeatMap = function(nextFunction) {
 		var formData = JSON.stringify(NgChmGui.mapProperties);  
 		req.open("POST", "Cluster", true);
 		req.setRequestHeader("Content-Type", "application/json");
+		NgChmGui.UTIL.clusterError = false;
 		req.onreadystatechange = function () {
 			if (NgChmGui.UTIL.debug) {console.log('state change');}
 			if (req.readyState == req.DONE) {
-				NgChmGui.UTIL.clusterStatus = 0;
 				if (NgChmGui.UTIL.debug) {console.log('done');}
 		        if (req.status != 200) {
+		        	NgChmGui.UTIL.clusterError = true;
 		        	NgChmGui.UTIL.hideLoading();
-		            console.log('Failed to process properties changes '  + req.status);
+		            console.log('Failed to process clustering '  + req.status);
 		        } else {
 					if (NgChmGui.UTIL.debug) {console.log('200');}
-					NgChmGui.UTIL.stopTimer(document.getElementById('durationTimer'));
-		        	NgChmGui.mapProperties = JSON.parse(req.response);
-					NgChmGui.mapProperties.builder_config.buildCluster = "N";
-		        	if (NgChmGui.UTIL.validSession()) {
-						nextFunction();
-		        	}
 				}
 			};
 		}
@@ -863,7 +859,7 @@ NgChmGui.UTIL.clusterHeatMap = function(nextFunction) {
 		var totalVals = NgChmGui.UTIL.getTotalClusterValues();
 		if (totalVals >= 1000) {
 			NgChmGui.UTIL.startTimer(document.getElementById('durationTimer'),document.getElementById('durationMins'),document.getElementById('durationSecs'))
-			setTimeout(NgChmGui.UTIL.getClusterStatus, 3000);
+			setTimeout(NgChmGui.UTIL.getClusterStatus.bind('nextFunction', nextFunction), 3000);
 		}
 	} else {
 		NgChmGui.UTIL.reClusterError();
@@ -874,7 +870,7 @@ NgChmGui.UTIL.clusterHeatMap = function(nextFunction) {
  * FUNCTION - getClusterStatus: The purpose of this function is to call a servlet
  * that checks on the status of an ongoing asynchronous clustering process.
  **********************************************************************************/
-NgChmGui.UTIL.getClusterStatus = function() {
+NgChmGui.UTIL.getClusterStatus = function(nextFunction) {
 	var statusDiv = document.getElementById('clusterStatus');
 	var req = new XMLHttpRequest();
 	req.open("GET", "ClusterStatus", true);
@@ -892,9 +888,15 @@ NgChmGui.UTIL.getClusterStatus = function() {
 	        	var loaderMsg = document.getElementById("loaderMsg");
 	        	var statusVal = clusterReply.cluster_status;
 	        	NgChmGui.UTIL.processClusterStatus(statusVal)
-	        	if ((statusVal !== 0) || (NgChmGui.UTIL.clusterStatus === 0)) {
-//	        	if (statusVal !== 0) {
-	        		setTimeout(NgChmGui.UTIL.getClusterStatus, 2000);
+	        	if (NgChmGui.UTIL.clusterError === false) {
+	        		if (statusVal !== 0) {
+		        		setTimeout(NgChmGui.UTIL.getClusterStatus.bind('nextFunction', nextFunction), 2000);
+	        		} else {
+	        			NgChmGui.UTIL.stopTimer(document.getElementById('durationTimer'));
+			        	if (NgChmGui.UTIL.validSession()) {
+							nextFunction();
+			        	}
+	        		}
 	        	}
 			}
 		};
@@ -906,7 +908,7 @@ NgChmGui.UTIL.getClusterStatus = function() {
  * FUNCTION - processClusterStatus: The purpose of this function is to handle the
  * processing of the cluster status returned from the ClusterStatus servlet. It will
  * mark steps as completed on the cluster status panel and start/end timers on the
- * steps layed out in the panel as they change.
+ * steps laid out in the panel as they change.
  **********************************************************************************/
 NgChmGui.UTIL.processClusterStatus = function(statusVal) {
 	var rCompSpan = document.getElementById('rCompSpan');

@@ -21,6 +21,27 @@ public class Cluster extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static final ThreadLocal<ScriptEngine> ENGINE = new ThreadLocal<>();
 	
+	public class ClusterThread implements Runnable {
+		private String workingDir = "";
+
+		//This embedded class will perform clustering in a seperate thread.
+		public ClusterThread(String workingDir) {
+			this.workingDir = workingDir;
+		}
+
+		public void run() {
+			try {
+				clusterHeatMap(workingDir);
+				//Re-build the heat map 
+			    HeatmapBuild builder = new HeatmapBuild();
+			    builder.buildHeatMap(workingDir);
+			} catch (Exception e) {
+				System.out.println("ERROR Clustering large matrix: "+ e.getMessage());
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	public void clusterHeatMap(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		HttpSession mySession = request.getSession(false);
 		response.setContentType("application/json;charset=UTF-8");
@@ -48,17 +69,14 @@ public class Cluster extends HttpServlet {
 			    mgr.save();
 			    try {
 			        mp.processTreeCutCovariates(mgr, mapConfig);
-			        //Cluster the heat map 
-				    clusterHeatMap(workingDir);
-			        //Re-build the heat map 
-				    HeatmapBuild builder = new HeatmapBuild();
-				    builder.buildHeatMap(workingDir);
-				    //Return edited props
-		        	propJSON = mgr.load();
-			       	response.setContentType("application/json");
-			    	response.getWriter().write(propJSON.toString());
+			        //Cluster the heat map in a thread
+			        Runnable r = new ClusterThread(workingDir);
+			        new Thread(r).start();
+			        
+			        //Return response immediately to prevent timeout - javascript will poll clustering status.
+			    	response.getWriter().write("Clustering started in a thread");
 			    } catch (Exception e) {
-			    	map.builder_config.buildErrors = "ERROR occurred while clustering matrix. Please try again.";
+			    	map.builder_config.buildErrors = "ERROR occurred starting clustering. Please try again.";
 		        	propJSON = "{\"no_session\": 1}";
 			       	response.setContentType("application/json");
 			    	response.getWriter().write(propJSON.toString());
@@ -244,5 +262,3 @@ public class Cluster extends HttpServlet {
 	}
 	
 }
-
-
