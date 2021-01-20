@@ -859,7 +859,7 @@ NgChmGui.UTIL.clusterHeatMap = function(nextFunction) {
 		var totalVals = NgChmGui.UTIL.getTotalClusterValues();
 		if (totalVals >= 1000) {
 			NgChmGui.UTIL.startTimer(document.getElementById('durationTimer'),document.getElementById('durationMins'),document.getElementById('durationSecs'))
-			setTimeout(NgChmGui.UTIL.getClusterStatus.bind('nextFunction', nextFunction), 3000);
+			setTimeout(NgChmGui.UTIL.getClusterStatus.bind('nextFunction', nextFunction), 5000);
 		}
 	} else {
 		NgChmGui.UTIL.reClusterError();
@@ -889,7 +889,7 @@ NgChmGui.UTIL.getClusterStatus = function(nextFunction) {
 	        	var statusVal = clusterReply.cluster_status;
 	        	NgChmGui.UTIL.processClusterStatus(statusVal)
 	        	if (NgChmGui.UTIL.clusterError === false) {
-	        		if (statusVal !== 0) {
+	        		if ((statusVal !== 0) || (NgChmGui.UTIL.clusterStatus !== 0)) {
 		        		setTimeout(NgChmGui.UTIL.getClusterStatus.bind('nextFunction', nextFunction), 2000);
 	        		} else {
 	        			NgChmGui.UTIL.stopTimer(document.getElementById('durationTimer'));

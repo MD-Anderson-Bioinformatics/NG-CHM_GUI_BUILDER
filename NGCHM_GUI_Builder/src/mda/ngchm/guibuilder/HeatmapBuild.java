@@ -123,6 +123,7 @@ public class HeatmapBuild extends HttpServlet {
 	        map.read_matrices = "Y";
 	        map.write_tiles = "Y";
 	        map.full_pdf = "N";
+		    map.builder_config.buildCluster = "N";
 		    map.builder_config.clusterStatus = 0;
     		mgr.save();
 			Util.logStatus("End Heat Map Build chm(" + map.chm_name + ").");

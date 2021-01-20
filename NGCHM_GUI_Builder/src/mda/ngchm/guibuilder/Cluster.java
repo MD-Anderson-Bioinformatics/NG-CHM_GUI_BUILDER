@@ -161,8 +161,6 @@ public class Cluster extends HttpServlet {
 	    if (clusterRows || clusterCols) {
 			Util.logStatus("Cluster - End Clustering Matrix chm(" + map.chm_name + ").");
 	    }
-	    map.builder_config.buildCluster = "N";
-	    map.builder_config.clusterStatus = 0;
 	    //Save changes to heatmapProperties file
 	    mgr.save();
 	}
