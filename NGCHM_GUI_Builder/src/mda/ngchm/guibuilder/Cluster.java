@@ -70,7 +70,7 @@ public class Cluster extends HttpServlet {
 			    try {
 			        mp.processTreeCutCovariates(mgr, mapConfig);
 			        //Cluster the heat map in a thread
-			        Runnable r = new ClusterThread(workingDir);
+			        Runnable r = new Cluster.ClusterThread(workingDir);
 			        new Thread(r).start();
 			        
 			        //Return response immediately to prevent timeout - javascript will poll clustering status.
