@@ -430,6 +430,15 @@ NgChmGui.TRANS.setRadio = function(buttonId, idx) {
 	}
 }
 
+NgChmGui.TRANS.getRadioIdx = function(buttonId) {
+	var radio = document.getElementsByName(buttonId);
+	for (i = 0; i < radio.length; i++) {
+		if (radio[i].checked === true) {
+			return i;
+		}
+	}
+}
+
 NgChmGui.TRANS.enableButton = function(buttonId) {
 	document.getElementById(buttonId).style.opacity = 1.0;
 	document.getElementById(buttonId).disabled = false;
@@ -505,16 +514,23 @@ NgChmGui.TRANS.correctMatrixData =  function() {
 NgChmGui.TRANS.filterMatrixData =  function() {
 	NgChmGui.TRANS.changeApplied = true;
 	var req = new XMLHttpRequest();
-	if (document.getElementById('std_pct').value !== '') {
-		if (NgChmGui.UTIL.isPositiveInteger(document.getElementById('std_pct').value) === false) {
-			NgChmGui.TRANS.validateEntries(false,true,false, "Keep % with highest std deviation value must be a positive integer.");
-			return
+	const selIndx = NgChmGui.TRANS.getRadioIdx('vfiltermethod');
+	if ((selIndx === 0) && (document.getElementById('std_limit').value !== '')) {
+		if (NgChmGui.UTIL.isNumeric(document.getElementById('std_limit').value) === false) {
+			NgChmGui.TRANS.validateEntries(false,true,false, "Remove if std deviation less than value must be a numeric value.");
+			return;
 		}
 	}
-	if (document.getElementById('std_num_keep').value !== '') {
+	if ((selIndx === 1) && (document.getElementById('std_pct').value !== '')) {
+		if (NgChmGui.UTIL.isPositiveInteger(document.getElementById('std_pct').value) === false) {
+			NgChmGui.TRANS.validateEntries(false,true,false, "Keep % with highest std deviation value must be a positive integer.");
+			return;
+		}
+	}
+	if ((selIndx === 2) && (document.getElementById('std_num_keep').value !== '')) {
 		if (NgChmGui.UTIL.isPositiveInteger(document.getElementById('std_num_keep').value) === false) {
 			NgChmGui.TRANS.validateEntries(false,true,false, "Keep rows/cols with highest std deviation value must be a positive integer.");
-			return
+			return;
 		}
 	} 
 	var formData = NgChmGui.UTIL.toURIString( document.getElementById("filter_frm") );

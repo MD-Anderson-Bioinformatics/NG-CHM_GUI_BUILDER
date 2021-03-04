@@ -114,7 +114,9 @@ public class ProcessCovariate {
 				covBreaks.add(Float.toString(lowVal));
 				covBreaks.add(Float.toString(highVal));
 			}
-			Collections.sort(covBreaks);
+			if (!colorType.contentEquals("continuous")) {
+				Collections.sort(covBreaks);
+			}
 			ArrayList<String> covColors = getDefaultClassColors(covBreaks, type);
 			cm = mgr.new ColorMap(type,covColors, covBreaks,"#B3B3B3");
 		} catch (Exception e) {
