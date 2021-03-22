@@ -889,7 +889,7 @@ NgChmGui.FILE.validateEntries = function(leavingPage) {
 		}
 		
 		var regex = new RegExp("^[a-zA-Z0-9~`!@#|/\$%^&*() _+-=[\\]{}|:;<>,.?']+$");
-		if (!regex.test(mapDesc)) {
+		if ((!regex.test(mapDesc)) && (mapDesc.trim() !== '')){
 			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Heat Map Description cannot contain double quotation marks, back slashes, or non-keyboard characters</p>";
 			valid = false
 		}
