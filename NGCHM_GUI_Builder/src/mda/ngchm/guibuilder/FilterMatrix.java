@@ -60,7 +60,7 @@ public class FilterMatrix extends HttpServlet {
 	    	}
 	    	String errmsg = e.getMessage().trim();
 	    	if (errmsg.length() < 3 ) { errmsg ="";} else {errmsg = errmsg + ".";}
-        	String errJSON = "{\"error\": \"The selected filter could not be applied to your matrix. "+ errmsg +"\"}";
+        	String errJSON = "{\"error\": \"The selected filter could not be applied to your matrix. \"}";
 	        writer.println(errJSON);
 	    } finally {
 	        if (writer != null) {

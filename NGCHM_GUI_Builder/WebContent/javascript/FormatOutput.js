@@ -1029,6 +1029,7 @@ NgChmGui.FORMAT.applySettings = function(typ) {
 	NgChmGui.FORMAT.getFormatDisplayFromScreen();
 	NgChmGui.FORMAT.getMapGapsFromScreen();
 	NgChmGui.FORMAT.getFormatLabelConfigFromScreen();
+	NgChmGui.UTIL.setFullPdfProps();
 	
 	return NgChmGui.FORMAT.validateEntries(false);
 }

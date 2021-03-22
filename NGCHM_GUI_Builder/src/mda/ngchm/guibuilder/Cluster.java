@@ -70,7 +70,7 @@ public class Cluster extends HttpServlet {
 			    try {
 			        mp.processTreeCutCovariates(mgr, mapConfig);
 			        //Cluster the heat map in a thread
-			        Runnable r = new ClusterThread(workingDir);
+			        Runnable r = new Cluster.ClusterThread(workingDir);
 			        new Thread(r).start();
 			        
 			        //Return response immediately to prevent timeout - javascript will poll clustering status.
@@ -121,6 +121,8 @@ public class Cluster extends HttpServlet {
 		    			map.row_configuration.dendro_height = "100";  
 			    	}
 		    	} catch (Exception e) {
+			    	map.row_configuration.order_file = null;  
+			    	map.row_configuration.dendro_file = null; 
 		    		map.row_configuration.order_method = "Original";
 			    	map.builder_config.buildWarnings.add("An error occurred while clustering rows using Distance: " + map.row_configuration.distance_metric + " and Agglomeration: " + map.row_configuration.agglomeration_method + ". Row order has been reset to Original.  Please try a different row Distance Measure and/or Agglomeration Method.");
 		    	}
@@ -145,8 +147,9 @@ public class Cluster extends HttpServlet {
 		    			map.col_configuration.dendro_height = "100";  
 			    	}
 		    	} catch (Exception e) {
-		    		colOrderMethod = "Original"; 
-		    		map.col_configuration.order_method = colOrderMethod;
+			    	map.col_configuration.order_file = null;  
+			    	map.col_configuration.dendro_file = null; 
+		    		map.col_configuration.order_method = "Original";
 			    	map.builder_config.buildWarnings.add("An error occurred while clustering columns using Distance: " + map.col_configuration.distance_metric + " and Agglomeration: " + map.col_configuration.agglomeration_method + ". Column order has been reset to Original.  Please try a different column Distance Measure and/or Agglomeration Method.");
 				    mgr.save();
 		    	}

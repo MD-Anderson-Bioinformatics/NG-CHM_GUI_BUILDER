@@ -1168,9 +1168,18 @@ NgChmGui.UTIL.isNumeric = function(n) {
 	return !isNaN(parseFloat(n)) && isFinite(n);
 }
 
-
+/**********************************************************************************
+ * FUNCTION - isPositiveInteger: This function tests whether an input value is a
+ * numeric positive integer value.
+ **********************************************************************************/
 NgChmGui.UTIL.isPositiveInteger = function(n) {
-	if ((parseFloat(n) < 0) || (Number.isInteger(parseFloat(n)) !== true) || (NgChmGui.UTIL.isNumeric(n) !== true)) {
+	if (n === '0') {
+		return false
+	} else if (n.includes('-')) {
+		return false
+	} else if (n.includes('.')) {
+		return false
+	} else if ((parseFloat(n) < 0) || (Number.isInteger(parseFloat(n)) !== true) || (NgChmGui.UTIL.isNumeric(n) !== true)) {
 		return false
 	} else {
 		return true

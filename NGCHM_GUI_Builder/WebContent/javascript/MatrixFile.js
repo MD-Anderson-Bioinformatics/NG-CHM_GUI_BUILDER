@@ -888,10 +888,12 @@ NgChmGui.FILE.validateEntries = function(leavingPage) {
 			valid = false
 		}
 		
-		if (!NgChmGui.UTIL.isAlphaNumeric(mapDesc)) {
-			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Heat Map Description cannot contain non-alphanumeric characters (Exceptions: space, hyphen, and underscore)</p>";
+		var regex = new RegExp("^[a-zA-Z0-9~`!@#|/\$%^&*() _+-=[\\]{}|:;<>,.?']+$");
+		if (!regex.test(mapDesc)) {
+			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Heat Map Description cannot contain double quotation marks, back slashes, or non-keyboard characters</p>";
 			valid = false
 		}
+		
 		if (document.getElementById('matrixNameValue').value.trim() === "") {
 			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Missing Matrix Name entry.</p>";
 			valid = false

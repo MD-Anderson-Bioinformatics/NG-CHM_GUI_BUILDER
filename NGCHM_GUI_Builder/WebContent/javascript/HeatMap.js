@@ -23,6 +23,15 @@ NgChmGui.MAP.downloadMap = function() {
 } 
 
 /**********************************************************************************
+ * FUNCTION - getPDF: This function calls the viewer PDF download the NG-CHM pdf heat map.
+ **********************************************************************************/
+NgChmGui.MAP.getPDF = function(e) {
+	if (NgChm.PDF.isGenerating === false) {
+		NgChm.PDF.openPdfPrefs(e,null);
+	}
+} 
+
+/**********************************************************************************
  * FUNCTION - getFullPDF: This function downloads the NG-CHM full pdf heat map.
  **********************************************************************************/
 NgChmGui.MAP.getFullPDF = function() {
