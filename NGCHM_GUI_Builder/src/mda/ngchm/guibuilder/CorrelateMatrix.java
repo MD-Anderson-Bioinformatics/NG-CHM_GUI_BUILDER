@@ -42,13 +42,24 @@ public class CorrelateMatrix extends HttpServlet {
 				Util.backupWorking(matrixFile);
 	        	propJSON = mgr.load();
 	        	mgr.resetBuildConfig();
-	        	mgr.save();
+		        HeatmapPropertiesManager.Heatmap map = mgr.getMap();
 			    String transform = request.getParameter("Correlation");
 			    if (transform.equals("Transpose")) {
+			    	String isTransposed = map.builder_config.isTransposed;
+			    	if (isTransposed.contentEquals("Y")) { 
+			    		map.builder_config.isTransposed = "N";
+			    	} else {
+			    		map.builder_config.isTransposed = "Y";
+			    	}
+			    	//clear out any assigned classification files if transposing as axes change for all covars.
+			    	for (int i=0;i<map.classification_files.size();i++) {
+			    		map.classification_files.get(i).position = map.classification_files.get(i).position.contentEquals("row") ? "column" : "row";
+			    	}
 			    	transposeTransform(matrixFile, request);
 			    } else if (transform.equals("Correlation")) {
 			    	errMsg = correlationTransform(matrixFile, request, mgr);
 			    }
+	        	mgr.save();
 			    if (!errMsg.contentEquals("")) {
 				    try {
 			    		Util.restoreWorking(matrixFile);

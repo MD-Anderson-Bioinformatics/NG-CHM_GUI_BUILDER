@@ -24,7 +24,7 @@ public class HeatmapPropertiesManager {
 		public Order col_configuration;
 		public Order row_configuration;
 		public String output_location;
-		public String builder_version = "NG-CHM GUI 2.20.0";
+		public String builder_version = "NG-CHM GUI 2.20.1";
 		public String summary_width = "40";
 		public BuilderConfig builder_config;
 	}
@@ -48,6 +48,7 @@ public class HeatmapPropertiesManager {
 	public class BuilderConfig {
 		public String buildProps = "N";
 		public String buildCluster = "N";
+		public String isTransposed = "N";
 		public String buildErrors = "";
 		public String longRowLabel = "";
 		public String longColLabel = "";
@@ -222,6 +223,9 @@ public class HeatmapPropertiesManager {
 	
 	public HeatmapPropertiesManager(String directory) {
 		this.directory = directory;
+	}
+	
+	public HeatmapPropertiesManager() {
 	}
 	
 	public void resetBuildConfig() throws Exception{

@@ -75,6 +75,7 @@ public class UploadSampleCovariate extends HttpServlet {
 		        out.close();
 	
 			    ProcessCovariate cov = new ProcessCovariate();
+			    if (map.builder_config.isTransposed.contentEquals("Y")) { axisType = "row";}
 	        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructDefaultCovariate(mgr, selFile, covName, covFileName, axisType, colorType, "0");
 	        	map.classification_files.add(classJsonObj);	 
 		        //Mark properties as "clean" for update.
