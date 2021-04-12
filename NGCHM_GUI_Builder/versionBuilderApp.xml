@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="version_builder" basedir = "." name="Version builder html files">
+
+	<property name="src.dir" value="mda.ngchm.guibuilder."/>
+    <property name="web.dir" value="./WebContent/"/>
+    <property name="java.dir" value="./src/mda/ngchm/guibuilder/"/>
+
+	<target name="version_builder_files"> 
+	<java classname="${src.dir}AppVersioner">
+	    <arg value="${web.dir}"/>
+	    <classpath>
+	        <pathelement path="build/classes"/>
+	    </classpath>
+	</java>
+    </target>
+	
+    <target name="version_builder" depends="version_builder_files">
+    <move file="${web.dir}callNgChmBuilder.html.temp" tofile="${web.dir}callNgChmBuilder.html"/>
+    <move file="${web.dir}Cluster_Matrix.html.temp" tofile="${web.dir}Cluster_Matrix.html"/>
+    <move file="${web.dir}Edit_Covariates.html.temp" tofile="${web.dir}Edit_Covariates.html"/>
+    <move file="${web.dir}Format_Display.html.temp" tofile="${web.dir}Format_Display.html"/>
+    <move file="${web.dir}Select_Matrix.html.temp" tofile="${web.dir}Select_Matrix.html"/>
+    <move file="${web.dir}Transform_Matrix.html.temp" tofile="${web.dir}Transform_Matrix.html"/>
+    <move file="${web.dir}View_HeatMap.html.temp" tofile="${web.dir}View_HeatMap.html"/>
+    </target>
+
+</project>
+
