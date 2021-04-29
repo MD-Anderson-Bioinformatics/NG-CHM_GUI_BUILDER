@@ -19,6 +19,7 @@ NgChmGui.MAP.loadData = function() {
  * to an NGCHM file.
  **********************************************************************************/
 NgChmGui.MAP.downloadMap = function() {
+	NgChmGui.UTIL.logClientActivity("Interactive Heat Map","Download NG-CHM File","File: " + NgChmGui.mapProperties.chm_name +  NgChmGui.mapProperties.builder_config.ngchmVersion + ".ngchm");
 	window.open(NgChmGui.mapProperties.output_location.substring(NgChmGui.mapProperties.output_location.indexOf("MapBuildDir")) + "/" + NgChmGui.mapProperties.chm_name +  NgChmGui.mapProperties.builder_config.ngchmVersion + ".ngchm");
 } 
 
@@ -26,15 +27,32 @@ NgChmGui.MAP.downloadMap = function() {
  * FUNCTION - getPDF: This function calls the viewer PDF download the NG-CHM pdf heat map.
  **********************************************************************************/
 NgChmGui.MAP.getPDF = function(e) {
+	NgChmGui.UTIL.logClientActivity("Interactive Heat Map","Generate Heat Map PDF","Chm Name: " + NgChmGui.mapProperties.chm_name);
 	if (NgChm.PDF.isGenerating === false) {
 		NgChm.PDF.openPdfPrefs(e,null);
 	}
 } 
 
 /**********************************************************************************
+ * FUNCTION - logViewerDownload: This function logs when a user downloads the stand-alone viewer
+ **********************************************************************************/
+NgChmGui.MAP.logViewerDownload = function() {
+	NgChmGui.UTIL.logClientActivity("Interactive Heat Map","Download Heat Map Viewer","Chm Name: " + NgChmGui.mapProperties.chm_name);
+}
+
+/**********************************************************************************
+ * FUNCTION - downloadThumbnail: This function calls the viewer PDF download the NG-CHM pdf heat map.
+ **********************************************************************************/
+NgChmGui.MAP.downloadThumbnail = function() {
+	NgChmGui.UTIL.logClientActivity("Interactive Heat Map","Download Thumbnail Image","Chm Name: " + NgChmGui.mapProperties.chm_name);
+	NgChm.UTIL.downloadSummaryPng();
+}
+
+/**********************************************************************************
  * FUNCTION - getFullPDF: This function downloads the NG-CHM full pdf heat map.
  **********************************************************************************/
 NgChmGui.MAP.getFullPDF = function() {
+	NgChmGui.UTIL.logClientActivity("Interactive Heat Map","Get Expanded PDF File","File: " + NgChmGui.mapProperties.chm_name + "_exp.pdf");
 	window.open(NgChmGui.mapProperties.output_location.substring(NgChmGui.mapProperties.output_location.indexOf("MapBuildDir")) + "/" + NgChmGui.mapProperties.chm_name + "_exp.pdf");
 } 
 
@@ -45,6 +63,7 @@ NgChmGui.MAP.getFullPDF = function() {
  **********************************************************************************/
 NgChmGui.MAP.getChangeLog = function() {
 	var props = NgChmGui.mapProperties;
+	NgChmGui.UTIL.logClientActivity("Interactive Heat Map","Generate Change Log","Chm Name: " + props.chm_name);
 	var logText = "NG-CHM BUILDER HEAT MAP CREATION LOG\n\n";
 	logText += "MATRIX SCREEN ENTRIES:\n";
 	logText += "*  Heat Map Name: " + props.chm_name + "\n";
@@ -289,6 +308,7 @@ NgChmGui.MAP.newMapRequest = function() {
  * matrix screen when the user requests an all new map.
  **********************************************************************************/
 NgChmGui.MAP.newMapConfirm = function() {
+	NgChmGui.UTIL.logClientActivity("Interactive Heat Map","Start New Heat Map","Clean session and start new map");
 	NgChmGui.UTIL.cleanSession(NgChmGui.UTIL.gotoMatrixScreen);
 }
 

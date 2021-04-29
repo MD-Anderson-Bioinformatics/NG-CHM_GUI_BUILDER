@@ -1065,6 +1065,7 @@ NgChmGui.COV.applySettings = function() {
 			classItem.color_map.missing = document.getElementById('missing_colorPrefCp_'+classKey).value
 		}
 	}
+    NgChmGui.mapProperties.builder_config.targetScreen = "Process Covariates";
 	return NgChmGui.COV.validateEntries(false);
 }
 

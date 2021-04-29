@@ -37,8 +37,6 @@ public class ResetMatrix extends HttpServlet {
 		    String propJSON = "{}";
 	        File propFile = new File(workingDir + "/heatmapProperties.json");
 	        if (propFile.exists()) {
-	    		Util.logStatus("ResetMatrix - Begin Resetting tranformed matrix.");
-
 		        //Get properties and update them to the new config data
 	        	MapProperties mp = new MapProperties();
 		        HeatmapPropertiesManager.Heatmap mapConfig = mp.getConfigDataFromRequest(request);

@@ -49,6 +49,7 @@ public class RemoveCovariate extends HttpServlet {
 	        	HeatmapPropertiesManager.Heatmap map = mgr.getMap();
 	        	String covFileName = workingDir + "/covariate_"+ axisType+"_"+covName + ".txt";
 	        	File covFile = new File(covFileName);
+	        	long covFileSize = covFile.length();
 	        	if (covFile.exists()) {
 	        		covFile.delete();
 	        	}
@@ -77,7 +78,7 @@ public class RemoveCovariate extends HttpServlet {
 		        //Re-build the heat map 
 			    HeatmapBuild builder = new HeatmapBuild();
 			    builder.buildHeatMap(workingDir);
-	
+		    	ActivityLog.logActivity(request, "Process Covariates", "Remove Covariate", "Remove covariate file: " + covName + " File Size: " + covFileSize);
 			    //Return edited props
 	        	propJSON = mgr.load();
 	        } else {
@@ -86,7 +87,6 @@ public class RemoveCovariate extends HttpServlet {
 	       	response.setContentType("application/json");
 	    	response.getWriter().write(propJSON.toString());
 	    	response.flushBuffer();
-
 	    } catch (Exception e) {
 	        writer.println("Error uploading covariate.");
 	        writer.println("<br/> ERROR: " + e.getMessage());

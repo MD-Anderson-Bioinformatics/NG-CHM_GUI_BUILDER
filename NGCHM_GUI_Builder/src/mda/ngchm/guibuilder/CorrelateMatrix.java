@@ -100,7 +100,7 @@ public class CorrelateMatrix extends HttpServlet {
 	private void transposeTransform(String matrixFile, HttpServletRequest request) throws Exception {
 		String tmpWorking = Util.copyWorkingToTemp(matrixFile);
 		String operation = request.getParameter("tttransformmethod");
-		Util.logStatus("CorrelateMatrix - Begin Transpose Transform for (" + operation + "). ");
+		ActivityLog.logActivity(request, "Transform Matrix", "CorrelateMatrix", "Transpose matrix for: " + operation);
 
 		BufferedReader rdr = new BufferedReader(new FileReader(tmpWorking));
 		BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
@@ -135,7 +135,7 @@ public class CorrelateMatrix extends HttpServlet {
 		String operation = request.getParameter("tctransformmethod");
 		String errMsg = "";
 		
-		Util.logStatus("CorrelateMatrix - Begin Correlation Transform for (" + operation + "). ");
+		ActivityLog.logActivity(request, "Transform Matrix", "CorrelateMatrix", "Correlate Matrix by: " + operation);
 
 		BufferedReader rdr = new BufferedReader(new FileReader(tmpWorking));
 		BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));

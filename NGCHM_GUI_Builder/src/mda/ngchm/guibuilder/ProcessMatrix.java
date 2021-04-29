@@ -58,7 +58,7 @@ public class ProcessMatrix extends HttpServlet {
 			//Get/set matrix configuration data from request
 	        HeatmapPropertiesManager.MatrixGridConfig matrixConfig = getMatrixConfigData(request);
 	    	
-			Util.logStatus("ProcessMatrix - Begin Processing Matrix chm(" + matrixConfig.mapName + ").");
+	        ActivityLog.logActivity(request, "Select Matrix", "Process Matrix", "Processing Matrix for chm (" + matrixConfig.mapName + ")");
 			//Construct and write out a working matrix file that has been filtered of covariate and whitespace rows/columns.
 		    String matrixFile = workingDir + "/workingMatrix.txt";
 		    ArrayList<String> matrixErrors = new ArrayList<String>();
@@ -110,6 +110,8 @@ public class ProcessMatrix extends HttpServlet {
 			        	String covFileName = workingDir + "/covariate_"+ covCtr + ".txt";
 			        	if (!buildFilteredRowCovariate(workingDir, matrixConfig, covFileName, covCol, covType)) {
 							matrixErrors.add("COVARIATE INVALID: " + covName + " - Matrix data column for continuous Color Type contains non-numeric data. Please change Color Type to Discrete.");
+			        	} else {
+			    	        ActivityLog.logActivity(request, "Select Matrix", "Add Covariate from Matrix", "Adding row covariate " + covName + " from matrix to chm (" + matrixConfig.mapName + ")");
 			        	};
 			        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructDefaultCovariate(mgr, matrixConfig.matrixFileName, covName, covFileName, "row", covType, "0");
 			        	map.classification_files.add(classJsonObj);	    
@@ -124,7 +126,9 @@ public class ProcessMatrix extends HttpServlet {
 			        	String covFileName = workingDir + "/covariate_"+ covCtr + ".txt";
 				        if (!buildFilteredColCovariate(workingDir, matrixConfig, covFileName, covRow, covType)) {
 							matrixErrors.add("COVARIATE INVALID: " + covName + " - Matrix data row for continuous Color Type contains non-numeric data. Please change Color Type to Discrete.");
-				        }
+			        	} else {
+			    	        ActivityLog.logActivity(request, "Select Matrix", "Add Covariate from Matrix", "Adding column covariate " + covName + " from matrix to chm (" + matrixConfig.mapName + ")");
+			        	};
 			        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructDefaultCovariate(mgr, matrixConfig.matrixFileName, covName, covFileName, "column", covType, "0");
 			        	map.classification_files.add(classJsonObj);	        	 
 			        	covCtr++;
@@ -140,7 +144,6 @@ public class ProcessMatrix extends HttpServlet {
 	       	response.setContentType("application/json");
 	    	response.getWriter().write(propJSON.toString());
 	    	response.flushBuffer();
-			Util.logStatus("ProcessMatrix - End Processing Matrix chm(" + map.chm_name + ").");
 	    } catch (Exception e) {
 	        writer.println("Error creating initial heat map properties.");
 	        writer.println("<br/> ERROR: " + e.getMessage());

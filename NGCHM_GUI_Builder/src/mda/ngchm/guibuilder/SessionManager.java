@@ -16,6 +16,11 @@ public class SessionManager implements HttpSessionListener {
 		HttpSession session = event.getSession();
 		String sessID = session.getId();
 		System.out.println("A new session is created: " + sessID + " - " + new Date());
+		try {
+			ActivityLog.logActivity(event, "Session Manager", "Create Session", "Create new session: " + sessID);
+		} catch (Exception e) {
+	        e.printStackTrace();
+		}
 	}
  
 	public void sessionDestroyed(HttpSessionEvent event) {
@@ -29,6 +34,11 @@ public class SessionManager implements HttpSessionListener {
 			System.out.println("Error cleaning session: " + e.getMessage());
 		}
 		System.out.println("Existing session is destroyed: " + sessID + " - " + new Date());
+		try {
+			ActivityLog.logActivity(event, "Session Manager", "Destroy Session", "Destroy existing session: " + sessID);
+		} catch (Exception e) {
+	        e.printStackTrace();
+		}
 	}
 	
 	private void cleanseSession(String workingDir) throws ServletException, IOException {

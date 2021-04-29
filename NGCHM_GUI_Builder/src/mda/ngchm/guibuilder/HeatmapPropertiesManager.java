@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Map;
 
 import com.google.gson.Gson;
@@ -24,7 +25,7 @@ public class HeatmapPropertiesManager {
 		public Order col_configuration;
 		public Order row_configuration;
 		public String output_location;
-		public String builder_version = "NG-CHM GUI 2.20.1";
+		public String builder_version = "NG-CHM GUI 2.20.2";
 		public String summary_width = "40";
 		public BuilderConfig builder_config;
 	}
@@ -62,6 +63,7 @@ public class HeatmapPropertiesManager {
 		public String colsMaximum = "5000";
 		public String rowsMaximum = "5000";
 		public String rowsColsMaximum = "5000";    
+		public String targetScreen = "";    
 		public int clusterStatus = 0;    
 		public ArrayList<String> buildWarnings = new ArrayList<String>();
 		public MatrixGridConfig matrix_grid_config;
@@ -232,6 +234,7 @@ public class HeatmapPropertiesManager {
 		theMap.builder_config.buildErrors = "";
 		theMap.builder_config.buildWarnings = new ArrayList<String>();
 		theMap.builder_config.buildProps = "N";
+		theMap.builder_config.targetScreen = "";
 		save();
 		return;
 	}

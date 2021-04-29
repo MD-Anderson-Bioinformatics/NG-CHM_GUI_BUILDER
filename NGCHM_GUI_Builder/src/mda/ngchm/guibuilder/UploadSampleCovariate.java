@@ -48,6 +48,7 @@ public class UploadSampleCovariate extends HttpServlet {
 	    final PrintWriter writer = response.getWriter();
 
 	    try {
+	    	ActivityLog.logActivity(request, "Process Covariates", "Upload Sample Covariate File", "Sample Covariate file upload: " + selFile);
 	        //Create a directory using the http session ID
 	    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
 	    	workingDir = workingDir + "/" + mySession.getId();

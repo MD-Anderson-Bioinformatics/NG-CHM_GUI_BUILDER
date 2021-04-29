@@ -52,6 +52,7 @@ public class UploadMatrix extends HttpServlet {
 		}
 
 	    try {
+	    	ActivityLog.logActivity(request, "Select Matrix", "Upload Sample Matrix File", "File: SampleMatrix.txt");
     		uploadMatrixFile(workingDir, writer, filecontent, "TXT");
 	    } catch (Exception e) {
 	        writer.println("Error uploading sample matrix.");
@@ -97,7 +98,7 @@ public class UploadMatrix extends HttpServlet {
 	    	if (filePart.getSize() > 1000000000) {
 		        writer.println("ERROR: This matrix file (" + inFile + ") exceeds the maximum 500mb file size for the builder.");
 	    	} else {
-		    	Util.logStatus("UploadMatrix - Begin matrix file upload (" + inFile + ") File Size: " + filePart.getSize());
+	    		ActivityLog.logActivity(request, "Select Matrix", "Upload Matrix File", "File: " + inFile + " Size: " + filePart.getSize());
 		    	if (filePart.getSize() > 0) {
 		    		uploadMatrixFile(workingDir, writer, filecontent, inType);
 		    	} else {

@@ -133,6 +133,25 @@ NgChmGui.UTIL.editWidgetForBuilder = function() {
 }
 
 /**********************************************************************************
+ * FUNCTION - logClientActivity: The purpose of this function to log client activity
+ * to the activity log on the GUI Builder server.
+ **********************************************************************************/
+NgChmGui.UTIL.logClientActivity = function(screen, action, details) {
+	var req = new XMLHttpRequest();
+	req.open("POST", "ActivityLog?screen="+screen+"&action="+action+"&details="+details, true);
+	req.onreadystatechange = function () {
+		if (req.readyState == req.DONE) {
+			if (NgChmGui.UTIL.debug) {console.log('done');}
+	        if (req.status != 200) {
+	        	NgChmGui.UTIL.hideLoading();
+	            console.log('Failed to log client activity '  + req.status);
+	        }
+		}
+	};
+	req.send();
+}
+
+/**********************************************************************************
  * FUNCTION - getHeatmapProperties: The purpose of this function to retrieve 
  * heatmapProperties for a given screen (it is called from multiple places) and 
  * then call that screen's "load" function.
@@ -711,7 +730,9 @@ NgChmGui.UTIL.hideLoading = function() {
 NgChmGui.UTIL.getClusterLoadMessage = function() { 
 	var totalVals = NgChmGui.UTIL.getTotalClusterValues();
 	var clusterMsg = "";
-	if (totalVals >= 3000) {
+	if (totalVals >= 5000) {
+		clusterMsg = "&nbsp;&nbsp;<b>THE MATRIX MAY TAKE 10 MINUTES OR MORE TO CLUSTER</b>";
+	} else if (totalVals >= 3000) {
 		clusterMsg = "&nbsp;&nbsp;<b>THE MATRIX MAY TAKE SEVERAL MINUTES TO CLUSTER</b>";
 	} else if (totalVals >= 1000) {
 		clusterMsg = "&nbsp;&nbsp;<b>THE MATRIX MAY TAKE A MINUTE OR TWO TO CLUSTER</b>";
@@ -973,6 +994,9 @@ NgChmGui.UTIL.processClusterStatus = function(statusVal) {
 				  }
 			  }
 			    break;
+		  case 99:
+			  console.log("STATUS IS 99");
+			  break;
 		  default:
 		    // do nothing
 		} 	

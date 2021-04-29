@@ -121,7 +121,9 @@ NgChmGui.TRANS.validateEntries = function(leavingPage, formatError, otherError, 
 		//Generate warning messages
 		if (valid) {
 			var totalVals = NgChmGui.UTIL.getTotalClusterValues();
-			if (totalVals >= 3000) {
+			if (totalVals >= 5000) {
+				pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.warningPrefix + "This large matrix (" + NgChmGui.mapProperties.matrixRows + "x" + NgChmGui.mapProperties.matrixCols + ") may take a 10 minutes or more to cluster. You may wish to use the Filter action to reduce matrix size.</p>";
+			} else if (totalVals >= 3000) {
 				pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.warningPrefix + "This large matrix (" + NgChmGui.mapProperties.matrixRows + "x" + NgChmGui.mapProperties.matrixCols + ") may take a several minutes to cluster. You may wish to use the Filter action to reduce matrix size.</p>";
 			} else if (totalVals >= 1500) {
 				pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.warningPrefix + "This matrix (" + NgChmGui.mapProperties.matrixRows + "x" + NgChmGui.mapProperties.matrixCols + ") may take a minute or two to cluster. You may wish to use the Filter action to reduce matrix size.</p>";
@@ -170,7 +172,7 @@ NgChmGui.TRANS.showTransSelection =  function() {
  * FUNCTION - getWorkingMatrix: This function calls the GetWorkingMatrix servlet
  * to load the top corner of the data matrix in the view panel.
  **********************************************************************************/
-NgChmGui.TRANS.getWorkingMatrix =  function() {
+NgChmGui.TRANS.getWorkingMatrix =  function(isReset) {
 	var req = new XMLHttpRequest();
 	req.open("GET", "GetWorkingMatrix", true);
 	req.onreadystatechange = function () {
@@ -191,7 +193,10 @@ NgChmGui.TRANS.getWorkingMatrix =  function() {
 				props.matrixCols = NgChmGui.TRANS.matrixInfo.numCols;
 	        	document.getElementById('numRows').innerHTML = NgChmGui.TRANS.matrixInfo.numRows;
 	        	document.getElementById('numCols').innerHTML = NgChmGui.TRANS.matrixInfo.numCols;
-	        	if (NgChmGui.TRANS.matrixInfo.numInvalid > 0) {
+	        	if (typeof isReset !== 'undefined') {
+		        	NgChmGui.UTIL.logClientActivity("Transform Matrix", "ResetMatrix", "End resetting transformed matrix. Rows/Cols before: " + NgChmGui.TRANS.matrixInfo.numRows + "/" + NgChmGui.TRANS.matrixInfo.numCols);
+	        	}
+		        if (NgChmGui.TRANS.matrixInfo.numInvalid > 0) {
 		        	numInvalidDisplay.style.fontWeight = 'bold';
 		        	numInvalidDisplay.style.color = '#FF0000';
 	        	} else {
@@ -715,6 +720,7 @@ NgChmGui.TRANS.sendMatrix = function() {
 NgChmGui.TRANS.doReset = function(){
     NgChmGui.mapProperties.builder_config.transform_config = {};
     NgChmGui.TRANS.validateEntries();  
+	NgChmGui.UTIL.logClientActivity("Transform Matrix", "ResetMatrix", "Begin resetting transformed matrix. Rows/Cols before: " + NgChmGui.mapProperties.matrixRows + "/" + NgChmGui.mapProperties.matrixCols);
     NgChmGui.TRANS.revertToState();   
 }
 
@@ -870,7 +876,7 @@ NgChmGui.TRANS.revertToState =  function() {
 			        	index++;
 			        	nextFunc(index,stop);
 			        	if (index > stopPos) {
-                            NgChmGui.TRANS.getWorkingMatrix();
+                            NgChmGui.TRANS.getWorkingMatrix(true);
                         }
 				    }
 				}
@@ -878,7 +884,7 @@ NgChmGui.TRANS.revertToState =  function() {
 			req.send(formData);
 			NgChmGui.UTIL.showLoading();
 		} else if (stopPos === -1) {
-            NgChmGui.TRANS.getWorkingMatrix();
+            NgChmGui.TRANS.getWorkingMatrix(true);
 		}
 	}
 }
