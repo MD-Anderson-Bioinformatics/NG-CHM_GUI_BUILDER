@@ -45,3 +45,7 @@ RUN chown -R ${TOMCAT_UID}:${TOMCAT_GID} /usr/local/tomcat/webapps ; \
 USER ${TOMCAT_UID}
 
 COPY --from=webbuilder /artifacts/builder.app /usr/local/tomcat/webapps
+
+# Run tomcat for a brief time to deploy the WAR file. Then remove it.
+# This allows volumes to mounted within Tomcat's directory for the webapp.
+RUN catalina.sh start && sleep 10 && catalina.sh stop && rm /usr/local/tomcat/webapps/NGCHM-web-builder.war
