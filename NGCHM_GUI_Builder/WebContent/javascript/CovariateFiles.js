@@ -460,7 +460,15 @@ NgChmGui.COV.readyUpload = function() {
 	while(textSpan.firstChild) {
 		textSpan.removeChild( textSpan.firstChild );
 	}
-	var filePath = document.getElementById('covar').value;
+	var fileItem = document.getElementById('covar');
+	var fileName = fileItem.value.substring(fileItem.value.indexOf("fakepath")+9, fileItem.value.length);
+	if (fileItem.files[0].size > 780000000) {
+		NgChmGui.COV.validateEntries(false, "This covariate file (" + fileName + ") exceeds the maximum 750mb file size for the builder.");
+		return;
+	} else {
+		NgChmGui.COV.validateEntries(false);
+	}
+	var filePath = fileItem.value;
 	var fileNameTxt = filePath.substring(12,filePath.length);
 	textSpan.appendChild(document.createTextNode(fileNameTxt));
 	//If Name field not populated by user, use filename (less suffix)

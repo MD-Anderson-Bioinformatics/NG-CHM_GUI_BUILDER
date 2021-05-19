@@ -177,7 +177,13 @@ NgChmGui.FILE.MatrixFile = function() {
 	this.sendMatrix = function(isSample) {
 		var req = new XMLHttpRequest();
 		var formData = new FormData( document.getElementById("matrix_frm") );
-		var filePath = document.getElementById('file-input').value;
+		var fileItem = document.getElementById('file-input');
+		var fileName = fileItem.value.substring(fileItem.value.indexOf("fakepath")+9, fileItem.value.length);
+		if (fileItem.files[0].size > 780000000) {
+			NgChmGui.FILE.invalidMatrix("ERROR: This matrix file (" + fileName + ") exceeds the maximum 750mb file size for the builder.");
+			return;
+		}
+		var filePath = fileItem.value;
 		var selectedFileName = filePath.substring(12,filePath.length);
 		if (isSample === true) {
 			NgChmGui.isSample = 'Y';
