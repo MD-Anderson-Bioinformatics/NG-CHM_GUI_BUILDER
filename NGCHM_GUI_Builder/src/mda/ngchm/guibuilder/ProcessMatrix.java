@@ -450,7 +450,7 @@ public class ProcessMatrix extends HttpServlet {
 				line = reader.readLine();
 			}
 			for (int i=matrixConfig.dataStartCol;i<covToks.length;i++) {
-				String label = labelToks[i-labelOffset];
+				String label = labelToks[i];
 				String value = covToks[i];
 				if (!value.equals("")) {
 					writer.write(label+"\t"+value+"\n");
