@@ -25,7 +25,7 @@ public class HeatmapPropertiesManager {
 		public Order col_configuration;
 		public Order row_configuration;
 		public String output_location;
-		public String builder_version = "NG-CHM GUI 2.20.2";
+		public String builder_version = "GUI Builder 2.20.3 w/ NG-CHM 2.20.2";
 		public String summary_width = "40";
 		public BuilderConfig builder_config;
 	}
