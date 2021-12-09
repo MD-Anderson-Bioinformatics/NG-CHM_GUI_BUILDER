@@ -68,7 +68,17 @@ public class Cluster extends HttpServlet {
 			    HeatmapPropertiesManager.Heatmap map = mgr.getMap();
 			    mgr.save();
 			    try {
-			        mp.processTreeCutCovariates(mgr, mapConfig);
+				    String clusterProp = map.builder_config.buildCluster;
+				    String ordDistAggl = (map.row_configuration.order_method.equals("Hierarchical")) ? map.row_configuration.order_method + "/" + map.row_configuration.distance_metric + "/" + map.row_configuration.agglomeration_method : map.row_configuration.order_method + "/NA/NA";
+				    if (clusterProp.equals("R")) {
+						ActivityLog.logActivity(request, "Cluster Matrix", "Cluster Large Matrix File Rows", "Clustering rows for chm: " + map.chm_name + " Order/Distance/Agglomeration: " + ordDistAggl);
+				    } else if (clusterProp.equals("C")) {
+						ActivityLog.logActivity(request, "Cluster Matrix", "Cluster Large Matrix File Columns", "Clustering columns for chm: " + map.chm_name + " Order/Distance/Agglomeration: " + ordDistAggl);
+				    } else {
+						ActivityLog.logActivity(request, "Cluster Matrix", "Cluster Large Matrix File Rows", "Clustering rows for chm: " + map.chm_name + " Order/Distance/Agglomeration: " + ordDistAggl);
+						ActivityLog.logActivity(request, "Cluster Matrix", "Cluster Large Matrix File Columns", "Clustering columns for chm: " + map.chm_name + " Order/Distance/Agglomeration: " + ordDistAggl);
+				    }
+			        mp.processTreeCutCovariates(request, mgr, mapConfig);
 			        //Cluster the heat map in a thread
 			        Runnable r = new Cluster.ClusterThread(workingDir);
 			        new Thread(r).start();
@@ -97,15 +107,13 @@ public class Cluster extends HttpServlet {
 	    HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
 	    mgr.load();
 	    HeatmapPropertiesManager.Heatmap map = mgr.getMap();
+		writeClusterStatus(mgr, 99);
 	    
 	    //Get first matrix file for clustering 
 	    String matrixFile = map.matrix_files.get(0).path;
 	    String clusterProp = map.builder_config.buildCluster;
 	    boolean clusterRows = (clusterProp.equals("R") || clusterProp.equals("B")) ? true : false;
 	    boolean clusterCols = (clusterProp.equals("C") || clusterProp.equals("B")) ? true : false;
-	    if (clusterRows || clusterCols) {
-			Util.logStatus("Cluster - Begin Clustering Matrix chm(" + map.chm_name + ").");
-	    }
 	    if (clusterRows) {
 		    //Create paths for clustering output files
 		    String rowOrder = workingDir  + "/rowOrder.txt";  
@@ -161,9 +169,6 @@ public class Cluster extends HttpServlet {
 		    	map.col_configuration.dendro_height = "10";
 		    }
 	    }
-	    if (clusterRows || clusterCols) {
-			Util.logStatus("Cluster - End Clustering Matrix chm(" + map.chm_name + ").");
-	    }
 	    //Save changes to heatmapProperties file
 	    mgr.save();
 	}
@@ -181,7 +186,6 @@ public class Cluster extends HttpServlet {
 	
 	
 	private void performOrdering(ScriptEngine engine, String matrixFile, String orderMethod, String direction, String distanceMeasure, String agglomerationMethod, String orderFile, String clusterFile, HeatmapPropertiesManager mgr) throws Exception {
-	    HeatmapPropertiesManager.Heatmap map = mgr.getMap();
 		engine.eval("dataMatrix = read.table(\"" + matrixFile + "\", header=TRUE, sep = \"\t\", check.names=FALSE, row.names = 1, as.is=TRUE, na.strings=c(\"NA\",\"N/A\",\"-\",\"?\"));");
 		engine.eval("ordering <- NULL; "); 
 		if (orderMethod.equals("Hierarchical")) {

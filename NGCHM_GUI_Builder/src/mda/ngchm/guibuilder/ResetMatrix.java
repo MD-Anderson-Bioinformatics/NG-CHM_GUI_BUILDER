@@ -37,8 +37,6 @@ public class ResetMatrix extends HttpServlet {
 		    String propJSON = "{}";
 	        File propFile = new File(workingDir + "/heatmapProperties.json");
 	        if (propFile.exists()) {
-	    		Util.logStatus("ResetMatrix - Begin Resetting tranformed matrix.");
-
 		        //Get properties and update them to the new config data
 	        	MapProperties mp = new MapProperties();
 		        HeatmapPropertiesManager.Heatmap mapConfig = mp.getConfigDataFromRequest(request);
@@ -55,7 +53,15 @@ public class ResetMatrix extends HttpServlet {
 				}	
 				rdr.close();
 				out.close();
-			    propJSON = mgr.load();
+			    HeatmapPropertiesManager.Heatmap map = mgr.getMap();
+				if (map.builder_config.isTransposed.contentEquals("Y")) { 
+					map.builder_config.isTransposed = "N";
+			    	for (int i=0;i<map.classification_files.size();i++) {
+			    		map.classification_files.get(i).position = map.classification_files.get(i).position.contentEquals("row") ? "column" : "row";
+			    	}
+					mgr.save();
+				} 
+				propJSON = mgr.load();
 	        } else {
 	        	propJSON = "{\"no_file\": 1}";
 	        }
@@ -77,6 +83,7 @@ public class ResetMatrix extends HttpServlet {
 	        }
 	    }
 	}
+	
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doGet(request, response);

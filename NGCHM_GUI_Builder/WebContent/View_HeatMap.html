@@ -13,15 +13,15 @@
 
         <title>NG-CHM Builder</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	 	<script src="javascript/NGCHM_GUI_Util.js"></script>
-	 	<script src="javascript/HeatMap.js"></script>
-		<link rel="stylesheet" href="css/NGCHM_GUI.css">
+	 	<script src="javascript/NGCHM_GUI_Util.js?v=NG-CHM GUI 2.20.2"></script>
+	 	<script src="javascript/HeatMap.js?v=NG-CHM GUI 2.20.2"></script>
+		<link rel="stylesheet" href="css/NGCHM_GUI.css?v=NG-CHM GUI 2.20.2">
  		<script type="text/Javascript">
 			NgChmGui.mapProperties = null;
 		 	window.onload = function() {
 				NgChmGui.UTIL.getHeatmapProperties(NgChmGui.MAP.loadData);
 				NgChmGui.UTIL.messageBoxConfigure();
-				NgChmGui.UTIL.showAdvanced = NgChmGui.UTIL.urlParam('adv');
+				NgChmGui.UTIL.showAdvanced = NgChmGui.UTIL.urlParam('adv'); 
 		 	}
 	 	</script>
     </head>
@@ -55,7 +55,7 @@
 				</div>
  				<br><br>
         		<div class="image-container">
-	 				<a id="downloadViewer_btn" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' href="ngChmApp.html" download><img src="images/ngChmViewerButton.png"/></a>
+	 				<a id="downloadViewer_btn" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' href="ngChmApp.html" download><img src="images/ngChmViewerButton.png" onclick='NgChmGui.MAP.logViewerDownload();'/></a>
 				</div>
  				<br><br>
         		<div class="image-container">
@@ -63,7 +63,7 @@
 				</div>
 				<br><br> 
           		<div class="image-container">
-	 				<img id='downloadThumb_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/getNgchmThumbnailButton.png' alt='Download Thumbnail .PNG Image file' onclick='NgChm.UTIL.downloadSummaryPng();' />
+	 				<img id='downloadThumb_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/getNgchmThumbnailButton.png' alt='Download Thumbnail .PNG Image file' onclick='NgChmGui.MAP.downloadThumbnail();' />
 				</div>
  				<br><br>
  				<br><br>
@@ -95,7 +95,7 @@
 				</div>
 			</div>
 			<div id='NGCHMEmbed' class="collapsed"></div>
-			<script src='javascript/ngchmWidget-min.js'></script>
+			<script src="javascript/ngchmWidget-min.js?v=NG-CHM GUI 2.20.2"></script>
 		</div>
 		</div>   		
 	</div>

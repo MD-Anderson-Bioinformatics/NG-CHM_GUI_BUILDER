@@ -83,7 +83,7 @@ public class TransformMatrix extends HttpServlet {
 		BufferedReader rdr = new BufferedReader(new FileReader(tmpWorking));
 	    BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
 		
-    	Util.logStatus("TransformMatrix - Begin Log Transform for (" + logBase + ") "); 
+	    ActivityLog.logActivity(request, "Transform Matrix", "TransformMatrix", "Begin Log Transform: " + logBase);
     	try {
 	
 	    	// TODO : need to correct negative values before log
@@ -161,7 +161,7 @@ public class TransformMatrix extends HttpServlet {
 		BufferedReader rdr = new BufferedReader(new FileReader(tmpWorking));
 	    BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
 		
-    	Util.logStatus("TransformMatrix - Begin Mean Center Transform for (" + axis + ") axis. ");
+	    ActivityLog.logActivity(request, "Transform Matrix", "TransformMatrix", "Mean Center Transform for axis: " + axis);
     	try {
 			if (axis.equals("row")) {
 				String line = rdr.readLine(); //Just write the header
@@ -221,7 +221,7 @@ public class TransformMatrix extends HttpServlet {
 		BufferedReader rdr = new BufferedReader(new FileReader(tmpWorking));
 	    BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
 		
-    	Util.logStatus("TransformMatrix - Begin Z-Normalize Transform for (" + axis + ") axis. ");
+	    ActivityLog.logActivity(request, "Transform Matrix", "TransformMatrix", "Z-Normalize Transform for axis: " + axis);
     	try {
 	
 			if (axis.equals("row")) {
@@ -286,11 +286,12 @@ public class TransformMatrix extends HttpServlet {
 		BufferedReader rdr = new BufferedReader(new FileReader(tmpWorking));
 	    BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
 		
-    	Util.logStatus("TransformMatrix - Begin Arithmetic Transform for (" + operation + ") axis. ");
+//    	Util.logStatus("TransformMatrix - Begin Arithmetic Transform for (" + operation + ") axis. ");
     	try {
 		    // TODO : need to correct negative values before log
+    		float value = 0;
 			if (operation.equals("add")) {
-				float addVal = Float.parseFloat(request.getParameter("add_value"));
+				value = Float.parseFloat(request.getParameter("add_value"));
 				String line = rdr.readLine(); //Just write the header
 				out.write(line + "\n");
 				line = rdr.readLine();
@@ -300,7 +301,7 @@ public class TransformMatrix extends HttpServlet {
 					out.write(toks[0]);
 					for (int i = 1; i < toks.length; i++) {
 						if (Util.isNumeric(toks[i])) {
-							float val = Float.parseFloat(toks[i]) + addVal;
+							float val = Float.parseFloat(toks[i]) + value;
 							out.write("\t" + val);
 						} else {
 							out.write("\t" + toks[i]);
@@ -310,7 +311,7 @@ public class TransformMatrix extends HttpServlet {
 					line = rdr.readLine();
 				}	
 			} else if (operation.equals("subtract")) {
-				float subVal = Float.parseFloat(request.getParameter("subtract_value"));
+				value = Float.parseFloat(request.getParameter("subtract_value"));
 				String line = rdr.readLine(); //Just write the header
 				out.write(line + "\n");
 				line = rdr.readLine();
@@ -320,7 +321,7 @@ public class TransformMatrix extends HttpServlet {
 					out.write(toks[0]);
 					for (int i = 1; i < toks.length; i++) {
 						if (Util.isNumeric(toks[i])) {
-							float val = Float.parseFloat(toks[i]) - subVal;
+							float val = Float.parseFloat(toks[i]) - value;
 							out.write("\t" + val);
 						} else {
 							out.write("\t" + toks[i]);
@@ -330,7 +331,7 @@ public class TransformMatrix extends HttpServlet {
 					line = rdr.readLine();
 				}	
 			} else if (operation.equals("multiply")) {
-				float multiVal = Float.parseFloat(request.getParameter("multiply_value"));
+				value = Float.parseFloat(request.getParameter("multiply_value"));
 				String line = rdr.readLine(); //Just write the header
 				out.write(line + "\n");
 				line = rdr.readLine();
@@ -340,7 +341,7 @@ public class TransformMatrix extends HttpServlet {
 					out.write(toks[0]);
 					for (int i = 1; i < toks.length; i++) {
 						if (Util.isNumeric(toks[i])) {
-							float val = Float.parseFloat(toks[i]) * multiVal;
+							float val = Float.parseFloat(toks[i]) * value;
 							out.write("\t" + val);
 						} else {
 							out.write("\t" + toks[i]);
@@ -350,7 +351,7 @@ public class TransformMatrix extends HttpServlet {
 					line = rdr.readLine();
 				}	
 			} else if (operation.equals("divide")) {
-				float divVal = Float.parseFloat(request.getParameter("divide_value"));
+				value = Float.parseFloat(request.getParameter("divide_value"));
 				String line = rdr.readLine(); //Just write the header
 				out.write(line + "\n");
 				line = rdr.readLine();
@@ -360,7 +361,7 @@ public class TransformMatrix extends HttpServlet {
 					out.write(toks[0]);
 					for (int i = 1; i < toks.length; i++) {
 						if (Util.isNumeric(toks[i])) {
-							float val = Float.parseFloat(toks[i]) / divVal;
+							float val = Float.parseFloat(toks[i]) / value;
 							out.write("\t" + val);
 						} else {
 							out.write("\t" + toks[i]);
@@ -370,6 +371,7 @@ public class TransformMatrix extends HttpServlet {
 					line = rdr.readLine();
 				}	
 			} 
+			ActivityLog.logActivity(request, "Transform Matrix", "TransformMatrix", "Arithmetic " + operation + " transform using value: " + value);
 	    } catch (Exception e) {
 			rdr.close();
 			out.close();
@@ -389,7 +391,7 @@ public class TransformMatrix extends HttpServlet {
 		BufferedReader rdr = new BufferedReader(new FileReader(tmpWorking));
 	    BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
 		
-    	Util.logStatus("TransformMatrix - Begin Threshold Transform for (" + operation + ") axis. ");
+//    	Util.logStatus("TransformMatrix - Begin Threshold Transform for (" + operation + ") axis. ");
     	try {
 			boolean lowThreshold = false;
 			boolean setNA = false;
@@ -407,6 +409,7 @@ public class TransformMatrix extends HttpServlet {
 				threshold = Float.parseFloat(request.getParameter("high_value"));
 				setNA = true;
 			}
+			ActivityLog.logActivity(request, "Transform Matrix", "TransformMatrix", "Threshold " + operation + " transform using threshold value: " + threshold);
 			String line = rdr.readLine(); //Just write the header
 			out.write(line + "\n");
 			line = rdr.readLine();

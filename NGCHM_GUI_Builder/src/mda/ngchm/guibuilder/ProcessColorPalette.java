@@ -166,6 +166,8 @@ public class ProcessColorPalette extends HttpServlet {
 	       	response.setContentType("application/json");
 	    	response.getWriter().write(propJSON.toString());
 	    	response.flushBuffer();
+	    	String screen = paletteType.contentEquals("matrix") ? "Format Heatmap" : "Process Covariates";
+	    	ActivityLog.logActivity(request, screen, "CreateColorPalette", "Create new palette: " + paletteContent);
 	    } catch (Exception e) {
 	        writer.println("Error uploading color palette.");
 	        writer.println("<br/> ERROR: " + e.getMessage());

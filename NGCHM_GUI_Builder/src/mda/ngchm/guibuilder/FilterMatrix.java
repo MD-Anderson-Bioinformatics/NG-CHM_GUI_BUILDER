@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.Part;
 
 /**
  * Servlet implementation class CorrectMatrix
@@ -39,6 +40,7 @@ public class FilterMatrix extends HttpServlet {
 	        if (propFile.exists()) {
 				Util.backupWorking(matrixFile);
 			    String filter = request.getParameter("Filter");
+			    int[] counts;
 			    if (filter.equals("Range")){
 			    	filterRange(matrixFile, request);
 			    } else if (filter.equals("Variation")){
@@ -80,8 +82,8 @@ public class FilterMatrix extends HttpServlet {
 		BufferedReader rdr = new BufferedReader(new FileReader(tmpWorking));
 	    BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
 		
-		Util.logStatus("FilterMatrix - Begin Filter Range Transform for (" + axis + ") axis. ");
 		try {
+		    int[] retVal = new int[2];
 		    if (axis.equals("row")) { // row filters
 		    	if (filterMethod.equals("onegreater")) {
 	
@@ -90,6 +92,7 @@ public class FilterMatrix extends HttpServlet {
 					line = rdr.readLine();
 					double threshold = Double.parseDouble(request.getParameter("1range_max"));
 					while (line != null ){
+						retVal[0]++;
 						String toks[] = line.split("\t",-1);
 						StringBuffer outLine = new StringBuffer();
 						outLine.append(toks[0]);
@@ -97,6 +100,7 @@ public class FilterMatrix extends HttpServlet {
 						for (int i = 1; i < toks.length; i++) {
 							if (Util.isNumeric(toks[i])) {
 								if (Double.parseDouble(toks[i]) > threshold){
+									retVal[1]++;
 									skip = true;
 									break;
 								}	
@@ -115,6 +119,7 @@ public class FilterMatrix extends HttpServlet {
 					line = rdr.readLine();
 					double threshold = Double.parseDouble(request.getParameter("1range_min"));
 					while (line != null ){
+						retVal[0]++;
 						String toks[] = line.split("\t",-1);
 						StringBuffer outLine = new StringBuffer();
 						outLine.append(toks[0]);
@@ -129,6 +134,7 @@ public class FilterMatrix extends HttpServlet {
 							outLine.append("\t" + toks[i]);
 						}
 						if (!skip){
+							retVal[1]++;
 							out.write(outLine.toString() + "\n");
 						}
 						line = rdr.readLine();
@@ -140,6 +146,7 @@ public class FilterMatrix extends HttpServlet {
 					line = rdr.readLine();
 					double threshold = Double.parseDouble(request.getParameter("arange_max"));
 					while (line != null ){
+						retVal[0]++;
 						String toks[] = line.split("\t",-1);
 						StringBuffer outLine = new StringBuffer();
 						outLine.append(toks[0]);
@@ -153,6 +160,7 @@ public class FilterMatrix extends HttpServlet {
 							}
 						}
 						if (!skip){
+							retVal[1]++;
 							out.write(line.toString() + "\n");
 						}
 						line = rdr.readLine();
@@ -164,6 +172,7 @@ public class FilterMatrix extends HttpServlet {
 					line = rdr.readLine();
 					double threshold = Double.parseDouble(request.getParameter("arange_min"));
 					while (line != null ){
+						retVal[0]++;
 						String toks[] = line.split("\t",-1);
 						StringBuffer outLine = new StringBuffer();
 						outLine.append(toks[0]);
@@ -177,6 +186,7 @@ public class FilterMatrix extends HttpServlet {
 							}
 						}
 						if (!skip){
+							retVal[1]++;
 							out.write(line.toString() + "\n");
 						}
 						line = rdr.readLine();
@@ -188,6 +198,7 @@ public class FilterMatrix extends HttpServlet {
 					line = rdr.readLine();
 					double threshold = Double.parseDouble(request.getParameter("range_max"));
 					while (line != null ){
+						retVal[0]++;
 						String toks[] = line.split("\t",-1);
 						StringBuffer outLine = new StringBuffer();
 						outLine.append(toks[0]);
@@ -212,8 +223,11 @@ public class FilterMatrix extends HttpServlet {
 		    		double threshold = Double.parseDouble(request.getParameter("1range_max"));
 		    		boolean[] skip = new boolean[maxs.length];
 		    		for (int i = 1; i < maxs.length; i++){
+						retVal[0]++;
 		    			if (maxs[i] > threshold){
 		    				skip[i] = true;
+		    			} else {
+							retVal[1]++;
 		    			}
 		    		}
 		    		String line = rdr.readLine();
@@ -234,8 +248,11 @@ public class FilterMatrix extends HttpServlet {
 		    		double threshold = Double.parseDouble(request.getParameter("1range_min"));
 		    		boolean[] skip = new boolean[mins.length];
 		    		for (int i = 1; i < mins.length; i++){
+						retVal[0]++;
 		    			if (mins[i] < threshold){
 		    				skip[i] = true;
+		    			} else {
+							retVal[1]++;
 		    			}
 		    		}
 		    		String line = rdr.readLine();
@@ -256,8 +273,11 @@ public class FilterMatrix extends HttpServlet {
 		    		double threshold = Double.parseDouble(request.getParameter("arange_max"));
 		    		boolean[] skip = new boolean[mins.length];
 		    		for (int i = 1; i < mins.length; i++){
+						retVal[0]++;
 		    			if (mins[i] > threshold){
 		    				skip[i] = true;
+		    			} else {
+							retVal[1]++;
 		    			}
 		    		}
 		    		String line = rdr.readLine();
@@ -278,8 +298,11 @@ public class FilterMatrix extends HttpServlet {
 		    		double threshold = Double.parseDouble(request.getParameter("arange_min"));
 		    		boolean[] skip = new boolean[maxs.length];
 		    		for (int i = 1; i < maxs.length; i++){
+						retVal[0]++;
 		    			if (maxs[i] < threshold){
 		    				skip[i] = true;
+		    			} else {
+							retVal[1]++;
 		    			}
 		    		}
 		    		String line = rdr.readLine();
@@ -300,8 +323,11 @@ public class FilterMatrix extends HttpServlet {
 		    		double threshold = Double.parseDouble(request.getParameter("range_max"));
 		    		boolean[] skip = new boolean[maxs.length];
 		    		for (int i = 1; i < maxs.length; i++){
+						retVal[0]++;
 		    			if (maxs[i] < threshold){
 		    				skip[i] = true;
+		    			} else {
+							retVal[1]++;
 		    			}
 		    		}
 		    		String line = rdr.readLine();
@@ -319,6 +345,10 @@ public class FilterMatrix extends HttpServlet {
 					}	
 				}
 		    }
+			long outSize = new File(matrixFile).length();
+			long inSize = new File(tmpWorking).length();
+			String axisTitle = axis.contentEquals("row") ? "Rows" : "Columns";
+		    ActivityLog.logActivity(request, "Transform Matrix", "FilterMatrix", "Filter " + axisTitle + " by Range using " + filterMethod + ". " + axisTitle + " Bef/Aft: " + retVal[0] + "/" + retVal[1] + ". File Size Bef/Aft: " + inSize + "/" + outSize);
 		} catch (Exception e) {
 			rdr.close();
 			out.close();
@@ -338,20 +368,19 @@ public class FilterMatrix extends HttpServlet {
 		BufferedReader rdr = new BufferedReader(new FileReader(tmpWorking));
 	    BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
 		
-		Util.logStatus("FilterMatrix - Begin Filter Variation Transform for (" + axis + ") axis. ");
-		
 		try {
-
+		    int[] retVal = new int[2];
 		    if (axis.equals("row")) { // row filters
 		    	if (filterMethod.equals("std_value")) {
 		    		double threshold = Double.parseDouble(request.getParameter("std_limit"));
-	//	    		threshold = threshold*threshold; // we compare variances to cut down computation time
 		    		String line = rdr.readLine(); //Just write the header
 					out.write(line + "\n");
 					line = rdr.readLine();
 					while (line != null ){
+						retVal[0]++;
 						double variance = getRowDeviation(line);
 						if (variance > threshold){
+							retVal[1]++;
 							out.write(line.toString() + "\n");
 						}
 						line = rdr.readLine();
@@ -378,7 +407,9 @@ public class FilterMatrix extends HttpServlet {
 					line = rdr.readLine();
 					int index = 0;
 					while (line != null ){
+						retVal[0]++;
 						if (deviations[index] >= threshold) {
+							retVal[1]++;
 							out.write(line.toString() + "\n");
 						}
 						index++;
@@ -394,8 +425,11 @@ public class FilterMatrix extends HttpServlet {
 		    		boolean[] skip = new boolean[variances.length];
 		    		
 		    		for (int i = 1; i < variances.length; i++){
+						retVal[0]++;
 		    			if (variances[i] < threshold){
 		    				skip[i] = true;
+		    			} else {
+							retVal[1]++;
 		    			}
 		    		}
 		    		
@@ -430,8 +464,11 @@ public class FilterMatrix extends HttpServlet {
 		    		double threshold = sortDevs[sortDevs.length-numKeep];
 		    		
 		    		for (int i = 1; i < deviations.length; i++){
+						retVal[0]++;
 		    			if (deviations[i] < threshold){
 		    				skip[i] = true;
+		    			} else {
+							retVal[1]++;
 		    			}
 		    		}
 		    		
@@ -450,6 +487,10 @@ public class FilterMatrix extends HttpServlet {
 					}	
 				} 
 		    }
+			long outSize = new File(matrixFile).length();
+			long inSize = new File(tmpWorking).length();
+			String axisTitle = axis.contentEquals("row") ? "Rows" : "Columns";
+		    ActivityLog.logActivity(request, "Transform Matrix", "FilterMatrix", "Filter " + axisTitle + " Variation using " + filterMethod + ". " + axisTitle + " Bef/Aft: " + retVal[0] + "/" + retVal[1] + ". File Size Bef/Aft: " + inSize + "/" + outSize);
 		} catch (Exception e) {
 			rdr.close();
 			out.close();
@@ -468,9 +509,9 @@ public class FilterMatrix extends HttpServlet {
 		String filterMethod = request.getParameter("mfiltermethod");
 		BufferedReader rdr = new BufferedReader(new FileReader(tmpWorking));
 	    BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
-	    
-		Util.logStatus("FilterMatrix - Begin Filter Missing Transform for (" + axis + ") axis. ");
+
 		try {
+		    int[] retVal = new int[2];
 			if (axis.equals("row")) { // row filters
 				String line = rdr.readLine(); //Just write the header
 				out.write(line + "\n");
@@ -484,6 +525,7 @@ public class FilterMatrix extends HttpServlet {
 					thresh = Integer.parseInt(request.getParameter("std_num_missing"));
 				}
 				while (line != null ){
+					retVal[0]++;
 					String toks[] = line.split("\t",-1);
 					StringBuffer outLine = new StringBuffer();
 					outLine.append(toks[0]);
@@ -494,6 +536,7 @@ public class FilterMatrix extends HttpServlet {
 						}
 					}
 					if (missingNo <= thresh) {
+						retVal[1]++;
 						out.write(line.toString() + "\n");
 					}
 					line = rdr.readLine();
@@ -511,8 +554,11 @@ public class FilterMatrix extends HttpServlet {
 				}
 				boolean[] skip = new boolean[missingNos.length];
 				for (int i = 1; i < missingNos.length; i++) {
+					retVal[0]++;
 					if (missingNos[i] > thresh) {
 						skip[i] = true;
+					} else {
+						retVal[1]++;
 					}
 				}
 				while (line != null ){
@@ -528,6 +574,11 @@ public class FilterMatrix extends HttpServlet {
 					line = rdr.readLine();
 				}
 		    }
+			out.close();
+			long outSize = new File(matrixFile).length();
+			long inSize = new File(tmpWorking).length();
+			String axisTitle = axis.contentEquals("row") ? "Rows" : "Columns";
+		    ActivityLog.logActivity(request, "Transform Matrix", "FilterMatrix", "Filter Missing value" + axisTitle + " using " + filterMethod + ". " + axisTitle + " Bef/Aft: " + retVal[0] + "/" + retVal[1] + ". File Size Bef/Aft: " + inSize + "/" + outSize);
 		} catch (Exception e) {
 			rdr.close();
 			out.close();

@@ -89,11 +89,14 @@ public class MapProperties extends HttpServlet {
 	        workingDir = workingDir + "/" + mySession.getId();
 	        if (new File(workingDir).exists()) {
 		        HeatmapPropertiesManager mgr = new HeatmapPropertiesManager(workingDir);
+			    mgr.load();
 		        HeatmapPropertiesManager.Heatmap mapConfig = getConfigDataFromRequest(request);
 	        	String doClusterTree = mapConfig.builder_config.buildProps;
-				Util.logStatus("MapProperties - Begin setting properties for (" + mapConfig.chm_name + ").");
 		        //Get properties and update them to the new config data
 	        	mgr.setMap(mapConfig);
+	        	if (!mapConfig.builder_config.targetScreen.contentEquals("")) {
+	        		ActivityLog.logActivity(request, mapConfig.builder_config.targetScreen, "Update Properties", "Update " + mapConfig.builder_config.targetScreen + " Display Properties");
+	        	}
 		        //Mark properties as "clean" for update.
 	        	mgr.resetBuildConfig();
 		        
@@ -124,9 +127,19 @@ public class MapProperties extends HttpServlet {
 			    try {
 				    //Add/update any treecut covariate bars
 			    	if (doClusterTree.equals("T")) {
-				        processTreeCutCovariates(mgr, mapConfig);
+				        processTreeCutCovariates(request, mgr, mapConfig);
 			    	}
 				    if (!mapConfig.builder_config.buildCluster.equals("N")) {
+					    String clusterProp = map.builder_config.buildCluster;
+					    String ordDistAggl = (map.row_configuration.order_method.equals("Hierarchical")) ? map.row_configuration.order_method + "/" + map.row_configuration.distance_metric + "/" + map.row_configuration.order_method : map.row_configuration.agglomeration_method + "/NA/NA";
+					    if (clusterProp.equals("R")) {
+							ActivityLog.logActivity(request, "Cluster Matrix", "Cluster Matrix File Rows", "Clustering rows for chm: " + map.chm_name + " Order/Distance/Agglomeration: " + ordDistAggl);
+					    } else if (clusterProp.equals("C")) {
+							ActivityLog.logActivity(request, "Cluster Matrix", "Cluster Matrix File Columns", "Clustering columns for chm: " + map.chm_name + " Order/Distance/Agglomeration: " + ordDistAggl);
+					    } else {
+							ActivityLog.logActivity(request, "Cluster Matrix", "Cluster Matrix File Rows", "Clustering rows for chm: " + map.chm_name + " Order/Distance/Agglomeration: " + ordDistAggl);
+							ActivityLog.logActivity(request, "Cluster Matrix", "Cluster Matrix File Columns", "Clustering columns for chm: " + map.chm_name + " Order/Distance/Agglomeration: " + ordDistAggl);
+					    }
 				        //Re-build the heat map 
 					    Cluster clusterer = new Cluster();
 					    clusterer.clusterHeatMap(workingDir);
@@ -143,7 +156,6 @@ public class MapProperties extends HttpServlet {
 				    builder.buildHeatMap(workingDir);
 			    }
 
-				Util.logStatus("MapProperties - End setting properties for (" + mapConfig.chm_name + ").");
 			    //Return edited props
 	        	propJSON = mgr.load();
 		       	response.setContentType("application/json");
@@ -182,7 +194,7 @@ public class MapProperties extends HttpServlet {
 	    return covarConfig; 
 	}
 
-	public void processTreeCutCovariates(HeatmapPropertiesManager mgr, HeatmapPropertiesManager.Heatmap mapConfig) throws Exception {
+	public void processTreeCutCovariates(HttpServletRequest request, HeatmapPropertiesManager mgr, HeatmapPropertiesManager.Heatmap mapConfig) throws Exception {
 	    ProcessCovariate cov = new ProcessCovariate();
 	    ArrayList<Classification> classes = mapConfig.classification_files;
 	    //Remove any existing row tree cut covariate
@@ -195,6 +207,7 @@ public class MapProperties extends HttpServlet {
         }
     	//Add a row tree cut covariate bar if cuts requested
 	    if (!mapConfig.builder_config.rowCuts.equals("0")) {
+	    	ActivityLog.logActivity(request, "Cluster Matrix", "Add Row Tree Cut Covariate Bar", "Number of Cuts: " + mapConfig.builder_config.rowCuts);
         	HeatmapPropertiesManager.Classification classJsonObj = cov.constructTreeCutCovariate(mgr, mapConfig.builder_config.rowCutsLabel, "treecut", "row", "discrete", mapConfig.builder_config.rowCuts);
         	classes.add(classJsonObj);
 	    }
@@ -207,6 +220,7 @@ public class MapProperties extends HttpServlet {
             }
         }
 	    if (!mapConfig.builder_config.colCuts.equals("0")) {
+	    	ActivityLog.logActivity(request, "Cluster Matrix", "Add Column Tree Cut Covariate Bar", "Number of Cuts: " + mapConfig.builder_config.colCuts);
         	HeatmapPropertiesManager.Classification classJsonObj = cov.constructTreeCutCovariate(mgr, mapConfig.builder_config.colCutsLabel, "treecut", "column", "discrete", mapConfig.builder_config.colCuts);
         	classes.add(classJsonObj);	
 	    }

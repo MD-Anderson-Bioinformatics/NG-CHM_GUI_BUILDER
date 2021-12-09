@@ -48,6 +48,7 @@ public class UploadSampleCovariate extends HttpServlet {
 	    final PrintWriter writer = response.getWriter();
 
 	    try {
+	    	ActivityLog.logActivity(request, "Process Covariates", "Upload Sample Covariate File", "Sample Covariate file upload: " + selFile);
 	        //Create a directory using the http session ID
 	    	String workingDir = getServletContext().getRealPath("MapBuildDir").replace("\\", "/");
 	    	workingDir = workingDir + "/" + mySession.getId();
@@ -75,6 +76,7 @@ public class UploadSampleCovariate extends HttpServlet {
 		        out.close();
 	
 			    ProcessCovariate cov = new ProcessCovariate();
+			    if (map.builder_config.isTransposed.contentEquals("Y")) { axisType = "row";}
 	        	HeatmapPropertiesManager.Classification classJsonObj = cov.constructDefaultCovariate(mgr, selFile, covName, covFileName, axisType, colorType, "0");
 	        	map.classification_files.add(classJsonObj);	 
 		        //Mark properties as "clean" for update.

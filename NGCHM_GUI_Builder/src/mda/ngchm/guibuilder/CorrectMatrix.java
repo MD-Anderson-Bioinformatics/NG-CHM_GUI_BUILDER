@@ -76,7 +76,7 @@ public class CorrectMatrix extends HttpServlet {
 	    BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
 	    
 	    try {
-			Util.logStatus("CorrectMatrix - Begin Replace Non Numeric Transform for (" + replaceMethod + "). ");
+	    	ActivityLog.logActivity(request, "Transform Matrix", "CorrectMatrix", "Replace non-numeric values with: " + replaceMethod);
 	
 			if (replaceMethod.equals("N/A") || replaceMethod.equals("zero")) {
 				String line = rdr.readLine(); //Just write the header
@@ -162,7 +162,7 @@ public class CorrectMatrix extends HttpServlet {
 		BufferedReader rdr = new BufferedReader(new FileReader(tmpWorking));
 	    BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
 		
-		Util.logStatus("CorrectMatrix - Begin Fill Missing Transform for (" + replaceMethod + "). ");
+	    ActivityLog.logActivity(request, "Transform Matrix", "CorrectMatrix", "Fill Missing Values with: " + replaceMethod);
 		try {
 
 			if (replaceMethod.equals("zero") || replaceMethod.equals("N/A")) {

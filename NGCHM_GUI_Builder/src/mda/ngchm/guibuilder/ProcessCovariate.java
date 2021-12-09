@@ -24,7 +24,6 @@ public class ProcessCovariate {
 	public HeatmapPropertiesManager.Classification constructTreeCutCovariate(HeatmapPropertiesManager mgr, String covName, String covFilePath, String covPos, String colorType, String treeCuts) throws Exception {
 		HeatmapPropertiesManager.Classification covar = mgr.new Classification(covName, "Generated Cluster-Based File", covFilePath, covPos, "Y", "15", "color_plot", "#000000", "#FFFFFF", "0", "99", null, treeCuts);
 		try {
-			Util.logStatus("ProcessCovariate - Construct tree cut covariate for (" + covFilePath.substring(covFilePath.lastIndexOf( '/') + 1, covFilePath.length()) + ").");
 			String type = colorType;
 			int cutNbr = Integer.parseInt(treeCuts);		
 			ArrayList<String> covBreaks = new ArrayList<String>();
@@ -50,7 +49,6 @@ public class ProcessCovariate {
 	 * bar.
 	 ******************************************************************/
 	public HeatmapPropertiesManager.Classification constructDefaultCovariate(HeatmapPropertiesManager mgr, String fileName, String covName, String covFilePath, String covPos, String colorType, String treeCuts) throws Exception {
-		Util.logStatus("ProcessCovariate - Construct default covariate for (" + covName + ").");
 		HeatmapPropertiesManager.Classification covar = mgr.new Classification(covName, fileName, covFilePath, covPos, "Y", "15", "color_plot", "#000000", "#FFFFFF", "0", "99", null, treeCuts);
 		HeatmapPropertiesManager.ColorMap cm = constructDefaultColorMap(mgr, covar, colorType);
 		covar.color_map = cm;

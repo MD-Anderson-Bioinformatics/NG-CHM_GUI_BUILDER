@@ -42,13 +42,24 @@ public class CorrelateMatrix extends HttpServlet {
 				Util.backupWorking(matrixFile);
 	        	propJSON = mgr.load();
 	        	mgr.resetBuildConfig();
-	        	mgr.save();
+		        HeatmapPropertiesManager.Heatmap map = mgr.getMap();
 			    String transform = request.getParameter("Correlation");
 			    if (transform.equals("Transpose")) {
+			    	String isTransposed = map.builder_config.isTransposed;
+			    	if (isTransposed.contentEquals("Y")) { 
+			    		map.builder_config.isTransposed = "N";
+			    	} else {
+			    		map.builder_config.isTransposed = "Y";
+			    	}
+			    	//clear out any assigned classification files if transposing as axes change for all covars.
+			    	for (int i=0;i<map.classification_files.size();i++) {
+			    		map.classification_files.get(i).position = map.classification_files.get(i).position.contentEquals("row") ? "column" : "row";
+			    	}
 			    	transposeTransform(matrixFile, request);
 			    } else if (transform.equals("Correlation")) {
 			    	errMsg = correlationTransform(matrixFile, request, mgr);
 			    }
+	        	mgr.save();
 			    if (!errMsg.contentEquals("")) {
 				    try {
 			    		Util.restoreWorking(matrixFile);
@@ -89,7 +100,7 @@ public class CorrelateMatrix extends HttpServlet {
 	private void transposeTransform(String matrixFile, HttpServletRequest request) throws Exception {
 		String tmpWorking = Util.copyWorkingToTemp(matrixFile);
 		String operation = request.getParameter("tttransformmethod");
-		Util.logStatus("CorrelateMatrix - Begin Transpose Transform for (" + operation + "). ");
+		ActivityLog.logActivity(request, "Transform Matrix", "CorrelateMatrix", "Transpose matrix for: " + operation);
 
 		BufferedReader rdr = new BufferedReader(new FileReader(tmpWorking));
 		BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));
@@ -124,7 +135,7 @@ public class CorrelateMatrix extends HttpServlet {
 		String operation = request.getParameter("tctransformmethod");
 		String errMsg = "";
 		
-		Util.logStatus("CorrelateMatrix - Begin Correlation Transform for (" + operation + "). ");
+		ActivityLog.logActivity(request, "Transform Matrix", "CorrelateMatrix", "Correlate Matrix by: " + operation);
 
 		BufferedReader rdr = new BufferedReader(new FileReader(tmpWorking));
 		BufferedWriter out = new BufferedWriter(new FileWriter(matrixFile));

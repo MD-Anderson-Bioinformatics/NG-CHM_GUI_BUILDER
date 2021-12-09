@@ -51,6 +51,8 @@ public class UploadCovariate extends HttpServlet {
 	        if (propFile.exists()) {
 	        	mgr.load();
 	        	mgr.resetBuildConfig();
+	    	    String inFile = filePart.getSubmittedFileName();
+	    	    ActivityLog.logActivity(request, "Process Covariates", "Upload Covariate File", "Covariate File: " + inFile + " File Size: " + filePart.getSize() + " Name/Axis/ColorType: " + covariateName + "/" +  axisType + "/" + colorType);
 	        	processCovariateUpload(workingDir, filePart, covariateName, colorType, axisType);
 		        //Re-build the heat map 
 			    HeatmapBuild builder = new HeatmapBuild();
@@ -91,7 +93,6 @@ public class UploadCovariate extends HttpServlet {
 	        		covFile.delete();
 	        	}
 	    	    String inFile = filePart.getSubmittedFileName();
-		    	Util.logStatus("UploadCovariate - Begin Covariate File upload (" + inFile + ") File Size: " + filePart.getSize());
 	    	    String inType = inFile.substring(inFile.lastIndexOf(".")+1, inFile.length()).toUpperCase();
 		        filecontent = filePart.getInputStream();
 			    if (EXCEL_FILES.contains(inType)) {

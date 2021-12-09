@@ -133,6 +133,25 @@ NgChmGui.UTIL.editWidgetForBuilder = function() {
 }
 
 /**********************************************************************************
+ * FUNCTION - logClientActivity: The purpose of this function to log client activity
+ * to the activity log on the GUI Builder server.
+ **********************************************************************************/
+NgChmGui.UTIL.logClientActivity = function(screen, action, details) {
+	var req = new XMLHttpRequest();
+	req.open("POST", "ActivityLog?screen="+screen+"&action="+action+"&details="+details, true);
+	req.onreadystatechange = function () {
+		if (req.readyState == req.DONE) {
+			if (NgChmGui.UTIL.debug) {console.log('done');}
+	        if (req.status != 200) {
+	        	NgChmGui.UTIL.hideLoading();
+	            console.log('Failed to log client activity '  + req.status);
+	        }
+		}
+	};
+	req.send();
+}
+
+/**********************************************************************************
  * FUNCTION - getHeatmapProperties: The purpose of this function to retrieve 
  * heatmapProperties for a given screen (it is called from multiple places) and 
  * then call that screen's "load" function.
@@ -711,7 +730,9 @@ NgChmGui.UTIL.hideLoading = function() {
 NgChmGui.UTIL.getClusterLoadMessage = function() { 
 	var totalVals = NgChmGui.UTIL.getTotalClusterValues();
 	var clusterMsg = "";
-	if (totalVals >= 3000) {
+	if (totalVals >= 5000) {
+		clusterMsg = "&nbsp;&nbsp;<b>THE MATRIX MAY TAKE 10 MINUTES OR MORE TO CLUSTER</b>";
+	} else if (totalVals >= 3000) {
 		clusterMsg = "&nbsp;&nbsp;<b>THE MATRIX MAY TAKE SEVERAL MINUTES TO CLUSTER</b>";
 	} else if (totalVals >= 1000) {
 		clusterMsg = "&nbsp;&nbsp;<b>THE MATRIX MAY TAKE A MINUTE OR TWO TO CLUSTER</b>";
@@ -973,6 +994,9 @@ NgChmGui.UTIL.processClusterStatus = function(statusVal) {
 				  }
 			  }
 			    break;
+		  case 99:
+			  console.log("STATUS IS 99");
+			  break;
 		  default:
 		    // do nothing
 		} 	
@@ -1512,7 +1536,7 @@ NgChmGui.UTIL.helpBox = function(bookMark) {
 	}
 	var msgBoxHdr = document.getElementById('helpBoxHdr');
 	msgBoxHdr.innerHTML = "About NG-CHM Builder";
-	var text = "<p>The NG-CHM Heat Map Builder provides a graphical user interface for users to easily construct heat maps from their own matrix data. The interface presents a step-by-step process that takes the user from the selection of an input matrix to the presentation of a newly created heat map in an embedded NG-CHM Heat Map Viewer.</p><p><a onclick='NgChmGui.UTIL.helpOpen(\""+bookMark+"\")' href='#'>Additional NG-CHM Builder Information and Help</a></p><p><b>Software Version: </b>" + NgChmGui.mapProperties.builder_version+"</p><p><b>Citation:</b> Bradley M. Broom, Michael C. Ryan, Robert E. Brown, Futa Ikeda, Mark Stucky, David W. Kane, James Melott, Chris Wakefield, Tod D. Casasent, Rehan Akbani and John N. Weinstein, A Galaxy Implementation of Next-Generation Clustered Heatmaps for Interactive Exploration of Molecular Profiling Data. Cancer Research 77(21): e23-e26 (2017): <a href='http://cancerres.aacrjournals.org/content/77/21/e23' target='_blank'>http://cancerres.aacrjournals.org/content/77/21/e23</a></p>";
+	var text = "<p>The NG-CHM Heat Map Builder provides a graphical user interface for users to easily construct heat maps from their own matrix data. The interface presents a step-by-step process that takes the user from the selection of an input matrix to the presentation of a newly created heat map in an embedded NG-CHM Heat Map Viewer.</p><p><a onclick='NgChmGui.UTIL.helpOpen(\""+bookMark+"\")' href='#'>Additional NG-CHM Builder Information and Help</a></p><p><b>Software Version: </b>" + NgChmGui.mapProperties.builder_version+"</p><p><b>Citation:</b> Michael C. Ryan, Mark Stucky, Chris Wakefield, James M. Melott, Rehan Akbani, John N. Weinstein, and Bradley M. Broom, Interactive Clustered Heat Map Builder: An easy web-based tool for creating sophisticated clustered heat maps. F1000Research 2019, 8 (ISCB Comm J):1750.: <a href='https://f1000research.com/articles/8-1750/v2' target='_blank'>https://f1000research.com/articles/8-1750/v2</a></p>";
 	var msgBoxTxt = document.getElementById('helpBoxTxt');
 	msgBoxTxt.innerHTML = text;
 	msgBox.style.display = '';
