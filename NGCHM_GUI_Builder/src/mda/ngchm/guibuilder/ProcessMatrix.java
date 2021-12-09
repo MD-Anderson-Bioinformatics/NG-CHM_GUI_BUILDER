@@ -501,6 +501,7 @@ public class ProcessMatrix extends HttpServlet {
 					    check = true;
 					}
 					dataRowsSeen++;
+					if (dataRowsSeen == maxDataRowsToCheck) { check = true; }
 				}
 				if (check && (labelToks != null) && (covToks != null)) {
 				        if ((lastCovariateIdx > lastLabelIdx) || (lastDataIdx > lastLabelIdx)) {
