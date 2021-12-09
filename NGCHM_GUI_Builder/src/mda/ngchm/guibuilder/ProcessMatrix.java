@@ -419,35 +419,115 @@ public class ProcessMatrix extends HttpServlet {
 	 * This method constructs a column covariate bar data file from contents
 	 * extracted from the original data matrix uploaded to the builder.
 	 ******************************************************************/
-	private boolean buildFilteredColCovariate(String workingDir, HeatmapPropertiesManager.MatrixGridConfig matrixConfig, String covFileName, int covCol, String type) throws Exception {
+	private boolean buildFilteredColCovariate(String workingDir, HeatmapPropertiesManager.MatrixGridConfig matrixConfig, String covFileName, int covLineNum, String type) throws Exception {
+	        final boolean debug = false;
 		boolean covarValid = true;
 		String originalFile = workingDir + "/originalMatrix.txt";
 		BufferedReader reader = new BufferedReader(new FileReader(originalFile));
 		BufferedWriter  writer = new BufferedWriter(new FileWriter(covFileName));
+		/* Process each line in the original file to find:
+		 * - the column labels line (line number from matrixConfig.rowLabelRow) and
+		 * - the covariate line (line number from covLineNum).
+		 * FIXME(BMB): Rename matrixConfig.rowLabelRow to matrix.colLabelLineNum.
+		 *
+		 * There are two special cases to consider:
+		 * - Files produced by R have one less column in the labels line.
+		 * - Files produced by Excel can have trailing empty fields.
+		 *
+		 * To automagically detect R-format files, we need to count the
+		 * fields, but we can't reliably distinguish between empty fields added
+		 * by Excel or an empty field due to a missing covariate value.
+		 *
+		 * So, to assist, we will also read a limited number of data rows and
+		 * determine the end column of the data matrix.  There could be missing
+		 * values in the last actual column of the matrix, so we'll read a few
+		 * lines.  We don't want to read the entire matrix since that could be
+		 * very large. We can also stop as soon as we find a line with enough fields
+		 * to determine it's an R-format file.
+		 *
+		 * FIXME(BMB): A better solution would be to determine whether the data is R-format
+		 * once and save that status in matrixConfig.
+		 */
+		/* FIXME(BMB): matrixConfig.colLabelCol is the column containing the row labels.
+		 *             It should be something like rowLabelCol.
+		 */
+
+		/* Returns the index of the last non-empty element of arr, or -1 if none.
+		 */
+		java.util.function.Function<String[], Integer> maxNonEmptyElement = (String arr[]) -> {
+		    int idx = arr.length - 1;
+		    while (idx >= 0 && arr[idx].trim().equals("")) {
+			idx--;
+		    }
+		    return idx;
+		};
+
 		try {
 			int rowNum = 0;
 			String line = reader.readLine();
 			String labelToks[] = null;
 			String covToks[] = null;
 			int labelOffset = 0;
+			int lastLabelIdx = -1;
+			int lastCovariateIdx = -1;
+			int lastDataIdx = -1;
+			int dataRowsSeen = 0;
+			final int maxDataRowsToCheck = 100;
+			boolean rformat = false;  /* Not R format if we scan the entire file. */
 			while (line != null) {
-				if (rowNum < matrixConfig.firstDataRow) {
-					//ignore
-				} else {
-					if (rowNum == matrixConfig.rowLabelRow) {
-						labelToks = line.split("\t",-1);
-						if (!labelToks[matrixConfig.colLabelCol].trim().equals("")) {
-							labelOffset++;
-						}
-					} else if (rowNum == covCol) {
-						covToks = line.split("\t",-1);
+				boolean check = false;
+				if (rowNum == matrixConfig.rowLabelRow) {
+					/* The column labels line. */
+					labelToks = line.split("\t",-1);
+					lastLabelIdx = maxNonEmptyElement.apply (labelToks);
+					check = true;
+					if (debug) {
+						System.out.println("Processed column labels line:");
+						System.out.println(" line: " + line);
+						System.out.println(" labelToks: " + String.join(", ", labelToks));
+						System.out.println(" lastLabelIdx: " + lastLabelIdx);
 					}
-					if ((labelToks != null) && (covToks != null)) {
+				} else if (rowNum == covLineNum) {
+					/* The covariate line. */
+					covToks = line.split("\t",-1);
+					lastCovariateIdx = maxNonEmptyElement.apply (covToks);
+					check = true;
+				} else if (rowNum >= matrixConfig.dataStartRow) {
+					/* A line of matrix data. */
+					String rowData[] = line.split("\t", -1);
+					int maxFilled = maxNonEmptyElement.apply (rowData);
+					if (maxFilled > lastDataIdx) {
+					    lastDataIdx = maxFilled;
+					    check = true;
+					}
+					dataRowsSeen++;
+					if (dataRowsSeen == maxDataRowsToCheck) { check = true; }
+				}
+				if (check && (labelToks != null) && (covToks != null)) {
+				        if ((lastCovariateIdx > lastLabelIdx) || (lastDataIdx > lastLabelIdx)) {
+					        if (debug) {
+							System.out.println("R-format found:");
+							System.out.println(" lastLabelIdx: " + lastLabelIdx);
+							System.out.println(" lastCovariateIdx: " + lastCovariateIdx);
+							System.out.println(" lastDataIdx: " + lastDataIdx);
+						}
+						rformat = true;
+						break;
+					}
+					if (dataRowsSeen >= maxDataRowsToCheck) {
+					        if (debug) {
+							System.out.println("Assuming not R-format:");
+							System.out.println(" dataRowsSeen: " + dataRowsSeen);
+						}
+						/* Assume not R format. */
 						break;
 					}
 				}
 				rowNum++;
 				line = reader.readLine();
+			}
+			if (rformat) {
+			    labelOffset = 1;
 			}
 			for (int i=matrixConfig.dataStartCol;i<covToks.length;i++) {
 				String label = labelToks[i-labelOffset];
