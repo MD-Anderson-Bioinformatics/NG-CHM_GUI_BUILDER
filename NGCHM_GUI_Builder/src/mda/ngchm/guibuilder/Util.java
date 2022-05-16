@@ -3,6 +3,8 @@ package mda.ngchm.guibuilder;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -13,20 +15,33 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.math.BigDecimal;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import org.apache.poi.ss.usermodel.*;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 public class Util {
+	
 	
 	public static boolean logSysMessages = true;
 	
@@ -298,6 +313,213 @@ public class Util {
 			if (out != null) {out.close();out = null;}
 		}
 	}
+	
+	public static File newFile(File destinationDir, ZipEntry zipEntry) throws IOException {
+	    File destFile = new File(destinationDir, zipEntry.getName());
+
+	    String destDirPath = destinationDir.getCanonicalPath();
+	    String destFilePath = destFile.getCanonicalPath();
+
+	    if (!destFilePath.startsWith(destDirPath + File.separator)) {
+	        throw new IOException("Entry is outside of the target dir: " + zipEntry.getName());
+	    }
+
+	    return destFile;
+	}
+	
+	static class TileStat{
+		String type;
+		int tile_rows;
+		int tile_cols;
+		int rows_per_tile;
+		int cols_per_tile;
+		int total_rows;
+		int total_cols;
+		TileStat(String type,int tile_rows,int tile_cols,int rows_per_tile,int cols_per_tile,int total_rows,int total_cols){
+			this.type=type;
+			this.tile_rows=tile_rows;
+			this.tile_cols=tile_cols;
+			this.rows_per_tile=rows_per_tile;
+			this.cols_per_tile=cols_per_tile;
+			this.total_rows=total_rows;
+			this.total_cols=total_cols;
+		}
+	}
+	
+	static class TileLabels{
+		List<String> rowLabels;
+		List<String> colLabels;
+		TileLabels(List<String> rowLabels,List<String> colLabels){
+			this.rowLabels=rowLabels;
+			this.colLabels=colLabels;
+		}
+		
+	}
+	
+	public static void uploadNGCHM(String destDirPath, String matrixFile, InputStream filecontent) throws Exception {
+		System.out.println(destDirPath);
+
+		File destDir = new File(destDirPath);
+		byte[] buffer = new byte[1024];
+		ZipInputStream zis = new ZipInputStream(filecontent);
+        ZipEntry zipEntry = zis.getNextEntry();
+        while (zipEntry != null) {
+        	File newFile = newFile(destDir, zipEntry);
+            if (zipEntry.isDirectory()) {
+                if (!newFile.isDirectory() && !newFile.mkdirs()) {
+                    throw new IOException("Failed to create directory " + newFile);
+                }
+            } else {
+                // fix for Windows-created archives
+                File parent = newFile.getParentFile();
+                if (!parent.isDirectory() && !parent.mkdirs()) {
+                    throw new IOException("Failed to create directory " + parent);
+                }
+                
+                // write file content
+                FileOutputStream fos = new FileOutputStream(newFile);
+                int len;
+                while ((len = zis.read(buffer)) > 0) {
+                    fos.write(buffer, 0, len);
+                }
+                fos.close();
+            }
+            zipEntry = zis.getNextEntry();
+     
+        }
+        zis.closeEntry();
+        zis.close();
+        File[] directories = new File(destDirPath).listFiles(File::isDirectory);
+        String mapConfigPath = directories[0].toString()+"/mapConfig.json";
+        String mapDataPath = directories[0].toString()+"/mapData.json";
+        TileStat tilestat = parseMapConfig(mapConfigPath);
+        TileLabels tileLabels = parseMapData(mapDataPath);
+        //Only read data from the firstlayer now
+        String inputFolderPath = directories[0].toString()+"/dl1/"+tilestat.type+"/";
+        readTile(tilestat, tileLabels, inputFolderPath, matrixFile);
+        return;
+	}
+	
+	public static void readTile(TileStat tilestat, TileLabels tileLabels, String inputFolderPath, String matrixFile) {
+		String inputFile="";
+		if (tilestat.type=="tn") {
+			inputFile = inputFolderPath+"tn.1.1.tile";
+		}
+		try (
+				InputStream inputStream = new FileInputStream(inputFile);
+				BufferedWriter writer = new BufferedWriter(new FileWriter(matrixFile));
+		) {
+
+			try {
+					Path path = Paths.get(inputFile);
+					// convert the file's content to byte[]
+					byte[] bytes = Files.readAllBytes(path);
+					// encode, byte[] to Base64 encoded string
+					String s = Base64.getEncoder().encodeToString(bytes);
+					
+					// decode, Base64 encoded string to byte[]
+					byte[] decode = Base64.getDecoder().decode(s);
+					ByteBuffer buffer = ByteBuffer.wrap(decode);
+					System.out.println(matrixFile);
+//					writer.write("\t");
+					for (String colLabel: tileLabels.colLabels) {
+						writer.write(colLabel+"\t");
+					}
+					writer.write("\n");					
+					for (int i = 0; i < tilestat.rows_per_tile; i++) {
+						writer.write(tileLabels.rowLabels.get(i)+"\t");
+						for (int j=0; j < tilestat.cols_per_tile;j++) {
+							writer.write(buffer.getFloat() + "\t");
+						}
+						writer.write("\n");
+					}
+					inputStream.close();
+		        } catch (IOException e) {
+		        	e.printStackTrace();
+		        }
+		  } catch (IOException ex) {
+		    ex.printStackTrace();
+		  }
+		
+	}
+	
+	public static TileLabels parseMapData(String mapDataPath) {
+		JSONParser parser = new JSONParser();
+
+        try {     
+            Object obj = parser.parse(new FileReader(mapDataPath));
+            System.out.println(mapDataPath);
+            JSONObject jsonObject =  (JSONObject) obj;
+            // loop array
+            JSONObject row_data =  (JSONObject) jsonObject.get("row_data");
+            JSONObject row_label = (JSONObject) row_data.get("label");
+            JSONArray row_labels  = (JSONArray) row_label.get("labels");
+            List<String> rowLabels = new ArrayList<String>();
+            for (Object rowlabel : row_labels)
+            {
+              rowLabels.add( rowlabel.toString());
+            }
+            
+            JSONObject col_data =  (JSONObject) jsonObject.get("col_data");
+            JSONObject col_label = (JSONObject) col_data.get("label");
+            JSONArray col_labels  = (JSONArray) col_label.get("labels");
+            List<String> colLabels = new ArrayList<String>();
+            for (Object collabel : col_labels)
+            {
+            	colLabels.add( collabel.toString());
+            }
+            return new TileLabels(rowLabels,colLabels);
+            
+           
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }	
+        return null;
+		
+	}
+
+	
+	public static TileStat parseMapConfig(String mapConfigPath) {
+		JSONParser parser = new JSONParser();
+
+        try {     
+            Object obj = parser.parse(new FileReader(mapConfigPath));
+            System.out.println(mapConfigPath);
+            JSONObject jsonObject =  (JSONObject) obj;
+            // loop array
+            JSONObject data_config =  (JSONObject) jsonObject.get("data_configuration");
+            JSONObject map_info = (JSONObject) data_config.get("map_information");
+            JSONObject levels = (JSONObject) map_info.get("levels");
+            int tile_rows=0,tile_cols=0,rows_per_tile=0,cols_per_tile=0,total_rows=0,total_cols=0;
+            JSONObject level= (JSONObject) levels.get("tn");;
+            String type="tn";
+            if (levels.containsKey("d")) {
+            	level = (JSONObject) levels.get("d");
+            	type= "d";
+            }
+            System.out.println(levels);
+            tile_rows = Integer.parseInt(level.get("tile_rows").toString());
+        	tile_cols = Integer.parseInt(level.get("tile_cols").toString());
+        	rows_per_tile = Integer.parseInt(level.get("rows_per_tile").toString());
+        	cols_per_tile = Integer.parseInt(level.get("cols_per_tile").toString());
+        	total_rows = Integer.parseInt(level.get("total_rows").toString());
+        	total_cols = Integer.parseInt(level.get("total_cols").toString());
+        	return new TileStat(type, tile_rows,tile_cols,rows_per_tile,cols_per_tile,total_rows,total_cols);
+           
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+		return null;
+	}
+	
 	
 	/*******************************************************************
 	 * METHOD: logStatus

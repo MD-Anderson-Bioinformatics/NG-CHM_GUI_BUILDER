@@ -99,7 +99,8 @@ public class UploadMatrix extends HttpServlet {
 		        writer.println("ERROR: This matrix file (" + inFile + ") exceeds the maximum 750mb file size for the builder.");
 	    	} else {
 	    		ActivityLog.logActivity(request, "Select Matrix", "Upload Matrix File", "File: " + inFile + " Size: " + filePart.getSize());
-		    	if (filePart.getSize() > 0) {
+		    	System.out.println(inType);
+	    		if (filePart.getSize() > 0) {
 		    		uploadMatrixFile(workingDir, writer, filecontent, inType);
 		    	} else {
 			        writer.println("NOFILE");
@@ -136,6 +137,10 @@ public class UploadMatrix extends HttpServlet {
 		    Util.uploadXLS(matrixFile, filecontent);
 	    } else if ("CSV".equals(fileType)) {
 		    Util.uploadCSV(matrixFile, filecontent);
+	    } else if ("NGCHM".equals(fileType)) {
+	    	System.out.println("uploading NGCHM");
+	    	String directory  = workingDir;
+	    	Util.uploadNGCHM(directory,matrixFile,filecontent);
 	    } else {
 		    Util.uploadTSV(matrixFile, filecontent);
 	    }
