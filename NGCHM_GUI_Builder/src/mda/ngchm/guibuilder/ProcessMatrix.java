@@ -273,6 +273,7 @@ public class ProcessMatrix extends HttpServlet {
 				} else {
 					String toks[] = line.split("\t",-1);
 					int startPoint = matrixConfig.dataStartCol;
+					
 					if (rowNum == matrixConfig.rowLabelRow) {
 						int stopPoint = toks.length;
 						if (rowNum == 0) {
@@ -289,6 +290,8 @@ public class ProcessMatrix extends HttpServlet {
 						writeOutMatrixLabelRow(startPoint, stopPoint, matrixConfig.colLabelCol, writer, toks, matrixErrors); 
 						writer.write("\n");
 					} else if (rowNum >= matrixConfig.dataStartRow) {
+						System.out.println(toks.length);
+						System.out.println(lengthValidator);
 						if (toks.length != lengthValidator) {
 							matrixErrors.add("MATRIX INVALID: A Matrix data contains a data row that does not match the number of column labels. Please inspect matrix to ensure that all data rows are the same length.");
 							break;

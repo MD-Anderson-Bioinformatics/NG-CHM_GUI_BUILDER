@@ -400,11 +400,90 @@ public class Util {
         return;
 	}
 	
+	
+	 public static void reverse(byte[] array) {
+	        if (array == null) {
+	            return;
+	        }
+	        int i = 0;
+	        int j = array.length - 1;
+	        byte tmp;
+	        while (j > i) {
+	            tmp = array[j];
+	            array[j] = array[i];
+	            array[i] = tmp;
+	            j--;
+	            i++;
+	        }
+	    }
+	
 	public static void readTile(TileStat tilestat, TileLabels tileLabels, String inputFolderPath, String matrixFile) {
 		String inputFile="";
 		if (tilestat.type=="tn") {
 			inputFile = inputFolderPath+"tn.1.1.tile";
+			readtnFile(tilestat,tileLabels,inputFile,matrixFile);
+		} else if (tilestat.type=="d") {
+			try {
+				BufferedWriter writer = new BufferedWriter(new FileWriter(matrixFile));
+				int tile_rows = tilestat.tile_rows;
+				int tile_cols = tilestat.tile_cols;
+				float[][] data_matrix = new float[tilestat.total_rows][tilestat.total_cols];
+				for (int r=1 ; r<=tile_rows ; r++ ) {
+					for (int c=1; c<=tile_cols ; c++ ) {
+						readdFile(inputFolderPath, tilestat, r, c, data_matrix);
+					}
+				}
+				for (String colLabel: tileLabels.colLabels) {
+					writer.write(colLabel+"\t");
+				}
+				writer.write("\n");
+				for (int i = 0; i < tilestat.total_rows; i++) {
+					String newline= tileLabels.rowLabels.get(i)+"\t";
+					for (int j=0; j < tilestat.total_cols;j++) {
+						newline += data_matrix[i][j] + "\t";
+					}
+					newline=newline.trim()+"\n";
+					writer.write(newline);
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 		}
+	}
+	
+	public static void readdFile(String inputFolderPath, TileStat tilestat,int r, int c, float[][] data_matrix) {
+		
+		String inputFile = inputFolderPath+"d."+r+"."+c+".tile";
+		System.out.println(inputFile);
+		InputStream inputStream;
+		try {
+			inputStream = new FileInputStream(inputFile);
+			Path path = Paths.get(inputFile);
+			byte[] bytes;
+			try {
+				bytes = Files.readAllBytes(path);
+				reverse(bytes);
+				ByteBuffer buffer = ByteBuffer.wrap(bytes);
+				for (int i = 0; i < tilestat.rows_per_tile; i++) {
+					for (int j=0; j < tilestat.cols_per_tile;j++) {
+						data_matrix[i+(r-1)*tilestat.rows_per_tile][j+(c-1)*tilestat.cols_per_tile]=buffer.getFloat();
+					}
+				}
+				
+				inputStream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	
+	public static void readtnFile(TileStat tilestat, TileLabels tileLabels, String inputFile, String matrixFile) {
 		try (
 				InputStream inputStream = new FileInputStream(inputFile);
 				BufferedWriter writer = new BufferedWriter(new FileWriter(matrixFile));
@@ -414,24 +493,22 @@ public class Util {
 					Path path = Paths.get(inputFile);
 					// convert the file's content to byte[]
 					byte[] bytes = Files.readAllBytes(path);
-					// encode, byte[] to Base64 encoded string
-					String s = Base64.getEncoder().encodeToString(bytes);
 					
-					// decode, Base64 encoded string to byte[]
-					byte[] decode = Base64.getDecoder().decode(s);
-					ByteBuffer buffer = ByteBuffer.wrap(decode);
+					ByteBuffer buffer = ByteBuffer.wrap(bytes);
+					reverse(bytes);
 					System.out.println(matrixFile);
-//					writer.write("\t");
 					for (String colLabel: tileLabels.colLabels) {
 						writer.write(colLabel+"\t");
 					}
-					writer.write("\n");					
+					writer.write("\n");
+					
 					for (int i = 0; i < tilestat.rows_per_tile; i++) {
-						writer.write(tileLabels.rowLabels.get(i)+"\t");
+						String newline = tileLabels.rowLabels.get(i)+"\t";
 						for (int j=0; j < tilestat.cols_per_tile;j++) {
-							writer.write(buffer.getFloat() + "\t");
+							newline+=buffer.getFloat() + "\t";
 						}
-						writer.write("\n");
+						newline = newline.trim()+"\n";
+						writer.write(newline);
 					}
 					inputStream.close();
 		        } catch (IOException e) {
@@ -440,7 +517,6 @@ public class Util {
 		  } catch (IOException ex) {
 		    ex.printStackTrace();
 		  }
-		
 	}
 	
 	public static TileLabels parseMapData(String mapDataPath) {
