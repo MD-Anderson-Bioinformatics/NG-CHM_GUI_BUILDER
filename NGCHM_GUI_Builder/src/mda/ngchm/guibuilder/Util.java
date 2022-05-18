@@ -314,18 +314,7 @@ public class Util {
 		}
 	}
 	
-	public static File newFile(File destinationDir, ZipEntry zipEntry) throws IOException {
-	    File destFile = new File(destinationDir, zipEntry.getName());
 
-	    String destDirPath = destinationDir.getCanonicalPath();
-	    String destFilePath = destFile.getCanonicalPath();
-
-	    if (!destFilePath.startsWith(destDirPath + File.separator)) {
-	        throw new IOException("Entry is outside of the target dir: " + zipEntry.getName());
-	    }
-
-	    return destFile;
-	}
 	
 	static class TileStat{
 		String type;
@@ -356,9 +345,27 @@ public class Util {
 		
 	}
 	
-	public static void uploadNGCHM(String destDirPath, String matrixFile, InputStream filecontent) throws Exception {
-		System.out.println(destDirPath);
+	public static File newFile(File destinationDir, ZipEntry zipEntry) throws IOException {
+	    File destFile = new File(destinationDir, zipEntry.getName());
 
+	    String destDirPath = destinationDir.getCanonicalPath();
+	    String destFilePath = destFile.getCanonicalPath();
+
+	    if (!destFilePath.startsWith(destDirPath + File.separator)) {
+	        throw new IOException("Entry is outside of the target dir: " + zipEntry.getName());
+	    }
+
+	    return destFile;
+	}
+	
+	/*******************************************************************
+	 * METHOD: unzipNGCHM
+	 *
+	 * This method unzip NGCHM file. 
+	 ******************************************************************/
+	
+	
+	public static void unzipNGCHM(String destDirPath, InputStream filecontent) throws Exception{
 		File destDir = new File(destDirPath);
 		byte[] buffer = new byte[1024];
 		ZipInputStream zis = new ZipInputStream(filecontent);
@@ -389,19 +396,39 @@ public class Util {
         }
         zis.closeEntry();
         zis.close();
+	}
+	
+	/*******************************************************************
+	 * METHOD: uploadNGCHM
+	 *
+	 * This method uploads a NGCHM, unzip the NGCHM, reconstruct data matrix from tile files and save content of first data layer  to the session 
+	 * directory as a tab separated file.
+	 ******************************************************************/
+	
+	public static void uploadNGCHM(String destDirPath, String matrixFile, InputStream filecontent) throws Exception {
+		System.out.println(destDirPath);
+		unzipNGCHM(destDirPath,filecontent);
+		
         File[] directories = new File(destDirPath).listFiles(File::isDirectory);
+        
         String mapConfigPath = directories[0].toString()+"/mapConfig.json";
         String mapDataPath = directories[0].toString()+"/mapData.json";
         TileStat tilestat = parseMapConfig(mapConfigPath);
         TileLabels tileLabels = parseMapData(mapDataPath);
+        
         //Only read data from the firstlayer now
         String inputFolderPath = directories[0].toString()+"/dl1/"+tilestat.type+"/";
-        readTile(tilestat, tileLabels, inputFolderPath, matrixFile);
-        return;
+        constructDataMatrix(tilestat, tileLabels, inputFolderPath, matrixFile);
 	}
 	
 	
-	 public static void reverse(byte[] array) {
+	/*******************************************************************
+	 * METHOD: reverse
+	 *
+	 * Reverse byte array.
+	 ******************************************************************/
+	
+	 public static void reverseByteArray(byte[] array) {
 	        if (array == null) {
 	            return;
 	        }
@@ -416,46 +443,37 @@ public class Util {
 	            i++;
 	        }
 	    }
+	 
+		/*******************************************************************
+		 * METHOD: constructDataMatrix
+		 *
+		 * Reconstruct data matrix.
+		 ******************************************************************/
 	
-	public static void readTile(TileStat tilestat, TileLabels tileLabels, String inputFolderPath, String matrixFile) {
-		String inputFile="";
-		if (tilestat.type=="tn") {
-			inputFile = inputFolderPath+"tn.1.1.tile";
-			readtnFile(tilestat,tileLabels,inputFile,matrixFile);
-		} else if (tilestat.type=="d") {
-			try {
-				BufferedWriter writer = new BufferedWriter(new FileWriter(matrixFile));
-				int tile_rows = tilestat.tile_rows;
-				int tile_cols = tilestat.tile_cols;
-				float[][] data_matrix = new float[tilestat.total_rows][tilestat.total_cols];
-				for (int r=1 ; r<=tile_rows ; r++ ) {
-					for (int c=1; c<=tile_cols ; c++ ) {
-						readdFile(inputFolderPath, tilestat, r, c, data_matrix);
-					}
+	public static void constructDataMatrix(TileStat tilestat, TileLabels tileLabels, String inputFolderPath, String matrixFile) {
+			int tile_rows = tilestat.tile_rows;
+			int tile_cols = tilestat.tile_cols;
+			float[][] data_matrix = new float[tilestat.total_rows][tilestat.total_cols];
+			for (int r=1 ; r<=tile_rows ; r++ ) {
+				for (int c=1; c<=tile_cols ; c++ ) {
+					readTile(inputFolderPath, tilestat, r, c, data_matrix);
 				}
-				for (String colLabel: tileLabels.colLabels) {
-					writer.write(colLabel+"\t");
-				}
-				writer.write("\n");
-				for (int i = 0; i < tilestat.total_rows; i++) {
-					String newline= tileLabels.rowLabels.get(i)+"\t";
-					for (int j=0; j < tilestat.total_cols;j++) {
-						newline += data_matrix[i][j] + "\t";
-					}
-					newline=newline.trim()+"\n";
-					writer.write(newline);
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-			
+			writeIntoMatrix(tilestat,tileLabels,data_matrix,matrixFile);
 		}
-	}
+
 	
-	public static void readdFile(String inputFolderPath, TileStat tilestat,int r, int c, float[][] data_matrix) {
+	/*******************************************************************
+	 * METHOD: readdTile
+	 *
+	 * Reconstruct data matrix from tile file.
+	 * The data matrix is pieced together with several d tile file. 
+	 * Notice that the byte array need to reversed to get the correct value, the data matrix need to be reversed too. 
+	 ******************************************************************/
+	
+	public static void readTile(String inputFolderPath, TileStat tilestat,int r, int c, float[][] data_matrix) {
 		
-		String inputFile = inputFolderPath+"d."+r+"."+c+".tile";
+		String inputFile = inputFolderPath+tilestat.type+"."+r+"."+c+".tile";
 		System.out.println(inputFile);
 		InputStream inputStream;
 		try {
@@ -464,14 +482,13 @@ public class Util {
 			byte[] bytes;
 			try {
 				bytes = Files.readAllBytes(path);
-				reverse(bytes);
+				reverseByteArray(bytes);
 				ByteBuffer buffer = ByteBuffer.wrap(bytes);
-				for (int i = 0; i < tilestat.rows_per_tile; i++) {
-					for (int j=0; j < tilestat.cols_per_tile;j++) {
+				for (int i = tilestat.rows_per_tile-1;i>=0; i--) {
+					for (int j= tilestat.cols_per_tile-1;j>=0; j--) {
 						data_matrix[i+(r-1)*tilestat.rows_per_tile][j+(c-1)*tilestat.cols_per_tile]=buffer.getFloat();
 					}
 				}
-				
 				inputStream.close();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -482,49 +499,47 @@ public class Util {
 		
 	}
 	
-	
-	public static void readtnFile(TileStat tilestat, TileLabels tileLabels, String inputFile, String matrixFile) {
-		try (
-				InputStream inputStream = new FileInputStream(inputFile);
-				BufferedWriter writer = new BufferedWriter(new FileWriter(matrixFile));
-		) {
 
-			try {
-					Path path = Paths.get(inputFile);
-					// convert the file's content to byte[]
-					byte[] bytes = Files.readAllBytes(path);
-					
-					ByteBuffer buffer = ByteBuffer.wrap(bytes);
-					reverse(bytes);
-					System.out.println(matrixFile);
-					for (String colLabel: tileLabels.colLabels) {
-						writer.write(colLabel+"\t");
+	
+	/*******************************************************************
+	 * METHOD: writeIntoMatrix
+	 *
+	 * Write data_matrix two-dimension array into output file
+	 ******************************************************************/
+	
+	public static void writeIntoMatrix(TileStat tilestat, TileLabels tileLabels, float[][] data_matrix, String matrixFile) {
+		try (
+			BufferedWriter writer = new BufferedWriter(new FileWriter(matrixFile));
+		) {
+			for (String colLabel: tileLabels.colLabels) {
+				writer.write(colLabel+"\t");
+			}
+			writer.write("\n");
+			for (int i = 0; i < tilestat.total_rows; i++) {
+					String newline= tileLabels.rowLabels.get(i)+"\t";
+					for (int j=0; j < tilestat.total_cols;j++) {
+						newline += data_matrix[i][j] + "\t";
 					}
-					writer.write("\n");
-					
-					for (int i = 0; i < tilestat.rows_per_tile; i++) {
-						String newline = tileLabels.rowLabels.get(i)+"\t";
-						for (int j=0; j < tilestat.cols_per_tile;j++) {
-							newline+=buffer.getFloat() + "\t";
-						}
-						newline = newline.trim()+"\n";
-						writer.write(newline);
-					}
-					inputStream.close();
-		        } catch (IOException e) {
-		        	e.printStackTrace();
-		        }
+					newline=newline.trim()+"\n";
+					writer.write(newline);
+			}
 		  } catch (IOException ex) {
-		    ex.printStackTrace();
+			    ex.printStackTrace();
 		  }
+		
 	}
 	
+	/*******************************************************************
+	 * METHOD: parseMapData
+	 *
+	 * Get labels from mapData file
+	 * The order of row and column label is the same as in tile files.
+	 ******************************************************************/
 	public static TileLabels parseMapData(String mapDataPath) {
 		JSONParser parser = new JSONParser();
 
         try {     
             Object obj = parser.parse(new FileReader(mapDataPath));
-            System.out.println(mapDataPath);
             JSONObject jsonObject =  (JSONObject) obj;
             // loop array
             JSONObject row_data =  (JSONObject) jsonObject.get("row_data");
@@ -558,13 +573,20 @@ public class Util {
 		
 	}
 
-	
+	/*******************************************************************
+	 * METHOD: parseMapConfig
+	 *
+	 * Get information from mapConfig on how to reconstruct data matrix
+	 * If there is "d" (detail) use detail to reconstruct.
+	 * If there is no "d" check for "s" (summary).
+	 * If there is no "s" check for "tn" (thumb nail).
+	 * Return a tileStat object which contains the tile info. 
+	 ******************************************************************/
 	public static TileStat parseMapConfig(String mapConfigPath) {
 		JSONParser parser = new JSONParser();
 
         try {     
             Object obj = parser.parse(new FileReader(mapConfigPath));
-            System.out.println(mapConfigPath);
             JSONObject jsonObject =  (JSONObject) obj;
             // loop array
             JSONObject data_config =  (JSONObject) jsonObject.get("data_configuration");
@@ -572,10 +594,16 @@ public class Util {
             JSONObject levels = (JSONObject) map_info.get("levels");
             int tile_rows=0,tile_cols=0,rows_per_tile=0,cols_per_tile=0,total_rows=0,total_cols=0;
             JSONObject level= (JSONObject) levels.get("tn");;
-            String type="tn";
+            String type="d";
             if (levels.containsKey("d")) {
             	level = (JSONObject) levels.get("d");
             	type= "d";
+            }else if (levels.containsKey("s")) {
+            	level = (JSONObject) levels.get("s");
+            	type= "s";
+            }else if (levels.containsKey("tn")) {
+            	level = (JSONObject) levels.get("tn");
+            	type= "tn";
             }
             System.out.println(levels);
             tile_rows = Integer.parseInt(level.get("tile_rows").toString());
