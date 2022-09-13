@@ -29,7 +29,7 @@
         <mkdir dir="${build.classes.dir}"/>
         <mkdir dir="${build.jars.dir}"/>
         <mkdir dir="${build.wars.dir}"/>
-        <javac srcdir="${source.java.dir}" destdir="${build.classes.dir}" classpath="${extra.jar.lib.dir}/gson-2.7.jar:${extra.jar.lib.dir}/MapGen.jar:${extra.jar.lib.dir}/renjin-script-engine-0.9.2594-jar-with-dependencies.jar:${extra.jar.lib.dir}/poi-3.17.jar:${extra.jar.lib.dir}/poi-ooxml-3.17.jar:${extra.jar.lib.dir}/poi-ooxml-schemas-3.17.jar:${extra.jar.lib.dir}/poi-excelant-3.1.7.jar:${extra.jar.lib.dir}/xmlbeans-2.6.0.jar:${extra.jar.lib.dir}/commons-collections4-4.1.jar:${tomcat.lib.dir}/servlet-api.jar:${tomcat.lib.dir}/tomcat-coyote.jar"/>
+        <javac srcdir="${source.java.dir}" destdir="${build.classes.dir}" classpath="${extra.jar.lib.dir}/jakarta.servlet-api-5.0.0.jar:${extra.jar.lib.dir}/gson-2.9.0.jar:${extra.jar.lib.dir}/MapGen.jar:${extra.jar.lib.dir}/renjin-script-engine-0.9.2726-jar-with-dependencies.jar:${extra.jar.lib.dir}/poi-5.2.2.jar:${extra.jar.lib.dir}/poi-ooxml-5.2.2.jar:${extra.jar.lib.dir}/poi-ooxml-schemas-4.1.2.jar:${extra.jar.lib.dir}/poi-excelant-5.2.2.jar:${extra.jar.lib.dir}/xmlbeans-5.1.0.jar:${extra.jar.lib.dir}/commons-collections4-4.4.jar:${tomcat.lib.dir}/servlet-api.jar:${tomcat.lib.dir}/tomcat-coyote.jar"/>
     </target>
 
     <target name="create_builder_app_jar" depends="compile">
@@ -39,15 +39,16 @@
                 <attribute name="Class-Path" value="."/>
             </manifest>
             <fileset dir="${build.classes.dir}"/>
-            <zipfileset src="${extra.jar.lib.dir}/gson-2.7.jar"/>
+            <zipfileset src="${extra.jar.lib.dir}/jakarta.servlet-api-5.0.0.jar"/>
+            <zipfileset src="${extra.jar.lib.dir}/gson-2.9.0.jar"/>
             <zipfileset src="${extra.jar.lib.dir}/MapGen.jar"/>
-            <zipfileset src="${extra.jar.lib.dir}/renjin-script-engine-0.9.2594-jar-with-dependencies.jar"/>
-            <zipfileset src="${extra.jar.lib.dir}/poi-3.17.jar"/>
-            <zipfileset src="${extra.jar.lib.dir}/poi-ooxml-3.17.jar"/>
-            <zipfileset src="${extra.jar.lib.dir}/poi-ooxml-schemas-3.17.jar"/>
-            <zipfileset src="${extra.jar.lib.dir}/poi-excelant-3.17.jar"/>
-            <zipfileset src="${extra.jar.lib.dir}/xmlbeans-2.6.0.jar"/>
-            <zipfileset src="${extra.jar.lib.dir}/commons-collections4-4.1.jar"/>
+            <zipfileset src="${extra.jar.lib.dir}/renjin-script-engine-0.9.2726-jar-with-dependencies.jar"/>
+            <zipfileset src="${extra.jar.lib.dir}/poi-5.2.2.jar"/>
+            <zipfileset src="${extra.jar.lib.dir}/poi-ooxml-5.2.2.jar"/>
+            <zipfileset src="${extra.jar.lib.dir}/poi-ooxml-schemas-4.1.2.jar"/>
+            <zipfileset src="${extra.jar.lib.dir}/poi-excelant-5.2.2.jar"/>
+            <zipfileset src="${extra.jar.lib.dir}/xmlbeans-5.1.0.jar"/>
+            <zipfileset src="${extra.jar.lib.dir}/commons-collections4-4.4.jar"/>
          </jar>
     </target>
 

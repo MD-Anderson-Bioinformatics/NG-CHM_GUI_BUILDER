@@ -2,7 +2,10 @@
 # Requires Docker 17.06 CE or later
 #
 # Stage -1: Get Tomcat
-FROM tomcat:8-jre8-alpine AS tomcat
+FROM tomcat:10.0.22-jdk17-temurin-jammy
+
+RUN apt-get update && apt-get -y upgrade
+RUN apt autoremove && apt clean
 
 # Stage 0: Build ant image
 FROM openjdk:8-jdk AS ant
@@ -14,6 +17,7 @@ FROM ant AS webbuilder
 # Install required Tomcat jars into ant image
 COPY --from=tomcat /usr/local/tomcat/lib/servlet-api.jar /usr/local/tomcat/lib/
 COPY --from=tomcat /usr/local/tomcat/lib/tomcat-coyote.jar /usr/local/tomcat/lib/
+#COPY --from=mapgen /NGCHM/guimapgen/MapGen.jar /usr/local/tomcat/lib/
 
 COPY NGCHM_GUI_Builder /NGCHM_GUI_Builder/
 
@@ -22,30 +26,13 @@ RUN mkdir -p ${BUILDERDIR} &&\
     ant -f NGCHM_GUI_Builder/ant_buildfile.xml -Dbuilder.app.war.path=${BUILDERDIR}/NGCHM-web-builder.war
 
 # Final stage: copy artifacts from previous stages into a Tomcat container
-FROM tomcat:8-jre8-alpine
+FROM tomcat:10.0.22-jdk17-temurin-jammy
 
 # Remove unused default apps
-RUN cd /usr/local/tomcat/webapps && rm -rf ROOT docs host-manager examples manager
-
-ARG TOMCAT_UID=1000
-ARG TOMCAT_GID=1000
-ARG TOMCAT_USER=tomcat
-ARG TOMCAT_GROUP=tomcat
-RUN set -x ; \
-    addgroup -g ${TOMCAT_GID} -S ${TOMCAT_GROUP} ; \
-    adduser -u ${TOMCAT_UID} -S -G ${TOMCAT_GROUP} ${TOMCAT_USER} && exit 0; exit 1
-
-RUN chown -R ${TOMCAT_UID}:${TOMCAT_GID} /usr/local/tomcat/webapps ; \
-    chmod 777 /usr/local/tomcat/conf ; \
-    chmod 755 /usr/local/tomcat/bin /usr/local/tomcat/lib ; \
-    chmod 755 /usr/local/tomcat/bin/* ; \
-    chmod 644 /usr/local/tomcat/lib/* /usr/local/tomcat/conf/* ; \
-    chmod 777 /usr/local/tomcat/logs /usr/local/tomcat/work /usr/local/tomcat/temp
-
-USER ${TOMCAT_UID}
+RUN rm -R -f /usr/local/tomcat/webapps.dist
 
 COPY --from=webbuilder /artifacts/builder.app /usr/local/tomcat/webapps
 
 # Run tomcat for a brief time to deploy the WAR file. Then remove it.
-# This allows volumes to mounted within Tomcat's directory for the webapp.
+# This allows volumes to be mounted within Tomcat's directory for the webapp.
 RUN catalina.sh start && sleep 10 && catalina.sh stop && rm /usr/local/tomcat/webapps/NGCHM-web-builder.war
