@@ -606,7 +606,7 @@ NgChmGui.FORMAT.loadColorPreviewDiv = function(ctr){
 	if (ctr > 10) {
 		return;
 	}
-	if (NgChm.heatMap === null) {
+	if (!NgChm.API.heatMapLoaded()) {
 		ctr++;
 		setTimeout(function(){NgChmGui.FORMAT.loadColorPreviewDiv();},3000)
 	} else {
@@ -624,68 +624,32 @@ NgChmGui.FORMAT.loadColorPreviewDiv = function(ctr){
 		}
 		gradient += ")";
 		var wrapper = document.getElementById("previewWrapper");
-		var bins = new Array(10+1).join('0').split('').map(parseFloat); // make array of 0's to start the counters
-		var breaks = new Array(10+1).join('0').split('').map(parseFloat);
-		for (var i=0; i <breaks.length;i++){
-			breaks[i]+=lowBP+diff/(breaks.length-1)*i; // array of the breakpoints shown in the preview div
-		}
-		var numCol = NgChm.heatMap.getNumColumns(NgChm.MMGR.SUMMARY_LEVEL);
-		var numRow = NgChm.heatMap.getNumRows(NgChm.MMGR.SUMMARY_LEVEL)
-		var count = 0;
-		var nan=0;
-		for (var i=1; i<numCol+1;i++){
-			for(var j=1;j<numRow+1;j++){ // data points start at 1, not 0
-				count++;
-				var val = NgChm.heatMap.getValue(NgChm.MMGR.SUMMARY_LEVEL,j,i);
-				if (isNaN(val) || val>=NgChm.SUM.maxValues){ // is it Missing value?
-					nan++;
-				} else if (val <= NgChm.SUM.minValues){ // is it a cut location?
-					continue;
-				}
-				if (val <= lowBP){
-					bins[0]++;
-					continue;
-				} else if (highBP <= val){
-					bins[bins.length-1]++;
-					continue;
-				}
-				for (var k=0;k<breaks.length;k++){
-					if (breaks[k]<=val && val < breaks[k+1]){
-						bins[k]++;
-						break;
-					}
-				}
-			}
-		}
-		var total = 0;
-		var binMax = nan;
-		for (var i=0;i<bins.length;i++){
-			if (bins[i]>binMax)
-				binMax=bins[i];
-			total+=bins[i];
-		}
-		var cm = NgChmGui.FORMAT.getColorMapFromScreen();
-		var ctx = document.getElementById("histo_canvas").getContext("2d");
-		var graph = new BarGraph(ctx);
-		graph.margin = 2;
-		graph.width = 300;
-		graph.height = 150;
-		graph.gradient = false;
-		bins.unshift(nan);
-		var colors = new Array(bins.length);
-		for (var i = 1; i < breaks.length+1; i++){
-			colors[i] = cm.getRgbToHex(cm.getColor(breaks[i-1]));
-		}
-		colors[0] = cm.getMissingColor();
-		var breaksLabel = new Array(bins.length+1).join(' ').split('');
-		
-		breaksLabel[0] = "NA";
-		breaksLabel[1] = "<" + Number(Math.round(breaks[0]+'e2')+'e-2')
-		breaksLabel[Math.floor(breaksLabel.length/2)] = breaks[4].toFixed(2);
-		breaksLabel[breaksLabel.length - 1] = ">" + Number(Math.round(breaks[breaks.length-1]+'e2')+'e-2');
-		graph.colors = colors;
-		graph.xAxisLabelArr = breaksLabel;//["Missing Values", NgChmGui.TRANS.matrixInfo.histoBins];
-		graph.update(bins);//[NgChmGui.TRANS.matrixInfo.numMissing,NgChmGui.TRANS.matrixInfo.histoCounts]);
+		NgChm.API.getSummaryHist (colorMap.thresholds).then (hist => {
+		    const cm = NgChmGui.FORMAT.getColorMapFromScreen();
+		    const ctx = document.getElementById("histo_canvas").getContext("2d");
+		    const graph = new BarGraph(ctx);
+		    graph.margin = 2;
+		    graph.width = 300;
+		    graph.height = 150;
+		    graph.gradient = false;
+
+		    hist.bins.unshift (hist.nan); // Prepend nans to bins.
+		    const colors = new Array(hist.bins.length);
+		    colors[0] = cm.getMissingColor();
+		    for (let i = 0; i < hist.breaks.length; i++){
+			    colors[i+1] = cm.getRgbToHex(cm.getColor(hist.breaks[i]));
+		    }
+
+		    const breaksLabel = new Array(hist.bins.length+1).join(' ').split('');
+		    breaksLabel[0] = "NA";
+		    breaksLabel[1] = "<" + Number(Math.round(hist.breaks[0]+'e2')+'e-2')
+		    breaksLabel[Math.floor(breaksLabel.length/2)] = hist.breaks[4].toFixed(2);
+		    breaksLabel[breaksLabel.length - 1] = ">" + Number(Math.round(hist.breaks[hist.breaks.length-1]+'e2')+'e-2');
+
+		    graph.colors = colors;
+		    graph.xAxisLabelArr = breaksLabel;//["Missing Values", NgChmGui.TRANS.matrixInfo.histoBins];
+		    graph.update(hist.bins);//[NgChmGui.TRANS.matrixInfo.numMissing,NgChmGui.TRANS.matrixInfo.histoCounts]);
+		});
 	}
 }
 
