@@ -2,13 +2,13 @@
 # Requires Docker 17.06 CE or later
 #
 # Stage -1: Get Tomcat
-FROM tomcat:10.0.22-jdk17-temurin-jammy
+FROM tomcat:10.1.6-jdk17-temurin-jammy
 
 RUN apt-get update && apt-get -y upgrade
 RUN apt autoremove && apt clean
 
 # Stage 0: Build ant image
-FROM openjdk:8-jdk AS ant
+FROM eclipse-temurin:17.0.6_10-jdk as ant
 
 RUN apt-get update && apt-get install -y ant
 
