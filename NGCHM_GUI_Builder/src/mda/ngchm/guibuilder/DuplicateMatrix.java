@@ -372,7 +372,7 @@ public class DuplicateMatrix extends HttpServlet {
 					outLine.append(toks[0]);
 					for (int i=1;i<toks.length;i++) {
 						for (int j=0;j<changeArray.size();j++) {
-							Integer intObj = new Integer(i);
+							Integer intObj = Integer.valueOf(i);
 							double[] changeItem = changeArray.get(j);
 							if (intObj.doubleValue() == changeItem[0]) {
 								outLine.append("\t" + String.valueOf(changeItem[rowNbr]));
