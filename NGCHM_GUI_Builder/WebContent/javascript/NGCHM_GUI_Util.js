@@ -46,7 +46,7 @@ NgChmGui.createNS = function (namespace) {
  * General purpose javascript helper functions
  */
 
-//Define Namespace for NgChm UTIL
+//Define Namespace for NgChmGui UTIL
 NgChmGui.createNS('NgChmGui.UTIL');
 
 NgChmGui.UTIL.maxValues = 2147483647;
@@ -114,23 +114,9 @@ NgChmGui.UTIL.formatInputPct = function(item) {
  * parts of the embedded heatmap widget for the Cluster screen.
  **********************************************************************************/
 NgChmGui.UTIL.editWidgetForBuilder = function() {
-	if (NgChm.UTIL.editWidget) {
-		NgChm.UTIL.editWidget(['noheader', 'nodetailview', 'nopanelheaders']);
-	} else {
-		// Obsolete.
-		document.getElementById('divider').style.display = 'none';
-		document.getElementById('detail_chm').style.display = 'none';
-		document.getElementById('summary_box_canvas').style.display = 'none';
-		document.getElementById('bottom_buttons').style.display = 'none';
-		document.getElementById('barMenu_btn').style.display = 'none';
-		document.getElementById('colorMenu_btn').style.display = 'none';
-		document.getElementById('mdaServiceHeader').style.border = 'none';
-		document.getElementById('summary_box_canvas').style.display = 'none';
-		document.getElementById('column_dendro_canvas').style.display = '';
-		document.getElementById('row_dendro_canvas').style.display = '';
-		document.getElementById('mapName').style.display = 'none';
-	}
-}
+    NgChm.API.editWidget(['noheader', 'nodetailview', 'nopanelheaders']);
+};
+
 
 /**********************************************************************************
  * FUNCTION - logClientActivity: The purpose of this function to log client activity
