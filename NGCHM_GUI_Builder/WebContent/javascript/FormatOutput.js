@@ -568,7 +568,7 @@ NgChmGui.FORMAT.getBreaksFromColorMap = function() {
 	NgChmGui.UTIL.setTableRow(breakpts, ["&nbsp;<b>Pre-defined Colors:</b>","<img id='selPaletteBtn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/getPalettes.png' alt='Select custom palette' onclick='NgChmGui.PALETTE.customColorPalette({type: &quot;matrix&quot;,key: &quot;matrix&quot;, idx: 0});' align='top'/>"]);	NgChmGui.UTIL.addBlankRow(breakpts);
 	var reloadButton = "<img id='reloadButton' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/button_reload.png' alt='Reload Preview' onclick='NgChmGui.FORMAT.loadColorPreviewDiv(0);' align='top'/>"
 	NgChmGui.UTIL.setTableRow(breakpts, ["&nbsp;Color Histogram:", reloadButton]);
-	var previewDiv = "<div id='previewWrapper' style='display:flex; height: 100px; width: 110px;position:relative;' ><canvas id='histo_canvas'></canvas></div>";//NgChm.UHM.loadColorPreviewDiv(mapName,true);
+	var previewDiv = "<div id='previewWrapper' style='display:flex; height: 100px; width: 110px;position:relative;' ><canvas id='histo_canvas'></canvas></div>";//NgChmGui.FORMAT.loadColorPreviewDiv(mapName,true);
 	NgChmGui.UTIL.setTableRow(breakpts, [previewDiv]);
 
 	return breakpts;
@@ -918,13 +918,10 @@ NgChmGui.FORMAT.getNewBreakColors = function(colorMap, pos, action) {
 					newColors.push(colorElement.value);
 					if (j === pos) {
 						//get next breakpoint color.  If none, use black
-						var nextColorElement = document.getElementById("color"+(j+1)+"_colorPref");
-						var nextColorVal = "#000000";
-						if (nextColorElement !== null) {
-							nextColorVal = nextColorElement.value;
-						}
+						const nextColorElement = document.getElementById("color"+(j+1)+"_colorPref");
+						const nextColorVal = nextColorElement !== null ? nextColorElement.value : "#000000";
 						//Blend last and next breakpoint colors to get new color.
-						var newColor =  NgChm.UTIL.blendTwoColors(colorElement.value, nextColorVal);   
+						const newColor =  blendTwoColors(colorElement.value, nextColorVal);
 						newColors.push(newColor);
 					}
 				} else {
@@ -952,6 +949,32 @@ NgChmGui.FORMAT.getNewBreakColors = function(colorMap, pos, action) {
 		} 
 	} 
 	return newColors;
+
+	function blendTwoColors (color1, color2) {
+	    // check input
+	    color1 = color1 || '#000000';
+	    color2 = color2 || '#ffffff';
+	    const percentage = 0.5;
+
+	    //convert colors to rgb
+	    color1 = color1.substring(1);
+	    color2 = color2.substring(1);
+	    color1 = [parseInt(color1[0] + color1[1], 16), parseInt(color1[2] + color1[3], 16), parseInt(color1[4] + color1[5], 16)];
+	    color2 = [parseInt(color2[0] + color2[1], 16), parseInt(color2[2] + color2[3], 16), parseInt(color2[4] + color2[5], 16)];
+
+	    //blend colors
+	    var color3 = [
+		(1 - percentage) * color1[0] + percentage * color2[0],
+		(1 - percentage) * color1[1] + percentage * color2[1],
+		(1 - percentage) * color1[2] + percentage * color2[2]
+	    ];
+
+	    //Convert to hex
+	    color3 = '#' + UTIL.intToHex(color3[0]) + UTIL.intToHex(color3[1]) + UTIL.intToHex(color3[2]);
+
+	    // return hex
+	    return color3;
+	}
 }
 
 /**********************************************************************************
