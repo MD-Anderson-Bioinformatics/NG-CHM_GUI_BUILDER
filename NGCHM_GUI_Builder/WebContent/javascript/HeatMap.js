@@ -300,7 +300,7 @@ NgChmGui.MAP.checkDefaultColor = function(color) {
  **********************************************************************************/
 NgChmGui.MAP.newMapRequest = function() {
 	NgChmGui.UTIL.newHeatMapNotice();
-	NgChm.UTIL.dragElement(document.getElementById("message"));
+	NgChmGui.UTIL.dragElement(document.getElementById("message"));
 }
 
 /**********************************************************************************

@@ -117,6 +117,42 @@ NgChmGui.UTIL.editWidgetForBuilder = function() {
     NgChm.API.editWidget(['noheader', 'nodetailview', 'nopanelheaders']);
 };
 
+/**********************************************************************************
+ * FUNCTION - dragElement: This function adds drag/move functionality to the DIV
+ * passed in.
+ **********************************************************************************/
+NgChmGui.UTIL.dragElement = function (elmnt) {
+    let deltaMouseElementX = 0;
+    let deltaMouseElementY = 0;
+    if (document.getElementById(elmnt.id + "Hdr")) {
+	/* if present, the header is where you move the DIV from:*/
+	document.getElementById(elmnt.id + "Hdr").onmousedown = dragMouseDown;
+    }
+
+    function dragMouseDown(e) {
+	e = e || window.event;
+	e.preventDefault();
+	deltaMouseElementX = e.clientX - elmnt.getBoundingClientRect().x;
+	deltaMouseElementY = e.clientY - elmnt.getBoundingClientRect().y;
+	document.onmouseup = closeDragElement;
+	// call a function whenever the cursor moves:
+	document.onmousemove = elementDrag;
+    }
+
+    function elementDrag(e) {
+	e = e || window.event;
+	e.preventDefault();
+	// calculate the new cursor position:
+	elmnt.style.left = (e.clientX - deltaMouseElementX) + 'px';
+	elmnt.style.top = (e.clientY - deltaMouseElementY) + 'px';
+    }
+
+    function closeDragElement() {
+	/* stop moving when mouse button is released:*/
+	document.onmouseup = null;
+	document.onmousemove = null;
+    }
+};
 
 /**********************************************************************************
  * FUNCTION - logClientActivity: The purpose of this function to log client activity
