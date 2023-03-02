@@ -1037,39 +1037,35 @@ NgChmGui.FORMAT.gotoHeatMapScreen = function() {
  * embedded map and makes a list of all DISTINCT label types (linkout.typeName).  It 
  * contains special logic for processing TCGA linkouts differently from the rest.
  **********************************************************************************/
+
 NgChmGui.FORMAT.setLabelTypeList = function(ctr) {
-	if (ctr > 10) {
-		return;
+    NgChm.API.getLinkoutTypes()
+    .then (linkoutTypes => {
+	const rowLabelSelect = document.getElementById('rowLabelType');
+	const colLabelSelect = document.getElementById('colLabelType');
+	//Extract option display and value from linkoutTypes as pipe delimited pairs in array
+	const labelTypeList = [];
+	for (let i=0; i < linkoutTypes.length; i++) {
+		const linkTyp = linkoutTypes[i];
+		labelTypeList.push(linkTyp.displayName+"|"+linkTyp.typeName);
 	}
-	if (typeof NgChm.CUST.customPlugins === 'undefined') {
-		ctr++;
-		setTimeout(function(){NgChmGui.FORMAT.setLabelTypeList(ctr);},2000);
-	} else {
-		var rowLabelSelect = document.getElementById('rowLabelType');
-		var colLabelSelect = document.getElementById('colLabelType');
-		//Extract option display and value from linkoutTypes as pipe delimited pairs in array
-		var labelTypeList = [];
-		for (var i=0;i<NgChm.CUST.linkoutTypes.length;i++) {
-			var linkTyp = NgChm.CUST.linkoutTypes[i];
-			labelTypeList.push(linkTyp.displayName+"|"+linkTyp.typeName);
-		}
-		//Sort the label type list by display name
-		labelTypeList.sort();
-		//Construct option items for both row and label type select DOM elements.
-		for (var k=0;k<labelTypeList.length;k++) {
-			var labelItem = labelTypeList[k];
-			var labelDisplay = labelItem.substring(0,labelItem.lastIndexOf("|"));
-			var labelValue = labelItem.substring(labelItem.lastIndexOf("|")+1,labelItem.length);
-		    var option = document.createElement('option');
-		    option.setAttribute('value', labelValue);
-		    option.appendChild(document.createTextNode(labelDisplay));
-		    rowLabelSelect.appendChild(option);
-		    var option2 = option.cloneNode(true);
-		    colLabelSelect.appendChild(option2);
-		} 
-		//Set value of row and column selects to values stored in mapProperties
-		document.getElementById("rowLabelType").value = NgChmGui.mapProperties.row_configuration.data_type;
-	  	document.getElementById("colLabelType").value = NgChmGui.mapProperties.col_configuration.data_type;
+	//Sort the label type list by display name
+	labelTypeList.sort();
+	//Construct option items for both row and label type select DOM elements.
+	for (let k=0;k<labelTypeList.length;k++) {
+	    const labelItem = labelTypeList[k];
+	    const labelDisplay = labelItem.substring(0,labelItem.lastIndexOf("|"));
+	    const labelValue = labelItem.substring(labelItem.lastIndexOf("|")+1,labelItem.length);
+	    const option = document.createElement('option');
+	    option.setAttribute('value', labelValue);
+	    option.appendChild(document.createTextNode(labelDisplay));
+	    rowLabelSelect.appendChild(option);
+	    const option2 = option.cloneNode(true);
+	    colLabelSelect.appendChild(option2);
 	}
+	//Set value of row and column selects to values stored in mapProperties
+	document.getElementById("rowLabelType").value = NgChmGui.mapProperties.row_configuration.data_type;
+	document.getElementById("colLabelType").value = NgChmGui.mapProperties.col_configuration.data_type;
+    });
 } 
 
