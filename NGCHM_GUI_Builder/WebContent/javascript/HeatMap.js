@@ -45,7 +45,7 @@ NgChmGui.MAP.logViewerDownload = function() {
  **********************************************************************************/
 NgChmGui.MAP.downloadThumbnail = function() {
 	NgChmGui.UTIL.logClientActivity("Interactive Heat Map","Download Thumbnail Image","Chm Name: " + NgChmGui.mapProperties.chm_name);
-	NgChm.UTIL.downloadSummaryPng();
+	NgChm.API.downloadSummaryPng();
 }
 
 /**********************************************************************************
