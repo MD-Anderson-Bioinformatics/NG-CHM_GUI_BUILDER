@@ -1033,8 +1033,6 @@ NgChmGui.FORMAT.applySettings = function(typ) {
  **********************************************************************************/
 NgChmGui.FORMAT.loadFormatView = function() {
 	NgChmGui.UTIL.loadHeatMapView();
-	//Show selection box to highlight pref changes to the box
-	document.getElementById('summary_box_canvas').style.display = '';
 	//Show examples of how row and column labels are length-limited and abbreviated
 	var labelPrefDispDIV = document.getElementById('labelPrefExample');
 	var rowText = "<b>Trimmed Row Label Display: </b>&nbsp;&nbsp;" + NgChmGui.UTIL.getLabelText(NgChmGui.mapProperties.builder_config.longRowLabel,"ROW");
