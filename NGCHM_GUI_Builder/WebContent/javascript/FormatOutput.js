@@ -12,7 +12,6 @@ NgChmGui.FORMAT.userPalettes = "";
  * entry panels.  
  **********************************************************************************/
 NgChmGui.FORMAT.loadData =  function() {
-	NgChm.SUM.flagDrawClassBarLabels = true;
 	if (NgChmGui.UTIL.loadHeaderData()) {
 		var prefsPanelDiv = document.getElementById("preferencesPanel");
 		prefsPanelDiv.style.left = '0px';

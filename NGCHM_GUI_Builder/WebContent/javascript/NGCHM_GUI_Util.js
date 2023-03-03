@@ -114,7 +114,7 @@ NgChmGui.UTIL.formatInputPct = function(item) {
  * parts of the embedded heatmap widget for the Cluster screen.
  **********************************************************************************/
 NgChmGui.UTIL.editWidgetForBuilder = function() {
-    NgChm.API.editWidget(['noheader', 'nodetailview', 'nopanelheaders']);
+    NgChm.API.editWidget(['noheader', 'nodetailview', 'nopanelheaders', 'showSummaryCovariateLabels']);
 };
 
 /**********************************************************************************
@@ -269,7 +269,6 @@ NgChmGui.UTIL.applySettings = function(applyFunction, nextFunction) {
 		NgChmGui.UTIL.clearBuildErrors();
 		if (NgChmGui.UTIL.buildProps() === true) {
 			//Reset builder warnings before calling a new build
-			NgChm.SUM.summaryHeatMapCache = {};
 			if (applyFunction()) {
 				NgChmGui.UTIL.setHeatmapProperties(nextFunction);
 			} else {
