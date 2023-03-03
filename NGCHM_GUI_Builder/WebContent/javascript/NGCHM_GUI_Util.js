@@ -474,9 +474,6 @@ NgChmGui.UTIL.buildProps =  function() {
  * 6. messageBoxConfigure - Adds the html for the message box to the screen's html.  
  **********************************************************************************/
 NgChmGui.UTIL.initMessageBox = function() {
-	var msgBox = document.getElementById('message');
-	var headerpanel = document.getElementById('mdaServiceHeader');
-	
 	document.getElementById('message').style.display = 'none';
 	document.getElementById('messageBtnImg_1').style.display = 'none';
 	document.getElementById('messageBtnImg_1')['onclick'] = null;
