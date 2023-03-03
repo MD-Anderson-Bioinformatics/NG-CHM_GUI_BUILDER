@@ -405,7 +405,7 @@ NgChmGui.MAP.expandMap = function() {
 	notesPanel.style.display = 'none';
 	viewPanel.classList.replace('collapsed', 'expanded');
 	mapPanel.classList.replace('collapsed', 'expanded');
-	NgChm.UTIL.chmResize();
+	NgChm.API.chmResize();
 }
 
 /**********************************************************************************
@@ -428,5 +428,5 @@ NgChmGui.MAP.collapseMap = function() {
 	notesPanel.style.display = '';
 //	viewPanel.classList.replace('expanded', 'collapsed');
 //	mapPanel.classList.replace('expanded', 'collapsed');
-	NgChm.UTIL.chmResize();
+	NgChm.API.chmResize();
 }
