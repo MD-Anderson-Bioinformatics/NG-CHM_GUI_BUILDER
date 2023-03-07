@@ -638,6 +638,7 @@ NgChmGui.FORMAT.loadColorPreviewDiv = function(ctr){
 		    for (let i = 0; i < hist.breaks.length; i++){
 			    colors[i+1] = cm.getRgbToHex(cm.getColor(hist.breaks[i]));
 		    }
+		    colors[colors.length-1] = colors[colors.length-2];
 
 		    const breaksLabel = new Array(hist.bins.length+1).join(' ').split('');
 		    breaksLabel[0] = "NA";
