@@ -6,6 +6,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Map;
+
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -67,6 +71,36 @@ public class HeatmapBuild extends HttpServlet {
 	}
 	
 	/*******************************************************************
+	 * METHOD: setBuildTimeAttribute
+	 *
+	 * Set the chm.info.build.time property on the given heat map to
+	 * the current date and time.
+	 *
+	 * This may involve updating an existing entry or adding a new one.
+	 *
+	 ******************************************************************/
+	protected void setBuildTimeAttribute (HeatmapPropertiesManager.Heatmap map) {
+		final Timestamp now = new Timestamp (System.currentTimeMillis());
+		final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		final String buildDateTime = format.format (now);
+		final String buildPropertyName = "chm.info.build.time";
+		Map<String,String> prop;
+		Integer idx = 0;
+		while (idx < map.chm_attributes.size()) {
+		    prop = map.chm_attributes.get (idx);
+		    String[] keys = prop.keySet().toArray(new String[0]);
+		    if (keys[0].equals(buildPropertyName)) {
+			prop.replace (keys[0], buildDateTime);
+			return;
+		    }
+		    idx++;
+		}
+		prop = new LinkedTreeMap<String,String>();
+		prop.put (buildPropertyName, buildDateTime);
+		map.chm_attributes.add (prop);
+	}
+
+	/*******************************************************************
 	 * METHOD: buildHeatMap
 	 *
 	 * This method calls the heatmapDataGenerator in the NGCHM project 
@@ -81,6 +115,7 @@ public class HeatmapBuild extends HttpServlet {
 	        String errMsg = null;
 	        mgr.load();
 	        HeatmapPropertiesManager.Heatmap map = mgr.getMap();
+		setBuildTimeAttribute (map);
 			Util.logStatus("Begin Heat Map Build chm(" + map.chm_name + ").");
 	        //Check for pre-existence of properties file.  If exists, load from properties manager
 	        if (propFile.exists()) {
