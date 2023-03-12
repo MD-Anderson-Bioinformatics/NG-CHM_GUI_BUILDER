@@ -142,7 +142,7 @@ public class CallNgChmBuilder extends HttpServlet {
 	    InputStream filecontent = filePart.getInputStream();
 		try {
 			if (filePart.getSize() > 0) {
-				um.uploadMatrixFile(workingDir, filecontent, inType);
+				um.uploadMatrixFile(workingDir, null, filecontent, inType);
 			} else {
 		        errors.add("ERROR: Matrix file is empty.");
 			}
