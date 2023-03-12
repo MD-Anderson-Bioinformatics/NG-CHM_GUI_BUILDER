@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.regex.Pattern;
 import java.util.Map;
+import java.util.Arrays;
 
 
 import jakarta.servlet.ServletException;
@@ -391,9 +392,12 @@ public class CallNgChmBuilder extends HttpServlet {
 
 	private Map<String,String> splitToMap(String in) {
 		Map<String,String> map = new HashMap<>();
-		String toks[] = in.split(":");
-	    for (int i=0; i<toks.length-1; ) map.put(toks[i++], toks[i++]);
-	    return map;
+		String toks[] = in.split(":", 2);
+		//for (int i=0; i<toks.length-1; ) map.put(toks[i++], toks[i++]);
+		//String otherToks[] = Arrays.copyOfRange (toks, 1, toks.length);
+		//map.put (toks[0], String.join(":", otherToks));
+		map.put (toks[0], toks[1]);
+		return map;
 	}
 
 	private void writeOutErrors(ArrayList<String> errors, PrintWriter writer, HttpServletResponse response) {
