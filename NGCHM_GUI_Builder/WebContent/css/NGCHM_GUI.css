@@ -604,3 +604,19 @@ div.expanded {
     border-top-right-radius: 15px;
 }
 
+#progressHead {
+    padding: 1em;
+}
+
+#progressLog {
+    padding: 1em;
+}
+
+#progressLog p.error {
+    color: #ee0000;
+}
+
+#progressLog p.warn {
+    color: #f74600;
+}
+
