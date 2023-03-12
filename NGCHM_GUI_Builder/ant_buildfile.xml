@@ -71,6 +71,7 @@
                 <include name="images/help/*.*"/>
                 <include name="css/*.css"/>
                 <include name="custom_palette/*.*"/>
+                <include name="ngChmIcon.ico"/>
             </fileset>
             <zipfileset dir="${empty.dir}" prefix="MapBuildDir"/>
         </war>
