@@ -68,7 +68,7 @@ NgChmGui.createNS('NgChmGui.XFER');
 	    if (debug) console.log ('Got probe message', ev);
 	    logProgress ('Established communication with source');
 	    // Respond to source to let them know we're ready to received data.
-	    ev.source.postMessage ({ op: 'ready', nonce, }, ev.origin);
+	    ev.source.postMessage ({ op: 'ready', nonce, }, ev.origin == 'null' ? "*" : ev.origin);
 	}
 	else if (ev.data.op == 'ngchm') {
 	    if (debug) console.log ('Got NG-CHM data message', ev.data.ngchm);
