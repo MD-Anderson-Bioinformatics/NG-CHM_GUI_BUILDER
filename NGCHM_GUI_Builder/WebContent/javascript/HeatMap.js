@@ -10,6 +10,7 @@ NgChmGui.MAP.pageText1 = "Your NG-CHM has been created.  You can make change usi
 NgChmGui.MAP.loadData = function() {
 	if (NgChmGui.UTIL.loadHeaderData()) {
 		NgChmGui.UTIL.setScreenNotes(NgChmGui.MAP.pageText1, true);
+		NgChm.API.editWidget(['noBuilderUploads']);
 		NgChmGui.UTIL.loadHeatMapView(false);
 	}
 }

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+	<link rel="shortcut icon" href="ngChmIcon.ico">
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-33437813-6"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+	  gtag('config', 'UA-33437813-6');
+	</script>
+
+        <title>NG-CHM Builder</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<link rel="stylesheet" href="css/NGCHM_GUI.css?v=NG-CHM GUI 2.21.1">
+	<script src="javascript/NGCHM_GUI_Util.js?v=NG-CHM GUI 2.21.1"></script>
+	<script src="javascript/TransferData.js?v=NG-CHM GUI 2.21.1"></script>
+	<script type="text/Javascript">
+	    NgChmGui.mapProperties = null;
+	    window.onload = function() {
+		NgChmGui.UTIL.messageBoxConfigure();
+		NgChmGui.XFER.listenForMessages();
+	    };
+	 </script>
+    </head>
+    <body class="NgChmBuilder">
+	<div id="screenNote" style="display: none"></div>
+	<div class="serviceHeader" id="serviceHeader">
+	    <div id="mda_header" class="serviceHeaderLogo">
+		<a href="https://www.mdanderson.org/education-and-research/departments-programs-and-labs/departments-and-divisions/bioinformatics-and-computational-biology/index.html" target="_blank">
+		    <img id="mdaLogo" src="images/mdabcblogo262x108.png" alt="MD Anderson Logo"/>
+		</a>
+	    </div>
+	    <div style="flex: 1 1; min-height: 0px;">
+		<div id='mapInfo'>
+		    <div class="pageTitle">NG-CHM BUILDER: Uploading NG-CHM Data</div>
+		</div>
+	    </div>
+	    <div id="helpDiv"><img id='barHelp_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this,1);' src='images/questionMark.png' alt='Open Help Page' onclick='NgChmGui.UTIL.helpBox();' align="top"/></div>
+	</div>
+	<div id="container" class="display_container">
+	    <div id="matrixSelection" class="data_entry_container"></div>
+	    <div id="matrixView" class="layout_display_container">
+		<div id="progressHead">
+		    <H2>Creating NG-CHM from Uploaded Data</H2>
+		    <P>Data is being uploaded to the NG-CHM Builder.  The screen will automatically advance when the upload process completes successfully.</P>
+		</div>
+		<div id="progressLog">
+		    <p class='error' id="loadError">Either javascript is disabled or an error occurred on page load.</p>
+		</div>
+	    </div>
+	    <div id="message" style="display: none; position: absolute; background-color: rgb(230, 240, 255);"></div>
+	    <div id="helpBox" style="display: none; position: absolute; background-color: rgb(230, 240, 255);">
+		<div class="helpBoxHdr" id="helpBoxHdr"></div>
+	    </div>
+	</div>
+    </body>
+</html>

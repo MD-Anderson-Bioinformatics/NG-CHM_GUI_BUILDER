@@ -1284,34 +1284,21 @@ NgChmGui.UTIL.toggleAdvanced = function() {
 }
 
 /**********************************************************************************
- * FUNCTION - loadAdvanced: This function loads the screen and shows/hides advanced/
- * standard features based upon the NgChmGui.UTIL.showAdvanced setting value.
+ * FUNCTION - loadAdvanced: This function shows/hides the advanced/standard
+ * features based upon the value of NgChmGui.UTIL.showAdvanced.
  **********************************************************************************/
 NgChmGui.UTIL.loadAdvanced = function() {
-	var optionsBtn = document.getElementById("optionsCheck");
-	if (NgChmGui.UTIL.showAdvanced === 'N') {
-		optionsBtn.checked = false;
-	} else {
-		optionsBtn.checked = true;
-		
-	}
-	var advElements = document.getElementsByClassName("advancedAction");
-	for (var i = 0; i < advElements.length; i++) {
-		if (NgChmGui.UTIL.showAdvanced === 'N') {
-			advElements[i].style.display = 'none';
-		} else {
-			advElements[i].style.display = '';
-		}
-	}
-	var stdElements = document.getElementsByClassName("standardAction");
-	for (var i = 0; i < stdElements.length; i++) {
-		if (NgChmGui.UTIL.showAdvanced === 'N') {
-			stdElements[i].style.display = '';
-		} else {
-			stdElements[i].style.display = 'none';
-		}
-	}
-}
+	const showAdvanced = NgChmGui.UTIL.showAdvanced !== 'N';
+
+	const optionsBtn = document.getElementById("optionsCheck");
+	if (optionsBtn) optionsBtn.checked = showAdvanced;
+
+	const advElements = document.getElementsByClassName("advancedAction");
+	[...advElements].forEach (el => el.style.display = showAdvanced ? '' : 'none');
+
+	const stdElements = document.getElementsByClassName("standardAction");
+	[...stdElements].forEach (el => el.style.display = showAdvanced ? 'none' : '');
+};
 
 /**********************************************************************************
  * FUNCTION - getHexToRgb: This function converts a hex color to an rgb value.
