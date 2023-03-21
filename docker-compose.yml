@@ -4,6 +4,7 @@ services:
     guibuilderm:
         restart: always
         image: ${REGNAME:-ngchm/builder}:${TAGNAME:-latest}
+        build: ./build
         hostname: guibuilderm
         ports:
             - "${PORT:-8080}:8080"
