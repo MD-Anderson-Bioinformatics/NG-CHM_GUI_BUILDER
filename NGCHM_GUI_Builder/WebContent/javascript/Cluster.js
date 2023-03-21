@@ -9,7 +9,6 @@ NgChmGui.tileWrite = false;
  * and column ordering on the cluster screen.
  **********************************************************************************/
 NgChmGui.CLUSTER.loadData =  function() {
-	NgChm.SUM.flagDrawClassBarLabels = true;
 	var builderConfig = NgChmGui.mapProperties.builder_config;
 	NgChmGui.UTIL.setUpAdvanced();
 	if (NgChmGui.UTIL.loadHeaderData()) {
@@ -219,7 +218,6 @@ NgChmGui.CLUSTER.applyClusterSettings = function(applyFunction, nextFunction) {
 		if (NgChmGui.UTIL.buildProps() === true) {
 			//Reset builder warnings before calling a new build
 			NgChmGui.UTIL.clearBuildErrors();
-			NgChm.SUM.summaryHeatMapCache = {};
 			if (applyFunction()) {
 				NgChmGui.UTIL.clusterBuildHeatMap(nextFunction);
 			} else {

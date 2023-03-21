@@ -46,7 +46,7 @@ NgChmGui.createNS = function (namespace) {
  * General purpose javascript helper functions
  */
 
-//Define Namespace for NgChm UTIL
+//Define Namespace for NgChmGui UTIL
 NgChmGui.createNS('NgChmGui.UTIL');
 
 NgChmGui.UTIL.maxValues = 2147483647;
@@ -114,23 +114,45 @@ NgChmGui.UTIL.formatInputPct = function(item) {
  * parts of the embedded heatmap widget for the Cluster screen.
  **********************************************************************************/
 NgChmGui.UTIL.editWidgetForBuilder = function() {
-	if (NgChm.UTIL.editWidget) {
-		NgChm.UTIL.editWidget(['noheader', 'nodetailview', 'nopanelheaders']);
-	} else {
-		// Obsolete.
-		document.getElementById('divider').style.display = 'none';
-		document.getElementById('detail_chm').style.display = 'none';
-		document.getElementById('summary_box_canvas').style.display = 'none';
-		document.getElementById('bottom_buttons').style.display = 'none';
-		document.getElementById('barMenu_btn').style.display = 'none';
-		document.getElementById('colorMenu_btn').style.display = 'none';
-		document.getElementById('mdaServiceHeader').style.border = 'none';
-		document.getElementById('summary_box_canvas').style.display = 'none';
-		document.getElementById('column_dendro_canvas').style.display = '';
-		document.getElementById('row_dendro_canvas').style.display = '';
-		document.getElementById('mapName').style.display = 'none';
-	}
-}
+    NgChm.API.editWidget(['noheader', 'nodetailview', 'nopanelheaders', 'showSummaryCovariateLabels']);
+};
+
+/**********************************************************************************
+ * FUNCTION - dragElement: This function adds drag/move functionality to the DIV
+ * passed in.
+ **********************************************************************************/
+NgChmGui.UTIL.dragElement = function (elmnt) {
+    let deltaMouseElementX = 0;
+    let deltaMouseElementY = 0;
+    if (document.getElementById(elmnt.id + "Hdr")) {
+	/* if present, the header is where you move the DIV from:*/
+	document.getElementById(elmnt.id + "Hdr").onmousedown = dragMouseDown;
+    }
+
+    function dragMouseDown(e) {
+	e = e || window.event;
+	e.preventDefault();
+	deltaMouseElementX = e.clientX - elmnt.getBoundingClientRect().x;
+	deltaMouseElementY = e.clientY - elmnt.getBoundingClientRect().y;
+	document.onmouseup = closeDragElement;
+	// call a function whenever the cursor moves:
+	document.onmousemove = elementDrag;
+    }
+
+    function elementDrag(e) {
+	e = e || window.event;
+	e.preventDefault();
+	// calculate the new cursor position:
+	elmnt.style.left = (e.clientX - deltaMouseElementX) + 'px';
+	elmnt.style.top = (e.clientY - deltaMouseElementY) + 'px';
+    }
+
+    function closeDragElement() {
+	/* stop moving when mouse button is released:*/
+	document.onmouseup = null;
+	document.onmousemove = null;
+    }
+};
 
 /**********************************************************************************
  * FUNCTION - logClientActivity: The purpose of this function to log client activity
@@ -247,7 +269,6 @@ NgChmGui.UTIL.applySettings = function(applyFunction, nextFunction) {
 		NgChmGui.UTIL.clearBuildErrors();
 		if (NgChmGui.UTIL.buildProps() === true) {
 			//Reset builder warnings before calling a new build
-			NgChm.SUM.summaryHeatMapCache = {};
 			if (applyFunction()) {
 				NgChmGui.UTIL.setHeatmapProperties(nextFunction);
 			} else {
@@ -321,7 +342,7 @@ NgChmGui.UTIL.loadHeatMapView = function(hideDetail) {
 				if (NgChmGui.UTIL.debug) {console.log('200');}
 	        	result = req.response;
 	        	pieces = result.trim().split("|");
-	        	NgChm.UTIL.embedCHM(pieces[1], pieces[0], hideDetail); 
+			NgChm.API.embedCHM(pieces[1], pieces[0], hideDetail);
 	        	NgChmGui.UTIL.hideLoading();
 	        	if (document.getElementById('NGCHMEmbed') !== null) {
 	        		document.getElementById('heatMapView').classList.replace('collapsed', 'expanded');
@@ -453,9 +474,6 @@ NgChmGui.UTIL.buildProps =  function() {
  * 6. messageBoxConfigure - Adds the html for the message box to the screen's html.  
  **********************************************************************************/
 NgChmGui.UTIL.initMessageBox = function() {
-	var msgBox = document.getElementById('message');
-	var headerpanel = document.getElementById('mdaServiceHeader');
-	
 	document.getElementById('message').style.display = 'none';
 	document.getElementById('messageBtnImg_1').style.display = 'none';
 	document.getElementById('messageBtnImg_1')['onclick'] = null;

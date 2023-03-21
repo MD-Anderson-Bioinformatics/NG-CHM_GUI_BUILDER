@@ -26,12 +26,10 @@ NgChmGui.MAP.downloadMap = function() {
 /**********************************************************************************
  * FUNCTION - getPDF: This function calls the viewer PDF download the NG-CHM pdf heat map.
  **********************************************************************************/
-NgChmGui.MAP.getPDF = function(e) {
+NgChmGui.MAP.getPDF = function(button) {
 	NgChmGui.UTIL.logClientActivity("Interactive Heat Map","Generate Heat Map PDF","Chm Name: " + NgChmGui.mapProperties.chm_name);
-	if (NgChm.PDF.isGenerating === false) {
-		NgChm.PDF.openPdfPrefs(e,null);
-	}
-} 
+	NgChm.API.generatePDF(button);
+};
 
 /**********************************************************************************
  * FUNCTION - logViewerDownload: This function logs when a user downloads the stand-alone viewer
@@ -45,7 +43,7 @@ NgChmGui.MAP.logViewerDownload = function() {
  **********************************************************************************/
 NgChmGui.MAP.downloadThumbnail = function() {
 	NgChmGui.UTIL.logClientActivity("Interactive Heat Map","Download Thumbnail Image","Chm Name: " + NgChmGui.mapProperties.chm_name);
-	NgChm.UTIL.downloadSummaryPng();
+	NgChm.API.downloadSummaryPng();
 }
 
 /**********************************************************************************
@@ -276,8 +274,83 @@ NgChmGui.MAP.getChangeLog = function() {
 	} else {
 		logText += "        Gaps: None\n";
 	}
-	NgChm.PDF.getBuilderCreationLogPDF(props.chm_name, logText);
-} 
+	getBuilderCreationLogPDF(props.chm_name, logText);
+
+    /**********************************************************************************
+     * FUNCTION - getBuilderCreationLogPDF: This function is called from the NG-CHM
+     * GUI Builder.  It is provided with a heat map name and a text string pre-built for
+     * printing.  It takes that string and loops thru it applying font and style
+     * formatting to the string and downloads the resulting PDF file to the desktop.
+     **********************************************************************************/
+    function getBuilderCreationLogPDF (name, text) {
+	const doc = NgChm.API.jsPDF ("p", "pt", [792, 612]);
+	doc.setFont("helvetica", "bold");
+	doc.setFontSize(15);
+	var lineEndPos = text.indexOf("\n");
+	var headtx = text.substring(0, lineEndPos);
+	doc.text(140,30,headtx);
+	headtx += " (cont)"
+	text = text.substring(lineEndPos + 1, text.length);
+	doc.setFontSize(10);
+	var pos = 40;
+	var pageNbr = 1;
+	while (text.indexOf("\n") >= 0) {
+		lineEndPos = text.indexOf("\n");
+		setBuilderLogText(doc, text, pos, lineEndPos);
+		text = text.substring(lineEndPos + 1, text.length);
+		if ((pos + 15) > 760) {
+			doc.text(20,780,"* Bold-italicized responses represent changes from NG-CHM defaults");
+			doc.text(550,780,"page " + pageNbr);
+			pageNbr++;
+			addBuilderLogPage(doc, headtx);
+			pos = 60;
+		} else {
+			pos += 15;
+		}
+	}
+	doc.text(20,780,"* Bold-italicized responses represent changes from NG-CHM defaults");
+	if (pageNbr > 1) {
+		doc.text(550,780,"page " + pageNbr);
+	}
+	doc.save(name+'_HeatMapCreationLog.pdf');
+    }
+
+    /**********************************************************************************
+     * FUNCTION - addBuilderLogPage: This function adds a page to the NG-CHM Builder
+     * Creation Log and writes a header onto the page.
+     **********************************************************************************/
+    function addBuilderLogPage (doc, headtx) {
+	doc.addPage();
+	doc.setFont(undefined, "bold");
+	doc.setFontSize(15);
+	doc.text(120,30,headtx);
+	doc.setFont(undefined, "normal");
+	doc.setFontSize(10);
+    }
+
+    /**********************************************************************************
+     * FUNCTION - setBuilderLogText: This function writes out a builder log entry to
+     * the NG-CHM GUI Builder creation log pdf.
+     **********************************************************************************/
+    function setBuilderLogText (doc, text, pos, end) {
+	var isChanged =  text.substring(0,1) === "*" ? true : false;
+	var temptx = text.substring(0, end);
+	if (isChanged === true) {
+		temptx = text.substring(1, end);
+	}
+	var textHeader = temptx.substring(0,temptx.indexOf(":") + 1);
+	var textValue = temptx.substring(temptx.indexOf(":") + 2, temptx.length);
+	doc.setFont(undefined, "bold");
+	doc.text(20,pos,textHeader);
+	if (isChanged === true) {
+		doc.setFont(undefined, "bolditalic");
+	} else {
+		doc.setFont(undefined, "normal");
+	}
+	doc.text(165,pos,textValue);
+	doc.setFont(undefined, "normal");
+    }
+};  // END: NgChmGui.MAP.getChangeLog
 
 /**********************************************************************************
  * FUNCTION - checkDefaultColor: This function checks a given color against the
@@ -300,7 +373,7 @@ NgChmGui.MAP.checkDefaultColor = function(color) {
  **********************************************************************************/
 NgChmGui.MAP.newMapRequest = function() {
 	NgChmGui.UTIL.newHeatMapNotice();
-	NgChm.UTIL.dragElement(document.getElementById("message"));
+	NgChmGui.UTIL.dragElement(document.getElementById("message"));
 }
 
 /**********************************************************************************
@@ -332,7 +405,7 @@ NgChmGui.MAP.expandMap = function() {
 	notesPanel.style.display = 'none';
 	viewPanel.classList.replace('collapsed', 'expanded');
 	mapPanel.classList.replace('collapsed', 'expanded');
-	NgChm.UTIL.chmResize();
+	NgChm.API.chmResize();
 }
 
 /**********************************************************************************
@@ -355,5 +428,5 @@ NgChmGui.MAP.collapseMap = function() {
 	notesPanel.style.display = '';
 //	viewPanel.classList.replace('expanded', 'collapsed');
 //	mapPanel.classList.replace('expanded', 'collapsed');
-	NgChm.UTIL.chmResize();
+	NgChm.API.chmResize();
 }

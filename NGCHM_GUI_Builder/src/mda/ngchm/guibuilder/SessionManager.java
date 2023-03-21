@@ -4,10 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionEvent;
-import javax.servlet.http.HttpSessionListener;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSessionEvent;
+import jakarta.servlet.http.HttpSessionListener;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
 
 public class SessionManager implements HttpSessionListener {

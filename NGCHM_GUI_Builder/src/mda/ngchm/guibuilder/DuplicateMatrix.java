@@ -11,12 +11,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 
 /**
@@ -372,7 +372,7 @@ public class DuplicateMatrix extends HttpServlet {
 					outLine.append(toks[0]);
 					for (int i=1;i<toks.length;i++) {
 						for (int j=0;j<changeArray.size();j++) {
-							Integer intObj = new Integer(i);
+							Integer intObj = Integer.valueOf(i);
 							double[] changeItem = changeArray.get(j);
 							if (intObj.doubleValue() == changeItem[0]) {
 								outLine.append("\t" + String.valueOf(changeItem[rowNbr]));

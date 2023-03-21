@@ -44,7 +44,7 @@ NgChmGui.PALETTE.customColorPalette = function(type) {
 	NgChmGui.UTIL.setMessageBoxButton(3, "images/saveButtonRound.png", "", "NgChmGui.PALETTE.paletteSave");
 	document.getElementById('message').style.display = '';
 	document.getElementById('messageBtnImg_3').style.display = 'none';
-	NgChm.UTIL.dragElement(document.getElementById("message"));
+	NgChmGui.UTIL.dragElement(document.getElementById("message"));
 }
 
 /**********************************************************************************

@@ -12,7 +12,6 @@ NgChmGui.FORMAT.userPalettes = "";
  * entry panels.  
  **********************************************************************************/
 NgChmGui.FORMAT.loadData =  function() {
-	NgChm.SUM.flagDrawClassBarLabels = true;
 	if (NgChmGui.UTIL.loadHeaderData()) {
 		var prefsPanelDiv = document.getElementById("preferencesPanel");
 		prefsPanelDiv.style.left = '0px';
@@ -568,7 +567,7 @@ NgChmGui.FORMAT.getBreaksFromColorMap = function() {
 	NgChmGui.UTIL.setTableRow(breakpts, ["&nbsp;<b>Pre-defined Colors:</b>","<img id='selPaletteBtn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/getPalettes.png' alt='Select custom palette' onclick='NgChmGui.PALETTE.customColorPalette({type: &quot;matrix&quot;,key: &quot;matrix&quot;, idx: 0});' align='top'/>"]);	NgChmGui.UTIL.addBlankRow(breakpts);
 	var reloadButton = "<img id='reloadButton' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/button_reload.png' alt='Reload Preview' onclick='NgChmGui.FORMAT.loadColorPreviewDiv(0);' align='top'/>"
 	NgChmGui.UTIL.setTableRow(breakpts, ["&nbsp;Color Histogram:", reloadButton]);
-	var previewDiv = "<div id='previewWrapper' style='display:flex; height: 100px; width: 110px;position:relative;' ><canvas id='histo_canvas'></canvas></div>";//NgChm.UHM.loadColorPreviewDiv(mapName,true);
+	var previewDiv = "<div id='previewWrapper' style='display:flex; height: 100px; width: 110px;position:relative;' ><canvas id='histo_canvas'></canvas></div>";//NgChmGui.FORMAT.loadColorPreviewDiv(mapName,true);
 	NgChmGui.UTIL.setTableRow(breakpts, [previewDiv]);
 
 	return breakpts;
@@ -606,7 +605,7 @@ NgChmGui.FORMAT.loadColorPreviewDiv = function(ctr){
 	if (ctr > 10) {
 		return;
 	}
-	if (NgChm.heatMap === null) {
+	if (!NgChm.API.heatMapLoaded()) {
 		ctr++;
 		setTimeout(function(){NgChmGui.FORMAT.loadColorPreviewDiv();},3000)
 	} else {
@@ -624,68 +623,32 @@ NgChmGui.FORMAT.loadColorPreviewDiv = function(ctr){
 		}
 		gradient += ")";
 		var wrapper = document.getElementById("previewWrapper");
-		var bins = new Array(10+1).join('0').split('').map(parseFloat); // make array of 0's to start the counters
-		var breaks = new Array(10+1).join('0').split('').map(parseFloat);
-		for (var i=0; i <breaks.length;i++){
-			breaks[i]+=lowBP+diff/(breaks.length-1)*i; // array of the breakpoints shown in the preview div
-		}
-		var numCol = NgChm.heatMap.getNumColumns(NgChm.MMGR.SUMMARY_LEVEL);
-		var numRow = NgChm.heatMap.getNumRows(NgChm.MMGR.SUMMARY_LEVEL)
-		var count = 0;
-		var nan=0;
-		for (var i=1; i<numCol+1;i++){
-			for(var j=1;j<numRow+1;j++){ // data points start at 1, not 0
-				count++;
-				var val = NgChm.heatMap.getValue(NgChm.MMGR.SUMMARY_LEVEL,j,i);
-				if (isNaN(val) || val>=NgChm.SUM.maxValues){ // is it Missing value?
-					nan++;
-				} else if (val <= NgChm.SUM.minValues){ // is it a cut location?
-					continue;
-				}
-				if (val <= lowBP){
-					bins[0]++;
-					continue;
-				} else if (highBP <= val){
-					bins[bins.length-1]++;
-					continue;
-				}
-				for (var k=0;k<breaks.length;k++){
-					if (breaks[k]<=val && val < breaks[k+1]){
-						bins[k]++;
-						break;
-					}
-				}
-			}
-		}
-		var total = 0;
-		var binMax = nan;
-		for (var i=0;i<bins.length;i++){
-			if (bins[i]>binMax)
-				binMax=bins[i];
-			total+=bins[i];
-		}
-		var cm = NgChmGui.FORMAT.getColorMapFromScreen();
-		var ctx = document.getElementById("histo_canvas").getContext("2d");
-		var graph = new BarGraph(ctx);
-		graph.margin = 2;
-		graph.width = 300;
-		graph.height = 150;
-		graph.gradient = false;
-		bins.unshift(nan);
-		var colors = new Array(bins.length);
-		for (var i = 1; i < breaks.length+1; i++){
-			colors[i] = cm.getRgbToHex(cm.getColor(breaks[i-1]));
-		}
-		colors[0] = cm.getMissingColor();
-		var breaksLabel = new Array(bins.length+1).join(' ').split('');
-		
-		breaksLabel[0] = "NA";
-		breaksLabel[1] = "<" + Number(Math.round(breaks[0]+'e2')+'e-2')
-		breaksLabel[Math.floor(breaksLabel.length/2)] = breaks[4].toFixed(2);
-		breaksLabel[breaksLabel.length - 1] = ">" + Number(Math.round(breaks[breaks.length-1]+'e2')+'e-2');
-		graph.colors = colors;
-		graph.xAxisLabelArr = breaksLabel;//["Missing Values", NgChmGui.TRANS.matrixInfo.histoBins];
-		graph.update(bins);//[NgChmGui.TRANS.matrixInfo.numMissing,NgChmGui.TRANS.matrixInfo.histoCounts]);
+		NgChm.API.getSummaryHist (colorMap.thresholds).then (hist => {
+		    const cm = NgChmGui.FORMAT.getColorMapFromScreen();
+		    const ctx = document.getElementById("histo_canvas").getContext("2d");
+		    const graph = new BarGraph(ctx);
+		    graph.margin = 2;
+		    graph.width = 300;
+		    graph.height = 150;
+		    graph.gradient = false;
+
+		    hist.bins.unshift (hist.nan); // Prepend nans to bins.
+		    const colors = new Array(hist.bins.length);
+		    colors[0] = cm.getMissingColor();
+		    for (let i = 0; i < hist.breaks.length; i++){
+			    colors[i+1] = cm.getRgbToHex(cm.getColor(hist.breaks[i]));
+		    }
+
+		    const breaksLabel = new Array(hist.bins.length+1).join(' ').split('');
+		    breaksLabel[0] = "NA";
+		    breaksLabel[1] = "<" + Number(Math.round(hist.breaks[0]+'e2')+'e-2')
+		    breaksLabel[Math.floor(breaksLabel.length/2)] = hist.breaks[4].toFixed(2);
+		    breaksLabel[breaksLabel.length - 1] = ">" + Number(Math.round(hist.breaks[hist.breaks.length-1]+'e2')+'e-2');
+
+		    graph.colors = colors;
+		    graph.xAxisLabelArr = breaksLabel;//["Missing Values", NgChmGui.TRANS.matrixInfo.histoBins];
+		    graph.update(hist.bins);//[NgChmGui.TRANS.matrixInfo.numMissing,NgChmGui.TRANS.matrixInfo.histoCounts]);
+		});
 	}
 }
 
@@ -954,13 +917,10 @@ NgChmGui.FORMAT.getNewBreakColors = function(colorMap, pos, action) {
 					newColors.push(colorElement.value);
 					if (j === pos) {
 						//get next breakpoint color.  If none, use black
-						var nextColorElement = document.getElementById("color"+(j+1)+"_colorPref");
-						var nextColorVal = "#000000";
-						if (nextColorElement !== null) {
-							nextColorVal = nextColorElement.value;
-						}
+						const nextColorElement = document.getElementById("color"+(j+1)+"_colorPref");
+						const nextColorVal = nextColorElement !== null ? nextColorElement.value : "#000000";
 						//Blend last and next breakpoint colors to get new color.
-						var newColor =  NgChm.UTIL.blendTwoColors(colorElement.value, nextColorVal);   
+						const newColor =  blendTwoColors(colorElement.value, nextColorVal);
 						newColors.push(newColor);
 					}
 				} else {
@@ -988,6 +948,32 @@ NgChmGui.FORMAT.getNewBreakColors = function(colorMap, pos, action) {
 		} 
 	} 
 	return newColors;
+
+	function blendTwoColors (color1, color2) {
+	    // check input
+	    color1 = color1 || '#000000';
+	    color2 = color2 || '#ffffff';
+	    const percentage = 0.5;
+
+	    //convert colors to rgb
+	    color1 = color1.substring(1);
+	    color2 = color2.substring(1);
+	    color1 = [parseInt(color1[0] + color1[1], 16), parseInt(color1[2] + color1[3], 16), parseInt(color1[4] + color1[5], 16)];
+	    color2 = [parseInt(color2[0] + color2[1], 16), parseInt(color2[2] + color2[3], 16), parseInt(color2[4] + color2[5], 16)];
+
+	    //blend colors
+	    var color3 = [
+		(1 - percentage) * color1[0] + percentage * color2[0],
+		(1 - percentage) * color1[1] + percentage * color2[1],
+		(1 - percentage) * color1[2] + percentage * color2[2]
+	    ];
+
+	    //Convert to hex
+	    color3 = '#' + UTIL.intToHex(color3[0]) + UTIL.intToHex(color3[1]) + UTIL.intToHex(color3[2]);
+
+	    // return hex
+	    return color3;
+	}
 }
 
 /**********************************************************************************
@@ -1047,8 +1033,6 @@ NgChmGui.FORMAT.applySettings = function(typ) {
  **********************************************************************************/
 NgChmGui.FORMAT.loadFormatView = function() {
 	NgChmGui.UTIL.loadHeatMapView();
-	//Show selection box to highlight pref changes to the box
-	document.getElementById('summary_box_canvas').style.display = '';
 	//Show examples of how row and column labels are length-limited and abbreviated
 	var labelPrefDispDIV = document.getElementById('labelPrefExample');
 	var rowText = "<b>Trimmed Row Label Display: </b>&nbsp;&nbsp;" + NgChmGui.UTIL.getLabelText(NgChmGui.mapProperties.builder_config.longRowLabel,"ROW");
@@ -1073,39 +1057,35 @@ NgChmGui.FORMAT.gotoHeatMapScreen = function() {
  * embedded map and makes a list of all DISTINCT label types (linkout.typeName).  It 
  * contains special logic for processing TCGA linkouts differently from the rest.
  **********************************************************************************/
+
 NgChmGui.FORMAT.setLabelTypeList = function(ctr) {
-	if (ctr > 10) {
-		return;
+    NgChm.API.getLinkoutTypes()
+    .then (linkoutTypes => {
+	const rowLabelSelect = document.getElementById('rowLabelType');
+	const colLabelSelect = document.getElementById('colLabelType');
+	//Extract option display and value from linkoutTypes as pipe delimited pairs in array
+	const labelTypeList = [];
+	for (let i=0; i < linkoutTypes.length; i++) {
+		const linkTyp = linkoutTypes[i];
+		labelTypeList.push(linkTyp.displayName+"|"+linkTyp.typeName);
 	}
-	if (typeof NgChm.CUST.customPlugins === 'undefined') {
-		ctr++;
-		setTimeout(function(){NgChmGui.FORMAT.setLabelTypeList(ctr);},2000);
-	} else {
-		var rowLabelSelect = document.getElementById('rowLabelType');
-		var colLabelSelect = document.getElementById('colLabelType');
-		//Extract option display and value from linkoutTypes as pipe delimited pairs in array
-		var labelTypeList = [];
-		for (var i=0;i<NgChm.CUST.linkoutTypes.length;i++) {
-			var linkTyp = NgChm.CUST.linkoutTypes[i];
-			labelTypeList.push(linkTyp.displayName+"|"+linkTyp.typeName);
-		}
-		//Sort the label type list by display name
-		labelTypeList.sort();
-		//Construct option items for both row and label type select DOM elements.
-		for (var k=0;k<labelTypeList.length;k++) {
-			var labelItem = labelTypeList[k];
-			var labelDisplay = labelItem.substring(0,labelItem.lastIndexOf("|"));
-			var labelValue = labelItem.substring(labelItem.lastIndexOf("|")+1,labelItem.length);
-		    var option = document.createElement('option');
-		    option.setAttribute('value', labelValue);
-		    option.appendChild(document.createTextNode(labelDisplay));
-		    rowLabelSelect.appendChild(option);
-		    var option2 = option.cloneNode(true);
-		    colLabelSelect.appendChild(option2);
-		} 
-		//Set value of row and column selects to values stored in mapProperties
-		document.getElementById("rowLabelType").value = NgChmGui.mapProperties.row_configuration.data_type;
-	  	document.getElementById("colLabelType").value = NgChmGui.mapProperties.col_configuration.data_type;
+	//Sort the label type list by display name
+	labelTypeList.sort();
+	//Construct option items for both row and label type select DOM elements.
+	for (let k=0;k<labelTypeList.length;k++) {
+	    const labelItem = labelTypeList[k];
+	    const labelDisplay = labelItem.substring(0,labelItem.lastIndexOf("|"));
+	    const labelValue = labelItem.substring(labelItem.lastIndexOf("|")+1,labelItem.length);
+	    const option = document.createElement('option');
+	    option.setAttribute('value', labelValue);
+	    option.appendChild(document.createTextNode(labelDisplay));
+	    rowLabelSelect.appendChild(option);
+	    const option2 = option.cloneNode(true);
+	    colLabelSelect.appendChild(option2);
 	}
+	//Set value of row and column selects to values stored in mapProperties
+	document.getElementById("rowLabelType").value = NgChmGui.mapProperties.row_configuration.data_type;
+	document.getElementById("colLabelType").value = NgChmGui.mapProperties.col_configuration.data_type;
+    });
 } 
 
