@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.Map;
 
 import com.google.gson.Gson;
+import mda.ngchm.guibuilder.BuilderVersion;
 
 public class HeatmapPropertiesManager {
     //Data Holder Classes
@@ -25,7 +26,7 @@ public class HeatmapPropertiesManager {
 		public Order col_configuration;
 		public Order row_configuration;
 		public String output_location;
-		public String builder_version = "GUI Builder 2.21.1 w/ NG-CHM 2.23.3";
+		public String builder_version = BuilderVersion.version;
 		public String summary_width = "40";
 		public BuilderConfig builder_config;
 	}
