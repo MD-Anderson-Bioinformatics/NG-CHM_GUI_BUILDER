@@ -14,7 +14,7 @@ NgChmGui.createNS('NgChmGui.XFER');
     // the opening page that we should communicate with.
     const nonce = getURLParameter ('nonce');
 
-    console.log ('Transfer.js version 0.0.12 nonce: ' + nonce);
+    console.log ('Transfer.js version 0.0.13 nonce: ' + nonce);
 
     var ngchmData = null;	// The ngchmData received from the opening page.
     const tileMap = new Map();	// The tiles received from the opening page.
@@ -162,7 +162,13 @@ NgChmGui.createNS('NgChmGui.XFER');
 	    logProgress (processRes, 'error');
 	    return;
 	}
-	if (debug) console.log ('POST.ProcessMatrix.response', JSON.parse(processRes));
+	const processJSON = JSON.parse(processRes);
+	if (processJSON.return_code != 0) {
+	    console.error ('ERROR processing the data: ' + processJSON.return_code);
+	    logProgress (processJSON.return_code, 'error');
+	}
+
+	if (debug) console.log ('POST.ProcessMatrix.response', processJSON);
 
 	// Get the initial MapProperties from the builder.
 	const getPropsRes = await fetch (baseURL + 'MapProperties').then (response => response.text());
@@ -192,7 +198,13 @@ NgChmGui.createNS('NgChmGui.XFER');
 	    logProgress (setPropsRes, 'error');
 	    return;
 	}
-	if (debug) console.log ('POST.MapProperties.response', JSON.parse(setPropsRes));
+	const setPropsJSON = JSON.parse(setPropsRes);
+	if (setPropsJSON.builder_config.buildErrors) {
+	    console.error ('ERROR setting the new map properties: ' + setPropsJSON.builder_config.buildErrors);
+	    logProgress (setPropsJSON.builder_config.buildErrors, 'error');
+	    return;
+	}
+	if (debug) console.log ('POST.MapProperties.response', setPropsJSON);
 
 	// Go to the Transform_Matrix.html page.
 	logProgress ('Advancing to the View_HeatMap page.');
