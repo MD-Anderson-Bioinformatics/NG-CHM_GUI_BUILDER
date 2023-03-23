@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
-    <wb-module deploy-name="NGCHM_GUI_Builder">
-        <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
-        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
-        <property name="context-root" value="NGCHM_GUI_Builder"/>
-        <property name="java-output-path" value="/NGCHM_GUI_Builder/build/classes"/>
-    </wb-module>
-</project-modules>

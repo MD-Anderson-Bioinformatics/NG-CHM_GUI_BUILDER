@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+		<link rel="shortcut icon" href="ngChmIcon.ico">    	
+    	<!-- Global site tag (gtag.js) - Google Analytics -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-33437813-6"></script>
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
+		  gtag('config', 'UA-33437813-6');
+		</script>
+
+        <title>NG-CHM Builder</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<script src="javascript/NGCHM_GUI_Util.js?v=set-during-build"></script>
+		<script src="javascript/ColorMap.js?v=set-during-build"></script>
+		<script src="javascript/ColorPalette.js?v=set-during-build"></script>
+		<script src="javascript/CovariateFiles.js?v=set-during-build"></script>
+		<link rel="stylesheet" href="css/NGCHM_GUI.css?v=set-during-build">
+		<script type="text/Javascript">
+			NgChmGui.mapProperties = null;
+		 	window.onload = function() {
+				NgChmGui.UTIL.getHeatmapProperties(NgChmGui.COV.loadData);
+				NgChmGui.UTIL.messageBoxConfigure();
+		 		var chmFileItem = document.getElementById('image-upload');
+				chmFileItem.addEventListener('change', NgChmGui.COV.readyUpload, false);
+		 	}
+	 	</script>
+    </head>
+    <body class="NgChmBuilder">
+	   <div class="serviceHeader" id="serviceHeader">
+	        <div id="mda_header" class="serviceHeaderLogo">
+	        	<a href="https://www.mdanderson.org/education-and-research/departments-programs-and-labs/departments-and-divisions/bioinformatics-and-computational-biology/index.html"  target="_blank">
+	           		<img id="mdaLogo" src="images/mdabcblogo262x108.png" alt=""/>
+	           </a>
+	       	</div>
+	 		<div id='mapInfo'>
+		    	<div class="pageTitle">NG-CHM BUILDER: Process Covariates</div>
+     			<div id="ngchmName"  class="inputText" style="font-size: 14px;color: rgb(51, 51, 51);"></div>
+	  		</div>
+	 		<div id="helpDiv"><img id='barHelp_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this,1);' src='images/questionMark.png' alt='Open Help Page' onclick='NgChmGui.UTIL.helpBox("Covariates");' align="top"/></div> 
+	    </div>   
+	    <div style="flex: 1 1; min-height: 0px;">
+       	<div id="DisplayContainer" class="display_container" style="position: relative;">
+	 		<div id="covarReOrder" class="data_entry_container" style="position: relative;display: none;width: 25%;">   
+ 				<div id="reOrderPanel">
+	        		<table>
+	        			<tr>
+	        				<td>
+			        			<div id='reorderColumnsDiv' style="display: '';">
+	        						<table>
+				  	        			<tr class='chmTR'>
+				  	        				<td>
+							 	        		<div id="reOrderColumnCovars" class="sec-header">Re-order Column Covariates:</div>
+							 	        	</td>
+							 	        </tr>
+				 	        			<tr class='chmTR'>
+				 	        				<td>
+												<select name="colCovarMove_list" id="colCovarMove_list" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' style="width: 200px;font-size: 12px;"></select>	
+											</td>
+											<td rowspan="2">
+												<img id='colCovarUp_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/arrowUpButton.png' alt='Move Covariate Up' style="vertical-align: bottom;" onclick="NgChmGui.COV.covarOrderUp('col')" /><br/><br/>
+												<img id='colCovarDown_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/arrowDownButton.png' alt='Move Covariate Down' style="vertical-align: bottom;" onclick="NgChmGui.COV.covarOrderDown('col')" />
+											</td>	 	        	
+				 	        			</tr>
+				 	        			<tr class='chmTR'>
+				 	        				<td>
+						 						<div class="pref-header">(order from top to bottom)</div>
+						 					</td>
+						 				</tr>
+						 			</table>
+			        			</div>
+			        		</td>
+			        	</tr>
+			        	<tr>
+	        				<td>
+			        			<div id='reorderRowsDiv' style="display: '';">
+	        						<table>
+				  	        			<tr class='chmTR'>
+				  	        				<td>
+							 	        		<div id="reOrderRowCovars" class="sec-header">Re-order Row Covariates:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+							 	        	</td>
+							 	        </tr>
+				 	        			<tr class='chmTR'>
+				 	        				<td>
+												<select name="rowCovarMove_list" id="rowCovarMove_list" style="width: 200px;font-size: 12px;"></select>	
+											</td>
+											<td rowspan="2">
+												<img id='rowCovarUp_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/arrowUpButton.png' alt='Move Covariate Up' style="vertical-align: bottom;" onclick="NgChmGui.COV.covarOrderUp('row')" /><br/><br/>
+												<img id='rowCovarDown_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/arrowDownButton.png' alt='Move Covariate Down' style="vertical-align: bottom;" onclick="NgChmGui.COV.covarOrderDown('row')" />
+											</td>	 	        	
+				 	        			</tr>
+				 	        			<tr class='chmTR'>
+				 	        				<td>
+						 						<div class="pref-header">(order from left to right)</div>
+						 					</td>
+						 				</tr>
+						 			</table>
+			        			</div>
+			        		</td>
+			        	</tr>
+		 				<tr><td>&nbsp;</td></tr>
+		 				<tr><td>&nbsp;</td></tr>
+		        		<tr>
+		        			<td>
+								<img id='covReorderCancel_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/cancelButton.png' alt='Cancel Reorder Changes' style="vertical-align: bottom;" onclick="NgChmGui.COV.closeCovarReorder()" />
+								<img id='covReorderApply_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/reorderButton.png' alt='Apply Reorder Changes' style="vertical-align: bottom;" onclick="NgChmGui.COV.applyCovarOrder()" />
+							</td>
+						</tr>
+					</table>
+				</div>
+	 		</div>
+	 		<div id="covarAddSample" class="data_entry_container" style="position: relative;display: none;width: 25%;">   
+		        <form method="POST" enctype="multipart/form-data" id="covar_add_sample" onsubmit="return false;">
+		        	<input name='selFile' id='selFile' style='display: none'/>
+	 	        	<div id="addSampleCovarFile" class="sec-header">Add Sample Covariate Bar:</div>
+		        	<table id="covarSampleTbl">
+		        		<tr><td style='line-height:4px;' colspan=2>&nbsp;</td></tr>
+		        		<tr class='chmTR'>
+		        			<td>
+							    <div>
+							        <input type="radio" id="AgeCovar" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/cancelButton.png' name="sampleCovar" checked />
+							        <label for="AgeCovar">Age Covariate</label>
+							    </div>
+							</td>
+						</tr>
+		        		<tr class='chmTR'>
+		        			<td>
+							    <div>
+							        <input type="radio" id="GleasonCovar" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/cancelButton.png' name="sampleCovar" />
+							        <label for="GleasonCovar">Gleason Score Covariate</label>
+							    </div>
+							</td>
+						</tr>
+		        		<tr class='chmTR'>
+		        			<td>
+							    <div>
+							        <input type="radio" id="PsaCovar" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/cancelButton.png' name="sampleCovar" />
+							        <label for="PsaCovar">PSA Covariate</label>
+							    </div>
+							</td>
+						</tr>
+		        		<tr class='chmTR'>
+		        			<td>
+							    <div>
+							        <input type="radio" id="RaceCovar" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/cancelButton.png' name="sampleCovar" />
+							        <label for="RaceCovar">Race Covariate</label>
+							    </div>
+							</td>
+						</tr>
+		        		<tr><td style='line-height:4px;' colspan=2>&nbsp;</td></tr>
+		        		<tr><td style='line-height:4px;' colspan=2>&nbsp;</td></tr>
+		        		<tr>
+		        			<td>
+								<img id='covSampUploadCancel_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/cancelButton.png' src='images/cancelButton.png' alt='Cluster the Data' style="vertical-align: bottom;" onclick="NgChmGui.COV.hideCovarUpload()" />
+								<img id='covSampUploadApply_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/uploadButton.png' src='images/uploadButton.png' alt='Cluster the Data' style="vertical-align: bottom;" onclick="NgChmGui.COV.addSampleCovariateBar(NgChmGui.COV.loadNewCovariateBar)" />
+							</td>
+						</tr>
+					</table>
+		        </form>
+		    </div>
+	 		<div id="covarAdd" class="data_entry_container" style="position: relative;display: none;width: 25%;">   
+		        <form method="POST" enctype="multipart/form-data" id="covar_add" onsubmit="return false;">
+	 	        	<div id="addCovarFile" class="sec-header">Add Covariate Bar:</div>
+		        	<table id="covarLookupTbl">
+		        		<tr><td style='line-height:4px;' colspan=2>&nbsp;</td></tr>
+		        		<tr class='chmTR'>
+		        			<td>
+					        	<div class="image-upload" id="image-upload">
+								    <label for="covar">
+								        <img id='covarFileSelect' src="images/selectFileButton.png" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/cancelButton.png' />
+								    </label>
+				    				<input type="file" name="covar" id="covar"/>
+								</div>
+							</td>
+						</tr>
+		        		<tr><td style='line-height:4px;' colspan=2>&nbsp;</td></tr>
+		        		<tr class='chmTR' colspan='2' style='font-weight: bold;'>
+		        			<td>
+		        				&nbsp;&nbsp;File Selected:
+		        			</td>
+		        		</tr>
+		        		<tr colspan='2'>
+		        			<td>
+		        				<span id="covarNameText"></span>
+		        			</td>
+		        		</tr>
+		        		<tr><td style='line-height:4px;' colspan=2>&nbsp;</td></tr>
+		        		<tr class='chmTR' colspan='2' style='font-weight: bold;'>
+		        			<td>&nbsp;&nbsp;Bar Name:&nbsp;&nbsp;<input name='covName' id='covName' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/cancelButton.png' maxlength='30' size='25'>
+		        			</td>
+		        		</tr>
+		        		<tr><td style='line-height:4px;' colspan=2>&nbsp;</td></tr>
+		        		<tr class='chmTR' colspan='2' style='font-weight: bold;'>
+		        			<td>
+		        				&nbsp;&nbsp;Position:&nbsp;&nbsp;&nbsp;&nbsp;<select name='axisType' id='axisType' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/cancelButton.png' ><option value='none'></option> <option value='column'>Column</option><option value='row'>Row</option></select>
+		        			</td>
+		        		</tr>
+		        		<tr><td style='line-height:4px;' colspan=2>&nbsp;</td></tr>
+		        		<tr class='chmTR'>
+		        			<td colspan='2' style='font-weight: bold;'>
+								&nbsp;&nbsp;Color Type:&nbsp;&nbsp;&nbsp;<select name='colorType' id='colorType' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/cancelButton.png' ><option value='none'></option><option value='discrete'>Discrete</option><option value='continuous'>Continuous</option></select>
+							</td>
+						</tr>
+		        		<tr><td style='line-height:4px;' colspan=2>&nbsp;</td></tr>
+		        		<tr><td style='line-height:4px;' colspan=2>&nbsp;</td></tr>
+		        		<tr>
+		        			<td>
+								<img id='covUploadCancel_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/cancelButton.png' alt='Cluster the Data' style="vertical-align: bottom;" onclick="NgChmGui.COV.hideCovarUpload()" />
+								<img id='covUploadApply_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/uploadButton.png' alt='Cluster the Data' style="vertical-align: bottom;display: none" onclick="NgChmGui.COV.addCovariateBar(NgChmGui.COV.loadNewCovariateBar)" />
+							</td>
+						</tr>
+					</table>
+		        </form>
+		    </div>
+	 		<div id="covarRemoval" class="data_entry_container" style="position: relative;display: none;width: 25%;"  >   
+		        <form method="POST" enctype="multipart/form-data" id="covar_remove" onsubmit="return false;">
+	 	        	<div id='covarRemoveLabel' class="sec-header">Remove Covariate Bar:</div>
+		        	<input name='remCovName' id='remCovName' type='hidden'>
+		        	<input name='remAxisType' id='remAxisType' type='hidden'>
+		        	<table id="covarLookupTbl">
+		        		<tr><td style='line-height:4px;' colspan=2>&nbsp;</td></tr>
+		        		<tr>
+		        			<td>
+								<img id='covRemoveCancel_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/cancelButton.png' alt='Cancel Covariate Removal' style="vertical-align: bottom;" onclick="NgChmGui.COV.hideCovarRemoval()" />
+							</td>
+		        			<td>
+								<img id='covRemoveApply_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/deleteButton.png' alt='Remove Covariate' style="vertical-align: bottom;" onclick="NgChmGui.COV.removeCovariateBar(NgChmGui.COV.removeCovariateBarFromScreen)" />
+							</td>
+						</tr>
+					</table> 
+		        </form>
+		    </div>	 		
+		    <div id="covarSelection" class="data_entry_container" style="width: 25%">
+		 		<div id='optionsMode' align='right' class='chmTR'><b>Show Advanced Features:</b><input type='checkbox' id='optionsCheck' name='optionsCheck' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);NgChmGui.COV.setAdvanced();' onclick='NgChmGui.UTIL.toggleAdvanced();'></div>
+				<div id="preferencesPanel" style="display: none;">
+				</div>
+
+				<br/>
+				<img id='covarApply' src='images/applyButton.png' alt='Update Covariates' style="vertical-align: bottom;" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onclick='NgChmGui.UTIL.applySettings(NgChmGui.COV.applySettings, NgChmGui.COV.loadData);' />
+				<div class ='navigation_bar'>
+			        <div id="covarPrevButton" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'  class="prev_btn">  
+			        	<img id='covarPrev_btn' src='images/prevButton.png' alt='Go to previous step' onclick='NgChmGui.UTIL.gotoClusterScreen();' />		
+			        </div>   
+			        <div id="covarNextButton" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'  class="next_btn">  
+			       		<img id='covarNext_btn' src='images/nextButton.png' alt='Go to next step' onclick='NgChmGui.UTIL.applySettings(NgChmGui.COV.applySettings,NgChmGui.UTIL.gotoFormatScreen);' />	
+			        </div>   
+		        </div>
+			</div>
+	            <div id="heatMapView" class="layout_display_container">
+	        	<div id=screenNotesDisplay></div>
+			<div id='NGCHMEmbed'></div>
+			<script src="javascript/ngchmWidget-min.js?v=set-during-build"></script>
+			<script>NgChmGui.UTIL.editWidgetForBuilder();</script>
+		    </div>
+		</div>
+		</div>
+		<div id="message" style="display: none; position: absolute; background-color: rgb(230, 240, 255);"></div>
+		<div id="helpBox" style="display: none; position: absolute; background-color: rgb(230, 240, 255);">
+			<div class="helpBoxHdr" id="helpBoxHdr"></div>
+			<table>
+				<tbody>
+					<tr class="chmTblRow">
+						<td>
+							<div id="ngchmLogos">
+								<div class="serviceHeaderLogo" style="right:5px;top:40px">
+						        	<a href="https://www.mdanderson.org/education-and-research/departments-programs-and-labs/departments-and-divisions/bioinformatics-and-computational-biology/index.html"  target="_blank">
+								    <img id="msgBoxMdaLogo" src="images/mdabcblogo262x108.png" alt="MD Anderson logo"/>
+								</a>
+						       	</div>
+								<div style="right:5px;top:40px;position:absolute">
+									<a href="http://insilico.us.com/"  target="_blank">
+										<img id='insilicologo' src='images/insilicologo.png' alt='insilico' height=40 />
+									</a>
+								</div>
+						    </div>
+							<div id="helpBoxTxt" style="display: inherit;font-size: 12px; background-color: rgb(230, 240, 255); width: 400px; height: 80px;"></div>
+							<table>
+								<tbody>
+									<tr>
+										<td style="text-align: left;">
+											<input id='helpClose_btn' type="image" src='images/closeButton.png' alt='Close Help' onclick="NgChmGui.UTIL.closeHelp();"/>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</body>
+</html>

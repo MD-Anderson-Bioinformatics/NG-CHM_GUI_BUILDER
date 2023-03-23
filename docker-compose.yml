@@ -1,9 +1,12 @@
-version: '3.6'
-
 services:
     guibuilderm:
         restart: always
         image: ${REGNAME:-ngchm/builder}:${TAGNAME:-latest}
+        build:
+            context: ./build
+            args:
+                - VIEWER_REPO=${VIEWER_REPO:-https://github.com/MD-Anderson-Bioinformatics/NG-CHM-Artifacts}
+                - VIEWER_TAG=${VIEWER_TAG:-2.23.3-build-7}
         hostname: guibuilderm
         ports:
             - "${PORT:-8080}:8080"

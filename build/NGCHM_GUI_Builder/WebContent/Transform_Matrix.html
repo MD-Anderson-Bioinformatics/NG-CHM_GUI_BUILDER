@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+		<link rel="shortcut icon" href="ngChmIcon.ico">    	
+    	<!-- Global site tag (gtag.js) - Google Analytics -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-33437813-6"></script>
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
+		  gtag('config', 'UA-33437813-6');
+		</script>
+
+        <title>NG-CHM Builder</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<script src="javascript/NGCHM_GUI_Util.js?v=set-during-build"></script>
+		<script src="javascript/Transform.js?v=set-during-build"></script>
+		<script src="javascript/MatrixFile.js?v=set-during-build"></script>
+		<script src="javascript/lib/handsontable.full.min.js?v=set-during-build"></script>
+		<script src="javascript/lib/html5-canvas-bar-graph.js?v=set-during-build"></script>
+		<link rel="stylesheet" href="css/handsontable.full.css?v=set-during-build">
+		<link rel="stylesheet" href="css/NGCHM_GUI.css?v=set-during-build">
+ 		<script type="text/Javascript">
+			NgChmGui.mapProperties = null;
+			NgChmGui.UTIL.getHeatmapProperties(NgChmGui.TRANS.loadData);
+	 	</script>
+    </head>
+    <body class="NgChmBuilder">
+	   <div class="serviceHeader" id="serviceHeader">
+	        <div id="mda_header" class="serviceHeaderLogo">
+	        	<a href="https://www.mdanderson.org/education-and-research/departments-programs-and-labs/departments-and-divisions/bioinformatics-and-computational-biology/index.html"  target="_blank">
+	           		<img id="mdaLogo" src="images/mdabcblogo262x108.png" alt=""/>
+	           </a>
+	       	</div>
+	 		<div id='mapInfo'>
+		    	<div class="pageTitle">NG-CHM BUILDER: Transform Matrix</div>
+     			<div id="ngchmName"  class="inputText" style="font-size: 14px;color: rgb(51, 51, 51);"></div>
+	  		</div>
+	 		<div id="helpDiv"><img id='barHelp_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this,1);' src='images/questionMark.png' alt='Open Help Page' onclick='NgChmGui.UTIL.helpBox("Transform");' align="top"/></div> 
+	    </div>   
+	<div style="flex: 1 1; min-height: 0px;">
+     	<div id="TransformDisplayContainer" class="display_container" style="position: relative">
+ 	 		<div id="transforms" class="data_entry_container">
+		 		<div id='optionsMode' align='right' class='chmTR'><b>Show Advanced Features:</b><input type='checkbox' id='optionsCheck' name='optionsCheck' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onclick='NgChmGui.UTIL.toggleAdvanced();NgChmGui.TRANS.setAdvanced();'></div>
+				<div id="preferencesPanel"  style="min-height: 400px;">
+						<table>
+							<tbody>
+								<tr>
+									<td style="line-height:4px;" colspan="2">&nbsp;</td>
+								</tr>
+								<tr class="chmTR">
+									<td style="font-weight: bold; font-size: 15px;">&nbsp;Actions:</td>
+									<td>
+										<select name="transPref_list" id="transPref_list" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'  onchange="NgChmGui.TRANS.showTransSelection();">
+											<option value="missingDiv">Missing/Invalid Data</option>
+											<option value="filterDiv">Filter Data</option>
+											<option value="transDiv">Transform Data</option>
+											<option value="corrDiv">Matrix Operations</option>
+											<option value="dupeDiv">Duplicates</option>
+										</select>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						<br>	
+				    	<div id="missingDiv" class="preferencesSubPanel" style="/* height: 60%; */">
+				    		<br>
+				 	        <form id="missing_frm" onsubmit="return false;">
+				 	        	<div class="sec-header">Missing / Invalid Data:</div>
+				 	        	<div class="pref-header">Select a correction:
+						            <select name="Correction" id="Correction"  onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.TRANS.selectCorrection()'>
+						  				<option value="ReplaceInvalid">Replace Invalid</option>
+						  				<option value="FillMissing">Fill Missing</option>
+									</select> 
+								</div>
+								<div id='ReplaceInvalid' >
+					 	        	<div class="pref-header2" >Replace Invalid Values With:
+					 	        		<br>
+					 	        		<div class="pref-header3" id='nreplace' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' style='width: 100;' >
+											<input type="radio" name="nreplace" logText="Fill invalid values with N/A" value="N/A" checked> N/A<br>
+					  						<input type="radio" name="nreplace" logText="Fill invalid values with 0" value="zero"> Zero<br>
+					  						<input type="radio" name="nreplace" logText="Fill invalid values with row mean" value="rowmean"> Row Mean<br>
+					  						<input type="radio" name="nreplace" logText="Fill invalid values with column mean" value="colmean"> Column Mean<br>
+					  					</div>
+				  					</div>
+								</div>
+								<div id='FillMissing' style="display: none;">
+					 	        	<div class="pref-header2">Replace Missing Values With:
+					 	        		<br>
+					 	        		<div class="pref-header3" id='mreplace' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' >
+					  						<input type="radio" name="mreplace" logText="Fill missing values with 0" value="zero" checked> Zero<br>
+					  						<input type="radio" name="mreplace" logText="Fill missing values with row mean" value="rowmean" > Row Mean<br>
+					  						<input type="radio" name="mreplace" logText="Fill missing values with column mean" value="colmean"> Column Mean<br>
+					  						<input type="radio" name="mreplace" logText="Fill missing values with row minimum" value="rowmin"> Row Minimum Value<br>
+					  						<input type="radio" name="mreplace" logText="Fill missing values with column minimum" value="colmin"> Column Minimum Value<br>
+					  					</div>
+				  					</div>
+								</div>
+								<br>
+				 	        	<div class="pref-header">
+									<input id='correct_btn' type="image" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/applyButton.png' alt='Correct Invalid / Missing' onclick="NgChmGui.UTIL.applySettings(NgChmGui.TRANS.validateEntries,NgChmGui.TRANS.correctMatrixData)" />
+								</div>
+					        </form>
+					    </div>
+					    
+				    	<div id="dupeDiv" class="preferencesSubPanel" style="/* height: 60%; */ display: none;">
+				    		<br>
+				 	        <form id="duplicate_frm" onsubmit="return false;">
+				 	        	<div class="sec-header">Duplicate Data:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 	       
+				 	        	</div>
+				 	        	<div class="pref-header">Select a duplicates process:
+						            <select name="Duplicate" id="Duplicate" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.TRANS.selectDuplicates()'>
+						  				<option value="Remove">Remove</option>
+						  				<option value="Rename">Rename</option>
+						  				<option value="Combine">Combine</option>
+									</select>
+								</div>
+								<div id='Remove'>
+					 	        	<div class="pref-header2">Operate On:
+					 	        		<br>
+					 	        		<div class="pref-header3">
+											<input type="radio" name="drrowcol" value="row"  checked> Row<br>
+					  						<input type="radio" name="drrowcol" value="col"> Column<br>
+					  					</div>
+				  					</div>
+					 	        	<div class="pref-header2">Method:
+					 	        		<br>
+					 	        		<div class="pref-header3" id="rduplicatemethod" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' >
+					  						<input type="radio" name="rduplicatemethod" logText="Keep only first [drrowcol] containing duplicate label" value="first" checked> Keep Only First instance<br>
+					  						<input type="radio" name="rduplicatemethod" logText="Keep only last [drrowcol] containing duplicate label" value="last"> Keep Only Last instance<br>
+					  						<input type="radio" name="rduplicatemethod" logText="Remove all [drrowcol] containing duplicate labels" value="all"> Remove All Instances<br>
+					  					</div>
+				  					</div>
+								</div>
+								<div id='Rename' style="display: none;">
+					 	        	<div class="pref-header2">Operate On:
+					 	        		<br>
+					 	        		<div class="pref-header3">
+											<input type="radio" name="dnrowcol" value="row"  checked> Row<br>
+					  						<input type="radio" name="dnrowcol" value="col"> Column<br>
+					  					</div>
+				  					</div>
+					 	        	<div class="pref-header2">Method:
+					 	        		<br>
+					 	        		<div class="pref-header3" id="nduplicatemethod" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' >
+					  						<input type="radio" name="nduplicatemethod" logText="Rename [dnrowcol] duplicate label with underscore" value="_" checked> Suffix duplicates with underscore and instance number<br>
+					  						<input type="radio" name="nduplicatemethod" logText="Rename [dnrowcol] duplicate label with hypen" value="-"> Suffix duplicates with hyphen and instance number<br>
+					  					</div>
+				  					</div>
+								</div>
+								<div id='Combine' style="display: none;">
+					 	        	<div class="pref-header2">Operate On:
+					 	        		<br>
+					 	        		<div class="pref-header3">
+											<input type="radio" name="dcrowcol" value="row"  checked> Row<br>
+					  						<input type="radio" name="dcrowcol" value="col"> Column<br>
+					  					</div>
+				  					</div>
+					 	        	<div class="pref-header2">Method:
+					 	        		<br>
+					 	        		<div class="pref-header3" id="cduplicatemethod" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' >
+					  						<input type="radio" name="cduplicatemethod" logText="Combine [dcrowcol] duplicates using mean value" value="mean" checked> Combine duplicates using mean value<br>
+					  						<input type="radio" name="cduplicatemethod" logText="Combine [dcrowcol] duplicates using median value" value="median"> Combine duplicates using median value<br>
+					  					</div>
+				  					</div>
+								</div>
+								<br>
+				 	        	<div class="pref-header">
+									<input id='duplicates_btn' type="image" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/applyButton.png' alt='Process Duplicates' onclick="NgChmGui.UTIL.applySettings(NgChmGui.TRANS.validateEntries,NgChmGui.TRANS.duplicateMatrixData)"/>
+								</div>
+					        </form>
+						</div>
+						<div id="filterDiv" class="preferencesSubPanel" style="/* height: 60%; */ display: none;">
+				    		<br>
+				 	        <form id="filter_frm" onsubmit="return false;">
+				 	        	<div class="sec-header">Filter Data:</div>
+				 	        	<div class="pref-header">Select a filter:
+						            <select name="Filter" id="Filter" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.TRANS.selectFilter()'>
+						  				<option value="Variation">Standard Deviation</option>
+						  				<option value="Range">Range</option>
+						  				<option value="MissingData">Missing Data</option>
+									</select>
+								</div>
+								<div id='Variation'>
+					 	        	<div class="pref-header2">Operate On:
+					 	        		<br>
+					 	        		<div class="pref-header3">
+											<input type="radio" name="vrowcol" value="row"  checked> Row<br>
+					  						<input type="radio" name="vrowcol" value="col"> Column<br>
+					  					</div>
+				  					</div>
+					 	        	<div class="pref-header2">Method:
+					 	        		<br>
+					 	        		<div class="pref-header3" id='vfiltermethod' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'>
+					  						<input type="radio" name="vfiltermethod" logText="Remove [vrowcol]s with standard deviation less than [std_limit]" value="std_value"" checked> Remove if Standard Deviation &lt;&nbsp; &nbsp;<input type="text" id="std_limit" name="std_limit" style="width: 30%" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('vfiltermethod',0)"><br>
+					  						<input type="radio" name="vfiltermethod" logText="Keep [std_pct]% of [vrowcol]s with highest standard deviation" value="pct" > Keep <input type="text" id="std_pct" name="std_pct" maxlength="2" style="width: 10%" onchange='NgChmGui.UTIL.formatInputPct(this);' onclick="NgChmGui.TRANS.setRadio('vfiltermethod',1)">&nbsp;% with highest Standard Deviation  <br>
+					  						<input type="radio" name="vfiltermethod" logText="Keep [std_num_keep] of [vrowcol]s with highest standard deviation" value="fixednum"> Keep <input type="text" id="std_num_keep" name="std_num_keep" style="width: 10%"  onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('vfiltermethod',2)"> rows/cols with highest Standard Deviation  <br>
+					  					</div>
+				  					</div>
+								</div>
+								<div id='Range' style="display: none;">
+					 	        	<div class="pref-header2">Operate On:
+					 	        		<br>
+					 	        		<div class="pref-header3">
+											<input type="radio" name="rrowcol" value="row" checked> Row<br>
+			 									<input type="radio" name="rrowcol" value="col"> Column<br>
+					  					</div>
+				  					</div>
+					 	        	<div class="pref-header2">Method:
+					 	        		<br>
+					 	        		<div class="pref-header3" id='rfiltermethod' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'>
+					  						<input type="radio" name="rfiltermethod" logText="Remove [rrowcol]s with all values less than [arange_min]" value="allless" checked> Remove if All Values &lt;&nbsp;&nbsp;<input type="text" name="arange_min" style="width: 30%" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('rfiltermethod',0)"><br>
+					  						<input type="radio" name="rfiltermethod" logText="Remove [rrowcol]s with all values greater than [arange_max]" value="allgreater"> Remove if All Values &gt;&nbsp;&nbsp;<input type="text" name="arange_max" style="width: 30%" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('rfiltermethod',1)"><br>
+					  						<input type="radio" name="rfiltermethod" logText="Remove [rrowcol]s with any value less than [1range_min]" value="oneless"> Remove if One Value &lt;&nbsp;&nbsp;<input type="text" name="1range_min" style="width: 30%" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('rfiltermethod',2)"><br>
+					  						<input type="radio" name="rfiltermethod" logText="Remove [rrowcol]s with any value greater than [1range_max]" value="onegreater"> Remove if One Value &gt;&nbsp;&nbsp;<input type="text" name="1range_max" style="width: 30%" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('rfiltermethod',3)"><br>
+					  						<input type="radio" name="rfiltermethod" logText="Keep [vrowcol]s with one or more values greater than [range_max]" value="oneval">   Keep if 1+ Values &gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="range_max" style="width: 30%" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('rfiltermethod',4)"><br> 
+					  					</div>
+				  					</div>
+								</div>
+								<div id='MissingData' style="display: none;">
+					 	        	<div class="pref-header2">Operate On:
+					 	        		<br>
+					 	        		<div class="pref-header3">
+											<input type="radio" name="mrowcol" value="row" checked> Row<br>
+					  						<input type="radio" name="mrowcol" value="col"> Column<br>
+					  					</div>
+				  					</div>
+					 	        	<div class="pref-header2">Method:
+					 	        		<br>
+					 	        		<div class="pref-header3" id="mfiltermethod" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' >
+					  						<input type="radio" name="mfiltermethod" logText="Remove [mrowcol] if over [std_pct_missing]% is missing" value="pctgreater" checked> Remove if &gt;&nbsp; <input type="text" name="std_pct_missing" maxlength="2" style="width: 10%" onchange='NgChmGui.UTIL.formatInputPct(this);' onclick="NgChmGui.TRANS.setRadio('mfiltermethod',0)">&nbsp;% Missing Values<br>
+					  						<input type="radio" name="mfiltermethod" logText="Remove [mrowcol] if over [std_num_missing] is missing" value="pctless"> Remove if &gt;&nbsp; <input type="text" name="std_num_missing" style="width: 30%" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('mfiltermethod',1)"> (number) Missing Values<br>  
+					  					</div>
+				  					</div>
+								</div>
+								<br>
+				 	        	<div class="pref-header">
+									<input id='filter_btn' type="image" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/applyButton.png' alt='Filter Data' onclick="NgChmGui.UTIL.applySettings(NgChmGui.TRANS.validateEntries,NgChmGui.TRANS.filterMatrixData)"/>
+								</div>
+					        </form>
+						</div>
+						
+				    	<div id="transDiv" class="preferencesSubPanel" style="/* height: 60%; */ display: none;">
+				    		<br>
+				 	        <form id="trans_frm" onsubmit="return false;">
+				 	        	<div class="sec-header">Transform Data:</div>
+				 	        	<div class="pref-header">Select a transform:
+						            <select name="Transform" id="Transform" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange="NgChmGui.TRANS.selectTransform()">
+						  				<option value="Log">Logarithmic</option>
+						  				<option value="MeanCenter">Mean Center</option>
+						  				<option value="Z-Norm">Z-Norm</option>
+						  				<option value="Arithmetic">Arithmetic</option>
+						  				<option value="Threshold">Threshold</option>
+									</select> 
+								</div>
+								<div id='Log'>
+					 	        	<div class="pref-header2">Method:
+					 	        		<br>
+					 	        		<div class="pref-header3" id="tlfiltermethod" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' >
+					 						<input type="radio" name="tlfiltermethod" logText="Log10 to all values" value="log10" checked> Log Base 10<br>
+					  						<input type="radio" name="tlfiltermethod" logText="Natural log to all values"value="naturalLog"> Natural Log <br>
+					  						<input type="radio" name="tlfiltermethod" logText="Log2 to all values" value="log2"> Log Base 2 <br>
+					  					</div>
+				  					</div>
+								</div>
+								<div id='MeanCenter' style="display: none;">
+					 	        	<div class="pref-header2">Mean Center:
+					 	        		<br>
+					 	        		<div class="pref-header3" id="tmrowcol" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' >
+											<input type="radio" name="tmrowcol" logText="Mean center all rows" value="row" checked> Row<br>
+					  						<input type="radio" name="tmrowcol" logText="Mean center all columns"value="col"> Column<br>
+					  					</div>
+				  					</div>
+								</div>
+								<div id='Z-Norm' style="display: none;">
+					 	        	<div class="pref-header2">Z-Normalize:
+					 	        		<br>
+					 	        		<div class="pref-header3" id="tzrowcol" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' >
+											<input type="radio" name="tzrowcol" logText="Z-normalize all rows" value="row" checked> Row<br>
+					  						<input type="radio" name="tzrowcol" logText="Z-normalize all columns" value="col"> Column<br>
+					  					</div>
+				  					</div>
+								</div>
+								<div id='Arithmetic' style="display: none;">
+					 	        	<div class="pref-header2">Method:
+					 	        		<br>
+					 	        		<div class="pref-header3" id="tatransformmethod" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'>
+					 						<input type="radio" name="tatransformmethod" logText="Add [add_value] to all values" value="add" checked> Add &nbsp;<input type="number" name="add_value" style="width: 30%" step="any" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('tatransformmethod',0)">&nbsp;to All Values<br>
+					 						<input type="radio" name="tatransformmethod" logText="Subtract [subtract_value] from all values" value="subtract"> Subtract &nbsp;<input type="number" name="subtract_value" style="width: 30%" step="any" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('tatransformmethod',1)">&nbsp;from All Values<br>
+					  						<input type="radio" name="tatransformmethod" logText="Multiply all values by [multiply_value]" value="multiply"> Multiply All Values by &nbsp;<input type="number" name="multiply_value" style="width: 30%" step="any" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('tatransformmethod',2)"><br>
+					  						<input type="radio" name="tatransformmethod" logText="Divide all values by [divide_value]" value="divide"> Divide All Values by &nbsp;&nbsp;&nbsp;&nbsp;<input type="number" name="divide_value" style="width: 30%" step="any" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('tatransformmethod',3)"><br>
+					  					</div>
+				  					</div>
+								</div>
+								<div id='Threshold' style="display: none;">
+					 	        	<div class="pref-header2">Method:
+					 	        		<br>
+					 	        		<div class="pref-header3" id="thresholdmethod" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'>
+					 						<input type="radio" name="thresholdmethod" logText="Raise values to a minimum of [min_value]" value="min" checked> Raise Values to a Minimum of &nbsp;<input type="number" name="min_value" style="width: 30%" step="any" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('thresholdmethod',0)">&nbsp;<br>
+					 						<input type="radio" name="thresholdmethod" logText="Reduce values to a maximum of [max_value]" value="max"> Reduce Values to a Maximum of &nbsp;<input type="number" name="max_value" style="width: 30%" step="any" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('thresholdmethod',1)">&nbsp;<br>
+					  						<input type="radio" name="thresholdmethod" logText="Set values below [low_value] to NA" value="lowcut"> Set Values Below &nbsp;<input type="number" name="low_value" style="width: 30%" step="any" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('thresholdmethod',2)">&nbsp; to NA<br>
+					  						<input type="radio" name="thresholdmethod" logText="Set values above [high_value] to NA" value="highcut"> Set Values Above &nbsp;<input type="number" name="high_value" style="width: 30%" step="any" onchange='NgChmGui.UTIL.formatInputNumber(this);' onclick="NgChmGui.TRANS.setRadio('thresholdmethod',3)">&nbsp; to NA<br>
+					  					</div>
+				  					</div>
+								</div>
+							  	<div class="pref-header">
+									<input id='trans_btn' type="image" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/applyButton.png' alt='Transform the Matrix' onclick="NgChmGui.UTIL.applySettings(NgChmGui.TRANS.validateEntries,NgChmGui.TRANS.transformMatrixData)"/>
+								</div>
+					        </form>
+						</div>
+						
+						
+						<div id="corrDiv" class="preferencesSubPanel" style="/* height: 60%; */ display: none;">
+				    		<br>
+				 	        <form id="corr_frm" onsubmit="return false;">
+				 	        	<div class="sec-header">Matrix Operations:</div>
+				 	        	<div class="pref-header">Select a method:
+						            <select name="Correlation" id="Correlations" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange="NgChmGui.TRANS.selectCorrelation()">
+						  				<option value="Transpose">Transpose</option>
+						  				<option value="Correlation">Correlation Matrix</option>
+									</select> 
+								</div>
+								
+								<div id='Transpose'>
+					 	        	<div class="pref-header2">Method:
+					 	        		<br>
+					 	        		<div class="pref-header3">
+					 	        			<input type="radio" name="tttransformmethod" logText="Transpose matrix" value="transpose" onclick="NgChmGui.TRANS.enableButton('trans_btn')" onchange="NgChmGui.TRANS.correlationSelectionChange(this);" checked> Transpose matrix<br>
+					  					</div>
+				  					</div>
+								</div>
+								<div id='Correlation' style="display: none;">
+					 	        	<div class="pref-header2">Method:
+					 	        		<br>
+					 	        		<div class="pref-header3" id="tctransformmethod" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' >
+					 						<input type="radio" name="tctransformmethod" logText="Correlate matrix with self by row" value="row_self" onchange="NgChmGui.TRANS.correlationSelectionChange(this);" checked> Correlate matrix by row with self<br>
+					 						<input type="radio" name="tctransformmethod" logText="Correlate matrix with self by column" value="col_self" onchange="NgChmGui.TRANS.correlationSelectionChange(this);"> Correlate matrix by column with self<br>
+					 						<input type="radio" name="tctransformmethod" logText="Correlate matrix with [correlation_matrix] by row" value="row_matrix" onchange="NgChmGui.TRANS.correlationSelectionChange(this);"> Correlate matrix by row with selected matrix &nbsp;<br>
+					 						<input type="radio" name="tctransformmethod" logText="Correlate matrix with [correlation_matrix] by column" value="col_matrix" onchange="NgChmGui.TRANS.correlationSelectionChange(this);"> Correlate matrix by column with selected matrix &nbsp;<br>
+									       <input id="correlation_matrix" type="file" name="correlation_matrix" onchange="NgChmGui.TRANS.sendMatrix()" style="display:none"><br>
+					  					</div>
+				  					</div>
+								</div>
+								<br>
+				 	        	<div class="pref-header">
+									<input id='correlation_btn' type="image" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/applyButton.png' alt='Transform the Matrix' onclick="NgChmGui.UTIL.applySettings(NgChmGui.TRANS.validateEntries,NgChmGui.TRANS.correlateMatrixData)"/>
+								</div>
+					        </form>
+						</div>
+
+					    <div class="sec-header">Matrix Change History:</div>
+						<div id='change_log'>
+							<select id='changeSelect' size="5" id='select' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' style='overflow:auto; min-width: 80%; width:auto;'>
+								<option selected class = '' value='-1'>Original Version</option>
+							</select>
+							<div>
+								<div class="pref-header2">Reset to a previous step by selecting it above and pressing:</div>
+								&nbsp;&nbsp;<input id='restore_btn' type="image" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/resetButton.png' alt='Restore Matrix' onclick="NgChmGui.TRANS.doReset()"/>
+						    </div>
+						</div>
+					<!-- </div> -->
+			        
+	        	</div>
+	        	<div class ='navigation_bar'>
+				        <div id="transPrevButton" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'  class="prev_btn">  
+						    <img id='prev1_btn' src='images/prevButton.png' alt='Go to previous step' onclick='NgChmGui.UTIL.gotoMatrixScreen();' />
+				        </div>   
+				        <div id="transNextButton" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'  class="next_btn">  
+					    	<img id='next1_btn' src='images/nextButton.png' alt='Go to next step' onclick='NgChmGui.TRANS.done()' />
+			        	</div>   
+		        	</div>
+			</div>
+	        <div id="trans_data" class="layout_display_container">
+			<div class="screenNotesContainer">
+	        		<div class="screenNotesLeft">
+	        			<div id="screenNotesDisplay"></div>
+	        		</div>
+				    <div class="screenNotesRight">
+				   		<div id='dowloadMatrix' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this,1);' class="image-container" style="right: 0px">
+							<img id='dowloadMatrix_btn' src='images/buttonGetMatrix.png' alt='Download Edited Matrix' onclick='NgChmGui.TRANS.downloadMatrix();' />
+						</div>
+					</div>
+			</div>
+	        	<div id="stats_wrapper" style="padding:8px;width:100%;display:inline-flex">
+	        	
+			     	<div id="matrix_stats" style="float: left;">
+			        	<b>Number of Rows:</b>  <label id="numRows"></label><br> <br>
+			        	<b>Number of Columns:</b> <label id="numCols"></label><br><br> 
+			        	<b>Missing Values:</b> <label id="numMissing"></label><br><br>
+			        	<b>Duplicate Row Labels:</b> <label id="numDupeRows"></label><br><br>
+			        	<b>Duplicate Column Labels:</b> <label id="numDupeCols"></label><br><br>
+			        	<b>Invalid Values:</b> <label id="numInvalid"></label><br><br>
+			        	<b>Maximum Value:</b> <label id="maxVal"></label><br><br>
+			        	<b>Minimum Value:</b> <label id="minVal"></label><br><br>
+			        	<b>Minimum (Non-Zero):</b> <label id="minNonZeroVal"></label><br><br>
+			    	</div>
+			    	<div style="float:right;padding-left: 10px;">
+				    	<div class=""><b>Distribution:</b>
+					            <select name="Histogram" id="Histogram" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange="NgChmGui.TRANS.selectHistogram()">
+					  				<option value="matrix_histo">Matrix Data</option>
+					  				<option value="row_sd_matrix_histo">Row Standard Deviation</option>
+					  				<option value="col_sd_matrix_histo">Column Standard Deviation</option>
+								</select> 
+						</div>
+				    	<div id="matrix_histo" style="float: right;">
+				    		<canvas id="histo_canvas" style="width: 500px; height: 150px;"></canvas>
+				    	</div>    
+				    	<div id="row_sd_matrix_histo" style="float: right; display: none">
+				    		<!-- <b>Row Standard Deviation Distribution:</b><br> -->
+				    		<canvas id="row_sd_histo_canvas" style="width: 500px; height: 150px;"></canvas>
+				    	</div>    
+				    	<div id="col_sd_matrix_histo" style="float: right; display:none">
+				    		<!-- <b>Column Standard Deviation Distribution:</b><br> -->
+				    		<canvas id="col_sd_histo_canvas" style="width: 500px; height: 150px;"></canvas>
+				    	</div>    
+			    	</div>
+			    	
+		    	</div>
+			<div id="matrixDisplayContainer" style="flex: 1 1; min-height: 0px; padding: 8px;">
+		        <div id="transMatrixDisplay" style="display: none; "></div>		    
+			</div>
+	        </div>
+		</div>
+		</div>
+		<div id="message" style="display: none; position: absolute; background-color: rgb(230, 240, 255);"></div>
+		<div id="helpBox" style="display: none; position: absolute; background-color: rgb(230, 240, 255);">
+			<div class="helpBoxHdr" id="helpBoxHdr"></div>
+			<table>
+				<tbody>
+					<tr class="chmTblRow">
+						<td>
+							<div id="ngchmLogos">
+								<div class="serviceHeaderLogo" style="right:5px;top:40px">
+						        	<a href="https://www.mdanderson.org/education-and-research/departments-programs-and-labs/departments-and-divisions/bioinformatics-and-computational-biology/index.html"  target="_blank">
+								    <img id="msgBoxMdaLogo" src="images/mdabcblogo262x108.png" alt="MD Anderson logo"/>
+								</a>
+						       	</div>
+								<div style="right:5px;top:40px;position:absolute">
+									<a href="http://insilico.us.com/"  target="_blank">
+										<img id='insilicologo' src='images/insilicologo.png' alt='insilico' height=40 />
+									</a>
+								</div>
+						    </div>
+							<div id="helpBoxTxt" style="display: inherit;font-size: 12px; background-color: rgb(230, 240, 255); width: 400px; height: 80px;"></div>
+							<table>
+								<tbody>
+									<tr>
+										<td style="text-align: left;">
+											<input id='helpClose_btn' type="image" src='images/closeButton.png' alt='Close Help' onclick="NgChmGui.UTIL.closeHelp();"/>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</body>
+</html>

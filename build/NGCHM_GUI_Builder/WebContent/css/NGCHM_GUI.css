@@ -1,0 +1,622 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Dec 28, 2017, 2:55:30 PM
+    Author     : cjacoby
+*/
+
+* {
+	box-sizing: border-box;
+}
+
+body.NgChmBuilder {
+	margin: 8px;
+	width: calc(100vw - 16px);
+	height: calc(100vh - 16px);
+	display: flex;
+	flex-direction: column;
+	font-family: sans-serif;
+	font-size: 100%;
+	overflow: hidden;
+}
+
+textarea {
+  width: 95%;
+}
+
+table.data_entry td {
+	padding: 2px 0px 2px 5px
+}
+
+table.breakPrefsTable td {
+	padding: 0px 10px 5px 10px;
+}
+
+table.helpTable { 
+  border-collapse: collapse; 
+  width: 90%;
+}
+  
+table.helpTable td, 
+table.helpTable th { 
+  border: 1px solid black;
+  padding: 5px; 
+}
+
+div.serviceHeader
+{
+	position: relative;
+	display: flex;
+	float: none;
+	height: 60px;
+	color: #666;
+	margin: 0px 0px 4px 0px;
+	background-color: white;
+	border-bottom: 4px solid #da0505;
+	font-family: sans-serif;
+}
+
+div.serviceHeaderLogo
+{
+	left: 0px;
+	display: inline-block;
+	width: auto;
+    padding: 0px 30px 0px 0px !important;
+}
+
+div.serviceHeaderLogo img
+{
+	height: 54px;
+}
+
+.image-upload > input
+{
+    display: none;
+}
+
+.inputText
+{
+    padding: 5px 5px 0px 0px !important;
+}
+
+.sec-header
+{
+    font-family: Arial;
+    font-weight: bold;
+    font-size: 15px;
+	color: #0843c1;
+	padding: 5px 0px 2px 0px;
+	vertical-align: middle;
+}
+
+.pref-header
+{
+    font-family: Arial;
+    font-weight: bold;
+    font-size: 12px;
+	color: #0843c1;
+	padding: 5px 0px 2px 5px;
+}
+
+.pref-header2
+{
+    font-family: Arial;
+    font-weight: bold;
+    font-size: 10px;
+	color: #0843c1;
+	padding: 5px 0px 2px 10px
+}
+
+.pref-wrapper{
+	position: relative;
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    overflow: auto;
+    margin: 0 0 -30px 0;
+}
+
+.cov_color_pref
+{
+    font-family: Arial;
+    font-size: 12px;
+}
+
+#mapInfo
+{
+    flex: 1 1;
+    min-height: 0px;
+}
+
+#optionsMode
+{
+    align: right;
+    height: 20px
+}
+
+.pageTitle
+{
+    font-family: Arial;
+    font-weight: bold;
+    font-size: 18px;
+	color: #0843c1;
+	width: 100%;
+}
+
+#fileNameText
+{
+	rows: 1;
+	cols: 60;
+	border: none;
+}
+
+
+#fileLookup
+{
+	width: 20%;
+	min-width: 200px;
+    padding: 0px 0px 0px 0px !important;
+}
+
+
+#matrix {
+    flex: 1 1;
+    min-height: 0px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    overflow: hidden;
+}
+
+#matrixDisplay {
+    height: 100%;
+    width: 100%;
+    background-color: white;
+    overflow: hidden;
+}
+
+#transMatrixDisplay {
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    overflow: hidden;
+}
+
+#example table {
+    width: 50%;
+}
+
+#ag-grid {
+    margin-top: 50px;
+    border: 1px solid green;
+}
+
+.handsontable .covar {
+  background: #FDF5AF;
+}
+
+.handsontable .label {
+  background:   #A6E1F5;
+}
+
+.handsontable .data {
+  background:  	#AEEDAE;
+}
+
+.chmTR {
+	display: 'none';
+    height: 0px;
+	padding: 0px;
+    font-size: 12px;
+    font-family: Arial;
+    font-weight: normal;
+    color: #0843c1;
+    vertical-align: center;
+}
+
+.chmDIV {
+    padding: 8px;
+    font-size: 12px;
+    font-family: Arial;
+    font-weight: normal;
+    color: #0843c1;
+}
+
+
+div#NGCHMEmbed {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1;
+    min-height: 0px;
+    background-color: white;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    padding: 0.5em;
+}
+
+div.collapsed {
+}
+
+div.expanded {
+}
+
+/* Added to disable highlighting on table */
+.handsontable .wtBorder {
+  display: none !important;
+}
+
+#box_outer {
+    margin-top: 100px;
+    height: 200px;
+    width: 300px;
+    background-color: purple;
+    position: relative
+}
+
+#box_inner {
+    position: absolute;
+    background-color: blue;
+    top: 10%;
+    left: 10%;
+    height: 100px;
+    width: 150px;
+}
+
+.warning_message{
+	color: orange;
+}
+
+.error_message{
+	margin: 0px;
+	font-size:12pt;
+	color: red;
+	animation: blink 0.5s ease;
+}
+
+@keyframes blink {
+    0% {
+        color: white; 
+     }
+    100% {
+    	color:red;
+     }
+}
+
+#message {
+	position: absolute;
+    margin: 5px !important;
+    top: 5%;
+    left: 15%;
+    padding: 2px 2px 2px 2px !important;
+    border: 1px solid #1a1a1a;
+    border-radius: 15px;
+    font-size: 90% !important;
+    font-family: Arial;
+    font-weight: normal;
+    background: #dddddd;
+    color: #000000;
+    z-index: 10000;
+    text-align: center;
+    height: auto;
+    box-shadow: 5px 5px 5px #777777;
+    white-space: nowrap;
+    box-sizing: border-box
+}
+
+#messageHdr {
+    z-index: 10001;
+    cursor: move;
+	display: table;
+    font-size: 18px;
+    font-weight: bold;
+    color: #0843c1;
+    margin: auto;
+    width: 100%;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    background: #CBD1EA;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+}
+
+#messageTxt {
+    box-sizing: border-box;
+    text-align: left;
+}
+
+#messageError {
+    box-sizing: border-box;
+    text-align: left;
+    height: 20px;
+    color: red;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.display_container{
+	display: flex;
+	flex-direction: row;
+	flex: 1 1;
+        min-height: 0px;
+	/* max-height: calc(100% - 64px); */
+	height: 100%;
+}
+
+.data_entry_container {
+    min-height: 50px;
+    width: 25%;
+    min-width: 280px;
+    vertical-align:top;
+    margin-left: 3px;
+    display:inline-block;
+    position:relative;
+    border-right: 3px ridge #0843c1;  /* double|groove|ridge */
+}
+
+.image-container {
+  display: flex;
+  justify-content: center;
+}
+
+.layout_display_container {
+    height: 100%;
+    vertical-align:top;
+    flex: 1 1;
+    min-height: 0px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.navigation_bar{
+    height: 39px;
+    width: 100%;
+    bottom: 5px;
+    border-top: 4px double #0843c1;
+    position: absolute;
+    overflow-x: hidden
+}
+
+.next_btn {
+     /* position: fixed; */
+     position: absolute;
+     /* bottom: 10px; */
+     /* left:  110px; */
+     right: 5px;
+     padding: 2px 0px 5px 10px !important;
+}
+
+.prev_btn {
+     /* position: fixed; */
+     position: absolute;
+     /* bottom: 10px; */
+     left: 	0px;
+     padding: 2px 0px 5px 0px !important;
+}
+
+#matrixCovsPanel {
+	position: relative;
+	width: 100%;
+    min-height: 200px;
+    max-height: 80%;
+	overflow: none;
+	left: 0;
+	z-index: 10000;
+}
+
+#preferencesPanel {
+	position: relative;
+	width: 100%;
+    /* min-height: 500px; */
+    max-height: 80%;
+	overflow: auto;
+	left: 0;
+	z-index: 10000;
+}
+
+.preferencesSubPanel {
+    width: 100%;
+    overflow: auto;
+    overflow-x: hidden;
+    border-top: 4px double #0843c1;  /* double|groove|ridge */
+}
+
+
+.preDefPalette{
+	height:20px;
+	width:100px;
+}
+
+.preDefPaletteMissingColor{
+	height:20px;
+	width:10px;
+	margin-right:10px;
+	margin-left: 2px;
+}
+
+#loadOverlay{
+	position: fixed;
+    width: 100%;
+    min-height: 100%;
+    left:0px;
+    top:0px;
+    background-color: rgb(0,0,0, .2);
+    z-index: 11999;
+}
+
+.loader {
+    border: 16px solid #f3f3f3; /* Light grey */
+    border-top: 16px solid red;
+    margin-left:50%;
+    margin-top:25%;
+    border-radius: 25%;/* 50%; */
+    width: 120px;
+    height: 120px;
+    /* animation: spin 2s linear infinite; */
+    animation: spin 2s infinite;
+    z-index: 1;
+}
+
+#loaderMsg {
+    background: #dddddd;
+	font-family: Arial;
+    font-weight: bold;
+    font-size: 14px;
+    color: #0843c1;
+    position: absolute;
+    width: 400px;
+    left: 45%; 
+    margin-left: -50px; /* margin is -0.5 * dimension */
+    margin-top: -25px; 
+   border: 4px solid #0843c1;  
+    text-align: center;
+}
+
+#clusterStatus {
+    position: relative;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 100;  
+    height: 100;  
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.screenNotesContainer {
+   display: flex;
+   flex-direction: row;
+}
+
+#screenNotesDisplay{
+    width: 100%;
+    font-family: Arial;
+    font-weight: bold;
+    font-size: 12px;
+    color: #0843c1;
+    padding: 8px;
+    overflow-y: auto;
+}
+
+.screenNotesLeft {
+    flex: 1 1;
+    min-height: 0px;
+}
+
+.screenNotesRight {
+   width: fit-content;
+   padding-right: 10px;
+   display: flex;
+   flex-direction: column;
+}
+
+#collapseMap {
+   float: right;
+}
+
+#matrixNameText {
+  display: block;
+  width: 300px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+#bubbleHelp {
+    margin: 5px !important;
+    padding: 5px 10px 5px 10px !important;
+    border: 1px solid #1a1a1a;
+    border-radius: 15px;
+    font-size: 90% !important;
+    font-family: Arial;
+    font-weight: normal;
+    background: #ffffed;
+    color: #000000;
+    min-width: 50px;
+    z-index: 10000;
+    text-align: left;
+    box-shadow: 5px 5px 5px #777777;
+    position: absolute;
+}
+
+#helpDiv {
+	margin: 5px 10px 0px 10px;
+}
+
+
+.catDiv {
+	font-size: 12px;
+    font-family: Arial;
+    font-weight: bold;
+}
+
+#helpBox {
+	position: absolute;
+	margin: 5px !important;
+    top: 10%;
+    right: 5%;
+    padding: 2px 2px 2px 2px !important;
+    border: 1px solid #1a1a1a;
+    border-radius: 15px;
+    font-size: 0.90rem !important;
+    font-family: Arial;
+    font-weight: normal;
+    background: #dddddd;
+    color: #000000;
+    z-index: 10000;
+    text-align: center;
+    max-height: 80vh;
+    max-width: 80vw;
+    box-shadow: 5px 5px 5px #777777;
+    white-space: nowrap;
+    box-sizing: border-box;
+    text-align: left;
+}
+#helpBoxTxt {
+    color: #0843c1;
+	box-sizing: border-box
+}
+#helpBox p {
+    white-space: normal;
+}
+#helpBoxHdr {
+	cursor: move;
+    display: table;
+    font-size: 18px;
+    font-weight: bold;
+    color: #0843c1;
+    margin: auto;
+    width: 100%;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    background: #CBD1EA;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+}
+
+#progressHead {
+    padding: 1em;
+}
+
+#progressLog {
+    padding: 1em;
+}
+
+#progressLog p.error {
+    color: #ee0000;
+}
+
+#progressLog p.warn {
+    color: #f74600;
+}
+

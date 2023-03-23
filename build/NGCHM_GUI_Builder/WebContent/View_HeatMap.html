@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+		<link rel="shortcut icon" href="ngChmIcon.ico">    	
+    	<!-- Global site tag (gtag.js) - Google Analytics -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-33437813-6"></script>
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
+		  gtag('config', 'UA-33437813-6');
+		</script>
+
+        <title>NG-CHM Builder</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<script src="javascript/NGCHM_GUI_Util.js?v=set-during-build"></script>
+		<script src="javascript/HeatMap.js?v=set-during-build"></script>
+		<link rel="stylesheet" href="css/NGCHM_GUI.css?v=set-during-build">
+ 		<script type="text/Javascript">
+			NgChmGui.mapProperties = null;
+		 	window.onload = function() {
+				NgChmGui.UTIL.getHeatmapProperties(NgChmGui.MAP.loadData);
+				NgChmGui.UTIL.messageBoxConfigure();
+				NgChmGui.UTIL.showAdvanced = NgChmGui.UTIL.urlParam('adv'); 
+		 	}
+	 	</script>
+    </head>
+    <body class="NgChmBuilder">
+ 	   <div class="serviceHeader" id="serviceHeader">
+	        <div id="mda_header" class="serviceHeaderLogo">
+	        	<a href="https://www.mdanderson.org/education-and-research/departments-programs-and-labs/departments-and-divisions/bioinformatics-and-computational-biology/index.html"  target="_blank">
+	           		<img id="mdaLogo" src="images/mdabcblogo262x108.png" alt=""/>
+	           </a>
+	       	</div>
+	 		<div id='mapInfo'>
+		    	<div class="pageTitle">NG-CHM BUILDER: Interactive Heat Map</div>
+     			<div id="ngchmName" class="inputText" style="font-size: 14px;color: rgb(51, 51, 51);"></div>
+	  		</div>
+	 		<div id="helpDiv"><img id='barHelp_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this,1);' src='images/questionMark.png' alt='Open Help Page' onclick='NgChmGui.UTIL.helpBox("Heatmap");' align="top"/></div> 
+	    </div>   
+	<div style="flex: 1 1; min-height: 0px;">
+	    <div id="FormatDisplayContainer" class="display_container" style="position: relative">
+		<div id="formatSelection" class="data_entry_container" style="width: 15%">
+	 			<br>
+        		<div class="image-container">
+					<img id='downloadMap_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/getNgchmFileButton.png' alt='Download the heat map to NG-CHM file' onclick='NgChmGui.MAP.downloadMap();' />
+				</div>
+				<br><br>
+        		<div class="image-container">
+	 				<img id='downloadPdf_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/ngChmPdfButton.png' alt='Download the heat map to PDF file' onclick='NgChmGui.MAP.getPDF(this);' />
+				</div>
+				<br><br> 
+         		<div class="image-container">
+	 				<img id='downloadFullPdf_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/ngChmExpandedPdfButton.png' alt='Download the Expanded format heat map PDF file' onclick='NgChmGui.MAP.getFullPDF();' />
+				</div>
+ 				<br><br>
+        		<div class="image-container">
+	 				<a id="downloadViewer_btn" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' href="ngChmApp.html" download><img src="images/ngChmViewerButton.png" onclick='NgChmGui.MAP.logViewerDownload();'/></a>
+				</div>
+ 				<br><br>
+        		<div class="image-container">
+	 				<img id='downloadChangeLog_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/ngChmCreationLogButton.png' alt='Download the heat map change log' onclick='NgChmGui.MAP.getChangeLog();' />
+				</div>
+				<br><br> 
+          		<div class="image-container">
+	 				<img id='downloadThumb_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/getNgchmThumbnailButton.png' alt='Download Thumbnail .PNG Image file' onclick='NgChmGui.MAP.downloadThumbnail();' />
+				</div>
+ 				<br><br>
+ 				<br><br>
+         		<div class="image-container">
+	 				<img id='newHeatMap_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/ngChmNewMapButton.png' alt='Start a new heat map build' onclick='NgChmGui.MAP.newMapRequest();' />
+				</div>
+ 				<br><br>
+ 				<br><br>
+				<div class ='navigation_bar'>
+			        <div id="prevButton"  class="prev_btn">  
+			        	<img id='viewHeatMapPrev_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/prevButton.png' alt='Go to previous step' onclick='NgChmGui.UTIL.gotoFormatScreen();' />&nbsp;&nbsp;&nbsp;&nbsp;		
+						<img id='returnToMatrix_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' src='images/ngChmReturnButton.png' alt='Start a new heat map build' onclick='NgChmGui.UTIL.gotoMatrixScreen();'/>
+			        </div>  
+		        </div>
+ 		    </div>			
+	        <div id="heatMapView" class="layout_display_container collapsed" style="overflow:hidden;">
+ 			<div class="screenNotesContainer">
+	        		<div class="screenNotesLeft">
+	        			<div id="screenNotesDisplay"></div>
+	        		</div>
+				<div class="screenNotesRight">
+					<div style="flex: 1 1; min-height: 0px;"></div>
+					<div id='expandMap' class="image-container" style="right: 0px">
+						<img id='expandMap_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this,1);' src='images/buttonExpandMap.png' alt='Enlarge Heat Map to Full Screen' onclick='NgChmGui.MAP.expandMap();' />
+					</div>
+					<div id='collapseMap' class="image-container" style="display: none">
+						<img id='collapseMap_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this,1);' src='images/buttonCollapseMap.png' alt='Return Heat Map to Original Size' onclick='NgChmGui.MAP.collapseMap();' />
+					</div>
+				</div>
+			</div>
+			<div id='NGCHMEmbed' class="collapsed"></div>
+			<script src="javascript/ngchmWidget-min.js?v=set-during-build"></script>
+		</div>
+		</div>   		
+	</div>
+	<div id="message" style="display: none; position: absolute; background-color: rgb(230, 240, 255);"></div>
+	<div id="helpBox" style="display: none; position: absolute; background-color: rgb(230, 240, 255);">
+			<div class="helpBoxHdr" id="helpBoxHdr"></div>
+			<table>
+				<tbody>
+					<tr class="chmTblRow">
+						<td>
+							<div id="ngchmLogos">
+								<div class="serviceHeaderLogo" style="right:5px;top:40px">
+						        	<a href="https://www.mdanderson.org/education-and-research/departments-programs-and-labs/departments-and-divisions/bioinformatics-and-computational-biology/index.html"  target="_blank">
+								    <img id="msgBoxMdaLogo" src="images/mdabcblogo262x108.png" alt="MD Anderson logo"/>
+								</a>
+						       	</div>
+								<div style="right:5px;top:40px;position:absolute">
+									<a href="http://insilico.us.com/"  target="_blank">
+										<img id='insilicologo' src='images/insilicologo.png' alt='insilico' height=40 />
+									</a>
+								</div>
+						    </div>
+							<div id="helpBoxTxt" style="display: inherit;font-size: 12px; background-color: rgb(230, 240, 255); width: 400px; height: 80px;"></div>
+							<table>
+								<tbody>
+									<tr>
+										<td style="text-align: left;">
+											<input id='helpClose_btn' type="image" src='images/closeButton.png' alt='Close Help' onclick="NgChmGui.UTIL.closeHelp();"/>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+   </body>
+</html>

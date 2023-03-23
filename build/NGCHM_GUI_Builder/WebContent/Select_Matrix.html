@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+		<link rel="shortcut icon" href="ngChmIcon.ico">    	
+    	<!-- Global site tag (gtag.js) - Google Analytics -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-33437813-6"></script>
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
+		  gtag('config', 'UA-33437813-6');
+		</script>
+
+        <title>NG-CHM Builder</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<script src="javascript/NGCHM_GUI_Util.js?v=set-during-build"></script>
+		<script src="javascript/MatrixFile.js?v=set-during-build"></script>
+		<script src="javascript/lib/handsontable.full.min.js?v=set-during-build"></script>
+		<link rel="stylesheet" href="css/handsontable.full.css?v=set-during-build">
+		<link rel="stylesheet" href="css/NGCHM_GUI.css?v=set-during-build">
+		<script type="text/Javascript">
+			NgChmGui.mapProperties = null;
+			NgChmGui.isSample = 'N';
+		 	window.onload = function() {
+				NgChmGui.UTIL.getHeatmapProperties(NgChmGui.FILE.loadData); 
+		 		NgChmGui.UTIL.messageBoxConfigure();
+		 	};	
+		 </script>
+    </head>
+    <body class="NgChmBuilder">
+       <div id="screenNote" style="display: none">Define the incoming data matrix: Select from the following controls and click on the grid to edit the location of labels, covariate bars, and the location at which the matrix data begins in the imported file.</div>
+	   <div class="serviceHeader" id="serviceHeader">
+	        <div id="mda_header" class="serviceHeaderLogo">
+	        	<a href="https://www.mdanderson.org/education-and-research/departments-programs-and-labs/departments-and-divisions/bioinformatics-and-computational-biology/index.html"  target="_blank">
+	           		<img id="mdaLogo" src="images/mdabcblogo262x108.png" alt=""/>
+	           </a>
+	       	</div>
+		<div style="flex: 1 1; min-height: 0px;">
+	 		<div id='mapInfo'>
+		    	<div class="pageTitle">NG-CHM BUILDER: Select Matrix</div>
+	  		</div>
+		</div>
+	 		<div id="helpDiv"><img id='barHelp_btn' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this,1);' src='images/questionMark.png' alt='Open Help Page' onclick='NgChmGui.UTIL.helpBox();' align="top"/></div> 
+ 	    </div>   
+	<div id="container" class="display_container">
+		    <div id="matrixSelection" class="data_entry_container">
+		 		<div id="fileLookup">   
+			        <form method="POST" enctype="multipart/form-data" id="matrix_frm" onsubmit="return false;">
+				        	<div class="image-upload" id="image-upload">
+							    <label for="file-input">
+							        <img src="images/buttonMatrixOpen.png" id='getMatrix' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);'/>
+							    </label>
+							<input id="file-input" type="file" name="matrix" />
+							</div>
+				        	<table cellpadding="0">
+				        		<tr class="chmTR">
+				        			<td><b>&nbsp;&nbsp;Try Sample Matrix:&nbsp;&nbsp;</b></td>
+									<td><img id='sampleMatrix_btn' align="bottom" src='images/buttonSampleOpen.png' alt='Select Sample Matrix' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onclick='NgChmGui.matrixFile.sendMatrix(true);' /></td>
+								</tr>
+				        	</table>
+			        </form>
+		        	<table cellpadding="0">
+		        		<tr class="chmTR">
+		        			<td><b>&nbsp;&nbsp;Matrix:</b></td><td><span id="matrixNameText"></span></td>
+		        		</tr>
+		        	</table>
+			    </div>
+		 		<div id='map_info' style="border-top: 4px double #0843c1;">
+			 		<div id='optionsMode' align='right' class='chmTR'><b>Show Advanced Features:</b><input type='checkbox' id='optionsCheck' name='optionsCheck' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onclick='NgChmGui.UTIL.toggleAdvanced();'></div>
+			 		<div id='map_name' class="inputText">
+		     			<div id="mapName" style="font-size: 14px; color: #0843c1; width: 90%"><b>Heat Map Name:</b><br><textarea name="mapNameValue" id="mapNameValue" rows="1" cols="40" style="resize: none" maxlength="40" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.FILE.changeNameDesc()'></textarea></div><br>
+		     			<div id="mapDesc" style="font-size: 14px; color: #0843c1;"><b>Heat Map Description:</b><br><textarea name="mapDescValue" id="mapDescValue" rows="4" cols="40" style="resize: none" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.FILE.changeNameDesc()'></textarea></div><br>
+		     			<div id="matrixSummary" class="advancedAction" style="font-size: 14px; color: #0843c1;"><b>Pixel Summary Method:</b>&nbsp;&nbsp;<select name='matrixSummaryMethod' id='matrixSummaryMethod' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.FILE.changeNameDesc()'><option value='average'>Mean Value</option><option value='sample'>Sampled Value</option><option value='mode'>Predominant Value</option></select></div>
+				 		<div id='matrix_name' class="inputText" style="display: none;">
+			     			<div id="matrixName"><b>Matrix Name:</b>&nbsp;&nbsp;<input name="matrixNameValue" id="matrixNameValue" size="40" value="Data Layer 1"></input></div>
+			  		    </div>
+		  		    </div>
+		  		</div>
+				<div id="matrixCovsPanel" class="advancedAction">
+					<div id="covarPrefsTitle" class="sec-header" style="display: none;"><br>Enter Color Type for Covariates</div>				
+				</div>
+				<div class ='navigation_bar'>
+			        <div id="matrixNextButton" class="next_btn" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' style="display: none;">
+				    	<img id='matrixNext_btn' class="next_btn" src='images/nextButton.png' alt='Go to next step' onclick='NgChmGui.matrixFile.processMatrix();' />
+				    </div>
+			    </div>
+			</div>
+	        <div id="matrixView" class="layout_display_container">
+	        	<div  id="screenNotesDisplay"></div>
+					<div style="margin-bottom: 0.5em;">
+						<input type="radio" id="rowlabelPos" name="rowType" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' value="rowLabel" checked> Labels Row (blue)
+						<input type="radio" id="collabelPos" name="rowType" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' value="colLabel"> Labels Column (blue)
+					  		<input type="radio" id="rowCovPos" class="advancedAction" name="rowType" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' value="rowCov"><span class="advancedAction"> Row Covariates (yellow)</span>
+					  		<input type="radio" id="colCovPos" class="advancedAction" name="rowType" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' value="colCov"><span class="advancedAction"> Column Covariates (yellow)</span>
+				  		<input type="radio" id="dataStart" name="rowType" onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' value="dataStart"> Data Start Location (green)
+				  	</div>
+			    <div id="matrix" style="display: none;">
+				<div id="matrixDisplayContainer" style="flex: 1 1; min-height: 0px; padding: 8px;">
+			        <div id="matrixDisplay" style="display: none;"></div>
+				</div>
+			    </div>
+			</div>
+		</div>
+		<div id="message" style="display: none; position: absolute; background-color: rgb(230, 240, 255);"></div>
+		<div id="helpBox" style="display: none; position: absolute; background-color: rgb(230, 240, 255);">
+			<div class="helpBoxHdr" id="helpBoxHdr"></div>
+			<table>
+				<tbody>
+					<tr class="chmTblRow">
+						<td>
+							<div id="ngchmLogos">
+								<div class="serviceHeaderLogo" style="right:5px;top:40px">
+						        	<a href="https://www.mdanderson.org/education-and-research/departments-programs-and-labs/departments-and-divisions/bioinformatics-and-computational-biology/index.html"  target="_blank">
+								    <img id="msgBoxMdaLogo" src="images/mdabcblogo262x108.png" alt="MD Anderson logo"/>
+								</a>
+						       	</div>
+								<div style="right:5px;top:40px;position:absolute">
+									<a href="http://insilico.us.com/"  target="_blank">
+										<img id='insilicologo' src='images/insilicologo.png' alt='insilico' height=40 />
+									</a>
+								</div>
+						    </div>
+							<div id="helpBoxTxt" style="display: inherit;font-size: 12px; background-color: rgb(230, 240, 255); width: 400px; height: 80px;"></div>
+							<table>
+								<tbody>
+									<tr>
+										<td style="text-align: left;">
+											<input id='helpClose_btn' type="image" src='images/closeButton.png' alt='Close Help' onclick="NgChmGui.UTIL.closeHelp();"/>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</body>
+</html>
