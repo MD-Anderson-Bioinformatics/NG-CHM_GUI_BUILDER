@@ -402,7 +402,7 @@ NgChmGui.createNS('NgChmGui.XFER');
 		}
 		// Matrix complete. Join the rows together, convert to a blob, and add to formData.
 		const matrixFileName = ngchmData.mapName + '-' + ngchmData.currentLayer + '.tsv';
-		formData.append ('matrix', new Blob ([matrix.join('')], { type: 'text/tab-separated-values' }), matrixFileName);
+		formData.append ('matrix', new Blob (matrix, { type: 'text/tab-separated-values' }), matrixFileName);
 	    }
 	}
     }
