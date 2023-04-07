@@ -68,16 +68,18 @@ NgChmGui.TRANS.validateEntries = function(leavingPage, formatError, otherError, 
 	
 	//Generate build error messages
 	if (typeof NgChmGui.mapProperties.builder_config !== 'undefined') {
-		var builderConfig = NgChmGui.mapProperties.builder_config
-		var buildErrors = builderConfig.buildErrors;
+		const builderConfig = NgChmGui.mapProperties.builder_config
+		const buildErrors = builderConfig.buildErrors;
 		if (buildErrors !== "") {
 			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + buildErrors + "</font></b></p>";
 			valid = false;
 		}
-		if ((numRows + numCols) > parseInt(builderConfig.rowsColsMaximum)) {
-			pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Matrix with " + numRows + " rows and " + numCols + " columns exceeds the maximum matrix size for this builder (" + builderConfig.rowsColsMaximum + ").  Use the Filter action to remove rows or columns so that their sum does not exceed this number.</p>";
-			valid = false;
-		} 
+		const sizeError = NgChmGui.UTIL.getSizeError (numRows, numCols);
+		if (sizeError != '') {
+		    pageText += "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + sizeError;
+		    pageText += "  Use the Filter action to remove rows and/or columns so that the matrix does not exceed this limit(s).</p>";
+		    valid = false;
+		}
 	}
 	if (otherError && otherError !== "") {
 		pageText = pageText + "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + otherError + "</font></b></p>";

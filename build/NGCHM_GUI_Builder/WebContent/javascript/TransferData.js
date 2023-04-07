@@ -103,9 +103,19 @@ NgChmGui.createNS('NgChmGui.XFER');
 	if (numTiles != expectedTiles) return;
 
 	// All expected data has now been received.
-	setTimeout (() => {
-	    wrapUploadDataToBuilder ();
-	}, debug ? 10000 : 0);
+	// Check that upload meets builder size limits.
+	const rowSize = selectionSize (ngchmData.rowSelection);
+	const colSize = selectionSize (ngchmData.colSelection);
+	const sizeError = NgChmGui.UTIL.getSizeError (rowSize, colSize);
+	if (sizeError) {
+	    console.error (sizeError, ngchmData);
+	    logProgress (sizeError, 'error');
+	    logProgress ('Please upload a (smaller) subset that meets this limit(s).', 'error');
+	} else {
+	    setTimeout (() => {
+		wrapUploadDataToBuilder ();
+	    }, debug ? 10000 : 0);
+	}
     }
 
     // Return the total number of elements in the selection.
