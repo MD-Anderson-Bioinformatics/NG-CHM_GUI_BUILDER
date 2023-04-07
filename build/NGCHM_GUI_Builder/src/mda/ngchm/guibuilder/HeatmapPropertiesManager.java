@@ -63,7 +63,7 @@ public class HeatmapPropertiesManager {
 		public String colsWarning = "1500";
 		public String colsMaximum = "5000";
 		public String rowsMaximum = "5000";
-		public String rowsColsMaximum = "5000";    
+		public String rowsColsMaximum = "7000";
 		public String targetScreen = "";    
 		public int clusterStatus = 0;    
 		public ArrayList<String> buildWarnings = new ArrayList<String>();
