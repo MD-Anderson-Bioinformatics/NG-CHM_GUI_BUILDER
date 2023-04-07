@@ -264,10 +264,41 @@ NgChmGui.createNS('NgChmGui.XFER');
 
 	    // Add axis-dendro.tsv and axis-order.tsv to the Form for axis=row or axis=col.
 	    function addDendrogramToForm (axis, axisData) {
-		const dendroData = [ "A\tB\tHeight\n" ].concat (axisData.dendrogram.map (val => val.replaceAll(/,/g, '\t')+'\n'));
-		formData.append (axis+'-dendro', new Blob ([dendroData.join('')], { type: 'text/tab-separated-values' }), ngchmData.mapName + '-' + axis + '-dendro.tsv');
-		const orderData = [ "Id\tOrder\n" ].concat (axisData.label.labels.map ((val,idx) => val + '\t' + (idx+1) + '\n'));
-		formData.append (axis+'-order', new Blob ([orderData.join('')], { type: 'text/tab-separated-values' }), ngchmData.mapName + '-' + axis + '-order.tsv');
+		// If there are gaps in the data, we need to remove any gap labels and renumber the remaining
+		// labels in both the order and dendrogram files.
+		const axisLabels = axisData.label.labels;
+		const noGapLabels = axisLabels.filter (label => label != '');
+
+		// Output the order file.
+		const orderData = [ "Id\tOrder\n" ].concat (noGapLabels.map ((val,idx) => val + '\t' + (idx+1) + '\n'));
+		formData.append (axis+'-order', new Blob (orderData, { type: 'text/tab-separated-values' }), ngchmData.mapName + '-' + axis + '-order.tsv');
+
+		// To remove gaps from the dendrogram, we just need to renumber all the leaves in the dendrogram.
+		// Since we're not changing the structure of the dendrogram, the internal nodes remain unchanged.
+		const dendroData = [ "A\tB\tHeight\n" ].concat (axisData.dendrogram.map (mapDendroNode));
+		formData.append (axis+'-dendro', new Blob (dendroData, { type: 'text/tab-separated-values' }), ngchmData.mapName + '-' + axis + '-dendro.tsv');
+
+		// Convert an NG-CHM dendrogram entry (three comma-separated values) to a builder dendrogram entry (three tab-separated values)
+		// taking into account leaf renumbering due to gaps.
+		function mapDendroNode (node) {
+		    const vals = node.split(',');
+		    vals[0] = mapEntry (vals[0]);
+		    vals[1] = mapEntry (vals[1]);
+		    return vals.join('\t')+'\n';
+		}
+
+		// Renumber a dendrogram node/leaf index to account for gaps.
+		function mapEntry (index) {
+		    // Non-negative indices are internal nodes that are not affected by leaf renumbering.
+		    if (index >= 0) return index;
+		    // Leaves are represented by negative numbers in the range [-1 .. -numLabels].
+		    // Determine old leaf, converting negative index to positive and adjusting for zero-offset.
+		    const oldLeaf = axisLabels[-index-1];
+		    const newIndex = noGapLabels.indexOf(oldLeaf);
+		    if (newIndex < 0) console.error ("Error determining new leaf index", index, oldLeaf, newIndex);
+		    // Return new leaf value, by negating index and adjusting for -1 start.
+		    return -newIndex-1;
+		}
 	    }
 
 	    // Add a file to the Form for every covariate on axis.
