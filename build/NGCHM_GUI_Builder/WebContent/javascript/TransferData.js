@@ -278,8 +278,8 @@ NgChmGui.createNS('NgChmGui.XFER');
 		const labels = getSelectedItems (selections, axisData.label.labels);
 		axisConfig.classifications_order.forEach ((covName,idx) => {
 		    const cov = axisConfig.classifications[covName];
-		    const covData = getSelectedItems (selections, axisData.classifications[covName].values);
-		    const lines = [ cov.color_map.type+'\n' ].concat (covData.map((val,idx) => labels[idx]+'\t'+val+'\n'));
+		    const covData = getSelectedItems (selections, axisData.classifications[covName].values).map((val,idx) => ({val, label: labels[idx]}));
+		    const lines = [ cov.color_map.type+'\n' ].concat (covData.filter(entry=>entry.label != '').map(entry => entry.label+'\t'+entry.val+'\n'));
 		    formData.append (axis+'-cov-'+idx, new Blob ([lines.join('')], { type: 'text/tab-separated-values' }), ngchmData.mapName + '-' + axis + '-cov-' + idx + '.tsv');
 		    const filename = axis + '-cov-' + idx + '.txt';
 		    classificationFiles.push ({
@@ -365,8 +365,9 @@ NgChmGui.createNS('NgChmGui.XFER');
 		// Construct matrix: an array containing a header line plus one line for each selected row.
 		// Each line is a string containing tab-separated-values for the label and the selected columns, terminated by a newline.
 		const matrix = [];
-		// Header: blank field followed by tab-separated labels for the selected columns.
-		matrix.push ('\t' + getSelectedItems (ngchmData.colSelection, ngchmData.mapData.col_data.label.labels).join('\t') + '\n');
+		// Header: blank field followed by tab-separated labels for the selected columns (excluding gap columns).
+		const selectedColLabels = getSelectedItems (ngchmData.colSelection, ngchmData.mapData.col_data.label.labels);
+		matrix.push ('\t' + selectedColLabels.filter(label => label != "").join('\t') + '\n');
 		// Go down every row of the matrix, keeping track of the current row tile.
 		let tileRow = 1;
 		let rowInTile = 0;
@@ -375,22 +376,24 @@ NgChmGui.createNS('NgChmGui.XFER');
 			tileRow++;
 			rowInTile = 0;
 		    }
-		    if (indexInSelection (row+1, ngchmData.rowSelection)) {
-			// This row is selected.
+		    const rowLabel = ngchmData.mapData.row_data.label.labels[row];
+		    if (rowLabel != "" && indexInSelection (row+1, ngchmData.rowSelection)) {
+			// This row is selected and not a gap row.
 			// Build a string array containing the row label and the tab-separated selected columns.
-			const rowData = [];
-			// Add the current row label.
-			rowData.push (ngchmData.mapData.row_data.label.labels[row]);
+			const rowData = [rowLabel];
 			// Scan all columns, one tile at a time, keeping track of the current column tile.
 			let tileCol = 1;
+			let gapcol = 0;
 			for (let col = 0; col < dataLevel.total_cols; ) {
 			    const colsInTile = Math.min (dataLevel.cols_per_tile, dataLevel.total_cols - col);
 			    const tile = tileMap.get (tileRow + '-' + tileCol);
 			    if (tile) {
-				// This tile is available. Append any selected data to the row as a tab-separated string.
+				// This tile is available. Append any selected data (excluding gap data) to the row as a tab-separated string.
 				const base = colsInTile * rowInTile;
 				const selected = getSelectedItemsInFloat32Array (ngchmData.colSelection, col+1, col+colsInTile, tile.slice(base, base+colsInTile));
-				if (selected.length > 0) rowData.push (selected.map(val => ''+val).join('\t'));
+				const selNoGap = selected.filter ((val,idx) => selectedColLabels[idx+gapcol] != '');
+				gapcol += selected.length;
+				if (selNoGap.length > 0) rowData.push (selNoGap.map(val => ''+val).join('\t'));
 			    }
 			    tileCol++;
 			    col += colsInTile;
@@ -473,6 +476,21 @@ NgChmGui.createNS('NgChmGui.XFER');
 	function updateAxisData (axis, builderAxisConfig, axisData) {
 	    // Update the axis label types
 	    builderAxisConfig.data_type = axisData.label.label_type;
+
+	    // Update the gap locations.  Blank labels indicate gaps.  The first entry of each
+	    // contiguous group of blank labels is a gap location.
+	    const labels = axisData.label.labels;
+	    const gapIndices = labels.map((label,idx) => ({ label, idx: idx+1 })).filter(entry=>entry.label=='').map(entry=>entry.idx);
+	    if (gapIndices.length > 0) {
+		const gapLocations = gapIndices.filter((gap,idx) => idx == 0 || gapIndices[idx-1] != gap-1);
+		builderAxisConfig.cut_locations = gapLocations;
+		// Determine width of first gap.
+		let gapWidth = 1;
+		while (gapWidth < gapIndices.length && gapIndices[gapWidth-1] == gapIndices[gapWidth]-1) {
+		    gapWidth++;
+		}
+		builderAxisConfig.cut_width = gapWidth;
+	    }
 	}
     }
 
