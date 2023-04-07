@@ -116,7 +116,7 @@ NgChmGui.FORMAT.validateEntries = function(leavingPage) {
 	}
 	
 	//Add in page instruction text
-    pageText = pageText + "Several tools are provided here to manipulate the appearance of your heatmap.  The Matrix Colors tool enables you to make changes to colors and threshold values that assign a color to each cell in the heatmap body.  Other advanced presentation settings include adding gaps in the heat map to separate specific sections, adding top level labels to show the position of a few key items in the summary heat map, choosing where to show dendorgrams and how big to make them, selecting label truncation lengths, and identifying the data type of labels to enable link-out capabilities." ;
+    pageText = pageText + "Several tools are provided here to manipulate the appearance of your heatmap.  The Matrix Colors tool enables you to make changes to colors and threshold values that assign a color to each cell in the heatmap body.  Other advanced presentation settings include adding gaps in the heat map to separate specific sections, adding top level labels to show the position of a few key items in the summary heat map, choosing where to show dendrograms and how big to make them, selecting label truncation lengths, and identifying the data type of labels to enable link-out capabilities." ;
 
     NgChmGui.UTIL.setScreenNotes(pageText);
 	
