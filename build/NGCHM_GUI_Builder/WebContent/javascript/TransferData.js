@@ -14,7 +14,7 @@ NgChmGui.createNS('NgChmGui.XFER');
     // the opening page that we should communicate with.
     const nonce = getURLParameter ('nonce');
 
-    console.log ('Transfer.js version 0.0.13 nonce: ' + nonce);
+    //console.log ('Transfer.js version 0.0.14 nonce: ' + nonce);
 
     var ngchmData = null;	// The ngchmData received from the opening page.
     const tileMap = new Map();	// The tiles received from the opening page.
