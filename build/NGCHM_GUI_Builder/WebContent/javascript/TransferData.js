@@ -73,6 +73,8 @@ NgChmGui.createNS('NgChmGui.XFER');
 	else if (ev.data.op == 'ngchm') {
 	    if (debug) console.log ('Got NG-CHM data message', ev.data.ngchm);
 	    ngchmData = ev.data.ngchm;
+	    const mapDims = '' + selectionSize (ngchmData.rowSelection) + ' rows, ' + selectionSize (ngchmData.colSelection) + ' columns.';
+	    logProgress ('Receiving data for map ' + ngchmData.mapName + ', with ' + mapDims);
 	    checkAllDataReceived ();
 	} else if (ev.data.op == 'ngchm-tile') {
 	    if (debug) console.log ('Got NG-CHM tile message', ev.data.row, ev.data.col, ev.data.tile, );
@@ -104,6 +106,11 @@ NgChmGui.createNS('NgChmGui.XFER');
 	setTimeout (() => {
 	    wrapUploadDataToBuilder ();
 	}, debug ? 10000 : 0);
+    }
+
+    // Return the total number of elements in the selection.
+    function selectionSize (selection) {
+	return selection.map(range => range[1]-range[0]+1).reduce((acc,val) => acc+val);
     }
 
     // Wrap uploadDataToBuilder in a try/catch block
