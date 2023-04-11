@@ -412,9 +412,8 @@ NgChmGui.FORMAT.setupLabelConfigPrefs = function() {
 		}
 	}
 	const mapAttributes = "<div class='advancedAction'><textarea name='mapAttributes' id='mapAttributes' rows='6', cols='40' style='font-family: sans-serif;font-size: 90%;resize: vertical;white-space:nowrap;' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.FORMAT.setBuildProps(false);'>"+attributesData+"</textarea></div>";
-	NgChmGui.UTIL.setTableRow(prefContents,["<span class='advancedAction'>&nbsp;Enter a colon-separated key/value pair (key:value).</span>"]);
+	NgChmGui.UTIL.addStaticTip(prefContents,"<span class='advancedAction'>" + 'Enter colon-separated key/value pairs (key:value).  Separate multiple attributes by newlines. Attributes cannot contain the double-quote (") character.</span>');
 	NgChmGui.UTIL.setTableRow(prefContents,[mapAttributes]);
-	NgChmGui.UTIL.setTableRow(prefContents,["<span class='advancedAction'>&nbsp;Multiple attribute entries may be separated by newlines.</span>"]);
 	labelTypePrefs.appendChild(prefContents);
 	labelTypePrefs.className = 'preferencesSubPanel';
 	labelTypePrefs.style.display='none';

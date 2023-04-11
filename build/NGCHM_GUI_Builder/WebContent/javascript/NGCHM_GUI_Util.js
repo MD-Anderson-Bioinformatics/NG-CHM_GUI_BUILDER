@@ -610,6 +610,17 @@ NgChmGui.UTIL.setTableRow = function(tableObj, tdArray, colSpan, align) {
 }
 
 /**********************************************************************************
+ * FUNCTION - addStaticTip: Add a row of help text to a html TABLE item.
+ **********************************************************************************/
+NgChmGui.UTIL.addStaticTip = function (tableObj, tipText) {
+	const tr = tableObj.insertRow();
+	tr.className = "chmTR";
+	const td = tr.insertCell(0);
+	td.innerHTML = tipText;
+	td.classList.add ('staticTip');
+};
+
+/**********************************************************************************
  * FUNCTION - formatBlankRow: The purpose of this function is to return the html
  * text for a blank row.
  **********************************************************************************/
@@ -1737,7 +1748,7 @@ NgChmGui.UTIL.helpItems = [
 	  ["rowTopItems", "Enter a comma-delimited string of row labels as top items. These items will be highlighted, for easy access, on the summary side of the heat map view.", 400],
 	  ["colLabelType", "Select a label type for all column labels. Label type is used to link labels to active plug-ins defined for the heat map.", 400],
 	  ["colTopItems", "Enter a comma-delimited string of column labels as top items. These items will be highlighted, for easy access, on the summary side of the heat map view.", 400],
-	  ["mapAttributes", "Enter a comma-delimited list of colon-separated key/value pairs as additional attributes for this heat map.", 350],
+	  ["mapAttributes", "Enter colon-separated key/value pairs, one per line, as additional attributes for this heat map.", 350],
 	  ["rowGapMethod", "Select a row gap method (location/cluster) for gaps to be added to rows in the the heat map.", 350],
 	  ["rowGapLocations", "Enter a comma-delimited list of numeric gap locations. A row gap will be placed in the heat map at each of these locations.", 400],
 	  ["rowTreeCuts", "Enter a numeric value for the the number of hierarchical row clusters to break the heat map into using gaps.", 350],
