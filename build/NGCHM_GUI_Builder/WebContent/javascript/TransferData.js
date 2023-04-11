@@ -316,6 +316,7 @@ NgChmGui.createNS('NgChmGui.XFER');
 		    classificationFiles.push ({
 			bar_type: cov.bar_type,
 			bg_color: cov.bg_color,
+			fg_color: cov.fg_color,
 			change_type: "N",
 			color_map: cov.color_map,
 			filename: filename,
