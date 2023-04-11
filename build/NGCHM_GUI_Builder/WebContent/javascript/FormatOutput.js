@@ -172,6 +172,14 @@ NgChmGui.FORMAT.validateAttributes = function() {
 				addError ('Attributes cannot contain double quotes (").');
 				break;
 			}
+			if (attrElems[0].length == 0) {
+				addError ('Attribute names cannot be blank.');
+				break;
+			}
+			if (!/^[A-Za-z][-A-Za-z0-9_.]*$/.test(attrElems[0])) {
+				addError ('Attribute names must start with a letter and contain only letters, digits, underscores, hyphens, and periods.');
+				break;
+			}
 		}
 	}
 	return errorMsgs;
