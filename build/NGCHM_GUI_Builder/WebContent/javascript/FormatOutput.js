@@ -155,12 +155,20 @@ NgChmGui.FORMAT.validateAttributes = function() {
 		for (let i=0;i<attributeItems.length;i++) {
 			const attrElems = attributeItems[i].split(":");
 			if (attrElems.length < 2) {
-				errorMsgs = errorMsgs + "<p class='error_message'>" +NgChmGui.UTIL.errorPrefix + "Bad Attribute value entered. Attributes must be entered as value pairs separated by a colon (:).</p>";
+				addError ('Attributes must be entered as value pairs separated by a colon (:).');
+				break;
+			}
+			if (attributeItems[i].includes('"')) {
+				addError ('Attributes cannot contain double quotes (").');
 				break;
 			}
 		}
 	}
 	return errorMsgs;
+
+	function addError (message) {
+	    errorMsgs += "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Bad attribute value entered. " + message + "</p>";
+	}
 }
 
 /**********************************************************************************
