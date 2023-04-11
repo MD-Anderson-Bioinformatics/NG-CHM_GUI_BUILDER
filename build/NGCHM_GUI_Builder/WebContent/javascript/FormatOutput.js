@@ -148,12 +148,12 @@ NgChmGui.FORMAT.validateMatrixBreaks = function() {
  * heat map attribute entries.
  **********************************************************************************/
 NgChmGui.FORMAT.validateAttributes = function() {
-	var errorMsgs = "";
-	var attrValue = document.getElementById("mapAttributes").value;
+	let errorMsgs = "";
+	const attrValue = document.getElementById("mapAttributes").value;
 	if (attrValue !== "") {
-	  	var attributeItems = attrValue.split(/[;, \r\n]+/);
-		for (var i=0;i<attributeItems.length;i++) {
-			var attrElems = attributeItems[i].split(":");
+		const attributeItems = attrValue.split(/[\r\n]+/);
+		for (let i=0;i<attributeItems.length;i++) {
+			const attrElems = attributeItems[i].split(":");
 			if (attrElems.length < 2) {
 				errorMsgs = errorMsgs + "<p class='error_message'>" +NgChmGui.UTIL.errorPrefix + "Bad Attribute value entered. Attributes must be entered as value pairs separated by a colon (:).</p>";
 				break;
@@ -398,15 +398,15 @@ NgChmGui.FORMAT.setupLabelConfigPrefs = function() {
 			for (var key in attributePair){ 
 				attributesData += key + ":" + attributePair[key];
 				if (i<NgChmGui.mapProperties.chm_attributes.length-1) {
-					attributesData += ","; 
+					attributesData += "\n";
 				}
 			}
 		}
 	}
-	var mapAttributes = "<div class='advancedAction'><textarea name='mapAttributes' id='mapAttributes' rows='2', cols='40' style='font-family: sans-serif;font-size: 90%;resize: none' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.FORMAT.setBuildProps(false);'>"+attributesData+"</textarea></div>";
+	const mapAttributes = "<div class='advancedAction'><textarea name='mapAttributes' id='mapAttributes' rows='6', cols='40' style='font-family: sans-serif;font-size: 90%;resize: none;white-space:nowrap;' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.FORMAT.setBuildProps(false);'>"+attributesData+"</textarea></div>";
 	NgChmGui.UTIL.setTableRow(prefContents,["<span class='advancedAction'>&nbsp;Enter a colon-separated key/value pair (key:value).</span>"]);
 	NgChmGui.UTIL.setTableRow(prefContents,[mapAttributes]);
-	NgChmGui.UTIL.setTableRow(prefContents,["<span class='advancedAction'>&nbsp;Multiple attribute entries may be separated by commas or newlines.</span>"]);
+	NgChmGui.UTIL.setTableRow(prefContents,["<span class='advancedAction'>&nbsp;Multiple attribute entries may be separated by newlines.</span>"]);
 	labelTypePrefs.appendChild(prefContents);
 	labelTypePrefs.className = 'preferencesSubPanel';
 	labelTypePrefs.style.display='none';
@@ -742,7 +742,7 @@ NgChmGui.FORMAT.getFormatDisplayFromScreen = function() {
 **********************************************************************************/
 NgChmGui.FORMAT.getFormatLabelConfigFromScreen = function() {
 	var attrConfig = [];
-	const attributeItems = document.getElementById("mapAttributes").value.split(/[;,\r\n]+/);
+	const attributeItems = document.getElementById("mapAttributes").value.split(/[\r\n]+/);
 	for (var i=0;i<attributeItems.length;i++) {
 		var attrelems = attributeItems[i].split(":");
 		var attrObj = {};
