@@ -970,10 +970,16 @@ NgChmGui.FORMAT.getNewBreakColors = function(colorMap, pos, action) {
 	    ];
 
 	    //Convert to hex
-	    color3 = '#' + UTIL.intToHex(color3[0]) + UTIL.intToHex(color3[1]) + UTIL.intToHex(color3[2]);
+	    color3 = '#' + intToHex(color3[0]) + intToHex(color3[1]) + intToHex(color3[2]);
 
 	    // return hex
 	    return color3;
+	}
+
+	// Convert a number to a two digit hex code.
+	function intToHex (num) {
+	    const hex = Math.round(num).toString(16);
+	    return hex.length == 1 ? '0' + hex : hex;
 	}
 }
 
