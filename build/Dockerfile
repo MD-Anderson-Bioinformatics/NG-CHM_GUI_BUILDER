@@ -27,9 +27,9 @@ COPY NGCHM_GUI_Builder /NGCHM_GUI_Builder/
 ## Insert NG-CHM artifacts:
 ENV BUILDERSRC=/NGCHM_GUI_Builder
 RUN curl -L \
-    -o $BUILDERSRC/WebContent/WEB-INF/lib/MapGen.jar $VIEWER_REPO/raw/$VIEWER_TAG/NGCHM/buildermapgen/BuilderMapGen.jar \
-    -o $BUILDERSRC/WebContent/ngChmApp.html $VIEWER_REPO/raw/$VIEWER_TAG/NGCHM/standalone/ngChmApp.html \
-    -o $BUILDERSRC/WebContent/javascript/ngchmWidget-min.js $VIEWER_REPO/raw/$VIEWER_TAG/NGCHM/standalone/ngchmWidget-min.js
+    -o $BUILDERSRC/WebContent/WEB-INF/lib/MapGen.jar $VIEWER_REPO/raw/$VIEWER_TAG/guibuildermapgen/GUIBuilderMapGen.jar \
+    -o $BUILDERSRC/WebContent/ngChmApp.html $VIEWER_REPO/raw/$VIEWER_TAG/viewer.standalone/ngChmApp.html \
+    -o $BUILDERSRC/WebContent/javascript/ngchmWidget-min.js $VIEWER_REPO/raw/$VIEWER_TAG/viewer.standalone/ngchmWidget-min.js
 
 ## Version include files.
 COPY versioner-v2.sh /
