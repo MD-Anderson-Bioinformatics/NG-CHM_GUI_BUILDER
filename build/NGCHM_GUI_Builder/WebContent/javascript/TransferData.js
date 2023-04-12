@@ -331,15 +331,6 @@ NgChmGui.createNS('NgChmGui.XFER');
 		});
 	    }
 
-	    // Return an array of the selected items in data.
-	    // data is a standard 0-indexed array of any type.
-	    // selections is an array of 2-tuples: index of first and last item of a range (1 indexed).
-	    // All indices in selections must be in the range 1 .. data.length.
-	    function getSelectedItems (selections, data) {
-		const selectedItems = [].concat.apply([], selections.map (select => data.slice(select[0]-1, select[1])));
-		return selectedItems;
-	    }
-
 	    // Returns true iff index (1-based) is in one of the selections.
 	    function indexInSelection (index, selections) {
 		for (let i = 0; i < selections.length; i++) {
@@ -442,6 +433,15 @@ NgChmGui.createNS('NgChmGui.XFER');
 	}
     }
 
+    // Return an array of the selected items in data.
+    // data is a standard 0-indexed array of any type.
+    // selections is an array of 2-tuples: index of first and last item of a range (1 indexed).
+    // All indices in selections must be in the range 1 .. data.length.
+    function getSelectedItems (selections, data) {
+	const selectedItems = [].concat.apply([], selections.map (select => data.slice(select[0]-1, select[1])));
+	return selectedItems;
+    }
+
     // Copy as many map properties as possible from the NG-CHM into the builder's map properties.
     function updateBuilderProperties (builderProperties, covariateFiles, addRowDendrogram, addColDendrogram) {
 	// Determine the data directory for this session on the server.
@@ -452,8 +452,8 @@ NgChmGui.createNS('NgChmGui.XFER');
 	updateAxisConfig ("row", builderProperties.row_configuration, ngchmData.mapConfig.row_configuration, addRowDendrogram);
 	updateAxisConfig ("col", builderProperties.col_configuration, ngchmData.mapConfig.col_configuration, addColDendrogram);
 	// Copy the mapData data for the rows and columns to builderProperties.
-	updateAxisData ("row", builderProperties.row_configuration, ngchmData.mapData.row_data);
-	updateAxisData ("col", builderProperties.col_configuration, ngchmData.mapData.col_data);
+	updateAxisData ("row", builderProperties.row_configuration, ngchmData.mapData.row_data, ngchmData.rowSelection);
+	updateAxisData ("col", builderProperties.col_configuration, ngchmData.mapData.col_data, ngchmData.colSelection);
 	// Copy the data layer color map.
 	setMapColors (builderProperties.matrix_files[0]);
 	// Copy the map attributes.
@@ -505,7 +505,7 @@ NgChmGui.createNS('NgChmGui.XFER');
 	}
 
 	// For axis, update builder's builderAxisConfig using the originating NG-CHM's axisData.
-	function updateAxisData (axis, builderAxisConfig, axisData) {
+	function updateAxisData (axis, builderAxisConfig, axisData, axisSelection) {
 	    // Update the axis label types
 	    builderAxisConfig.data_type = axisData.label.label_type;
 
@@ -515,13 +515,28 @@ NgChmGui.createNS('NgChmGui.XFER');
 	    const gapIndices = labels.map((label,idx) => ({ label, idx: idx+1 })).filter(entry=>entry.label=='').map(entry=>entry.idx);
 	    if (gapIndices.length > 0) {
 		const gapLocations = gapIndices.filter((gap,idx) => idx == 0 || gapIndices[idx-1] != gap-1);
-		builderAxisConfig.cut_locations = gapLocations;
 		// Determine width of first gap.
 		let gapWidth = 1;
 		while (gapWidth < gapIndices.length && gapIndices[gapWidth-1] == gapIndices[gapWidth]-1) {
 		    gapWidth++;
 		}
 		builderAxisConfig.cut_width = gapWidth;
+
+		// Include gaps for which both the labels immediately prior to and immediately after
+		// the gap are included in the selected data.
+		const selectedLabels = getSelectedItems (axisSelection, labels);
+		const newGapLocations = [];
+		gapLocations.forEach (gapLoc => {
+		    const priorLabelIncluded = gapLoc == 1 || selectedLabels.includes (labels[gapLoc-2]);
+		    if (priorLabelIncluded) {
+			const nextLabel = labels[gapLoc+gapWidth-1];
+			const nextLabelIndex = selectedLabels.indexOf (nextLabel);
+		        if (nextLabelIndex != -1) {
+			    newGapLocations.push (nextLabelIndex + 1);
+			}
+		    }
+		});
+		builderAxisConfig.cut_locations = newGapLocations;
 	    }
 	}
     }
