@@ -376,34 +376,46 @@ NgChmGui.FORMAT.setupLabelConfigPrefs = function() {
 	var colConfig = NgChmGui.mapProperties.col_configuration;
 	var rowLabelTypePref = "<select name='rowLabelType' id='rowLabelType' style='font-size: 12px;' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.FORMAT.setBuildProps(false);'>";
 	var colLabelTypePref = "<select name='colLabelType' id='colLabelType' style='font-size: 12px;' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.FORMAT.setBuildProps(false);'>";
-	var labelTypeOptions = "<option value='none'></option></select>";
+	const endLabelTypeOptions = "<option value='none'></option></select>";
 	NgChmGui.UTIL.addBlankRow(prefContents);
+
+	// Add row label configuration.
 	NgChmGui.UTIL.setTableRow(prefContents,["ROW LABEL CONFIGURATION"], 2);
 	NgChmGui.UTIL.addBlankRow(prefContents);
-	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Label Type:  "+rowLabelTypePref+labelTypeOptions], 2);  
+	NgChmGui.UTIL.setTableRow(prefContents,["<span>Label Type:</span>"], 2);
+	NgChmGui.UTIL.addStaticTip(prefContents,"<span>Select type for row label linkouts.</span>");
+	NgChmGui.UTIL.setTableRow(prefContents,[rowLabelTypePref+endLabelTypeOptions], 2);
 	NgChmGui.UTIL.addBlankRow(prefContents);
-	var topRowItemData = rowConfig.top_items.toString();
-	var topRowItems = "<div class='advancedAction'><textarea name='rowTopItems' id='rowTopItems' style='font-family: sans-serif;font-size: 90%; resize: none;' ' rows='3', cols='50' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.FORMAT.setBuildProps(false);'>"+topRowItemData+"</textarea></div>";
-	NgChmGui.UTIL.setTableRow(prefContents,["<span class='advancedAction'>&nbsp;&nbsp;Top Label Items:</span>"]);
-	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;"+topRowItems],2);
-	NgChmGui.UTIL.setTableRow(prefContents,["<span class='advancedAction'>&nbsp;&nbsp;<b>Enter comma-separated labels to highlight on map</b></span>"]);
+	NgChmGui.UTIL.setTableRow(prefContents,["<span class='advancedAction'>Top Label Items:</span>"]);
+	NgChmGui.UTIL.addStaticTip(prefContents,["<span class='advancedAction'>Enter comma-separated labels to highlight on the summary map.</span>"]);
+	const topRowItemData = rowConfig.top_items.toString();
+	const topRowItems = "<div class='advancedAction'><textarea name='rowTopItems' id='rowTopItems' style='font-family: sans-serif;font-size: 90%; resize: none;' ' rows='3', cols='50' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.FORMAT.setBuildProps(false);'>"+topRowItemData+"</textarea></div>";
+	NgChmGui.UTIL.setTableRow(prefContents,[topRowItems],2);
 	NgChmGui.UTIL.addBlankRow(prefContents,2);
+
+	// Add column label configuration.
 	NgChmGui.UTIL.setTableRow(prefContents,["COLUMN LABEL CONFIGURATION"], 2);
 	NgChmGui.UTIL.addBlankRow(prefContents);
-	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;Label Type:  "+colLabelTypePref+labelTypeOptions], 2);  
+	NgChmGui.UTIL.setTableRow(prefContents,["<span>Label Type:</span>"], 2);
+	NgChmGui.UTIL.addStaticTip(prefContents,"<span>Select type for column label linkouts.</span>");
+	NgChmGui.UTIL.setTableRow(prefContents,[colLabelTypePref+endLabelTypeOptions], 2);
 	NgChmGui.UTIL.addBlankRow(prefContents);
-	var topColItemData = colConfig.top_items.toString();
-	var topColItems = "<div class='advancedAction'><textarea name='colTopItems' id='colTopItems' style='font-family: sans-serif;font-size: 90%;resize: none;' rows='3', cols='50' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.FORMAT.setBuildProps(false);'>"+topColItemData+"</textarea></div>"; 
-	NgChmGui.UTIL.setTableRow(prefContents,["<span class='advancedAction'>&nbsp;&nbsp;Top Label Items:</span>"]);
-	NgChmGui.UTIL.setTableRow(prefContents,["&nbsp;&nbsp;"+topColItems],2);
-	NgChmGui.UTIL.setTableRow(prefContents,["<span class='advancedAction'>&nbsp;&nbsp;<b>Enter comma-separated labels to highlight on map</b></span>"]);
+	NgChmGui.UTIL.setTableRow(prefContents,["<span class='advancedAction'>Top Label Items:</span>"]);
+	NgChmGui.UTIL.addStaticTip(prefContents,"<span class='advancedAction'>Enter comma-separated labels to highlight on the summary map.</span>");
+	const topColItemData = colConfig.top_items.toString();
+	const topColItems = "<div class='advancedAction'><textarea name='colTopItems' id='colTopItems' style='font-family: sans-serif;font-size: 90%;resize: none;' rows='3', cols='50' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.FORMAT.setBuildProps(false);'>"+topColItemData+"</textarea></div>"; 
+	NgChmGui.UTIL.setTableRow(prefContents,[topColItems],2);
 	NgChmGui.UTIL.addBlankRow(prefContents,2);
+
+	// Add Map Attributes (advanced feature).
 	NgChmGui.UTIL.setTableRow(prefContents,["<span class='advancedAction'>HEAT MAP ATTRIBUTES</span>"], 2);
-	var attributesData = "";
+	NgChmGui.UTIL.addStaticTip(prefContents,"<span class='advancedAction'>" + 'Enter colon-separated key/value pairs (key:value).  Separate multiple attributes by newlines. Attributes cannot contain the double-quote (") character.</span>');
+
+	let attributesData = "";
 	if (NgChmGui.mapProperties.chm_attributes.length > 0) {
-		for (var i=0;i<NgChmGui.mapProperties.chm_attributes.length;i++) {
-			var attributePair = NgChmGui.mapProperties.chm_attributes[i];
-			for (var key in attributePair){ 
+		for (let i=0;i<NgChmGui.mapProperties.chm_attributes.length;i++) {
+			const attributePair = NgChmGui.mapProperties.chm_attributes[i];
+			for (let key in attributePair) {
 				attributesData += key + ":" + attributePair[key];
 				if (i<NgChmGui.mapProperties.chm_attributes.length-1) {
 					attributesData += "\n";
@@ -412,8 +424,8 @@ NgChmGui.FORMAT.setupLabelConfigPrefs = function() {
 		}
 	}
 	const mapAttributes = "<div class='advancedAction'><textarea name='mapAttributes' id='mapAttributes' rows='6', cols='40' style='font-family: sans-serif;font-size: 90%;resize: vertical;white-space:nowrap;' onmouseout='NgChmGui.UTIL.hlpC();' onmouseover='NgChmGui.UTIL.hlp(this);' onchange='NgChmGui.FORMAT.setBuildProps(false);'>"+attributesData+"</textarea></div>";
-	NgChmGui.UTIL.addStaticTip(prefContents,"<span class='advancedAction'>" + 'Enter colon-separated key/value pairs (key:value).  Separate multiple attributes by newlines. Attributes cannot contain the double-quote (") character.</span>');
 	NgChmGui.UTIL.setTableRow(prefContents,[mapAttributes]);
+
 	labelTypePrefs.appendChild(prefContents);
 	labelTypePrefs.className = 'preferencesSubPanel';
 	labelTypePrefs.style.display='none';
