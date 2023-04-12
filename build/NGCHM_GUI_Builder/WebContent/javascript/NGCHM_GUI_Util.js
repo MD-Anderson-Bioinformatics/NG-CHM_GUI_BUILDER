@@ -114,7 +114,7 @@ NgChmGui.UTIL.formatInputPct = function(item) {
  * parts of the embedded heatmap widget for the Cluster screen.
  **********************************************************************************/
 NgChmGui.UTIL.editWidgetForBuilder = function() {
-    NgChm.API.editWidget(['noheader', 'nodetailview', 'nopanelheaders', 'showSummaryCovariateLabels']);
+    NgChm.API.editWidget(['noheader', 'nodetailview', 'nopanelheaders', 'showSummaryCovariateLabels', 'requireFocus']);
 };
 
 /**********************************************************************************
@@ -610,6 +610,17 @@ NgChmGui.UTIL.setTableRow = function(tableObj, tdArray, colSpan, align) {
 }
 
 /**********************************************************************************
+ * FUNCTION - addStaticTip: Add a row of help text to a html TABLE item.
+ **********************************************************************************/
+NgChmGui.UTIL.addStaticTip = function (tableObj, tipText) {
+	const tr = tableObj.insertRow();
+	tr.className = "chmTR";
+	const td = tr.insertCell(0);
+	td.innerHTML = tipText;
+	td.classList.add ('staticTip');
+};
+
+/**********************************************************************************
  * FUNCTION - formatBlankRow: The purpose of this function is to return the html
  * text for a blank row.
  **********************************************************************************/
@@ -739,6 +750,50 @@ NgChmGui.UTIL.hideLoading = function() {
 		loadingDiv.parentElement.removeChild(loadingDiv);
 	}
 }
+
+// Returns a string that enumerates matrix size errors, if any.
+// Returns the empty string if no matrix size errors.
+NgChmGui.UTIL.getSizeError = function (numRows, numCols) {
+	let builderConfig = NgChmGui.mapProperties ? NgChmGui.mapProperties.builder_config : null;
+	if (!builderConfig) {
+	    // When this function is called from Transform.js, builderConfig is defined and the limits
+	    // below have been set by the server (Java code).
+	    // However, when this code is called from TransferData.js, there has been no interaction
+	    // with the server.  We want to check these limits before uploading any data to the server.
+	    // We could add an API to get the builder_config from the but currently it's contained
+	    // with the mapProperties field.  We probably want to pull it out of there.
+	    // Fixing all that is something to deal in the future.  Until then, we set the limits
+	    // to match the values returned by the server.
+	    builderConfig = { rowsMaximum: '5000', colsMaximum: '5000', rowsColsMaximum: '7000' };
+	}
+
+	// Check the various matrix size limits.
+	const sizeMessages = [];
+	if (numRows > parseInt(builderConfig.rowsMaximum)) {
+		sizeMessages.push ("has too many rows (max. " + builderConfig.rowsMaximum + ")");
+	}
+	if (numCols > parseInt(builderConfig.colsMaximum)) {
+		sizeMessages.push ("has too many columns (max. " + builderConfig.colsMaximum + ")");
+	}
+	if ((numRows + numCols) > parseInt(builderConfig.rowsColsMaximum)) {
+		sizeMessages.push ("exceeds the maximum matrix size (max. " + builderConfig.rowsColsMaximum + " rows plus columns)");
+	}
+
+	if (sizeMessages.length == 0) {
+	    return '';
+	}
+
+	let sizeError = "Matrix with " + numRows + " rows and " + numCols + " columns ";
+	if (sizeMessages.length == 1) {
+	    sizeError += sizeMessages[0];
+	} else if (sizeMessages.length == 2) {
+	    sizeError += sizeMessages[0] + ' and ' + sizeMessages[1];
+	} else {
+	    sizeError += sizeMessages[0] + ', ' + sizeMessages[1] + ', and ' + sizeMessages[2];
+	}
+	sizeError += " for this builder.";
+	return sizeError;
+};
 
 /**********************************************************************************
  * FUNCTION - getClusterLoadMessage: The purpose of this function is to query the
@@ -1693,7 +1748,7 @@ NgChmGui.UTIL.helpItems = [
 	  ["rowTopItems", "Enter a comma-delimited string of row labels as top items. These items will be highlighted, for easy access, on the summary side of the heat map view.", 400],
 	  ["colLabelType", "Select a label type for all column labels. Label type is used to link labels to active plug-ins defined for the heat map.", 400],
 	  ["colTopItems", "Enter a comma-delimited string of column labels as top items. These items will be highlighted, for easy access, on the summary side of the heat map view.", 400],
-	  ["mapAttributes", "Enter a comma-delimited list of colon-separated key/value pairs as additional attributes for this heat map.", 350],
+	  ["mapAttributes", "Enter colon-separated key/value pairs, one per line, as additional attributes for this heat map.", 350],
 	  ["rowGapMethod", "Select a row gap method (location/cluster) for gaps to be added to rows in the the heat map.", 350],
 	  ["rowGapLocations", "Enter a comma-delimited list of numeric gap locations. A row gap will be placed in the heat map at each of these locations.", 400],
 	  ["rowTreeCuts", "Enter a numeric value for the the number of hierarchical row clusters to break the heat map into using gaps.", 350],

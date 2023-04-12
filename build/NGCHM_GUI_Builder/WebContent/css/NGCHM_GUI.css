@@ -620,3 +620,7 @@ div.expanded {
     color: #f74600;
 }
 
+td.staticTip {
+    padding-left: 1em;
+    padding-right: 1em;
+}

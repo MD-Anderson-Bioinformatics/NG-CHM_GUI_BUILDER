@@ -253,7 +253,7 @@ public class ProcessMatrix extends HttpServlet {
 	 *
 	 * This method and the one that follows it contruct a new "working"
 	 * data matrix file from the file uploaded to the builder.  This
-	 * file will contain only the matix data, exclusive of any covariate
+	 * file will contain only the matrix data, exclusive of any covariate
 	 * bar and/or whitespace columns/rows in the original matrix.
 	 ******************************************************************/
 	public String[] buildFilteredMatrix(String workingDir, HeatmapPropertiesManager.MatrixGridConfig matrixConfig, String workingFile,ArrayList<String> matrixErrors) throws Exception {

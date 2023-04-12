@@ -14,7 +14,7 @@ NgChmGui.createNS('NgChmGui.XFER');
     // the opening page that we should communicate with.
     const nonce = getURLParameter ('nonce');
 
-    console.log ('Transfer.js version 0.0.12 nonce: ' + nonce);
+    //console.log ('Transfer.js version 0.0.14 nonce: ' + nonce);
 
     var ngchmData = null;	// The ngchmData received from the opening page.
     const tileMap = new Map();	// The tiles received from the opening page.
@@ -73,6 +73,8 @@ NgChmGui.createNS('NgChmGui.XFER');
 	else if (ev.data.op == 'ngchm') {
 	    if (debug) console.log ('Got NG-CHM data message', ev.data.ngchm);
 	    ngchmData = ev.data.ngchm;
+	    const mapDims = '' + selectionSize (ngchmData.rowSelection) + ' rows, ' + selectionSize (ngchmData.colSelection) + ' columns.';
+	    logProgress ('Receiving data for map ' + ngchmData.mapName + ', with ' + mapDims);
 	    checkAllDataReceived ();
 	} else if (ev.data.op == 'ngchm-tile') {
 	    if (debug) console.log ('Got NG-CHM tile message', ev.data.row, ev.data.col, ev.data.tile, );
@@ -101,9 +103,24 @@ NgChmGui.createNS('NgChmGui.XFER');
 	if (numTiles != expectedTiles) return;
 
 	// All expected data has now been received.
-	setTimeout (() => {
-	    wrapUploadDataToBuilder ();
-	}, debug ? 10000 : 0);
+	// Check that upload meets builder size limits.
+	const rowSize = selectionSize (ngchmData.rowSelection);
+	const colSize = selectionSize (ngchmData.colSelection);
+	const sizeError = NgChmGui.UTIL.getSizeError (rowSize, colSize);
+	if (sizeError) {
+	    console.error (sizeError, ngchmData);
+	    logProgress (sizeError, 'error');
+	    logProgress ('Please upload a (smaller) subset that meets this limit(s).', 'error');
+	} else {
+	    setTimeout (() => {
+		wrapUploadDataToBuilder ();
+	    }, debug ? 10000 : 0);
+	}
+    }
+
+    // Return the total number of elements in the selection.
+    function selectionSize (selection) {
+	return selection.map(range => range[1]-range[0]+1).reduce((acc,val) => acc+val);
     }
 
     // Wrap uploadDataToBuilder in a try/catch block
@@ -162,7 +179,13 @@ NgChmGui.createNS('NgChmGui.XFER');
 	    logProgress (processRes, 'error');
 	    return;
 	}
-	if (debug) console.log ('POST.ProcessMatrix.response', JSON.parse(processRes));
+	const processJSON = JSON.parse(processRes);
+	if (processJSON.return_code != 0) {
+	    console.error ('ERROR processing the data: ' + processJSON.return_code);
+	    logProgress (processJSON.return_code, 'error');
+	}
+
+	if (debug) console.log ('POST.ProcessMatrix.response', processJSON);
 
 	// Get the initial MapProperties from the builder.
 	const getPropsRes = await fetch (baseURL + 'MapProperties').then (response => response.text());
@@ -192,7 +215,13 @@ NgChmGui.createNS('NgChmGui.XFER');
 	    logProgress (setPropsRes, 'error');
 	    return;
 	}
-	if (debug) console.log ('POST.MapProperties.response', JSON.parse(setPropsRes));
+	const setPropsJSON = JSON.parse(setPropsRes);
+	if (setPropsJSON.builder_config.buildErrors) {
+	    console.error ('ERROR setting the new map properties: ' + setPropsJSON.builder_config.buildErrors);
+	    logProgress (setPropsJSON.builder_config.buildErrors, 'error');
+	    return;
+	}
+	if (debug) console.log ('POST.MapProperties.response', setPropsJSON);
 
 	// Go to the Transform_Matrix.html page.
 	logProgress ('Advancing to the View_HeatMap page.');
@@ -235,10 +264,41 @@ NgChmGui.createNS('NgChmGui.XFER');
 
 	    // Add axis-dendro.tsv and axis-order.tsv to the Form for axis=row or axis=col.
 	    function addDendrogramToForm (axis, axisData) {
-		const dendroData = [ "A\tB\tHeight\n" ].concat (axisData.dendrogram.map (val => val.replaceAll(/,/g, '\t')+'\n'));
-		formData.append (axis+'-dendro', new Blob ([dendroData.join('')], { type: 'text/tab-separated-values' }), ngchmData.mapName + '-' + axis + '-dendro.tsv');
-		const orderData = [ "Id\tOrder\n" ].concat (axisData.label.labels.map ((val,idx) => val + '\t' + (idx+1) + '\n'));
-		formData.append (axis+'-order', new Blob ([orderData.join('')], { type: 'text/tab-separated-values' }), ngchmData.mapName + '-' + axis + '-order.tsv');
+		// If there are gaps in the data, we need to remove any gap labels and renumber the remaining
+		// labels in both the order and dendrogram files.
+		const axisLabels = axisData.label.labels;
+		const noGapLabels = axisLabels.filter (label => label != '');
+
+		// Output the order file.
+		const orderData = [ "Id\tOrder\n" ].concat (noGapLabels.map ((val,idx) => val + '\t' + (idx+1) + '\n'));
+		formData.append (axis+'-order', new Blob (orderData, { type: 'text/tab-separated-values' }), ngchmData.mapName + '-' + axis + '-order.tsv');
+
+		// To remove gaps from the dendrogram, we just need to renumber all the leaves in the dendrogram.
+		// Since we're not changing the structure of the dendrogram, the internal nodes remain unchanged.
+		const dendroData = [ "A\tB\tHeight\n" ].concat (axisData.dendrogram.map (mapDendroNode));
+		formData.append (axis+'-dendro', new Blob (dendroData, { type: 'text/tab-separated-values' }), ngchmData.mapName + '-' + axis + '-dendro.tsv');
+
+		// Convert an NG-CHM dendrogram entry (three comma-separated values) to a builder dendrogram entry (three tab-separated values)
+		// taking into account leaf renumbering due to gaps.
+		function mapDendroNode (node) {
+		    const vals = node.split(',');
+		    vals[0] = mapEntry (vals[0]);
+		    vals[1] = mapEntry (vals[1]);
+		    return vals.join('\t')+'\n';
+		}
+
+		// Renumber a dendrogram node/leaf index to account for gaps.
+		function mapEntry (index) {
+		    // Non-negative indices are internal nodes that are not affected by leaf renumbering.
+		    if (index >= 0) return index;
+		    // Leaves are represented by negative numbers in the range [-1 .. -numLabels].
+		    // Determine old leaf, converting negative index to positive and adjusting for zero-offset.
+		    const oldLeaf = axisLabels[-index-1];
+		    const newIndex = noGapLabels.indexOf(oldLeaf);
+		    if (newIndex < 0) console.error ("Error determining new leaf index", index, oldLeaf, newIndex);
+		    // Return new leaf value, by negating index and adjusting for -1 start.
+		    return -newIndex-1;
+		}
 	    }
 
 	    // Add a file to the Form for every covariate on axis.
@@ -249,13 +309,14 @@ NgChmGui.createNS('NgChmGui.XFER');
 		const labels = getSelectedItems (selections, axisData.label.labels);
 		axisConfig.classifications_order.forEach ((covName,idx) => {
 		    const cov = axisConfig.classifications[covName];
-		    const covData = getSelectedItems (selections, axisData.classifications[covName].values);
-		    const lines = [ cov.color_map.type+'\n' ].concat (covData.map((val,idx) => labels[idx]+'\t'+val+'\n'));
+		    const covData = getSelectedItems (selections, axisData.classifications[covName].values).map((val,idx) => ({val, label: labels[idx]}));
+		    const lines = [ cov.color_map.type+'\n' ].concat (covData.filter(entry=>entry.label != '').map(entry => entry.label+'\t'+entry.val+'\n'));
 		    formData.append (axis+'-cov-'+idx, new Blob ([lines.join('')], { type: 'text/tab-separated-values' }), ngchmData.mapName + '-' + axis + '-cov-' + idx + '.tsv');
 		    const filename = axis + '-cov-' + idx + '.txt';
 		    classificationFiles.push ({
 			bar_type: cov.bar_type,
 			bg_color: cov.bg_color,
+			fg_color: cov.fg_color,
 			change_type: "N",
 			color_map: cov.color_map,
 			filename: filename,
@@ -268,15 +329,6 @@ NgChmGui.createNS('NgChmGui.XFER');
 			show: cov.show,
 		    });
 		});
-	    }
-
-	    // Return an array of the selected items in data.
-	    // data is a standard 0-indexed array of any type.
-	    // selections is an array of 2-tuples: index of first and last item of a range (1 indexed).
-	    // All indices in selections must be in the range 1 .. data.length.
-	    function getSelectedItems (selections, data) {
-		const selectedItems = [].concat.apply([], selections.map (select => data.slice(select[0]-1, select[1])));
-		return selectedItems;
 	    }
 
 	    // Returns true iff index (1-based) is in one of the selections.
@@ -336,8 +388,9 @@ NgChmGui.createNS('NgChmGui.XFER');
 		// Construct matrix: an array containing a header line plus one line for each selected row.
 		// Each line is a string containing tab-separated-values for the label and the selected columns, terminated by a newline.
 		const matrix = [];
-		// Header: blank field followed by tab-separated labels for the selected columns.
-		matrix.push ('\t' + getSelectedItems (ngchmData.colSelection, ngchmData.mapData.col_data.label.labels).join('\t') + '\n');
+		// Header: blank field followed by tab-separated labels for the selected columns (excluding gap columns).
+		const selectedColLabels = getSelectedItems (ngchmData.colSelection, ngchmData.mapData.col_data.label.labels);
+		matrix.push ('\t' + selectedColLabels.filter(label => label != "").join('\t') + '\n');
 		// Go down every row of the matrix, keeping track of the current row tile.
 		let tileRow = 1;
 		let rowInTile = 0;
@@ -346,22 +399,24 @@ NgChmGui.createNS('NgChmGui.XFER');
 			tileRow++;
 			rowInTile = 0;
 		    }
-		    if (indexInSelection (row+1, ngchmData.rowSelection)) {
-			// This row is selected.
+		    const rowLabel = ngchmData.mapData.row_data.label.labels[row];
+		    if (rowLabel != "" && indexInSelection (row+1, ngchmData.rowSelection)) {
+			// This row is selected and not a gap row.
 			// Build a string array containing the row label and the tab-separated selected columns.
-			const rowData = [];
-			// Add the current row label.
-			rowData.push (ngchmData.mapData.row_data.label.labels[row]);
+			const rowData = [rowLabel];
 			// Scan all columns, one tile at a time, keeping track of the current column tile.
 			let tileCol = 1;
+			let gapcol = 0;
 			for (let col = 0; col < dataLevel.total_cols; ) {
 			    const colsInTile = Math.min (dataLevel.cols_per_tile, dataLevel.total_cols - col);
 			    const tile = tileMap.get (tileRow + '-' + tileCol);
 			    if (tile) {
-				// This tile is available. Append any selected data to the row as a tab-separated string.
+				// This tile is available. Append any selected data (excluding gap data) to the row as a tab-separated string.
 				const base = colsInTile * rowInTile;
 				const selected = getSelectedItemsInFloat32Array (ngchmData.colSelection, col+1, col+colsInTile, tile.slice(base, base+colsInTile));
-				if (selected.length > 0) rowData.push (selected.map(val => ''+val).join('\t'));
+				const selNoGap = selected.filter ((val,idx) => selectedColLabels[idx+gapcol] != '');
+				gapcol += selected.length;
+				if (selNoGap.length > 0) rowData.push (selNoGap.map(val => ''+val).join('\t'));
 			    }
 			    tileCol++;
 			    col += colsInTile;
@@ -373,9 +428,18 @@ NgChmGui.createNS('NgChmGui.XFER');
 		}
 		// Matrix complete. Join the rows together, convert to a blob, and add to formData.
 		const matrixFileName = ngchmData.mapName + '-' + ngchmData.currentLayer + '.tsv';
-		formData.append ('matrix', new Blob ([matrix.join('')], { type: 'text/tab-separated-values' }), matrixFileName);
+		formData.append ('matrix', new Blob (matrix, { type: 'text/tab-separated-values' }), matrixFileName);
 	    }
 	}
+    }
+
+    // Return an array of the selected items in data.
+    // data is a standard 0-indexed array of any type.
+    // selections is an array of 2-tuples: index of first and last item of a range (1 indexed).
+    // All indices in selections must be in the range 1 .. data.length.
+    function getSelectedItems (selections, data) {
+	const selectedItems = [].concat.apply([], selections.map (select => data.slice(select[0]-1, select[1])));
+	return selectedItems;
     }
 
     // Copy as many map properties as possible from the NG-CHM into the builder's map properties.
@@ -388,8 +452,8 @@ NgChmGui.createNS('NgChmGui.XFER');
 	updateAxisConfig ("row", builderProperties.row_configuration, ngchmData.mapConfig.row_configuration, addRowDendrogram);
 	updateAxisConfig ("col", builderProperties.col_configuration, ngchmData.mapConfig.col_configuration, addColDendrogram);
 	// Copy the mapData data for the rows and columns to builderProperties.
-	updateAxisData ("row", builderProperties.row_configuration, ngchmData.mapData.row_data);
-	updateAxisData ("col", builderProperties.col_configuration, ngchmData.mapData.col_data);
+	updateAxisData ("row", builderProperties.row_configuration, ngchmData.mapData.row_data, ngchmData.rowSelection);
+	updateAxisData ("col", builderProperties.col_configuration, ngchmData.mapData.col_data, ngchmData.colSelection);
 	// Copy the data layer color map.
 	setMapColors (builderProperties.matrix_files[0]);
 	// Copy the map attributes.
@@ -441,9 +505,39 @@ NgChmGui.createNS('NgChmGui.XFER');
 	}
 
 	// For axis, update builder's builderAxisConfig using the originating NG-CHM's axisData.
-	function updateAxisData (axis, builderAxisConfig, axisData) {
+	function updateAxisData (axis, builderAxisConfig, axisData, axisSelection) {
 	    // Update the axis label types
 	    builderAxisConfig.data_type = axisData.label.label_type;
+
+	    // Update the gap locations.  Blank labels indicate gaps.  The first entry of each
+	    // contiguous group of blank labels is a gap location.
+	    const labels = axisData.label.labels;
+	    const gapIndices = labels.map((label,idx) => ({ label, idx: idx+1 })).filter(entry=>entry.label=='').map(entry=>entry.idx);
+	    if (gapIndices.length > 0) {
+		const gapLocations = gapIndices.filter((gap,idx) => idx == 0 || gapIndices[idx-1] != gap-1);
+		// Determine width of first gap.
+		let gapWidth = 1;
+		while (gapWidth < gapIndices.length && gapIndices[gapWidth-1] == gapIndices[gapWidth]-1) {
+		    gapWidth++;
+		}
+		builderAxisConfig.cut_width = gapWidth;
+
+		// Include gaps for which both the labels immediately prior to and immediately after
+		// the gap are included in the selected data.
+		const selectedLabels = getSelectedItems (axisSelection, labels);
+		const newGapLocations = [];
+		gapLocations.forEach (gapLoc => {
+		    const priorLabelIncluded = gapLoc == 1 || selectedLabels.includes (labels[gapLoc-2]);
+		    if (priorLabelIncluded) {
+			const nextLabel = labels[gapLoc+gapWidth-1];
+			const nextLabelIndex = selectedLabels.indexOf (nextLabel);
+		        if (nextLabelIndex != -1) {
+			    newGapLocations.push (nextLabelIndex + 1);
+			}
+		    }
+		});
+		builderAxisConfig.cut_locations = newGapLocations;
+	    }
 	}
     }
 
