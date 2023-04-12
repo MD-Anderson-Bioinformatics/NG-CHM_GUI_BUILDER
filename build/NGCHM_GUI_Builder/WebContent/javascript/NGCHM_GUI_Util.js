@@ -114,7 +114,7 @@ NgChmGui.UTIL.formatInputPct = function(item) {
  * parts of the embedded heatmap widget for the Cluster screen.
  **********************************************************************************/
 NgChmGui.UTIL.editWidgetForBuilder = function() {
-    NgChm.API.editWidget(['noheader', 'nodetailview', 'nopanelheaders', 'showSummaryCovariateLabels']);
+    NgChm.API.editWidget(['noheader', 'nodetailview', 'nopanelheaders', 'showSummaryCovariateLabels', 'requireFocus']);
 };
 
 /**********************************************************************************
