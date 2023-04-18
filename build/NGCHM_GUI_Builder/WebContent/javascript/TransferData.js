@@ -524,7 +524,7 @@ NgChmGui.createNS('NgChmGui.XFER');
 
 		// Include gaps for which both the labels immediately prior to and immediately after
 		// the gap are included in the selected data.
-		const selectedLabels = getSelectedItems (axisSelection, labels);
+		const selectedLabels = getSelectedItems (axisSelection, labels).filter(label => label != "");
 		const newGapLocations = [];
 		gapLocations.forEach (gapLoc => {
 		    const priorLabelIncluded = gapLoc == 1 || selectedLabels.includes (labels[gapLoc-2]);
