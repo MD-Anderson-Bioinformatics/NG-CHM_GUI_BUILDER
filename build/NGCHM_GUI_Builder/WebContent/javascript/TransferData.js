@@ -106,6 +106,12 @@ NgChmGui.createNS('NgChmGui.XFER');
 	// Check that upload meets builder size limits.
 	const rowSize = selectionSize (ngchmData.rowSelection);
 	const colSize = selectionSize (ngchmData.colSelection);
+
+	if (rowSize < 2 || colSize < 2) {
+	    logProgress ('Uploaded data with ' + rowSize + ' rows and ' + colSize + ' columns is too small.', 'error');
+	    logProgress ('Please upload a subset that has at least two rows and two columns.', 'error');
+	    return;
+	}
 	const sizeError = NgChmGui.UTIL.getSizeError (rowSize, colSize);
 	if (sizeError) {
 	    console.error (sizeError, ngchmData);
