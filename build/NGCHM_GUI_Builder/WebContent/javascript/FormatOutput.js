@@ -153,6 +153,10 @@ NgChmGui.FORMAT.validateAttributes = function() {
 	if (attrValue !== "") {
 		const attributeItems = attrValue.split(/[\r\n]+/);
 		for (let i=0;i<attributeItems.length;i++) {
+			if (attributeItems[i].length == 0) {
+				// Ignore blank attributes.
+				break;
+			}
 			const attrElems = attributeItems[i].split(":");
 			if (attrElems.length < 2) {
 				addError ('Attributes must be entered as value pairs separated by a colon (:).');
