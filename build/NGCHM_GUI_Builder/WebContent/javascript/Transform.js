@@ -187,6 +187,9 @@ NgChmGui.TRANS.getWorkingMatrix =  function(isReset) {
 	        if (req.status != 200) {
 	        	NgChmGui.UTIL.hideLoading();
 	            console.log('Failed to get working matrix '  + req.status);
+	        } else if (req.response.charAt(0) == 'E') {
+			NgChmGui.UTIL.hideLoading();
+			console.error('Failed to get working matrix '  + req.response);
 	        } else {
 				if (NgChmGui.UTIL.debug) {console.log('200');}
 				NgChmGui.TRANS.matrixInfo = JSON.parse(req.response);
