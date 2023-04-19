@@ -106,6 +106,12 @@ NgChmGui.createNS('NgChmGui.XFER');
 	// Check that upload meets builder size limits.
 	const rowSize = selectionSize (ngchmData.rowSelection);
 	const colSize = selectionSize (ngchmData.colSelection);
+
+	if (rowSize < 2 || colSize < 2) {
+	    logProgress ('Uploaded data with ' + rowSize + ' rows and ' + colSize + ' columns is too small.', 'error');
+	    logProgress ('Please upload a subset that has at least two rows and two columns.', 'error');
+	    return;
+	}
 	const sizeError = NgChmGui.UTIL.getSizeError (rowSize, colSize);
 	if (sizeError) {
 	    console.error (sizeError, ngchmData);
@@ -226,7 +232,8 @@ NgChmGui.createNS('NgChmGui.XFER');
 	// Go to the Transform_Matrix.html page.
 	logProgress ('Advancing to the View_HeatMap page.');
 	setTimeout (() => {
-	    window.open (baseURL + 'View_HeatMap.html?adv=Y', "_self");
+	    NgChmGui.UTIL.showAdvanced = 'Y';
+	    NgChmGui.UTIL.gotoHeatMapScreen ();
 	}, debug ? 10000 : 0);
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////
@@ -524,7 +531,7 @@ NgChmGui.createNS('NgChmGui.XFER');
 
 		// Include gaps for which both the labels immediately prior to and immediately after
 		// the gap are included in the selected data.
-		const selectedLabels = getSelectedItems (axisSelection, labels);
+		const selectedLabels = getSelectedItems (axisSelection, labels).filter(label => label != "");
 		const newGapLocations = [];
 		gapLocations.forEach (gapLoc => {
 		    const priorLabelIncluded = gapLoc == 1 || selectedLabels.includes (labels[gapLoc-2]);

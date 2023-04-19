@@ -6,7 +6,8 @@ VIEWER_TAG=$1
 # Update GUI Builder version string.
 BUILDER_VERSION=$(cat $GUIBUILDER/VersionNumber)
 SRCDIR=$GUIBUILDER/src/mda/ngchm/guibuilder
-sed -e "s|VERSIONSTRING|GUI Builder ${BUILDER_VERSION} w/ NG-CHM ${VIEWER_TAG}|" < $SRCDIR/BuilderVersion.template > $SRCDIR/BuilderVersion.java
+sed -e "s|BUILDERVERSION|${BUILDER_VERSION}|" -e "s|VERSIONSTRING|GUI Builder ${BUILDER_VERSION} w/ NG-CHM ${VIEWER_TAG}|" < $SRCDIR/BuilderVersion.template > $SRCDIR/BuilderVersion.java
+sed -i -e "s/set-during-build/${BUILDER_VERSION}/" $GUIBUILDER/WebContent/javascript/NGCHM_GUI_Util.js
 
 # Update ?v= values to files referenced in HTML files.
 cd $GUIBUILDER/WebContent

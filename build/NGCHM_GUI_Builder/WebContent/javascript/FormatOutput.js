@@ -100,6 +100,8 @@ NgChmGui.FORMAT.validateEntries = function(leavingPage) {
 	pageText = pageText + NgChmGui.FORMAT.validateMatrixBreaks();
 	pageText = pageText + NgChmGui.FORMAT.validateGapPrefs();
 	pageText = pageText + NgChmGui.FORMAT.validateAttributes();
+	pageText = pageText + NgChmGui.FORMAT.validateTopItems("rowTopItems");
+	pageText = pageText + NgChmGui.FORMAT.validateTopItems("colTopItems");
 	valid = pageText === "" ? true : false;
 
 	//Generate error messages
@@ -129,16 +131,20 @@ NgChmGui.FORMAT.validateMatrixBreaks = function() {
     var thresholds = colorMap.getThresholds();
     var prevThresh = -2147483647;
 	for (var i=0;i<thresholds.length;i++) {
-		if (isNaN(thresholds[i])) {
-			errorMsgs = errorMsgs + "<p class='error_message'>" +NgChmGui.UTIL.errorPrefix + "Color Thresholds contain non-numeric entry(s).</p>";
-			break;
-        }
-        var currThresh = parseFloat(thresholds[i]);
-        if (currThresh <= prevThresh) {
- 			errorMsgs = errorMsgs + "<p class='error_message'>" +NgChmGui.UTIL.errorPrefix + "Color Thresholds are not entered in ascending order.</p>";
-			break;
-        }
-        prevThresh = currThresh;
+	    if (isNaN(thresholds[i])) {
+		errorMsgs = errorMsgs + "<p class='error_message'>" +NgChmGui.UTIL.errorPrefix + "Color Thresholds contain non-numeric entry(s).</p>";
+		break;
+	    }
+	    if (/^-*0[0-9]/.test(thresholds[i])) {
+		errorMsgs = errorMsgs + "<p class='error_message'>" +NgChmGui.UTIL.errorPrefix + "Color Thresholds contain an entry(s) with leading zero(s).</p>";
+		break;
+	    }
+	    var currThresh = parseFloat(thresholds[i]);
+	    if (currThresh <= prevThresh) {
+		errorMsgs = errorMsgs + "<p class='error_message'>" +NgChmGui.UTIL.errorPrefix + "Color Thresholds are not entered in ascending order.</p>";
+		break;
+	    }
+	    prevThresh = currThresh;
 	}
 	return errorMsgs;
 }
@@ -153,6 +159,10 @@ NgChmGui.FORMAT.validateAttributes = function() {
 	if (attrValue !== "") {
 		const attributeItems = attrValue.split(/[\r\n]+/);
 		for (let i=0;i<attributeItems.length;i++) {
+			if (attributeItems[i].length == 0) {
+				// Ignore blank attributes.
+				break;
+			}
 			const attrElems = attributeItems[i].split(":");
 			if (attrElems.length < 2) {
 				addError ('Attributes must be entered as value pairs separated by a colon (:).');
@@ -170,6 +180,33 @@ NgChmGui.FORMAT.validateAttributes = function() {
 	    errorMsgs += "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Bad attribute value entered. " + message + "</p>";
 	}
 }
+
+/**********************************************************************************
+ * FUNCTION - validateTopItems: Validate the top item entries in the text entry
+ * field with id elementId.
+ **********************************************************************************/
+NgChmGui.FORMAT.validateTopItems = function(elementId) {
+	let errorMsgs = "";
+	const elementValue = document.getElementById(elementId).value;
+	if (elementValue !== "") {
+		const topItems = elementValue.split(/[\r\n,]+/);
+		for (let i=0;i<topItems.length;i++) {
+			if (topItems[i].length == 0) {
+				// Ignore blank items.
+				break;
+			}
+			if (topItems[i].includes('"')) {
+				addError ('Top items cannot contain double quotes (").');
+				break;
+			}
+		}
+	}
+	return errorMsgs;
+
+	function addError (message) {
+	    errorMsgs += "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Bad top item entered. " + message + "</p>";
+	}
+};
 
 /**********************************************************************************
  * FUNCTION - validateGapPrefs & validateGapPrefsByType: These functions perform

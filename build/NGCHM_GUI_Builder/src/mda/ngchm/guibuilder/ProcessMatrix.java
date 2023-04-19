@@ -286,6 +286,12 @@ public class ProcessMatrix extends HttpServlet {
 							}
 							startPoint = startPoint - 1;
 						}
+						for (int i = startPoint; i < stopPoint; i++) {
+						    if (toks[i].contains("\"")) {
+							matrixErrors.add("MATRIX INVALID: A Matrix column label contains a double quote character. Please inspect matrix to ensure that no labels contain a double quote.");
+							break;
+						    }
+						}
 						writeOutMatrixLabelRow(startPoint, stopPoint, matrixConfig.colLabelCol, writer, toks, matrixErrors); 
 						writer.write("\n");
 					} else if (rowNum >= matrixConfig.dataStartRow) {
@@ -295,6 +301,10 @@ public class ProcessMatrix extends HttpServlet {
 						}
 						if (toks[matrixConfig.colLabelCol].length() > longRowLabel.length()) {
 							longRowLabel = toks[matrixConfig.colLabelCol];
+						}
+						if (toks[matrixConfig.colLabelCol].contains("\"")) {
+						    matrixErrors.add("MATRIX INVALID: A Matrix row label contains a double quote character. Please inspect matrix to ensure that no labels contain a double quote.");
+						    break;
 						}
 						writeOutMatrixRow(startPoint, endPoint, matrixConfig.colLabelCol, writer, toks, matrixErrors); 
 						writer.write("\n");
