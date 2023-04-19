@@ -1,6 +1,13 @@
 package mda.ngchm.guibuilder;
 
 public class BuilderVersion {
-    /* VERSIONSTRING is replaced by versioner-v2 script during docker compose build. */
+    /* VERSIONSTRING is replaced by versioner-v2 script during docker compose build
+     * with the full version string, including viewer version.
+     */
     public static final String version = "VERSIONSTRING";
+
+    /* BUILDERVERSION is replaced by versioner-v2 script during docker compose build
+     * with the version string for the builder only.
+     */
+    public static final String builderVersion = "BUILDERVERSION";
 }

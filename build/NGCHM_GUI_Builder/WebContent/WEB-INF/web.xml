@@ -8,7 +8,6 @@
 	version="6.0">
   <display-name>NGCHMBuilder</display-name>
   <welcome-file-list>
-    <welcome-file>Select_Matrix.html</welcome-file>
   </welcome-file-list>
   <listener>
     <listener-class>mda.ngchm.guibuilder.SessionManager</listener-class>

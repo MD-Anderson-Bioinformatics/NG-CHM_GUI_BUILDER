@@ -232,7 +232,8 @@ NgChmGui.createNS('NgChmGui.XFER');
 	// Go to the Transform_Matrix.html page.
 	logProgress ('Advancing to the View_HeatMap page.');
 	setTimeout (() => {
-	    window.open (baseURL + 'View_HeatMap.html?adv=Y', "_self");
+	    NgChmGui.UTIL.showAdvanced = 'Y';
+	    NgChmGui.UTIL.gotoHeatMapScreen ();
 	}, debug ? 10000 : 0);
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////

@@ -49,6 +49,7 @@ NgChmGui.createNS = function (namespace) {
 //Define Namespace for NgChmGui UTIL
 NgChmGui.createNS('NgChmGui.UTIL');
 
+NgChmGui.UTIL.versionNumber = 'set-during-build';
 NgChmGui.UTIL.maxValues = 2147483647;
 NgChmGui.UTIL.minValues = -2147483647;
 NgChmGui.UTIL.debug = false;
@@ -1147,23 +1148,29 @@ NgChmGui.UTIL.stopTimer = function (timer) {
  * They are used to navigate to the next screen from a previous screen
  **********************************************************************************/
 NgChmGui.UTIL.gotoMatrixScreen = function() {
-	window.open("Select_Matrix.html?adv="+NgChmGui.UTIL.showAdvanced,"_self");
+	NgChmGui.UTIL.gotoPage ("Select_Matrix.html");
 }
 NgChmGui.UTIL.gotoTransformScreen = function() {
-	window.open("Transform_Matrix.html?adv="+NgChmGui.UTIL.showAdvanced,"_self");
+	NgChmGui.UTIL.gotoPage ("Transform_Matrix.html");
 }
 NgChmGui.UTIL.gotoCovariatesScreen = function() {
-	window.open("Edit_Covariates.html?adv="+NgChmGui.UTIL.showAdvanced,"_self");
+	NgChmGui.UTIL.gotoPage ("Edit_Covariates.html");
 }
 NgChmGui.UTIL.gotoClusterScreen = function() {
-	window.open("Cluster_Matrix.html?adv="+NgChmGui.UTIL.showAdvanced,"_self");
+	NgChmGui.UTIL.gotoPage ("Cluster_Matrix.html");
 }
 NgChmGui.UTIL.gotoFormatScreen = function() {
-	window.open("Format_Display.html?adv="+NgChmGui.UTIL.showAdvanced,"_self");
+	NgChmGui.UTIL.gotoPage ("Format_Display.html");
 }
 NgChmGui.UTIL.gotoHeatMapScreen = function() {
-	window.open("View_HeatMap.html?adv="+NgChmGui.UTIL.showAdvanced,"_self");
+	NgChmGui.UTIL.gotoPage ("View_HeatMap.html");
 }
+
+NgChmGui.UTIL.gotoPage = function (page) {
+	page += "?v=" + NgChmGui.UTIL.versionNumber;
+	page += "&adv=" + NgChmGui.UTIL.showAdvanced;
+	window.open(page, "_self");
+};
 
 NgChmGui.UTIL.isClean = function(inStr) {
 	var dirty = inStr.toLowerCase().match(/(shit|piss|cunt|cocksuck|cockhead|fuck|penis|bitch|goddamn|godamm|nigger|twat|prick|blowjob|dickhead|dickweed|pussy|hitler|masterbate|orgasm|rimjob|pussie|scrotum|tittie|turd|whore)/);
