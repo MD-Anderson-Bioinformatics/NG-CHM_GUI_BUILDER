@@ -131,16 +131,20 @@ NgChmGui.FORMAT.validateMatrixBreaks = function() {
     var thresholds = colorMap.getThresholds();
     var prevThresh = -2147483647;
 	for (var i=0;i<thresholds.length;i++) {
-		if (isNaN(thresholds[i])) {
-			errorMsgs = errorMsgs + "<p class='error_message'>" +NgChmGui.UTIL.errorPrefix + "Color Thresholds contain non-numeric entry(s).</p>";
-			break;
-        }
-        var currThresh = parseFloat(thresholds[i]);
-        if (currThresh <= prevThresh) {
- 			errorMsgs = errorMsgs + "<p class='error_message'>" +NgChmGui.UTIL.errorPrefix + "Color Thresholds are not entered in ascending order.</p>";
-			break;
-        }
-        prevThresh = currThresh;
+	    if (isNaN(thresholds[i])) {
+		errorMsgs = errorMsgs + "<p class='error_message'>" +NgChmGui.UTIL.errorPrefix + "Color Thresholds contain non-numeric entry(s).</p>";
+		break;
+	    }
+	    if (/^-*0[0-9]/.test(thresholds[i])) {
+		errorMsgs = errorMsgs + "<p class='error_message'>" +NgChmGui.UTIL.errorPrefix + "Color Thresholds contain an entry(s) with leading zero(s).</p>";
+		break;
+	    }
+	    var currThresh = parseFloat(thresholds[i]);
+	    if (currThresh <= prevThresh) {
+		errorMsgs = errorMsgs + "<p class='error_message'>" +NgChmGui.UTIL.errorPrefix + "Color Thresholds are not entered in ascending order.</p>";
+		break;
+	    }
+	    prevThresh = currThresh;
 	}
 	return errorMsgs;
 }
