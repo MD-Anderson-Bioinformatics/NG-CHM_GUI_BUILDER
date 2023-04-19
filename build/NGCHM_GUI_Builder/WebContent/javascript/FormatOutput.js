@@ -100,6 +100,8 @@ NgChmGui.FORMAT.validateEntries = function(leavingPage) {
 	pageText = pageText + NgChmGui.FORMAT.validateMatrixBreaks();
 	pageText = pageText + NgChmGui.FORMAT.validateGapPrefs();
 	pageText = pageText + NgChmGui.FORMAT.validateAttributes();
+	pageText = pageText + NgChmGui.FORMAT.validateTopItems("rowTopItems");
+	pageText = pageText + NgChmGui.FORMAT.validateTopItems("colTopItems");
 	valid = pageText === "" ? true : false;
 
 	//Generate error messages
@@ -174,6 +176,33 @@ NgChmGui.FORMAT.validateAttributes = function() {
 	    errorMsgs += "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Bad attribute value entered. " + message + "</p>";
 	}
 }
+
+/**********************************************************************************
+ * FUNCTION - validateTopItems: Validate the top item entries in the text entry
+ * field with id elementId.
+ **********************************************************************************/
+NgChmGui.FORMAT.validateTopItems = function(elementId) {
+	let errorMsgs = "";
+	const elementValue = document.getElementById(elementId).value;
+	if (elementValue !== "") {
+		const topItems = elementValue.split(/[\r\n,]+/);
+		for (let i=0;i<topItems.length;i++) {
+			if (topItems[i].length == 0) {
+				// Ignore blank items.
+				break;
+			}
+			if (topItems[i].includes('"')) {
+				addError ('Top items cannot contain double quotes (").');
+				break;
+			}
+		}
+	}
+	return errorMsgs;
+
+	function addError (message) {
+	    errorMsgs += "<p class='error_message'>" + NgChmGui.UTIL.errorPrefix + "Bad top item entered. " + message + "</p>";
+	}
+};
 
 /**********************************************************************************
  * FUNCTION - validateGapPrefs & validateGapPrefsByType: These functions perform
