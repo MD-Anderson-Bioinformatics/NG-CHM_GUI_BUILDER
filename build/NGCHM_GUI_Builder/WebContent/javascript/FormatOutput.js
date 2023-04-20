@@ -136,7 +136,7 @@ NgChmGui.FORMAT.validateMatrixBreaks = function() {
 		break;
 	    }
 	    if (/^-*0[0-9]/.test(thresholds[i])) {
-		errorMsgs = errorMsgs + "<p class='error_message'>" +NgChmGui.UTIL.errorPrefix + "Color Thresholds contain an entry(s) with leading zero(s).</p>";
+		errorMsgs = errorMsgs + "<p class='error_message'>" +NgChmGui.UTIL.errorPrefix + "Color Thresholds contain an entry(s) with excess leading zero(s).</p>";
 		break;
 	    }
 	    var currThresh = parseFloat(thresholds[i]);
