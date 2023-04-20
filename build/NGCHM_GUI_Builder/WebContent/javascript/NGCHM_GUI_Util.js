@@ -509,7 +509,7 @@ NgChmGui.UTIL.setMessageBoxButton = function(buttonId, imageSrc, altText, onClic
 	buttonImg.style.display = '';
 	buttonImg.src = imageSrc;
 	buttonImg.alt = altText;
-	var fn = eval("(function() {"+onClick+"();})");
+	var fn = typeof onClick == 'function' ? onClick : eval("(function() {"+onClick+"();})");
 	buttonImg.onclick=fn;
 }
 
