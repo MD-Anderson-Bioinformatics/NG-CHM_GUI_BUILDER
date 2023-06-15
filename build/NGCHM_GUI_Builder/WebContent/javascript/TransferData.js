@@ -10,6 +10,8 @@ NgChmGui.createNS('NgChmGui.XFER');
 //
 (function() {
 
+    const baseURL = window.location.href.replace(/Upload_Matrix.*/, '');
+
     // The nonce specified as a URL parameter is used to identify the specific process within
     // the opening page that we should communicate with.
     const nonce = getURLParameter ('nonce');
@@ -51,7 +53,9 @@ NgChmGui.createNS('NgChmGui.XFER');
     //   - When we have received 'ngchm' and all expected 'ngchm-tile' messages:
     //     - We no longer expect any communication to/from the opening page.
     //     - uploadDataToBuilder is called to upload data to the builder.
-    function messageListener (ev) {
+    var firstProbe = true;
+    var ready = false;
+    async function messageListener (ev) {
 	const debug = false;
 
 	if (ev.data.nonce !== nonce) {
@@ -66,9 +70,36 @@ NgChmGui.createNS('NgChmGui.XFER');
 	}
 	if (ev.data.op == 'probe') {
 	    if (debug) console.log ('Got probe message', ev);
-	    logProgress ('Established communication with source');
-	    // Respond to source to let them know we're ready to received data.
-	    ev.source.postMessage ({ op: 'ready', nonce, }, ev.origin == 'null' ? "*" : ev.origin);
+	    if (firstProbe) {
+		logProgress ('Established communication with source');
+		firstProbe = false;
+		const existing = await checkForExisting();
+		if (debug) console.log ("Existing builder map: " + existing);
+		if (existing) {
+		    NgChmGui.UTIL.initMessageBox ();
+		    NgChmGui.UTIL.setMessageBoxHeader ('Existing Map Detected in Builder');
+		    NgChmGui.UTIL.setMessageBoxText ('You have an existing map in the builder.<br>If you proceed, the existing map will be overwritten.<br>Click Continue to proceed, or cancel.<br>', 4);
+		    NgChmGui.UTIL.setMessageBoxButton (1, 'images/cancelButton.png', 'cancel button', () => {
+			window.close();
+		    });
+		    NgChmGui.UTIL.setMessageBoxButton (3, 'images/continueButton.png', 'ok button', () => {
+			ready = true;
+			document.getElementById('message').style.display = 'none';
+			sendReady();
+		    });
+		    document.getElementById('message').style.display = '';
+		} else {
+		    ready = true;
+		    sendReady();
+		}
+	    } else if (ready) {
+		sendReady();
+	    }
+
+	    function sendReady() {
+		// Respond to source to let them know we're ready to received data.
+		ev.source.postMessage ({ op: 'ready', nonce, }, ev.origin == 'null' ? "*" : ev.origin);
+	    }
 	}
 	else if (ev.data.op == 'ngchm') {
 	    if (debug) console.log ('Got NG-CHM data message', ev.data.ngchm);
@@ -85,6 +116,26 @@ NgChmGui.createNS('NgChmGui.XFER');
 	    logProgress ('Got unknown message', 'error');
 	    console.error ('Got unknown message', ev);
 	}
+    }
+
+    async function checkForExisting () {
+	const debug = false;
+
+	// Get the initial MapProperties from the builder.
+	const getPropsRes = await fetch (baseURL + 'MapProperties').then (response => response.text());
+	if (getPropsRes[0] == 'E') {
+	    if (debug) console.log ('ERROR getting the existing map properties: ' + getPropsRes);
+	    return false;
+	}
+	const getPropsJSON = JSON.parse (getPropsRes);
+	if (debug) console.log ('Existing GET.MapProperties.response', getPropsJSON);
+
+	// Verify that the matrix file was accepted.
+	if (!getPropsJSON.matrix_files || getPropsJSON.matrix_files.length == 0) {
+	    if (debug) console.log ('No matrix files', getPropsJSON);
+	    return false;
+	}
+	return true;
     }
 
     // Extract and return the URL parameter specified by name.
@@ -156,7 +207,7 @@ NgChmGui.createNS('NgChmGui.XFER');
 	const dataLevel = mapInfo.levels.d || mapInfo.levels.s || mapInfo.levels.tn;
 	const classificationFiles = [];
 
-	console.log ('Upload:', ngchmData);
+	if (debug) console.log ('Upload:', ngchmData);
 	const allRows = isFullSelection (ngchmData.rowSelection, dataLevel.total_rows);
 	const allCols = isFullSelection (ngchmData.colSelection, dataLevel.total_cols);
 
@@ -165,8 +216,6 @@ NgChmGui.createNS('NgChmGui.XFER');
 
 	logProgress ('Collecting the NG-CHM data to upload.');
 	const formData = createUploadForm ();
-
-	const baseURL = window.location.href.replace(/Upload_Matrix.*/, '');
 
 	logProgress ('Uploading the NG-CHM data to the builder.');
 	const uploadRes = await fetch (baseURL + 'UploadMatrix', { method: "POST", body: formData }).then (response => response.text());

@@ -509,7 +509,7 @@ NgChmGui.UTIL.setMessageBoxButton = function(buttonId, imageSrc, altText, onClic
 	buttonImg.style.display = '';
 	buttonImg.src = imageSrc;
 	buttonImg.alt = altText;
-	var fn = eval("(function() {"+onClick+"();})");
+	var fn = typeof onClick == 'function' ? onClick : eval("(function() {"+onClick+"();})");
 	buttonImg.onclick=fn;
 }
 
@@ -1603,7 +1603,8 @@ NgChmGui.UTIL.helpBox = function(bookMark) {
 	}
 	var msgBoxHdr = document.getElementById('helpBoxHdr');
 	msgBoxHdr.innerHTML = "About NG-CHM Builder";
-	var text = "<p>The NG-CHM Heat Map Builder provides a graphical user interface for users to easily construct heat maps from their own matrix data. The interface presents a step-by-step process that takes the user from the selection of an input matrix to the presentation of a newly created heat map in an embedded NG-CHM Heat Map Viewer.</p><p><a onclick='NgChmGui.UTIL.helpOpen(\""+bookMark+"\")' href='#'>Additional NG-CHM Builder Information and Help</a></p><p><b>Software Version: </b>" + NgChmGui.mapProperties.builder_version+"</p><p><b>Citation:</b> Michael C. Ryan, Mark Stucky, Chris Wakefield, James M. Melott, Rehan Akbani, John N. Weinstein, and Bradley M. Broom, Interactive Clustered Heat Map Builder: An easy web-based tool for creating sophisticated clustered heat maps. F1000Research 2019, 8 (ISCB Comm J):1750.: <a href='https://f1000research.com/articles/8-1750/v2' target='_blank'>https://f1000research.com/articles/8-1750/v2</a></p>";
+	const version = NgChmGui.mapProperties ? NgChmGui.mapProperties.builder_version : "unavailable";
+	var text = "<p>The NG-CHM Heat Map Builder provides a graphical user interface for users to easily construct heat maps from their own matrix data. The interface presents a step-by-step process that takes the user from the selection of an input matrix to the presentation of a newly created heat map in an embedded NG-CHM Heat Map Viewer.</p><p><a onclick='NgChmGui.UTIL.helpOpen(\""+bookMark+"\")' href='#'>Additional NG-CHM Builder Information and Help</a></p><p><b>Software Version: </b>" + version+"</p><p><b>Citation:</b> Michael C. Ryan, Mark Stucky, Chris Wakefield, James M. Melott, Rehan Akbani, John N. Weinstein, and Bradley M. Broom, Interactive Clustered Heat Map Builder: An easy web-based tool for creating sophisticated clustered heat maps. F1000Research 2019, 8 (ISCB Comm J):1750.: <a href='https://f1000research.com/articles/8-1750/v2' target='_blank'>https://f1000research.com/articles/8-1750/v2</a></p>";
 	var msgBoxTxt = document.getElementById('helpBoxTxt');
 	msgBoxTxt.innerHTML = text;
 	msgBox.style.display = '';
