@@ -7,6 +7,7 @@ services:
             args:
                 - VIEWER_REPO=${VIEWER_REPO:-https://github.com/MD-Anderson-Bioinformatics/NG-CHM-Artifacts}
                 - VIEWER_TAG=${VIEWER_TAG:-2.24.0-build-18}
+                - JAVA_MEMORY=${JAVA_MEMORY:-4000M}
         hostname: guibuilderm
         ports:
             - "${PORT:-8080}:8080"

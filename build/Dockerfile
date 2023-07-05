@@ -7,6 +7,9 @@ FROM tomcat:10.1.6-jdk17-temurin-jammy
 RUN apt-get update && apt-get -y upgrade
 RUN apt autoremove && apt clean
 
+# Remove unused default apps
+RUN cd /usr/local/tomcat/webapps && rm -rf ROOT docs host-manager examples manager
+
 # Stage 0: Build ant image
 FROM eclipse-temurin:17.0.6_10-jdk as ant
 
@@ -14,9 +17,6 @@ RUN apt-get update && apt-get install -y ant
 
 # Stage 1: Create WebBuilder App
 FROM ant AS webbuilder
-
-ARG VIEWER_REPO
-ARG VIEWER_TAG
 
 # Install required Tomcat jars into ant image
 COPY --from=tomcat /usr/local/tomcat/lib/servlet-api.jar /usr/local/tomcat/lib/
@@ -26,6 +26,10 @@ COPY --from=tomcat /usr/local/tomcat/lib/tomcat-coyote.jar /usr/local/tomcat/lib
 COPY NGCHM_GUI_Builder /NGCHM_GUI_Builder/
 ## Insert NG-CHM artifacts:
 ENV BUILDERSRC=/NGCHM_GUI_Builder
+
+ARG VIEWER_REPO
+ARG VIEWER_TAG
+
 RUN curl -L \
     -o $BUILDERSRC/WebContent/WEB-INF/lib/MapGen.jar $VIEWER_REPO/raw/$VIEWER_TAG/guibuildermapgen/GUIBuilderMapGen.jar \
     -o $BUILDERSRC/WebContent/ngChmApp.html $VIEWER_REPO/raw/$VIEWER_TAG/viewer.standalone/ngChmApp.html \
@@ -43,8 +47,30 @@ RUN mkdir -p ${BUILDERDIR} &&\
 # Final stage: copy artifacts from previous stages into a Tomcat container
 FROM tomcat:10.0.22-jdk17-temurin-jammy
 
-# Remove unused default apps
-RUN rm -R -f /usr/local/tomcat/webapps.dist
+ARG TOMCAT_UID=1000
+ARG TOMCAT_GID=1000
+ARG TOMCAT_USER=tomcat
+ARG TOMCAT_GROUP=tomcat
+
+RUN set -x ; \
+  groupadd --gid ${TOMCAT_GID} ${TOMCAT_GROUP} ; \
+  useradd -u ${TOMCAT_UID} -g ${TOMCAT_GROUP} ${TOMCAT_USER} && exit 0; exit 1
+
+RUN chown -R ${TOMCAT_UID}:${TOMCAT_GID} /usr/local/tomcat/webapps ; \
+    chmod 777 /usr/local/tomcat/conf ; \
+    chmod 755 /usr/local/tomcat/bin /usr/local/tomcat/lib ; \
+    chmod 755 /usr/local/tomcat/bin/* ; \
+    chmod 644 /usr/local/tomcat/lib/* /usr/local/tomcat/conf/* ; \
+    chmod 777 /usr/local/tomcat/logs /usr/local/tomcat/work /usr/local/tomcat/temp ;
+
+# Set the amount of memory (default 4096M) used by Java when running Tomcat by creating a setenv.sh file.
+
+ARG JAVA_MEMORY=4096M
+RUN set -x ; \ 
+    printf '#!/usr/bin/env bash\nexport CATALINA_OPTS="-Xms' >/usr/local/tomcat/bin/setenv.sh; \
+    echo "${JAVA_MEMORY} -Xmx${JAVA_MEMORY}\"" >>/usr/local/tomcat/bin/setenv.sh;
+
+USER ${TOMCAT_UID}
 
 COPY --from=webbuilder /artifacts/builder.app /usr/local/tomcat/webapps
 
