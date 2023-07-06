@@ -8,6 +8,8 @@ services:
                 - VIEWER_REPO=${VIEWER_REPO:-https://github.com/MD-Anderson-Bioinformatics/NG-CHM-Artifacts}
                 - VIEWER_TAG=${VIEWER_TAG:-2.24.0-build-18}
                 - JAVA_MEMORY=${JAVA_MEMORY:-4000M}
+                - TOMCAT_UID=${TOMCAT_UID:-1000}
+                - TOMCAT_GID=${TOMCAT_GID:-1000}
         hostname: guibuilderm
         ports:
             - "${PORT:-8080}:8080"
