@@ -18,8 +18,4 @@ services:
         volumes:
             - ${LOGDIR:-./builder_data/logs}:/usr/local/tomcat/logs
             - ${BUILDDIR:-./builder_data/map_build_dir}:/usr/local/tomcat/webapps/NGCHM-web-builder/MapBuildDir
-
-networks:
-    guibuilder:
-        external: true
-
+        network_mode: bridge
