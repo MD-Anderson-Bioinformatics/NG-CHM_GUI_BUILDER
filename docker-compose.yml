@@ -13,8 +13,6 @@ services:
         hostname: guibuilderm
         ports:
             - "${PORT:-8080}:8080"
-        networks:
-            - guibuilder
         volumes:
             - ${LOGDIR:-./builder_data/logs}:/usr/local/tomcat/logs
             - ${BUILDDIR:-./builder_data/map_build_dir}:/usr/local/tomcat/webapps/NGCHM-web-builder/MapBuildDir
