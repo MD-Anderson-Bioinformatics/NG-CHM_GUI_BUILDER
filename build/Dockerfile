@@ -2,7 +2,7 @@
 # Requires Docker 17.06 CE or later
 #
 # Stage -1: Get Tomcat
-FROM tomcat:10.1.6-jdk17-temurin-jammy
+FROM tomcat:10.1.13-jdk17-temurin-jammy
 
 RUN apt-get update && apt-get -y upgrade
 RUN apt autoremove && apt clean
@@ -45,7 +45,7 @@ RUN mkdir -p ${BUILDERDIR} &&\
     ant -f NGCHM_GUI_Builder/ant_buildfile.xml -Dbuilder.app.war.path=${BUILDERDIR}/NGCHM-web-builder.war
 
 # Final stage: copy artifacts from previous stages into a Tomcat container
-FROM tomcat:10.0.22-jdk17-temurin-jammy
+FROM tomcat:10.1.13-jdk17-temurin-jammy
 
 ARG TOMCAT_UID=1000
 ARG TOMCAT_GID=1000
