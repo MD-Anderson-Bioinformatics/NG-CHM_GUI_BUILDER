@@ -1,8 +1,16 @@
 # This is a multistage Docker build.
 # Requires Docker 17.06 CE or later
 #
+FROM tomcat:10.1.13-jdk17-temurin-jammy as base
+
+RUN apt-get update && apt-get -y upgrade
+RUN apt autoremove && apt clean
+
+# Remove unused default apps
+RUN cd /usr/local/tomcat/webapps && rm -rf ROOT docs host-manager examples manager
+
 # Stage 0: Build ant image
-FROM eclipse-temurin:17.0.6_10-jdk as ant
+FROM base as ant
 
 RUN apt-get update && apt-get install -y ant
 
@@ -33,16 +41,11 @@ RUN /versioner-v2.sh ${VIEWER_TAG}
 ## Build the GUI Builder.
 ENV BUILDERDIR=/artifacts/builder.app
 RUN mkdir -p ${BUILDERDIR} &&\
-    ant -f NGCHM_GUI_Builder/ant_buildfile.xml -Dbuilder.app.war.path=${BUILDERDIR}/NGCHM-web-builder.war
+    ant -f /NGCHM_GUI_Builder/ant_buildfile.xml -Dbuilder.app.war.path=${BUILDERDIR}/NGCHM-web-builder.war
 
 # Final stage: copy artifacts from previous stages into a Tomcat container
-FROM tomcat:10.1.13-jdk17-temurin-jammy
+FROM base
 
-RUN apt-get update && apt-get -y upgrade
-RUN apt autoremove && apt clean
-
-# Remove unused default apps
-RUN cd /usr/local/tomcat/webapps && rm -rf ROOT docs host-manager examples manager
 
 ARG TOMCAT_UID=1000
 ARG TOMCAT_GID=1000
