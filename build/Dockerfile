@@ -9,17 +9,14 @@ RUN apt autoremove && apt clean
 # Remove unused default apps
 RUN cd /usr/local/tomcat/webapps && rm -rf ROOT docs host-manager examples manager
 
-# Stage 0: Build ant image
-FROM base as ant
+# Build ant image
+FROM base as webbuilder
 
 RUN apt-get update && apt-get install -y ant
 
-# Stage 1: Create WebBuilder App
-FROM ant AS webbuilder
-
-## Copy builder source
+# Copy builder source
 COPY NGCHM_GUI_Builder /NGCHM_GUI_Builder/
-## Insert NG-CHM artifacts:
+# Insert NG-CHM artifacts:
 ENV BUILDERSRC=/NGCHM_GUI_Builder
 
 ARG VIEWER_REPO
@@ -30,11 +27,11 @@ RUN curl -L \
     -o $BUILDERSRC/WebContent/ngChmApp.html $VIEWER_REPO/raw/$VIEWER_TAG/viewer.standalone/ngChmApp.html \
     -o $BUILDERSRC/WebContent/javascript/ngchmWidget-min.js $VIEWER_REPO/raw/$VIEWER_TAG/viewer.standalone/ngchmWidget-min.js
 
-## Version include files.
+# Version include files.
 COPY versioner-v2.sh /
 RUN /versioner-v2.sh ${VIEWER_TAG}
 
-## Build the GUI Builder.
+# Build the GUI Builder.
 ENV BUILDERDIR=/artifacts/builder.app
 RUN mkdir -p ${BUILDERDIR} &&\
     ant -f /NGCHM_GUI_Builder/ant_buildfile.xml -Dbuilder.app.war.path=${BUILDERDIR}/NGCHM-web-builder.war
