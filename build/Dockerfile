@@ -17,10 +17,6 @@ RUN apt-get update && apt-get install -y ant
 # Stage 1: Create WebBuilder App
 FROM ant AS webbuilder
 
-# Install required Tomcat jars into ant image
-COPY --from=tomcat /usr/local/tomcat/lib/servlet-api.jar /usr/local/tomcat/lib/
-COPY --from=tomcat /usr/local/tomcat/lib/tomcat-coyote.jar /usr/local/tomcat/lib/
-
 ## Copy builder source
 COPY NGCHM_GUI_Builder /NGCHM_GUI_Builder/
 ## Insert NG-CHM artifacts:
