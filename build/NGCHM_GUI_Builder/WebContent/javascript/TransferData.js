@@ -260,30 +260,54 @@ NgChmGui.createNS('NgChmGui.XFER');
 	}
 
 	// Update the MapProperties.
-	logProgress ("Setting the new map's properties.");
+	logProgress ("Setting the new map's propertiesi and building NG-CHM.");
 	const newMapProperties = updateBuilderProperties (getPropsJSON, classificationFiles, addRowDendrogram, addColDendrogram);
 	if (debug) console.log ('Updated MapProperties: ', newMapProperties);
 
 	const setPropsRes = await fetch (baseURL + 'MapProperties', { method: 'POST', body: JSON.stringify (newMapProperties) }).then(response => response.text());
+	if (setPropsRes == '') {
+	    console.error ('ERROR setting the new map properties: Empty properties returned');
+	    logProgress ("Empty properties value", 'error');
+	    return;
+	}
 	if (setPropsRes[0] == 'E') {
 	    console.error ('ERROR setting the new map properties: ' + setPropsRes);
 	    logProgress (setPropsRes, 'error');
 	    return;
 	}
-	const setPropsJSON = JSON.parse(setPropsRes);
-	if (setPropsJSON.builder_config.buildErrors) {
-	    console.error ('ERROR setting the new map properties: ' + setPropsJSON.builder_config.buildErrors);
-	    logProgress (setPropsJSON.builder_config.buildErrors, 'error');
+	if (setPropsRes.substr(0,4) == 'HTTP') {
+	    console.error ('ERROR setting the new map properties: HTML returned: ' + setPropsRes);
+	    logProgress (setPropsRes, 'error');
 	    return;
 	}
-	if (debug) console.log ('POST.MapProperties.response', setPropsJSON);
+        let advanceDelay = 0;
+	const setPropsJSON = JSON.parse(setPropsRes);
+	if (debug) {
+	  console.log ('POST.MapProperties.response', setPropsJSON);
+	  advanceDelay = 10000;
+	}
+	if (setPropsJSON.builder_config.buildErrors ||
+	    setPropsJSON.builder_config.buildWarnings.length > 0) {
+	    logProgress ('BUILDER VERSION: ' + setPropsJSON.builder_version, 'error');
+	    if (setPropsJSON.builder_config.buildWarnings.length > 0) {
+	      for (const warning of setPropsJSON.builder.buildWarnings) {
+		logProgress ('WARNING ' + warning, 'error');
+	      }
+	      advanceDelay = 10000;
+	    }
+	    if (setPropsJSON.builder_config.buildErrors) {
+	      console.error ('ERROR setting the new map properties: ' + setPropsJSON.builder_config.buildErrors);
+	      logProgress (setPropsJSON.builder_config.buildErrors, 'error');
+	      return;
+	    }
+	}
 
 	// Go to the Transform_Matrix.html page.
 	logProgress ('Advancing to the View_HeatMap page.');
 	setTimeout (() => {
 	    NgChmGui.UTIL.showAdvanced = 'Y';
 	    NgChmGui.UTIL.gotoHeatMapScreen ();
-	}, debug ? 10000 : 0);
+	}, debug ? advanceDelay : 0);
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 
