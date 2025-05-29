@@ -587,7 +587,14 @@ NgChmGui.createNS('NgChmGui.XFER');
 	// For axis, update builder's builderAxisConfig using the originating NG-CHM's axisData.
 	function updateAxisData (axis, builderAxisConfig, axisData, axisSelection) {
 	    // Update the axis label types
-	    builderAxisConfig.data_type = axisData.label.label_type;
+	    if (axisData.label.labelTypes) {
+	      // FIXME:: Partial compatibility with new viewer.
+	      // Keeps label types, but loses visibility information.
+	      builderAxisConfig.data_type = axisData.label.labelTypes.map(entry => entry.type);
+	    } else {
+	      // Old viewer.
+	      builderAxisConfig.data_type = axisData.label.label_type;
+	    }
 
 	    // Update the gap locations.  Blank labels indicate gaps.  The first entry of each
 	    // contiguous group of blank labels is a gap location.
