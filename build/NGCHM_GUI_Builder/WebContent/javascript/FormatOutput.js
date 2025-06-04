@@ -177,7 +177,7 @@ NgChmGui.FORMAT.validateAttributes = function() {
 				break;
 			}
 			if (!/^[A-Za-z][-A-Za-z0-9_.]*$/.test(attrElems[0])) {
-				addError ('Attribute names must start with a letter and contain only letters, digits, underscores, hyphens, and periods.');
+				addError (`Attribute names must start with a letter and contain only letters, digits, underscores, hyphens, and periods: "${attrElems[0]}"`);
 				break;
 			}
 		}

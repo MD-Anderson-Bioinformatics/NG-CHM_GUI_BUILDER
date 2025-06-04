@@ -260,7 +260,7 @@ NgChmGui.createNS('NgChmGui.XFER');
 	}
 
 	// Update the MapProperties.
-	logProgress ("Setting the new map's propertiesi and building NG-CHM.");
+	logProgress ("Setting the new map's properties and building NG-CHM.");
 	const newMapProperties = updateBuilderProperties (getPropsJSON, classificationFiles, addRowDendrogram, addColDendrogram);
 	if (debug) console.log ('Updated MapProperties: ', newMapProperties);
 
