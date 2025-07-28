@@ -290,7 +290,7 @@ NgChmGui.createNS('NgChmGui.XFER');
 	    setPropsJSON.builder_config.buildWarnings.length > 0) {
 	    logProgress ('BUILDER VERSION: ' + setPropsJSON.builder_version, 'error');
 	    if (setPropsJSON.builder_config.buildWarnings.length > 0) {
-	      for (const warning of setPropsJSON.builder.buildWarnings) {
+	      for (const warning of setPropsJSON.builder_config.buildWarnings) {
 		logProgress ('WARNING ' + warning, 'error');
 	      }
 	      advanceDelay = 10000;
