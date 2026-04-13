@@ -1,7 +1,7 @@
 # This is a multistage Docker build.
 # Requires Docker 17.06 CE or later
 #
-FROM tomcat:10.1.41-jdk17-temurin-jammy AS base
+FROM tomcat:10.1.54-jdk17-temurin-jammy AS base
 
 RUN apt-get update && apt-get -y upgrade && \
     apt autoremove && apt clean
