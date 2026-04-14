@@ -154,6 +154,11 @@ NgChmGui.createNS('NgChmGui.XFER');
 	if (numTiles != expectedTiles) return;
 
 	// All expected data has now been received.
+
+	// Support old viewers that do not send selection sizes:
+	fixSelectionSize (ngchmData, "row");
+	fixSelectionSize (ngchmData, "col");
+
 	// Check that upload meets builder size limits.
 	const rowSize = selectionSize (ngchmData.rowSelection);
 	const colSize = selectionSize (ngchmData.colSelection);
@@ -173,6 +178,18 @@ NgChmGui.createNS('NgChmGui.XFER');
 		wrapUploadDataToBuilder ();
 	    }, debug ? 10000 : 0);
 	}
+    }
+
+    // If the ngchmData does not contain a selection size array for the
+    // specified axis, create one containing a single entry that covers
+    // the entire axis.
+    function fixSelectionSize (ngchmData, axis) {
+        // Nothing to do if axis selection already present.
+        if (ngchmData.hasOwnProperty(axis+"Selection"))
+            return;
+        // If not present, add selection for the entire axis.
+        const labels = ngchmData.mapData[axis+"_data"].label.labels;
+        ngchmData[axis+"Selection"] = [ [ 1, labels.length ] ];
     }
 
     // Return the total number of elements in the selection.
