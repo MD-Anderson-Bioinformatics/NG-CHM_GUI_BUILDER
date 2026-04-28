@@ -306,18 +306,20 @@ NgChmGui.createNS('NgChmGui.XFER');
 	  console.log ('POST.MapProperties.response', setPropsJSON);
 	  advanceDelay = 10000;
 	}
-	if (setPropsJSON.builder_config.buildErrors ||
-	    setPropsJSON.builder_config.buildWarnings.length > 0) {
+        const builderConfig = setPropsJSON.builder_config || {};
+        const buildWarnings = Array.isArray(builderConfig.buildWarnings) ? builderConfig.buildWarnings : [];
+        const buildErrors = builderConfig.buildErrors;
+	if (buildErrors || buildWarnings.length > 0) {
 	    logProgress ('BUILDER VERSION: ' + setPropsJSON.builder_version, 'error');
-	    if (setPropsJSON.builder_config.buildWarnings.length > 0) {
-	      for (const warning of setPropsJSON.builder_config.buildWarnings) {
+	    if (buildWarnings.length > 0) {
+	      for (const warning of buildWarnings) {
 		logProgress ('WARNING ' + warning, 'error');
 	      }
 	      advanceDelay = 10000;
 	    }
-	    if (setPropsJSON.builder_config.buildErrors) {
-	      console.error ('ERROR setting the new map properties: ' + setPropsJSON.builder_config.buildErrors);
-	      logProgress (setPropsJSON.builder_config.buildErrors, 'error');
+	    if (buildErrors) {
+	      console.error ('ERROR setting the new map properties: ' + buildErrors);
+	      logProgress (buildErrors, 'error');
 	      return;
 	    }
 	}
