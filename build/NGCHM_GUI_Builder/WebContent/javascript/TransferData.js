@@ -329,7 +329,7 @@ NgChmGui.createNS('NgChmGui.XFER');
 	setTimeout (() => {
 	    NgChmGui.UTIL.showAdvanced = 'Y';
 	    NgChmGui.UTIL.gotoHeatMapScreen ();
-	}, debug ? advanceDelay : 0);
+	}, advanceDelay);
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 
