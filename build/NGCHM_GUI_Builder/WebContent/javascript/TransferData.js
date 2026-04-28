@@ -104,6 +104,9 @@ NgChmGui.createNS('NgChmGui.XFER');
 	else if (ev.data.op == 'ngchm') {
 	    if (debug) console.log ('Got NG-CHM data message', ev.data.ngchm);
 	    ngchmData = ev.data.ngchm;
+	    // Normalize old viewer payloads before any selectionSize() usage.
+	    fixSelectionSize (ngchmData, "row");
+	    fixSelectionSize (ngchmData, "col");
 	    const mapDims = '' + selectionSize (ngchmData.rowSelection) + ' rows, ' + selectionSize (ngchmData.colSelection) + ' columns.';
 	    logProgress ('Receiving data for map ' + ngchmData.mapName + ', with ' + mapDims);
 	    checkAllDataReceived ();
