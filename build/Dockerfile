@@ -1,16 +1,16 @@
 # This is a multistage Docker build.
 # Requires Docker 17.06 CE or later
 #
-FROM tomcat:10.1.13-jdk17-temurin-jammy as base
+FROM tomcat:10.1.54-jdk17-temurin-jammy AS base
 
-RUN apt-get update && apt-get -y upgrade
-RUN apt autoremove && apt clean
+RUN apt-get update && apt-get -y upgrade && \
+    apt autoremove && apt clean
 
 # Remove unused default apps
 RUN cd /usr/local/tomcat/webapps && rm -rf ROOT docs host-manager examples manager
 
 # Build ant image
-FROM base as webbuilder
+FROM base AS webbuilder
 
 RUN apt-get update && apt-get install -y ant
 

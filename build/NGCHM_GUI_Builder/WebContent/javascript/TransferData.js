@@ -104,6 +104,9 @@ NgChmGui.createNS('NgChmGui.XFER');
 	else if (ev.data.op == 'ngchm') {
 	    if (debug) console.log ('Got NG-CHM data message', ev.data.ngchm);
 	    ngchmData = ev.data.ngchm;
+	    // Normalize old viewer payloads before any selectionSize() usage.
+	    fixSelectionSize (ngchmData, "row");
+	    fixSelectionSize (ngchmData, "col");
 	    const mapDims = '' + selectionSize (ngchmData.rowSelection) + ' rows, ' + selectionSize (ngchmData.colSelection) + ' columns.';
 	    logProgress ('Receiving data for map ' + ngchmData.mapName + ', with ' + mapDims);
 	    checkAllDataReceived ();
@@ -154,6 +157,11 @@ NgChmGui.createNS('NgChmGui.XFER');
 	if (numTiles != expectedTiles) return;
 
 	// All expected data has now been received.
+
+	// Support old viewers that do not send selection sizes:
+	fixSelectionSize (ngchmData, "row");
+	fixSelectionSize (ngchmData, "col");
+
 	// Check that upload meets builder size limits.
 	const rowSize = selectionSize (ngchmData.rowSelection);
 	const colSize = selectionSize (ngchmData.colSelection);
@@ -173,6 +181,18 @@ NgChmGui.createNS('NgChmGui.XFER');
 		wrapUploadDataToBuilder ();
 	    }, debug ? 10000 : 0);
 	}
+    }
+
+    // If the ngchmData does not contain a selection size array for the
+    // specified axis, create one containing a single entry that covers
+    // the entire axis.
+    function fixSelectionSize (ngchmData, axis) {
+        // Nothing to do if axis selection already present.
+        if (ngchmData.hasOwnProperty(axis+"Selection"))
+            return;
+        // If not present, add selection for the entire axis.
+        const labels = ngchmData.mapData[axis+"_data"].label.labels;
+        ngchmData[axis+"Selection"] = [ [ 1, labels.length ] ];
     }
 
     // Return the total number of elements in the selection.
@@ -260,30 +280,56 @@ NgChmGui.createNS('NgChmGui.XFER');
 	}
 
 	// Update the MapProperties.
-	logProgress ("Setting the new map's properties.");
+	logProgress ("Setting the new map's properties and building NG-CHM.");
 	const newMapProperties = updateBuilderProperties (getPropsJSON, classificationFiles, addRowDendrogram, addColDendrogram);
 	if (debug) console.log ('Updated MapProperties: ', newMapProperties);
 
 	const setPropsRes = await fetch (baseURL + 'MapProperties', { method: 'POST', body: JSON.stringify (newMapProperties) }).then(response => response.text());
+	if (setPropsRes == '') {
+	    console.error ('ERROR setting the new map properties: Empty properties returned');
+	    logProgress ("Empty properties value", 'error');
+	    return;
+	}
 	if (setPropsRes[0] == 'E') {
 	    console.error ('ERROR setting the new map properties: ' + setPropsRes);
 	    logProgress (setPropsRes, 'error');
 	    return;
 	}
-	const setPropsJSON = JSON.parse(setPropsRes);
-	if (setPropsJSON.builder_config.buildErrors) {
-	    console.error ('ERROR setting the new map properties: ' + setPropsJSON.builder_config.buildErrors);
-	    logProgress (setPropsJSON.builder_config.buildErrors, 'error');
+	if (setPropsRes.substr(0,4) == 'HTTP') {
+	    console.error ('ERROR setting the new map properties: HTML returned: ' + setPropsRes);
+	    logProgress (setPropsRes, 'error');
 	    return;
 	}
-	if (debug) console.log ('POST.MapProperties.response', setPropsJSON);
+        let advanceDelay = 0;
+	const setPropsJSON = JSON.parse(setPropsRes);
+	if (debug) {
+	  console.log ('POST.MapProperties.response', setPropsJSON);
+	  advanceDelay = 10000;
+	}
+        const builderConfig = setPropsJSON.builder_config || {};
+        const buildWarnings = Array.isArray(builderConfig.buildWarnings) ? builderConfig.buildWarnings : [];
+        const buildErrors = builderConfig.buildErrors;
+	if (buildErrors || buildWarnings.length > 0) {
+	    logProgress ('BUILDER VERSION: ' + setPropsJSON.builder_version, 'error');
+	    if (buildWarnings.length > 0) {
+	      for (const warning of buildWarnings) {
+		logProgress ('WARNING ' + warning, 'error');
+	      }
+	      advanceDelay = 10000;
+	    }
+	    if (buildErrors) {
+	      console.error ('ERROR setting the new map properties: ' + buildErrors);
+	      logProgress (buildErrors, 'error');
+	      return;
+	    }
+	}
 
 	// Go to the Transform_Matrix.html page.
 	logProgress ('Advancing to the View_HeatMap page.');
 	setTimeout (() => {
 	    NgChmGui.UTIL.showAdvanced = 'Y';
 	    NgChmGui.UTIL.gotoHeatMapScreen ();
-	}, debug ? 10000 : 0);
+	}, advanceDelay);
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -563,7 +609,14 @@ NgChmGui.createNS('NgChmGui.XFER');
 	// For axis, update builder's builderAxisConfig using the originating NG-CHM's axisData.
 	function updateAxisData (axis, builderAxisConfig, axisData, axisSelection) {
 	    // Update the axis label types
-	    builderAxisConfig.data_type = axisData.label.label_type;
+	    if (axisData.label.labelTypes) {
+	      // FIXME:: Partial compatibility with new viewer.
+	      // Keeps label types, but loses visibility information.
+	      builderAxisConfig.data_type = axisData.label.labelTypes.map(entry => entry.type);
+	    } else {
+	      // Old viewer.
+	      builderAxisConfig.data_type = axisData.label.label_type;
+	    }
 
 	    // Update the gap locations.  Blank labels indicate gaps.  The first entry of each
 	    // contiguous group of blank labels is a gap location.
